@@ -106,6 +106,20 @@ describe('calculateFreelanceBilling', () => {
     expect(madridResult.annualEstimatedIRPF).not.toBe(commonResult.annualEstimatedIRPF);
   });
 
+  it('rounds billable hours to a whole number before calculating the hourly rate', () => {
+    const result = calculateFreelanceBilling({
+      targetNet: 1500,
+      monthlyExpenses: 200,
+      billableHours: 80.4,
+      irpfRate: 15,
+      hasIVA: true,
+      selfEmployedFee: 0,
+      selfEmployedFeeMode: 'auto',
+    });
+
+    expect(result.hourlyRate).toBeCloseTo(result.billingWithoutVAT / 80, 2);
+  });
+
   it('respects the manual autonomous fee when the user provides one', () => {
     const result = calculateFreelanceBilling({
       targetNet: 1500,

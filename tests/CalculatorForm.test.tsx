@@ -22,6 +22,23 @@ describe('CalculatorForm', () => {
     expect(screen.queryByRole('heading', { name: /tu estimacion mensual/i })).not.toBeInTheDocument();
   });
 
+  it('shows an error when the target net is 0', async () => {
+    const user = userEvent.setup();
+
+    render(<CalculatorForm />);
+
+    const targetNetInput = screen.getByRole('spinbutton', {
+      name: /neto mensual deseado/i,
+    });
+
+    await user.clear(targetNetInput);
+    await user.type(targetNetInput, '0');
+    await user.click(screen.getByRole('button', { name: /calcular/i }));
+
+    expect(screen.getByText('El neto mensual debe ser mayor que 0.')).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: /tu estimacion mensual/i })).not.toBeInTheDocument();
+  });
+
   it('renders the result card when the form is valid', async () => {
     const user = userEvent.setup();
 
@@ -32,9 +49,26 @@ describe('CalculatorForm', () => {
     expect(screen.getByRole('heading', { name: /tu estimacion mensual/i })).toBeInTheDocument();
     expect(screen.getByText(/facturacion mensual sin iva/i)).toBeInTheDocument();
     expect(screen.getByText(/beneficio antes de irpf/i)).toBeInTheDocument();
+    expect(screen.getByText(/esta simulacion situa tu objetivo en/i)).toBeInTheDocument();
     expect(screen.getByText(/tipo efectivo aproximado/i)).toBeInTheDocument();
     expect(screen.getByText(/hemos estimado una cuota minima orientativa/i)).toBeInTheDocument();
     expect(screen.queryByText('Revisa los campos marcados antes de calcular.')).not.toBeInTheDocument();
+  });
+
+  it('normalizes decimal billable hours to a whole number on blur', async () => {
+    const user = userEvent.setup();
+
+    render(<CalculatorForm />);
+
+    const hoursInput = screen.getByRole('spinbutton', {
+      name: /horas facturables al mes/i,
+    });
+
+    await user.clear(hoursInput);
+    await user.type(hoursInput, '80.4');
+    await user.tab();
+
+    expect(hoursInput).toHaveValue(80);
   });
 
   it('uses the selected autonomous community in the progressive IRPF explanation', async () => {
@@ -94,7 +128,7 @@ describe('CalculatorForm', () => {
     expect(screen.getByText(/asi que esa prorroga podria no corresponderte/i)).toBeInTheDocument();
   });
 
-  it('validates IRPF values above 99 before calculating', async () => {
+  it('normalizes IRPF manual values above 99 before calculating', async () => {
     const user = userEvent.setup();
 
     render(<CalculatorForm />);
@@ -114,7 +148,7 @@ describe('CalculatorForm', () => {
     await user.type(irpfInput, '100');
     await user.click(screen.getByRole('button', { name: /calcular/i }));
 
-    expect(screen.getByText('El IRPF debe ser menor que 100.')).toBeInTheDocument();
-    expect(screen.queryByRole('heading', { name: /tu estimacion mensual/i })).not.toBeInTheDocument();
+    expect(irpfInput).toHaveValue(99);
+    expect(screen.getByRole('heading', { name: /tu estimacion mensual/i })).toBeInTheDocument();
   });
 });

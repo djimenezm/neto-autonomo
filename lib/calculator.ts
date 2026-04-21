@@ -249,7 +249,7 @@ export function calculateFreelanceBilling({
 }: CalculatorInput): CalculationResult {
   const safeTargetNet = Math.max(0, safeNumber(targetNet));
   const safeExpenses = Math.max(0, safeNumber(monthlyExpenses));
-  const safeHours = Math.max(1, safeNumber(billableHours, 1));
+  const safeHours = Math.max(1, Math.round(safeNumber(billableHours, 1)));
   const safeIrpfRatePercent = Math.min(99, Math.max(0, safeNumber(irpfRate)));
   const safeIrpfRate = safeIrpfRatePercent / 100;
   const safeManualFee = Math.max(0, safeNumber(selfEmployedFee));

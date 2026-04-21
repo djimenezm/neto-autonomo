@@ -47,37 +47,35 @@ export default function ResultCard({ result, hoursBillable, hasIVA }: ResultCard
       </div>
 
       <p className="result-summary">
-        Esta simulacion parte del dinero que quieres conservar al final del mes:
-        <strong> {formatCurrency(result.targetNet)}</strong>. Para lograrlo, calcula primero el beneficio
-        necesario antes de IRPF.
+        Si quieres acercarte a un neto mensual de
+        <strong> {formatCurrency(result.targetNet)}</strong>, esta simulacion situa tu objetivo en
+        <strong> {formatCurrency(result.billingWithoutVAT)}</strong> al mes sin IVA. Con las{' '}
+        <strong>{hoursBillable}</strong> horas facturables que has indicado, la referencia quedaria
+        en <strong>{formatCurrency(result.hourlyRate)}/h</strong>.
+      </p>
+
+      <p className="result-summary">
+        Ese objetivo incluye unos gastos deducibles estimados de{' '}
+        <strong>{formatCurrency(result.monthlyExpenses)}</strong>, una cuota de autonomos de{' '}
+        <strong>{formatCurrency(result.selfEmployedFee)}</strong> y una reserva mensual de IRPF de{' '}
+        <strong>{formatCurrency(result.estimatedIRPF)}</strong>.
         {result.irpfMode === 'manual' ? (
           <>
             {' '}
-            Con un IRPF manual del <strong>{result.irpfRate}%</strong>, el beneficio previo seria de{' '}
-            <strong>{formatCurrency(result.preTaxProfit)}</strong> y la reserva mensual de IRPF quedaria
-            en <strong>{formatCurrency(result.estimatedIRPF)}</strong>.
+            En este escenario usamos un IRPF manual del <strong>{result.irpfRate}%</strong> y un
+            beneficio previo de <strong>{formatCurrency(result.preTaxProfit)}</strong>.
           </>
         ) : (
           <>
             {' '}
-            Con la estimacion progresiva simplificada, el beneficio previo seria de{' '}
-            <strong>{formatCurrency(result.preTaxProfit)}</strong> al mes y la reserva mensual de IRPF
-            quedaria en <strong>{formatCurrency(result.estimatedIRPF)}</strong>. Eso equivale a un tipo
+            En el modo progresivo, el beneficio previo seria de{' '}
+            <strong>{formatCurrency(result.preTaxProfit)}</strong> al mes. Eso equivale a un tipo
             efectivo aproximado del <strong>{result.irpfRate}%</strong> sobre un beneficio anual de{' '}
             <strong>{formatCurrency(result.annualPreTaxProfit)}</strong>, aplicando un minimo personal
             estatal de <strong>{formatCurrency(result.personalAllowance)}</strong> y la referencia
             autonomica de <strong>{autonomousCommunityLabel}</strong>.
           </>
         )}
-      </p>
-
-      <p className="result-summary">
-        Despues se suman tus gastos deducibles estimados de{' '}
-        <strong>{formatCurrency(result.monthlyExpenses)}</strong> y una cuota de autonomos de{' '}
-        <strong>{formatCurrency(result.selfEmployedFee)}</strong>. Por eso, tu objetivo de facturacion
-        seria <strong>{formatCurrency(result.billingWithoutVAT)}</strong> al mes antes de IVA. Si repartes
-        esa cifra entre <strong>{hoursBillable}</strong> horas facturables, la tarifa media quedaria en{' '}
-        <strong>{formatCurrency(result.hourlyRate)}/h</strong>.
         {hasIVA ? (
           <>
             {' '}
@@ -86,8 +84,7 @@ export default function ResultCard({ result, hoursBillable, hasIVA }: ResultCard
           </>
         ) : (
           <> En esta simulacion no se anade IVA.</>
-        )}
-        {' '}
+        )}{' '}
         Puedes usar esta cifra como punto de partida para revisar si tus presupuestos actuales te
         dejan realmente el neto que buscas.
       </p>

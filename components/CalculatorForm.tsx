@@ -30,6 +30,34 @@ function parseNumericValue(value: string) {
   return Number(normalizedValue);
 }
 
+function formatNormalizedNumber(value: number, maximumFractionDigits = 2) {
+  return value.toLocaleString('en-US', {
+    useGrouping: false,
+    maximumFractionDigits,
+  });
+}
+
+function normalizeFieldValue(field: FieldName, value: string) {
+  const parsedValue = parseNumericValue(value);
+
+  if (!Number.isFinite(parsedValue)) {
+    return value.trim() === '' ? '' : value;
+  }
+
+  switch (field) {
+    case 'targetNet':
+      return formatNormalizedNumber(Math.max(0, parsedValue));
+    case 'monthlyExpenses':
+      return formatNormalizedNumber(Math.max(0, parsedValue));
+    case 'billableHours':
+      return formatNormalizedNumber(Math.max(0, Math.round(parsedValue)), 0);
+    case 'irpfRate':
+      return formatNormalizedNumber(Math.min(99, Math.max(0, parsedValue)), 1);
+    case 'selfEmployedFee':
+      return formatNormalizedNumber(Math.max(0, parsedValue));
+  }
+}
+
 function getFieldError(field: FieldName, value: string) {
   const parsedValue = parseNumericValue(value);
 
@@ -61,6 +89,14 @@ function getFieldError(field: FieldName, value: string) {
 
   if (field === 'billableHours' && parsedValue <= 0) {
     return 'Las horas facturables deben ser mayores que 0.';
+  }
+
+  if (field === 'billableHours' && !Number.isInteger(parsedValue)) {
+    return 'Las horas facturables deben ser un numero entero.';
+  }
+
+  if (field === 'targetNet' && parsedValue <= 0) {
+    return 'El neto mensual debe ser mayor que 0.';
   }
 
   if (field === 'irpfRate' && parsedValue >= 100) {
@@ -202,6 +238,7 @@ export default function CalculatorForm() {
             step="0.01"
             value={targetNet}
             onChange={(event) => setTargetNet(event.target.value)}
+            onBlur={(event) => setTargetNet(normalizeFieldValue('targetNet', event.target.value))}
             aria-invalid={submitted && Boolean(validationErrors.targetNet)}
             aria-describedby={submitted && validationErrors.targetNet ? 'target-net-error' : undefined}
           />
@@ -220,6 +257,9 @@ export default function CalculatorForm() {
             step="0.01"
             value={monthlyExpenses}
             onChange={(event) => setMonthlyExpenses(event.target.value)}
+            onBlur={(event) =>
+              setMonthlyExpenses(normalizeFieldValue('monthlyExpenses', event.target.value))
+            }
             aria-invalid={submitted && Boolean(validationErrors.monthlyExpenses)}
             aria-describedby={
               submitted && validationErrors.monthlyExpenses ? 'monthly-expenses-error' : undefined
@@ -240,6 +280,7 @@ export default function CalculatorForm() {
             step="1"
             value={billableHours}
             onChange={(event) => setBillableHours(event.target.value)}
+            onBlur={(event) => setBillableHours(normalizeFieldValue('billableHours', event.target.value))}
             aria-invalid={showHoursError}
             aria-describedby={showHoursError ? 'billable-hours-error' : undefined}
           />
@@ -294,6 +335,7 @@ export default function CalculatorForm() {
               step="0.1"
               value={irpfRate}
               onChange={(event) => setIrpfRate(event.target.value)}
+              onBlur={(event) => setIrpfRate(normalizeFieldValue('irpfRate', event.target.value))}
               aria-invalid={submitted && Boolean(validationErrors.irpfRate)}
               aria-describedby={submitted && validationErrors.irpfRate ? 'irpf-rate-error' : undefined}
             />
@@ -350,6 +392,9 @@ export default function CalculatorForm() {
               step="0.01"
               value={selfEmployedFee}
               onChange={(event) => setSelfEmployedFee(event.target.value)}
+              onBlur={(event) =>
+                setSelfEmployedFee(normalizeFieldValue('selfEmployedFee', event.target.value))
+              }
               aria-invalid={submitted && Boolean(validationErrors.selfEmployedFee)}
               aria-describedby={
                 submitted && validationErrors.selfEmployedFee ? 'self-employed-fee-error' : undefined
