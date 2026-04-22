@@ -17,6 +17,9 @@ export const siteConfig = {
     'IVA autonomos',
   ],
   url: process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3001',
+  ownerName: 'Diego Jimenez',
+  contactEmail: 'hola@cuantofacturar.es',
+  country: 'Espana',
   themeColor: '#145da0',
   backgroundColor: '#f6f8fb',
 } as const;

@@ -343,6 +343,10 @@ select[aria-invalid='true'] {
   color: var(--muted);
 }
 
+.site-footer a {
+  color: var(--accent-dark);
+}
+
 .footer-copy {
   display: grid;
   gap: 0.35rem;
@@ -356,9 +360,35 @@ select[aria-invalid='true'] {
   padding: 4rem 0;
 }
 
+.legal-card,
+.legal-section {
+  max-width: 780px;
+}
+
+.legal-card {
+  margin: 0 0 1.75rem;
+  padding: 1.1rem 1.2rem;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: #fbfdff;
+}
+
+.legal-section {
+  margin-bottom: 1.5rem;
+}
+
+.legal-section h2 {
+  margin-bottom: 0.6rem;
+  font-size: 1.2rem;
+}
+
 .legal-page p {
   color: var(--muted);
   line-height: 1.8;
+}
+
+.legal-page a {
+  color: var(--accent-dark);
 }
 
 @media (max-width: 900px) {

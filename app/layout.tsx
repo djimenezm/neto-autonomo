@@ -14,6 +14,10 @@ export const metadata: Metadata = {
   applicationName: siteConfig.name,
   category: 'finance',
   keywords: [...siteConfig.keywords],
+  icons: {
+    icon: [{ url: '/favicon.svg', type: 'image/svg+xml' }],
+    shortcut: ['/favicon.svg'],
+  },
   alternates: {
     canonical: '/',
   },

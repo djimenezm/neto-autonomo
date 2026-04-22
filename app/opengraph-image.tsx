@@ -16,50 +16,176 @@ export default function OpenGraphImage() {
           width: '100%',
           height: '100%',
           display: 'flex',
-          flexDirection: 'column',
           justifyContent: 'space-between',
           padding: '56px',
-          background:
-            'linear-gradient(135deg, rgb(246,248,251) 0%, rgb(229,238,248) 55%, rgb(196,220,242) 100%)',
-          color: '#18212b',
-          fontFamily: 'Arial',
+          background: 'linear-gradient(145deg, #0d2b45 0%, #145da0 55%, #78c0e0 100%)',
+          color: '#f8fbff',
+          fontFamily: 'sans-serif',
         }}
       >
         <div
           style={{
             display: 'flex',
-            alignItems: 'center',
-            gap: '16px',
-            fontSize: '32px',
-            fontWeight: 700,
-            color: '#0e477d',
+            flexDirection: 'column',
+            justifyContent: 'space-between',
+            width: '68%',
           }}
         >
           <div
             style={{
-              width: '18px',
-              height: '18px',
-              borderRadius: '999px',
-              background: '#145da0',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '18px',
             }}
-          />
-          {siteConfig.name}
+          >
+            <div
+              style={{
+                width: '64px',
+                height: '64px',
+                borderRadius: '18px',
+                background: 'rgba(255,255,255,0.16)',
+                border: '1px solid rgba(255,255,255,0.28)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '34px',
+                fontWeight: 800,
+              }}
+            >
+              €
+            </div>
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '8px',
+              }}
+            >
+              <div
+                style={{
+                  display: 'flex',
+                  fontSize: '34px',
+                  fontWeight: 700,
+                }}
+              >
+                {siteConfig.name}
+              </div>
+              <div
+                style={{
+                  display: 'flex',
+                  fontSize: '22px',
+                  color: 'rgba(248,251,255,0.75)',
+                }}
+              >
+                Calculadora orientativa para autonomos y freelance en Espana
+              </div>
+            </div>
+          </div>
+
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '24px',
+              maxWidth: '760px',
+            }}
+          >
+            <div
+              style={{
+                display: 'flex',
+                fontSize: '68px',
+                fontWeight: 800,
+                lineHeight: 1.05,
+              }}
+            >
+              Calcula cuanto facturar para llegar al neto mensual que buscas
+            </div>
+            <div
+              style={{
+                display: 'flex',
+                fontSize: '28px',
+                lineHeight: 1.35,
+                color: 'rgba(248,251,255,0.8)',
+              }}
+            >
+              Estimacion clara de cuota, IRPF, IVA y tarifa por hora para fijar precios con mas
+              criterio.
+            </div>
+          </div>
+
+          <div
+            style={{
+              display: 'flex',
+              gap: '14px',
+            }}
+          >
+            {['IRPF progresivo', 'Cuota por tramo', 'IVA aparte'].map((label) => (
+              <div
+                key={label}
+                style={{
+                  display: 'flex',
+                  padding: '12px 18px',
+                  borderRadius: '999px',
+                  background: 'rgba(255,255,255,0.14)',
+                  border: '1px solid rgba(255,255,255,0.22)',
+                  fontSize: '22px',
+                  color: '#f8fbff',
+                }}
+              >
+                {label}
+              </div>
+            ))}
+          </div>
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', maxWidth: '920px' }}>
-          <div style={{ fontSize: '68px', fontWeight: 800, lineHeight: 1.05 }}>
-            Calcula cuanto debes facturar para llegar al neto que buscas
-          </div>
-          <div style={{ fontSize: '28px', lineHeight: 1.4, color: '#405261' }}>
-            Cuota, IRPF, IVA y tarifa por hora en una calculadora clara y orientativa para autonomos en
-            Espana.
-          </div>
-        </div>
-
-        <div style={{ display: 'flex', gap: '18px', color: '#405261', fontSize: '24px' }}>
-          <div>IRPF progresivo simplificado</div>
-          <div>Cuota por tramo 2026</div>
-          <div>IVA aparte</div>
+        <div
+          style={{
+            width: '26%',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-between',
+            gap: '20px',
+          }}
+        >
+          {[
+            ['Objetivo mensual', 'Neto que quieres conseguir'],
+            ['Tarifa por hora', 'Precio orientativo por hora facturable'],
+            ['Resultado claro', 'Facturacion sin mezclar el IVA'],
+          ].map(([title, text]) => (
+            <div
+              key={title}
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '10px',
+                padding: '24px',
+                borderRadius: '24px',
+                background: 'rgba(7, 22, 36, 0.2)',
+                border: '1px solid rgba(255,255,255,0.15)',
+                boxShadow: '0 10px 28px rgba(6, 18, 31, 0.16)',
+              }}
+            >
+              <div
+                style={{
+                  display: 'flex',
+                  fontSize: '22px',
+                  fontWeight: 700,
+                  color: '#8ad6ff',
+                }}
+              >
+                {title}
+              </div>
+              <div
+                style={{
+                  display: 'flex',
+                  fontSize: '24px',
+                  lineHeight: 1.35,
+                }}
+              >
+                {text}
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     ),
