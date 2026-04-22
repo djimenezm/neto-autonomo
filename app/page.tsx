@@ -61,17 +61,27 @@ export default function HomePage() {
         <div className="container hero-grid">
           <div>
             <span className="eyebrow">Herramienta gratuita</span>
-            <h1>Calculadora de autonomos: cuanto debes facturar para ganar tu neto mensual</h1>
+            <h1>Calculadora de autonomos para saber cuanto facturar y cuanto cobrar por hora</h1>
             <p className="lead">
               Calcula cuanto facturar como autonomo o freelance en Espana con una referencia clara
-              de cuota, IRPF, IVA y tarifa por hora. Pensada para ayudarte a poner precios y cerrar
-              presupuestos con mas criterio.
+              de cuota, IRPF, IVA y tarifa por hora. Pensada para ayudarte a poner precio con mas
+              criterio, defender mejor tus presupuestos y detectar si estas cobrando por debajo de
+              lo que necesitas.
             </p>
+            <div className="hero-badges" aria-label="Ventajas principales">
+              <span className="hero-badge">Sin registro</span>
+              <span className="hero-badge">Resultado en menos de 1 minuto</span>
+              <span className="hero-badge">IVA siempre aparte</span>
+            </div>
             <ul className="hero-points">
-              <li>Calcula tu facturacion mensual y tu tarifa por hora</li>
-              <li>Incluye cuota de autonomos, IRPF e IVA en la simulacion</li>
-              <li>Orientada a freelancers, consultores y profesionales por servicios</li>
+              <li>Calcula una cifra mensual orientativa y una tarifa por hora defendible</li>
+              <li>Incluye cuota de autonomos, IRPF e IVA para que no te quedes corto al presupuestar</li>
+              <li>Util para freelancers, consultores y profesionales que venden su tiempo o sus proyectos</li>
             </ul>
+            <p className="hero-cta-note">
+              Si ya tienes una tarifa en mente, compárala con esta referencia antes de enviar tu
+              siguiente presupuesto.
+            </p>
           </div>
 
           <CalculatorForm />
@@ -81,23 +91,25 @@ export default function HomePage() {
       <section className="section">
         <div className="container feature-grid" aria-label="Puntos clave de la herramienta">
           <article className="feature-card">
-            <h2>Que calcula en menos de un minuto</h2>
+            <h2>Que resuelves rapido</h2>
             <p>
               Neto objetivo, gastos deducibles, horas facturables, cuota de autonomos, IRPF e IVA
-              para darte una referencia clara de cuanto deberias facturar al mes.
+              para darte una referencia clara de cuanto deberias facturar al mes sin perderte en una
+              hoja de calculo.
             </p>
           </article>
 
           <article className="feature-card">
-            <h2>Cuando mas te ayuda</h2>
+            <h2>Cuando mas valor te da</h2>
             <p>
               Para fijar precios, calcular tu tarifa freelance, comparar escenarios y aterrizar de
-              forma rapida si un presupuesto te deja el neto que realmente buscas.
+              forma rapida si un presupuesto te deja el neto que realmente buscas antes de aceptar
+              un cliente o cerrar una propuesta.
             </p>
           </article>
 
           <article className="feature-card">
-            <h2>Que conviene revisar aparte</h2>
+            <h2>Donde poner el filtro final</h2>
             <p>
               Bonificaciones especiales, deducciones personales, casuisticas familiares o revisiones
               fiscales completas. Si el importe es importante, conviene contrastarlo con una
@@ -142,6 +154,40 @@ export default function HomePage() {
             <strong>Antes de publicar una tarifa o cerrar un presupuesto:</strong> usa esta
             calculadora como punto de partida, no como cierre fiscal definitivo. El objetivo es que
             puedas pensar mejor tus precios sin perderte en una hoja de calculo compleja.
+          </div>
+        </div>
+      </section>
+
+      <section className="section alt">
+        <div className="container conversion-grid">
+          <div className="conversion-copy">
+            <h2>No uses la cifra como techo: usala como suelo orientativo</h2>
+            <p>
+              La simulacion te da una referencia para no presupuestar a ciegas. Si tu tarifa actual
+              esta por debajo, tienes una señal clara para revisar precio, horas o alcance antes de
+              comprometerte con un cliente.
+            </p>
+            <p>
+              La idea no es fijar una tarifa exacta al centimo, sino llegar a una cifra que te ayude
+              a negociar con mas criterio y a detectar encargos poco rentables antes de aceptarlos.
+            </p>
+          </div>
+
+          <div className="conversion-steps" aria-label="Como aprovechar mejor el resultado">
+            <article className="conversion-step">
+              <h3>1. Compara</h3>
+              <p>Contrasta el resultado con tu precio actual y mira si te deja margen real.</p>
+            </article>
+
+            <article className="conversion-step">
+              <h3>2. Ajusta</h3>
+              <p>Prueba escenarios cambiando horas, gastos o cuota para ver donde esta tu minimo razonable.</p>
+            </article>
+
+            <article className="conversion-step">
+              <h3>3. Presupuesta mejor</h3>
+              <p>Usa la cifra final como base para pasar a tarifa por hora, mensualidad o presupuesto cerrado.</p>
+            </article>
           </div>
         </div>
       </section>

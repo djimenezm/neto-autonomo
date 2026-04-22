@@ -218,7 +218,8 @@ export default function CalculatorForm() {
     <div className="calculator-card" id="calculadora">
       <h2>Calculadora</h2>
       <p className="card-intro" id="calculator-intro">
-        Introduce tus datos para obtener una referencia orientativa de facturacion mensual.
+        Introduce tus datos para obtener una referencia orientativa de facturacion mensual y una
+        tarifa por hora mas defendible.
       </p>
 
       <form
@@ -431,8 +432,9 @@ export default function CalculatorForm() {
         </fieldset>
 
         <button type="submit" className="primary-button">
-          Calcular
+          Calcular mi tarifa orientativa
         </button>
+        <p className="form-note">Puedes probar varios escenarios sin registrarte.</p>
 
         {submitted && hasValidationErrors && (
           <p className="form-message" role="alert">

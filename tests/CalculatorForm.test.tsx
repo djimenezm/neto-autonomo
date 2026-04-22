@@ -19,7 +19,9 @@ describe('CalculatorForm', () => {
 
     expect(screen.getByText('Las horas facturables deben ser mayores que 0.')).toBeInTheDocument();
     expect(screen.getByText('Revisa los campos marcados antes de calcular.')).toBeInTheDocument();
-    expect(screen.queryByRole('heading', { name: /tu estimacion mensual/i })).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('heading', { name: /tu referencia mensual para presupuestar/i }),
+    ).not.toBeInTheDocument();
   });
 
   it('shows an error when the target net is 0', async () => {
@@ -36,7 +38,9 @@ describe('CalculatorForm', () => {
     await user.click(screen.getByRole('button', { name: /calcular/i }));
 
     expect(screen.getByText('El neto mensual debe ser mayor que 0.')).toBeInTheDocument();
-    expect(screen.queryByRole('heading', { name: /tu estimacion mensual/i })).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('heading', { name: /tu referencia mensual para presupuestar/i }),
+    ).not.toBeInTheDocument();
   });
 
   it('renders the result card when the form is valid', async () => {
@@ -46,8 +50,10 @@ describe('CalculatorForm', () => {
 
     await user.click(screen.getByRole('button', { name: /calcular/i }));
 
-    expect(screen.getByRole('heading', { name: /tu estimacion mensual/i })).toBeInTheDocument();
-    expect(screen.getByText(/facturacion mensual sin iva/i)).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { name: /tu referencia mensual para presupuestar/i }),
+    ).toBeInTheDocument();
+    expect(screen.getByText(/facturacion objetivo sin iva/i)).toBeInTheDocument();
     expect(screen.getByText(/beneficio antes de irpf/i)).toBeInTheDocument();
     expect(screen.getByText(/esta simulacion situa tu objetivo en/i)).toBeInTheDocument();
     expect(screen.getByText(/tipo efectivo aproximado/i)).toBeInTheDocument();
@@ -149,6 +155,8 @@ describe('CalculatorForm', () => {
     await user.click(screen.getByRole('button', { name: /calcular/i }));
 
     expect(irpfInput).toHaveValue(99);
-    expect(screen.getByRole('heading', { name: /tu estimacion mensual/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { name: /tu referencia mensual para presupuestar/i }),
+    ).toBeInTheDocument();
   });
 });

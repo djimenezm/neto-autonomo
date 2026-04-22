@@ -12,11 +12,17 @@ export default function ResultCard({ result, hoursBillable, hasIVA }: ResultCard
 
   return (
     <section className="result-card" aria-live="polite">
-      <h3>Tu estimacion mensual</h3>
+      <h3>Tu referencia mensual para presupuestar</h3>
+
+      <p className="result-lead">
+        Esta simulacion situa tu objetivo en <strong>{formatCurrency(result.billingWithoutVAT)}</strong>{' '}
+        al mes sin IVA y una referencia de <strong>{formatCurrency(result.hourlyRate)}/h</strong>.
+        Piensa en esta cifra como un suelo orientativo para no quedarte corto al poner precio.
+      </p>
 
       <div className="result-grid">
         <div className="result-item">
-          <span>Facturacion mensual sin IVA</span>
+          <span>Facturacion objetivo sin IVA</span>
           <strong>{formatCurrency(result.billingWithoutVAT)}</strong>
         </div>
 
@@ -47,11 +53,12 @@ export default function ResultCard({ result, hoursBillable, hasIVA }: ResultCard
       </div>
 
       <p className="result-summary">
-        Si quieres acercarte a un neto mensual de
-        <strong> {formatCurrency(result.targetNet)}</strong>, esta simulacion situa tu objetivo en
-        <strong> {formatCurrency(result.billingWithoutVAT)}</strong> al mes sin IVA. Con las{' '}
+        Si quieres acercarte a un neto mensual de <strong>{formatCurrency(result.targetNet)}</strong>,
+        con las{' '}
         <strong>{hoursBillable}</strong> horas facturables que has indicado, la referencia quedaria
-        en <strong>{formatCurrency(result.hourlyRate)}/h</strong>.
+        en <strong>{formatCurrency(result.hourlyRate)}/h</strong>. Si tus presupuestos actuales se
+        quedan por debajo de esa cifra, es una buena señal para revisar precio, alcance o numero de
+        horas antes de aceptar el trabajo.
       </p>
 
       <p className="result-summary">
@@ -157,6 +164,15 @@ export default function ResultCard({ result, hoursBillable, hasIVA }: ResultCard
           </>
         )}
       </p>
+
+      <div className="result-next-step">
+        <strong>Siguiente paso recomendado</strong>
+        <p>
+          Usa esta referencia para convertir un precio difuso en una decision mas clara: tarifa por
+          hora, mensualidad o presupuesto cerrado. Si luego quieres cerrar una cifra definitiva para
+          un cliente importante, contrastala con tu asesor fiscal o gestoria.
+        </p>
+      </div>
     </section>
   );
 }
