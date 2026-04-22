@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title desc">
-  <title id="title">Neto Autonomo</title>
-  <desc id="desc">Icono de la calculadora para autonomos</desc>
+  <title id="title">Neto Autónomo</title>
+  <desc id="desc">Icono de la calculadora para autónomos</desc>
   <defs>
     <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#0f3e67" />

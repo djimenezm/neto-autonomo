@@ -5,10 +5,10 @@ export default function Header() {
     <header className="site-header">
       <div className="container header-inner">
         <Link href="/" className="brand">
-          Neto Autonomo
+          Neto Autónomo
         </Link>
 
-        <nav className="nav" aria-label="Navegacion principal">
+        <nav className="nav" aria-label="Navegación principal">
           <a href="#calculadora">Calculadora</a>
           <a href="#faq">FAQ</a>
         </nav>

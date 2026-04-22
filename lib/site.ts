@@ -1,9 +1,9 @@
 export const siteConfig = {
-  name: 'Neto Autonomo',
-  shortName: 'Neto Autonomo',
-  title: 'Calculadora de autonomos para saber cuanto facturar',
+  name: 'Neto Autónomo',
+  shortName: 'Neto Autónomo',
+  title: 'Calculadora de autónomos para saber cuánto facturar',
   description:
-    'Calcula cuanto debes facturar como autonomo o freelance en Espana para llegar al neto mensual que buscas. Estimacion orientativa de cuota, IRPF, IVA y tarifa por hora.',
+    'Calcula cuánto debes facturar como autónomo o freelance en España para llegar al neto mensual que buscas. Estimación orientativa de cuota, IRPF, IVA y tarifa por hora.',
   locale: 'es_ES',
   keywords: [
     'calculadora autonomo',
@@ -19,7 +19,7 @@ export const siteConfig = {
   url: process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3001',
   ownerName: 'Diego Jimenez',
   contactEmail: 'hola@cuantofacturar.es',
-  country: 'Espana',
+  country: 'España',
   themeColor: '#145da0',
   backgroundColor: '#f6f8fb',
 } as const;

@@ -22,8 +22,8 @@ export default function HomePage() {
       priceCurrency: 'EUR',
     },
     featureList: [
-      'Calculadora de facturacion para autonomos',
-      'Estimacion de cuota por tramo 2026',
+      'Calculadora de facturación para autónomos',
+      'Estimación de cuota por tramo 2026',
       'IRPF progresivo simplificado o manual',
       'IVA aparte y tarifa por hora',
     ],
@@ -61,11 +61,11 @@ export default function HomePage() {
         <div className="container hero-grid">
           <div>
             <span className="eyebrow">Herramienta gratuita</span>
-            <h1>Calculadora de autonomos para saber cuanto facturar y cuanto cobrar por hora</h1>
+            <h1>Calculadora de autónomos para saber cuánto facturar y cuánto cobrar por hora</h1>
             <p className="lead">
-              Calcula cuanto facturar como autonomo o freelance en Espana con una referencia clara
-              de cuota, IRPF, IVA y tarifa por hora. Pensada para ayudarte a poner precio con mas
-              criterio, defender mejor tus presupuestos y detectar si estas cobrando por debajo de
+              Calcula cuánto facturar como autónomo o freelance en España con una referencia clara
+              de cuota, IRPF, IVA y tarifa por hora. Pensada para ayudarte a poner precio con más
+              criterio, defender mejor tus presupuestos y detectar si estás cobrando por debajo de
               lo que necesitas.
             </p>
             <div className="hero-badges" aria-label="Ventajas principales">
@@ -75,8 +75,8 @@ export default function HomePage() {
             </div>
             <ul className="hero-points">
               <li>Calcula una cifra mensual orientativa y una tarifa por hora defendible</li>
-              <li>Incluye cuota de autonomos, IRPF e IVA para que no te quedes corto al presupuestar</li>
-              <li>Util para freelancers, consultores y profesionales que venden su tiempo o sus proyectos</li>
+              <li>Incluye cuota de autónomos, IRPF e IVA para que no te quedes corto al presupuestar</li>
+              <li>Útil para freelancers, consultores y profesionales que venden su tiempo o sus proyectos</li>
             </ul>
             <p className="hero-cta-note">
               Si ya tienes una tarifa en mente, compárala con esta referencia antes de enviar tu
@@ -91,29 +91,29 @@ export default function HomePage() {
       <section className="section">
         <div className="container feature-grid" aria-label="Puntos clave de la herramienta">
           <article className="feature-card">
-            <h2>Que resuelves rapido</h2>
+            <h2>Qué resuelves rápido</h2>
             <p>
-              Neto objetivo, gastos deducibles, horas facturables, cuota de autonomos, IRPF e IVA
-              para darte una referencia clara de cuanto deberias facturar al mes sin perderte en una
-              hoja de calculo.
+              Neto objetivo, gastos deducibles, horas facturables, cuota de autónomos, IRPF e IVA
+              para darte una referencia clara de cuánto deberías facturar al mes sin perderte en una
+              hoja de cálculo.
             </p>
           </article>
 
           <article className="feature-card">
-            <h2>Cuando mas valor te da</h2>
+            <h2>Cuándo más valor te da</h2>
             <p>
               Para fijar precios, calcular tu tarifa freelance, comparar escenarios y aterrizar de
-              forma rapida si un presupuesto te deja el neto que realmente buscas antes de aceptar
+              forma rápida si un presupuesto te deja el neto que realmente buscas antes de aceptar
               un cliente o cerrar una propuesta.
             </p>
           </article>
 
           <article className="feature-card">
-            <h2>Donde poner el filtro final</h2>
+            <h2>Dónde poner el filtro final</h2>
             <p>
-              Bonificaciones especiales, deducciones personales, casuisticas familiares o revisiones
+              Bonificaciones especiales, deducciones personales, casuísticas familiares o revisiones
               fiscales completas. Si el importe es importante, conviene contrastarlo con una
-              gestoria.
+              gestoría.
             </p>
           </article>
         </div>
@@ -121,39 +121,39 @@ export default function HomePage() {
 
       <section className="section">
         <div className="container text-block">
-          <h2>Como calcular cuanto facturar como autonomo</h2>
+          <h2>Cómo calcular cuánto facturar como autónomo</h2>
           <p>
-            La herramienta parte del neto mensual que quieres conservar y estima que beneficio
-            previo necesitarias antes de IRPF para conseguirlo. A partir de ahi suma gastos
-            deducibles y una cuota de autonomos orientativa para calcular la facturacion mensual
+            La herramienta parte del neto mensual que quieres conservar y estima qué beneficio
+            previo necesitarías antes de IRPF para conseguirlo. A partir de ahí suma gastos
+            deducibles y una cuota de autónomos orientativa para calcular la facturación mensual
             necesaria sin IVA.
           </p>
           <p>
-            Para el IRPF puedes elegir entre una estimacion progresiva simplificada por tramos o un
-            porcentaje manual. La opcion progresiva usa una referencia estatal y te deja elegir
-            entre Territorio comun, Madrid, Cataluna, Andalucia y Comunitat Valenciana para afinar
-            la parte autonomica. Sigue siendo una simulacion orientativa, pero es bastante mas util
-            que un porcentaje fijo para hacerte una idea rapida.
+            Para el IRPF puedes elegir entre una estimación progresiva simplificada por tramos o un
+            porcentaje manual. La opción progresiva usa una referencia estatal y te deja elegir
+            entre Territorio común, Madrid, Cataluña, Andalucía y Comunitat Valenciana para afinar
+            la parte autonómica. Sigue siendo una simulación orientativa, pero es bastante más útil
+            que un porcentaje fijo para hacerte una idea rápida.
           </p>
           <p>
-            Puedes elegir entre estimar la cuota segun los tramos oficiales de rendimientos netos
+            Puedes elegir entre estimar la cuota según los tramos oficiales de rendimientos netos
             de 2026, aplicar una tarifa reducida para nuevas altas o indicar una cuota manual. En
-            el modo de tarifa reducida puedes distinguir entre los primeros 12 meses y la prorroga
-            estandar, que solo suele encajar si sigues por debajo del SMI. Si tu actividad suele
+            el modo de tarifa reducida puedes distinguir entre los primeros 12 meses y la prórroga
+            estándar, que solo suele encajar si sigues por debajo del SMI. Si tu actividad suele
             llevar IVA, ese importe se calcula aparte para no mezclarlo con tu ingreso real. Es una
-            simulacion orientativa: no sustituye el criterio de una gestoria o asesor fiscal, pero
-            si te da una referencia util para tomar decisiones rapidas.
+            simulación orientativa: no sustituye el criterio de una gestoría o asesor fiscal, pero
+            sí te da una referencia útil para tomar decisiones rápidas.
           </p>
           <p>
-            Si trabajas por proyectos o por horas, esta calculadora de autonomos te ayuda a pasar
-            de una idea difusa de precio a una cifra mas defendible para presupuestos, tarifas
+            Si trabajas por proyectos o por horas, esta calculadora de autónomos te ayuda a pasar
+            de una idea difusa de precio a una cifra más defendible para presupuestos, tarifas
             mensuales o precio por hora.
           </p>
 
           <div className="disclaimer-box">
             <strong>Antes de publicar una tarifa o cerrar un presupuesto:</strong> usa esta
             calculadora como punto de partida, no como cierre fiscal definitivo. El objetivo es que
-            puedas pensar mejor tus precios sin perderte en una hoja de calculo compleja.
+            puedas pensar mejor tus precios sin perderte en una hoja de cálculo compleja.
           </div>
         </div>
       </section>
@@ -161,19 +161,19 @@ export default function HomePage() {
       <section className="section alt">
         <div className="container conversion-grid">
           <div className="conversion-copy">
-            <h2>No uses la cifra como techo: usala como suelo orientativo</h2>
+            <h2>No uses la cifra como techo: úsala como suelo orientativo</h2>
             <p>
-              La simulacion te da una referencia para no presupuestar a ciegas. Si tu tarifa actual
-              esta por debajo, tienes una señal clara para revisar precio, horas o alcance antes de
+              La simulación te da una referencia para no presupuestar a ciegas. Si tu tarifa actual
+              está por debajo, tienes una señal clara para revisar precio, horas o alcance antes de
               comprometerte con un cliente.
             </p>
             <p>
-              La idea no es fijar una tarifa exacta al centimo, sino llegar a una cifra que te ayude
-              a negociar con mas criterio y a detectar encargos poco rentables antes de aceptarlos.
+              La idea no es fijar una tarifa exacta al céntimo, sino llegar a una cifra que te ayude
+              a negociar con más criterio y a detectar encargos poco rentables antes de aceptarlos.
             </p>
           </div>
 
-          <div className="conversion-steps" aria-label="Como aprovechar mejor el resultado">
+          <div className="conversion-steps" aria-label="Cómo aprovechar mejor el resultado">
             <article className="conversion-step">
               <h3>1. Compara</h3>
               <p>Contrasta el resultado con tu precio actual y mira si te deja margen real.</p>
@@ -181,7 +181,7 @@ export default function HomePage() {
 
             <article className="conversion-step">
               <h3>2. Ajusta</h3>
-              <p>Prueba escenarios cambiando horas, gastos o cuota para ver donde esta tu minimo razonable.</p>
+              <p>Prueba escenarios cambiando horas, gastos o cuota para ver dónde está tu mínimo razonable.</p>
             </article>
 
             <article className="conversion-step">

@@ -4,10 +4,10 @@ export type IrpfMode = 'progressive' | 'manual';
 export type AutonomousCommunity = 'common' | 'madrid' | 'cataluna' | 'andalucia' | 'valencia';
 
 export const AUTONOMOUS_COMMUNITY_LABELS: Record<AutonomousCommunity, string> = {
-  common: 'Territorio comun',
+  common: 'Territorio común',
   madrid: 'Madrid',
-  cataluna: 'Cataluna',
-  andalucia: 'Andalucia',
+  cataluna: 'Cataluña',
+  andalucia: 'Andalucía',
   valencia: 'Comunitat Valenciana',
 };
 

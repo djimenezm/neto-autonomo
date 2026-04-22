@@ -63,17 +63,15 @@ describe('CalculatorForm', () => {
     expect(track).toHaveBeenCalledWith('calculator_completed', {
       irpfMode: 'progressive',
       selfEmployedFeeMode: 'auto',
-      hasIVA: true,
-      autonomousCommunity: 'common',
     });
     expect(
       screen.getByRole('heading', { name: /tu referencia mensual para presupuestar/i }),
     ).toBeInTheDocument();
-    expect(screen.getByText(/facturacion objetivo sin iva/i)).toBeInTheDocument();
+    expect(screen.getByText(/facturación objetivo sin iva/i)).toBeInTheDocument();
     expect(screen.getByText(/beneficio antes de irpf/i)).toBeInTheDocument();
-    expect(screen.getByText(/esta simulacion situa tu objetivo en/i)).toBeInTheDocument();
+    expect(screen.getByText(/esta simulación sitúa tu objetivo en/i)).toBeInTheDocument();
     expect(screen.getByText(/tipo efectivo aproximado/i)).toBeInTheDocument();
-    expect(screen.getByText(/hemos estimado una cuota minima orientativa/i)).toBeInTheDocument();
+    expect(screen.getByText(/hemos estimado una cuota mínima orientativa/i)).toBeInTheDocument();
     expect(screen.queryByText('Revisa los campos marcados antes de calcular.')).not.toBeInTheDocument();
   });
 
@@ -100,13 +98,13 @@ describe('CalculatorForm', () => {
 
     await user.selectOptions(
       screen.getByRole('combobox', {
-        name: /comunidad autonoma para el irpf/i,
+        name: /comunidad autónoma para el irpf/i,
       }),
       'madrid',
     );
     await user.click(screen.getByRole('button', { name: /calcular/i }));
 
-    expect(screen.getByText(/referencia autonomica de/i)).toBeInTheDocument();
+    expect(screen.getByText(/referencia autonómica de/i)).toBeInTheDocument();
     expect(screen.getAllByText(/madrid/i).length).toBeGreaterThan(0);
   });
 
@@ -117,14 +115,14 @@ describe('CalculatorForm', () => {
 
     await user.selectOptions(
       screen.getByRole('combobox', {
-        name: /como quieres calcular la cuota de autonomos/i,
+        name: /cómo quieres calcular la cuota de autónomos/i,
       }),
       'reduced',
     );
     await user.click(screen.getByRole('button', { name: /calcular/i }));
 
     expect(screen.getByText(/hemos aplicado la tarifa reducida inicial/i)).toBeInTheDocument();
-    expect(screen.getByText(/base minima del tramo 1 de la tabla general/i)).toBeInTheDocument();
+    expect(screen.getByText(/base mínima del tramo 1 de la tabla general/i)).toBeInTheDocument();
   });
 
   it('tracks the conversion only once per visit even if the user recalculates', async () => {
@@ -147,7 +145,7 @@ describe('CalculatorForm', () => {
 
     await user.selectOptions(
       screen.getByRole('combobox', {
-        name: /como quieres calcular la cuota de autonomos/i,
+        name: /cómo quieres calcular la cuota de autónomos/i,
       }),
       'reduced',
     );
@@ -159,8 +157,8 @@ describe('CalculatorForm', () => {
     );
     await user.click(screen.getByRole('button', { name: /calcular/i }));
 
-    expect(screen.getByText(/hemos aplicado la prorroga estimada de la tarifa reducida/i)).toBeInTheDocument();
-    expect(screen.getByText(/asi que esa prorroga podria no corresponderte/i)).toBeInTheDocument();
+    expect(screen.getByText(/hemos aplicado la prórroga estimada de la tarifa reducida/i)).toBeInTheDocument();
+    expect(screen.getByText(/así que esa prórroga podría no corresponderte/i)).toBeInTheDocument();
   });
 
   it('normalizes IRPF manual values above 99 before calculating', async () => {
@@ -170,7 +168,7 @@ describe('CalculatorForm', () => {
 
     await user.selectOptions(
       screen.getByRole('combobox', {
-        name: /como quieres estimar el irpf/i,
+        name: /cómo quieres estimar el irpf/i,
       }),
       'manual',
     );

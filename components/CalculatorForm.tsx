@@ -73,18 +73,18 @@ function getFieldError(field: FieldName, value: string) {
       case 'irpfRate':
         return 'Indica el porcentaje de IRPF.';
       case 'selfEmployedFee':
-        return 'Indica una cuota estimada de autonomos.';
+        return 'Indica una cuota estimada de autónomos.';
     }
   }
 
   if (!Number.isFinite(parsedValue)) {
     switch (field) {
       case 'billableHours':
-        return 'Introduce un numero valido de horas.';
+        return 'Introduce un número válido de horas.';
       case 'irpfRate':
-        return 'Introduce un porcentaje valido.';
+        return 'Introduce un porcentaje válido.';
       default:
-        return 'Introduce un importe valido.';
+        return 'Introduce un importe válido.';
     }
   }
 
@@ -93,7 +93,7 @@ function getFieldError(field: FieldName, value: string) {
   }
 
   if (field === 'billableHours' && !Number.isInteger(parsedValue)) {
-    return 'Las horas facturables deben ser un numero entero.';
+    return 'Las horas facturables deben ser un número entero.';
   }
 
   if (field === 'targetNet' && parsedValue <= 0) {
@@ -115,7 +115,7 @@ function getFieldError(field: FieldName, value: string) {
       case 'irpfRate':
         return 'El IRPF no puede ser negativo.';
       case 'selfEmployedFee':
-        return 'La cuota de autonomos no puede ser negativa.';
+        return 'La cuota de autónomos no puede ser negativa.';
     }
   }
 
@@ -174,14 +174,26 @@ export default function CalculatorForm() {
 
   const validationErrors = useMemo(
     () =>
-      validateForm({
-        targetNet,
-        monthlyExpenses,
-        billableHours,
-        irpfRate,
-        selfEmployedFee,
-      }, irpfMode, selfEmployedFeeMode),
-    [targetNet, monthlyExpenses, billableHours, irpfRate, selfEmployedFee, irpfMode, selfEmployedFeeMode],
+      validateForm(
+        {
+          targetNet,
+          monthlyExpenses,
+          billableHours,
+          irpfRate,
+          selfEmployedFee,
+        },
+        irpfMode,
+        selfEmployedFeeMode,
+      ),
+    [
+      targetNet,
+      monthlyExpenses,
+      billableHours,
+      irpfRate,
+      selfEmployedFee,
+      irpfMode,
+      selfEmployedFeeMode,
+    ],
   );
 
   const parsedHours = parseNumericValue(billableHours);
@@ -220,8 +232,8 @@ export default function CalculatorForm() {
     <div className="calculator-card" id="calculadora">
       <h2>Calculadora</h2>
       <p className="card-intro" id="calculator-intro">
-        Introduce tus datos para obtener una referencia orientativa de facturacion mensual y una
-        tarifa por hora mas defendible.
+        Introduce tus datos para obtener una referencia orientativa de facturación mensual y una
+        tarifa por hora más defendible.
       </p>
 
       <form
@@ -235,8 +247,6 @@ export default function CalculatorForm() {
             track('calculator_completed', {
               irpfMode,
               selfEmployedFeeMode,
-              hasIVA,
-              autonomousCommunity: irpfMode === 'progressive' ? autonomousCommunity : null,
             });
             setHasTrackedConversion(true);
           }
@@ -305,22 +315,22 @@ export default function CalculatorForm() {
         </label>
 
         <label>
-          <span>Como quieres estimar el IRPF</span>
+          <span>Cómo quieres estimar el IRPF</span>
           <select value={irpfMode} onChange={(event) => setIrpfMode(event.target.value as IrpfMode)}>
-            <option value="progressive">Estimacion progresiva simplificada</option>
+            <option value="progressive">Estimación progresiva simplificada</option>
             <option value="manual">Porcentaje manual</option>
           </select>
           <small className="field-hint">
             {irpfMode === 'progressive' &&
-              'Usamos una estimacion anual por tramos sobre beneficio, con minimo personal estatal y una aproximacion simplificada de la parte autonomica.'}
+              'Usamos una estimación anual por tramos sobre beneficio, con mínimo personal estatal y una aproximación simplificada de la parte autonómica.'}
             {irpfMode === 'manual' &&
-              'Usaremos exactamente el porcentaje de IRPF que indiques para la simulacion.'}
+              'Usaremos exactamente el porcentaje de IRPF que indiques para la simulación.'}
           </small>
         </label>
 
         {irpfMode === 'progressive' && (
           <label>
-            <span>Comunidad autonoma para el IRPF</span>
+            <span>Comunidad autónoma para el IRPF</span>
             <select
               value={autonomousCommunity}
               onChange={(event) => setAutonomousCommunity(event.target.value as AutonomousCommunity)}
@@ -332,8 +342,8 @@ export default function CalculatorForm() {
               ))}
             </select>
             <small className="field-hint">
-              Territorio comun mantiene una aproximacion general. Madrid, Cataluna, Andalucia y
-              Comunitat Valenciana usan escalas autonomicas especificas de 2026.
+              Territorio común mantiene una aproximación general. Madrid, Cataluña, Andalucía y
+              Comunitat Valenciana usan escalas autonómicas específicas de 2026.
             </small>
           </label>
         )}
@@ -361,22 +371,22 @@ export default function CalculatorForm() {
         )}
 
         <label>
-          <span>Como quieres calcular la cuota de autonomos</span>
+          <span>Cómo quieres calcular la cuota de autónomos</span>
           <select
             value={selfEmployedFeeMode}
             onChange={(event) => setSelfEmployedFeeMode(event.target.value as SelfEmployedFeeMode)}
           >
-            <option value="auto">Estimar segun tramo 2026</option>
-            <option value="reduced">Tarifa reducida / nuevo autonomo</option>
+            <option value="auto">Estimar según tramo 2026</option>
+            <option value="reduced">Tarifa reducida / nuevo autónomo</option>
             <option value="manual">Indicar cuota manual</option>
           </select>
           <small className="field-hint">
             {selfEmployedFeeMode === 'auto' &&
-              'Estimamos una cuota minima orientativa segun el tramo de rendimientos netos mensuales de 2026.'}
+              'Estimamos una cuota mínima orientativa según el tramo de rendimientos netos mensuales de 2026.'}
             {selfEmployedFeeMode === 'reduced' &&
-              'Aplicamos una tarifa reducida de 80 EUR al mes y distinguimos entre el tramo inicial y su posible prorroga.'}
+              'Aplicamos una tarifa reducida de 80 EUR al mes y distinguimos entre el tramo inicial y su posible prórroga.'}
             {selfEmployedFeeMode === 'manual' &&
-              'Usaremos exactamente la cuota que indiques para la simulacion.'}
+              'Usaremos exactamente la cuota que indiques para la simulación.'}
           </small>
         </label>
 
@@ -388,7 +398,7 @@ export default function CalculatorForm() {
               onChange={(event) => setReducedFeePeriod(event.target.value as ReducedFeePeriod)}
             >
               <option value="initial">Primeros 12 meses</option>
-              <option value="extended">Prorroga 12 meses si sigues por debajo del SMI</option>
+              <option value="extended">Prórroga 12 meses si sigues por debajo del SMI</option>
             </select>
             <small className="field-hint">
               Usamos como referencia el SMI de 2026, fijado en 1.221 EUR al mes.
@@ -398,7 +408,7 @@ export default function CalculatorForm() {
 
         {selfEmployedFeeMode === 'manual' && (
           <label>
-            <span>Cuota manual de autonomos (EUR)</span>
+            <span>Cuota manual de autónomos (EUR)</span>
             <input
               type="number"
               min="0.01"
@@ -422,23 +432,13 @@ export default function CalculatorForm() {
         )}
 
         <fieldset className="radio-group">
-          <legend>Tu actividad suele incluir IVA?</legend>
+          <legend>¿Tu actividad suele incluir IVA?</legend>
           <label>
-            <input
-              type="radio"
-              name="iva"
-              checked={hasIVA}
-              onChange={() => setHasIVA(true)}
-            />
-            Si
+            <input type="radio" name="iva" checked={hasIVA} onChange={() => setHasIVA(true)} />
+            Sí
           </label>
           <label>
-            <input
-              type="radio"
-              name="iva"
-              checked={!hasIVA}
-              onChange={() => setHasIVA(false)}
-            />
+            <input type="radio" name="iva" checked={!hasIVA} onChange={() => setHasIVA(false)} />
             No
           </label>
         </fieldset>

@@ -6,7 +6,7 @@ export default function Footer() {
     <footer className="site-footer">
       <div className="container footer-inner">
         <div className="footer-copy">
-          <p>Copyright {new Date().getFullYear()} Neto Autonomo</p>
+          <p>Copyright {new Date().getFullYear()} Neto Autónomo</p>
           <p>
             Titular: {siteConfig.ownerName} · Contacto:{' '}
             <a href={`mailto:${siteConfig.contactEmail}`}>{siteConfig.contactEmail}</a>

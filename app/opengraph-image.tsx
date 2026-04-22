@@ -77,7 +77,7 @@ export default function OpenGraphImage() {
                   color: 'rgba(248,251,255,0.75)',
                 }}
               >
-                Calculadora orientativa para autonomos y freelance en Espana
+                Calculadora orientativa para autónomos y freelance en España
               </div>
             </div>
           </div>
@@ -98,7 +98,7 @@ export default function OpenGraphImage() {
                 lineHeight: 1.05,
               }}
             >
-              Calcula cuanto facturar para llegar al neto mensual que buscas
+              Calcula cuánto facturar para llegar al neto mensual que buscas
             </div>
             <div
               style={{
@@ -108,7 +108,7 @@ export default function OpenGraphImage() {
                 color: 'rgba(248,251,255,0.8)',
               }}
             >
-              Estimacion clara de cuota, IRPF, IVA y tarifa por hora para fijar precios con mas
+              Estimación clara de cuota, IRPF, IVA y tarifa por hora para fijar precios con más
               criterio.
             </div>
           </div>
@@ -150,7 +150,7 @@ export default function OpenGraphImage() {
           {[
             ['Objetivo mensual', 'Neto que quieres conseguir'],
             ['Tarifa por hora', 'Precio orientativo por hora facturable'],
-            ['Resultado claro', 'Facturacion sin mezclar el IVA'],
+            ['Resultado claro', 'Facturación sin mezclar el IVA'],
           ].map(([title, text]) => (
             <div
               key={title}
