@@ -39,12 +39,21 @@ export default function PrivacidadPage() {
       </section>
 
       <section className="legal-section">
+        <h2>Medicion basica de uso</h2>
+        <p>
+          Esta web utiliza Vercel Web Analytics para obtener estadisticas agregadas de visitas y
+          paginas vistas. La finalidad es entender el uso general del sitio y mejorar la calculadora
+          sin identificar personalmente a los usuarios.
+        </p>
+      </section>
+
+      <section className="legal-section">
         <h2>Base y finalidad</h2>
         <p>
           La finalidad del tratamiento es prestar la herramienta, atender comunicaciones directas y
-          mantener la seguridad basica del servicio. Mientras no se incorporen formularios, analitica
-          adicional o integraciones de terceros con fines de medicion o marketing, no se realiza un
-          tratamiento comercial de tus datos.
+          mantener la seguridad basica del servicio. Ademas, se realiza una medicion agregada del uso
+          para conocer el rendimiento general de la web. No se realiza un tratamiento comercial de tus
+          datos ni se crean perfiles publicitarios propios desde esta herramienta.
         </p>
       </section>
 

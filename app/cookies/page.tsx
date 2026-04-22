@@ -20,7 +20,8 @@ export default function CookiesPage() {
         <h2>Estado actual del sitio</h2>
         <p>
           En esta version no se utilizan cookies propias de publicidad, perfilado ni medicion avanzada
-          configuradas por el titular del sitio.
+          configuradas por el titular del sitio. La web usa Vercel Web Analytics para obtener una
+          medicion agregada del uso del sitio.
         </p>
       </section>
 
@@ -29,8 +30,8 @@ export default function CookiesPage() {
         <p>
           El funcionamiento basico de la web puede requerir elementos tecnicos imprescindibles del
           navegador, del sistema de cache o del proveedor de hosting para servir la pagina de forma
-          segura y estable. Estas funciones tienen caracter tecnico y no se usan para crear perfiles
-          comerciales del usuario.
+          segura y estable. Ademas, la medicion basica implantada con Vercel Analytics esta pensada
+          para trabajar sin cookies propias del sitio y sin crear perfiles comerciales del usuario.
         </p>
       </section>
 
