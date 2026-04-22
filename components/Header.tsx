@@ -9,8 +9,9 @@ export default function Header() {
         </Link>
 
         <nav className="nav" aria-label="Navegación principal">
-          <a href="#calculadora">Calculadora</a>
-          <a href="#faq">FAQ</a>
+          <Link href="/#calculadora">Calculadora</Link>
+          <Link href="/#faq">FAQ</Link>
+          <Link href="/cuanto-facturar-autonomo">Guía</Link>
         </nav>
       </div>
     </header>

@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import Script from 'next/script';
 import CalculatorForm from '@/components/CalculatorForm';
 import FAQ, { faqItems } from '@/components/FAQ';
@@ -187,6 +188,59 @@ export default function HomePage() {
             <article className="conversion-step">
               <h3>3. Presupuesta mejor</h3>
               <p>Usa la cifra final como base para pasar a tarifa por hora, mensualidad o presupuesto cerrado.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section className="section">
+        <div className="container text-block">
+          <span className="eyebrow">Guías útiles</span>
+          <h2>Empieza por la duda que más te esté bloqueando</h2>
+          <p>
+            Hemos preparado tres guías prácticas para ayudarte a aterrizar mejor tus números antes
+            de usar la calculadora: una sobre cuánto facturar como autónomo, otra sobre cómo
+            calcular una tarifa freelance por hora y una tercera centrada en la cuota de autónomos
+            de 2026.
+          </p>
+          <div className="feature-grid" aria-label="Guías relacionadas">
+            <article className="feature-card">
+              <h3>Cuánto facturar como autónomo</h3>
+              <p>
+                Entiende cómo pasar de tu neto deseado a una cifra mensual razonable teniendo en
+                cuenta cuota, IRPF, IVA y gastos.
+              </p>
+              <div className="guide-cta">
+                <Link href="/cuanto-facturar-autonomo" className="primary-button">
+                  Leer guía
+                </Link>
+              </div>
+            </article>
+
+            <article className="feature-card">
+              <h3>Tarifa freelance por hora</h3>
+              <p>
+                Aprende a convertir esa referencia mensual en una tarifa por hora útil para
+                presupuestos, propuestas y proyectos cerrados.
+              </p>
+              <div className="guide-cta">
+                <Link href="/tarifa-freelance-por-hora" className="primary-button">
+                  Leer guía
+                </Link>
+              </div>
+            </article>
+
+            <article className="feature-card">
+              <h3>Cuota de autónomos 2026</h3>
+              <p>
+                Revisa cómo funciona la cuota por tramos, cuándo encaja la tarifa reducida y qué
+                papel juega la cuota en tu cálculo mensual.
+              </p>
+              <div className="guide-cta">
+                <Link href="/cuota-autonomos-2026" className="primary-button">
+                  Leer guía
+                </Link>
+              </div>
             </article>
           </div>
         </div>
