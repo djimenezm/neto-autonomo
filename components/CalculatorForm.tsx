@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
+import { track } from '@vercel/analytics';
 import ResultCard from '@/components/ResultCard';
 import {
   AUTONOMOUS_COMMUNITY_LABELS,
@@ -169,6 +170,7 @@ export default function CalculatorForm() {
   const [reducedFeePeriod, setReducedFeePeriod] = useState<ReducedFeePeriod>('initial');
   const [selfEmployedFee, setSelfEmployedFee] = useState('0');
   const [submitted, setSubmitted] = useState(false);
+  const [hasTrackedConversion, setHasTrackedConversion] = useState(false);
 
   const validationErrors = useMemo(
     () =>
@@ -228,6 +230,16 @@ export default function CalculatorForm() {
         onSubmit={(event) => {
           event.preventDefault();
           setSubmitted(true);
+
+          if (!hasValidationErrors && !hasTrackedConversion) {
+            track('calculator_completed', {
+              irpfMode,
+              selfEmployedFeeMode,
+              hasIVA,
+              autonomousCommunity: irpfMode === 'progressive' ? autonomousCommunity : null,
+            });
+            setHasTrackedConversion(true);
+          }
         }}
         className="calculator-form"
       >

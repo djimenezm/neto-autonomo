@@ -42,8 +42,9 @@ export default function PrivacidadPage() {
         <h2>Medicion basica de uso</h2>
         <p>
           Esta web utiliza Vercel Web Analytics para obtener estadisticas agregadas de visitas y
-          paginas vistas. La finalidad es entender el uso general del sitio y mejorar la calculadora
-          sin identificar personalmente a los usuarios.
+          paginas vistas. Ademas, registramos de forma agregada cuando un usuario completa una
+          simulacion valida en la calculadora. La finalidad es entender el uso general del sitio y
+          mejorar la herramienta sin identificar personalmente a los usuarios.
         </p>
       </section>
 

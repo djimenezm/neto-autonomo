@@ -21,7 +21,7 @@ export default function CookiesPage() {
         <p>
           En esta version no se utilizan cookies propias de publicidad, perfilado ni medicion avanzada
           configuradas por el titular del sitio. La web usa Vercel Web Analytics para obtener una
-          medicion agregada del uso del sitio.
+          medicion agregada del uso del sitio, incluidos eventos basicos de uso de la calculadora.
         </p>
       </section>
 

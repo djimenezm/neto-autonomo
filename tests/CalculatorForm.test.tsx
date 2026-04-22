@@ -1,9 +1,18 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import CalculatorForm from '@/components/CalculatorForm';
+import { track } from '@vercel/analytics';
+
+vi.mock('@vercel/analytics', () => ({
+  track: vi.fn(),
+}));
 
 describe('CalculatorForm', () => {
+  beforeEach(() => {
+    vi.mocked(track).mockClear();
+  });
+
   it('shows an error and blocks results when billable hours are 0', async () => {
     const user = userEvent.setup();
 
@@ -19,6 +28,7 @@ describe('CalculatorForm', () => {
 
     expect(screen.getByText('Las horas facturables deben ser mayores que 0.')).toBeInTheDocument();
     expect(screen.getByText('Revisa los campos marcados antes de calcular.')).toBeInTheDocument();
+    expect(track).not.toHaveBeenCalled();
     expect(
       screen.queryByRole('heading', { name: /tu referencia mensual para presupuestar/i }),
     ).not.toBeInTheDocument();
@@ -50,6 +60,12 @@ describe('CalculatorForm', () => {
 
     await user.click(screen.getByRole('button', { name: /calcular/i }));
 
+    expect(track).toHaveBeenCalledWith('calculator_completed', {
+      irpfMode: 'progressive',
+      selfEmployedFeeMode: 'auto',
+      hasIVA: true,
+      autonomousCommunity: 'common',
+    });
     expect(
       screen.getByRole('heading', { name: /tu referencia mensual para presupuestar/i }),
     ).toBeInTheDocument();
@@ -109,6 +125,19 @@ describe('CalculatorForm', () => {
 
     expect(screen.getByText(/hemos aplicado la tarifa reducida inicial/i)).toBeInTheDocument();
     expect(screen.getByText(/base minima del tramo 1 de la tabla general/i)).toBeInTheDocument();
+  });
+
+  it('tracks the conversion only once per visit even if the user recalculates', async () => {
+    const user = userEvent.setup();
+
+    render(<CalculatorForm />);
+
+    const submitButton = screen.getByRole('button', { name: /calcular/i });
+
+    await user.click(submitButton);
+    await user.click(submitButton);
+
+    expect(track).toHaveBeenCalledTimes(1);
   });
 
   it('shows the SMI warning when the user chooses the reduced-fee extension', async () => {
