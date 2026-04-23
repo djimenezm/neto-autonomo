@@ -245,9 +245,23 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+      <section className="section alt">
+        <div className="container text-block">
+          <span className="eyebrow">Otra herramienta</span>
+          <h2>Si cobras por proyecto, prueba tambien Cuanto Presupuestar</h2>
+          <p>
+            Neto Autonomo te ayuda a saber cuanto necesitas facturar para sostener tu actividad. Si
+            quieres llevar esa referencia a un presupuesto cerrado, tambien puedes usar{' '}
+            <a href="https://www.cuantopresupuestar.es">Cuanto Presupuestar</a> para convertir tu
+            objetivo mensual en un precio por proyecto mas defendible.
+          </p>
+        </div>
+      </section>
 
       <FAQ />
       <Footer />
     </main>
   );
 }
+
+
