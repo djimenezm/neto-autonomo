@@ -218,6 +218,19 @@ export default function HomePage() {
             </article>
 
             <article className="feature-card">
+              <h3>Cuanto facturar para ganar 2000 euros</h3>
+              <p>
+                Baja un objetivo muy concreto a una cifra mensual mas realista teniendo en cuenta
+                cuota, gastos, IRPF, IVA y horas facturables.
+              </p>
+              <div className="guide-cta">
+                <Link href="/cuanto-facturar-autonomo-2000-euros" className="primary-button">
+                  Leer guia
+                </Link>
+              </div>
+            </article>
+
+            <article className="feature-card">
               <h3>Tarifa freelance por hora</h3>
               <p>
                 Aprende a convertir esa referencia mensual en una tarifa por hora útil para

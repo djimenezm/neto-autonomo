@@ -278,6 +278,14 @@ export default function CuantoFacturarAutonomoPage() {
             horas facturables e IVA para obtener una referencia mensual y una tarifa por hora más
             defendible.
           </p>
+          <p>
+            Si tu objetivo esta cerca de un caso muy concreto, tambien puedes apoyarte en la guia
+            sobre{' '}
+            <Link href="/cuanto-facturar-autonomo-2000-euros">
+              cuanto facturar como autonomo para ganar 2000 euros netos
+            </Link>
+            .
+          </p>
           <div className="guide-cta">
             <Link href="/#calculadora" className="primary-button">
               Calcular mi referencia

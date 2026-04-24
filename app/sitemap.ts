@@ -4,6 +4,7 @@ import { getSiteUrl } from '@/lib/site';
 const routes = [
   '/',
   '/cuanto-facturar-autonomo',
+  '/cuanto-facturar-autonomo-2000-euros',
   '/tarifa-freelance-por-hora',
   '/cuota-autonomos-2026',
   '/aviso-legal',
