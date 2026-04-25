@@ -268,6 +268,12 @@ export default function HomePage() {
             <a href="https://www.cuantopresupuestar.es">Cuanto Presupuestar</a> para convertir tu
             objetivo mensual en un precio por proyecto mas defendible.
           </p>
+          <p>
+            Y si quieres ver el ecosistema completo, en{' '}
+            <a href="https://www.paneldeherramientas.es">Panel de Herramientas</a> tienes reunidas
+            todas las calculadoras para enlazar facturacion, presupuestos, mantenimiento y precios
+            por servicio.
+          </p>
         </div>
       </section>
 
