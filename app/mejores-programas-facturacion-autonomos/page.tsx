@@ -314,6 +314,50 @@ export default function MejoresProgramasFacturacionAutonomosPage() {
 
       <section className="section">
         <div className="container text-block">
+          <h2>Mi lectura rapida: mejor opcion segun el tipo de autonomo</h2>
+          <p>
+            Esta parte es una <strong>inferencia editorial</strong> mia a partir de como cada
+            herramienta se presenta en sus paginas oficiales, no una afirmacion contractual de los
+            proveedores. La idea es ayudarte a descartar mas rapido.
+          </p>
+        </div>
+        <div className="container feature-grid" aria-label="Mejor programa segun perfil">
+          <article className="feature-card">
+            <h3>AEAT VERI*FACTU</h3>
+            <p>
+              Mejor si buscas una opcion oficial, gratuita y muy basica para una operativa pequena
+              y con pocas facturas.
+            </p>
+          </article>
+
+          <article className="feature-card">
+            <h3>Holded</h3>
+            <p>
+              Mejor si quieres una vision mas amplia del negocio y te interesa juntar facturacion,
+              gastos, banco e impuestos en una misma plataforma.
+            </p>
+          </article>
+
+          <article className="feature-card">
+            <h3>Quipu</h3>
+            <p>
+              Mejor si quieres una herramienta muy pensada para el autonomo y una operativa diaria
+              sencilla entre facturas, tickets, impuestos y conciliacion.
+            </p>
+          </article>
+
+          <article className="feature-card">
+            <h3>FacturaDirecta</h3>
+            <p>
+              Mejor si tu prioridad numero uno es facturar facil y tener muy aterrizada la parte de
+              VERI*FACTU y cumplimiento normativo.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section className="section">
+        <div className="container text-block">
           <h2>Errores tipicos al elegir software de facturacion</h2>
           <ol className="article-list article-list-ordered">
             <li>Elegir por precio sin mirar si de verdad encaja con tu operativa.</li>
