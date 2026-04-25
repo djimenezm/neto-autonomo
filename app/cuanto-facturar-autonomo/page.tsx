@@ -286,6 +286,13 @@ export default function CuantoFacturarAutonomoPage() {
             </Link>
             .
           </p>
+          <p>
+            Y cuando ya tengas clara tu cifra, puedes revisar tambien la comparativa de{' '}
+            <Link href="/mejores-programas-facturacion-autonomos">
+              mejores programas de facturacion para autonomos
+            </Link>{' '}
+            para elegir con que herramienta ordenar esa parte del negocio.
+          </p>
           <div className="guide-cta">
             <Link href="/#calculadora" className="primary-button">
               Calcular mi referencia

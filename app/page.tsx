@@ -255,6 +255,19 @@ export default function HomePage() {
                 </Link>
               </div>
             </article>
+
+            <article className="feature-card">
+              <h3>Mejores programas de facturacion</h3>
+              <p>
+                Compara opciones para autonomos en Espana y revisa cuando compensa una solucion
+                gratis o una plataforma mas completa.
+              </p>
+              <div className="guide-cta">
+                <Link href="/mejores-programas-facturacion-autonomos" className="primary-button">
+                  Ver comparativa
+                </Link>
+              </div>
+            </article>
           </div>
         </div>
       </section>

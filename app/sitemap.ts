@@ -5,6 +5,7 @@ const routes = [
   '/',
   '/cuanto-facturar-autonomo',
   '/cuanto-facturar-autonomo-2000-euros',
+  '/mejores-programas-facturacion-autonomos',
   '/tarifa-freelance-por-hora',
   '/cuota-autonomos-2026',
   '/aviso-legal',
