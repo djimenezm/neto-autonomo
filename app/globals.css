@@ -186,6 +186,66 @@ h3 {
   line-height: 1.7;
 }
 
+.card-kicker {
+  display: inline-flex;
+  margin-bottom: 0.7rem;
+  color: var(--accent-dark);
+  font-size: 0.82rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.commercial-card {
+  display: grid;
+  gap: 0.9rem;
+}
+
+.commercial-note {
+  font-size: 0.95rem;
+}
+
+.button-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 0.2rem;
+}
+
+.secondary-button,
+.link-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 14px;
+  padding: 0.85rem 1rem;
+  font-size: 0.96rem;
+  font-weight: 800;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.secondary-button {
+  background: var(--accent);
+  border: 1px solid var(--accent);
+  color: #fff;
+}
+
+.secondary-button:hover {
+  background: var(--accent-dark);
+  border-color: var(--accent-dark);
+}
+
+.link-button {
+  background: #fbfdff;
+  border: 1px solid var(--line);
+  color: var(--accent-dark);
+}
+
+.link-button:hover {
+  border-color: var(--accent);
+  background: #f4f8fc;
+}
+
 .text-block {
   max-width: 780px;
 }

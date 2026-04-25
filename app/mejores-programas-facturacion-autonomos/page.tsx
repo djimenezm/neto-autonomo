@@ -8,7 +8,7 @@ import { getSiteUrl, siteConfig } from '@/lib/site';
 const route = '/mejores-programas-facturacion-autonomos';
 const title = 'Mejores programas de facturacion para autonomos en Espana';
 const description =
-  'Comparativa practica de programas de facturacion para autonomos en Espana: que mirar, cuando compensa una opcion gratis y que herramientas encajan mejor segun tu forma de trabajar.';
+  'Comparativa practica de programas de facturacion para autonomos en Espana: que mirar, cuando compensa una opcion gratis, que herramientas encajan mejor segun tu forma de trabajar y que opciones oficiales tienen programas de recomendacion o partner.';
 
 const pageFaqItems = [
   {
@@ -25,6 +25,111 @@ const pageFaqItems = [
     question: 'Que deberia mirar antes de elegir un software de facturacion?',
     answer:
       'Como minimo: cumplimiento normativo, facilidad para emitir facturas y presupuestos, control de cobros y gastos, acceso para asesoria, conciliacion bancaria si la necesitas y claridad de precios.',
+  },
+  {
+    question: 'Se puede monetizar una comparativa de software de facturacion?',
+    answer:
+      'Si, pero conviene hacerlo con criterio. Algunas herramientas tienen programas oficiales de recomendacion, afiliacion o partner. Lo importante es dejar clara la naturaleza editorial de la comparativa y no recomendar una herramienta solo por su comision.',
+  },
+] as const;
+
+type SoftwareOption = {
+  name: string;
+  summary: string;
+  fit: string;
+  productUrl: string;
+  productLabel: string;
+  commercialModel: string;
+  programUrl?: string;
+  programLabel?: string;
+};
+
+type MonetizationOption = {
+  name: string;
+  audience: string;
+  model: string;
+  note: string;
+  programUrl: string;
+};
+
+const softwareOptions: SoftwareOption[] = [
+  {
+    name: 'Aplicacion gratuita VERI*FACTU de la AEAT',
+    summary:
+      'La opcion oficial y gratuita para generar facturas y remitir registros directamente a la Agencia Tributaria.',
+    fit: 'Mejor si emites pocas facturas y quieres una base simple, oficial y sin coste.',
+    productUrl:
+      'https://sede.agenciatributaria.gob.es/Sede/ayuda/consultas-informaticas/presentacion-declaraciones-ayuda-tecnica/aplicacion-gratuita-verifactu-aeat.html',
+    productLabel: 'Ver aplicacion oficial',
+    commercialModel:
+      'No tiene afiliacion ni partner comercial; es una referencia util para comparar contra opciones de pago.',
+  },
+  {
+    name: 'Holded',
+    summary:
+      'Plataforma mas amplia para unir facturacion, gastos, banco, impuestos y operativa general del negocio.',
+    fit: 'Mejor si quieres una herramienta mas completa que vaya mas alla de emitir facturas.',
+    productUrl: 'https://www.holded.com/es/autonomos',
+    productLabel: 'Ver Holded para autonomos',
+    programUrl: 'https://help.holded.com/es/articles/13435604-recomienda-holded-y-gana-dinero-en-efectivo',
+    programLabel: 'Ver programa de recomendacion',
+    commercialModel:
+      'Holded indica un sistema de invitacion con un 50% de descuento durante 3 meses para el referido y una recompensa recurrente para quien recomienda, hasta un maximo de 500 euros por contacto.',
+  },
+  {
+    name: 'Quipu',
+    summary:
+      'Herramienta muy orientada al dia a dia del autonomo: facturas, tickets, impuestos y conciliacion bancaria.',
+    fit: 'Mejor si quieres una operativa sencilla y muy pensada para autonomos y pequenos negocios.',
+    productUrl: 'https://getquipu.com/es/autonomos',
+    productLabel: 'Ver Quipu para autonomos',
+    programUrl: 'https://getquipu.com/es/referral',
+    programLabel: 'Ver programa de afiliados',
+    commercialModel:
+      'Quipu publica un programa de afiliados con 30% sobre el importe real pagado por el cliente y una ventana recurrente de 12 meses en planes mensuales.',
+  },
+  {
+    name: 'FacturaDirecta',
+    summary:
+      'Enfoque muy claro en VERI*FACTU y cumplimiento, con facturacion, impuestos y operativa sencilla para pequeno negocio.',
+    fit: 'Mejor si tu prioridad es facturar facil y sentir muy aterrizada la parte normativa.',
+    productUrl: 'https://www.facturadirecta.com/',
+    productLabel: 'Ver FacturaDirecta',
+    programUrl: 'https://www.facturadirecta.com/partner/',
+    programLabel: 'Ver programa partner',
+    commercialModel:
+      'No comunica un afiliado abierto tipo blog, sino un programa partner orientado a gestionar cuentas de clientes con descuentos por volumen y panel centralizado.',
+  },
+] as const;
+
+const monetizationOptions: MonetizationOption[] = [
+  {
+    name: 'Holded',
+    audience: 'Contenido para autonomos y freelancers que quieren una solucion mas completa.',
+    model: 'Programa de recomendacion dentro del propio producto.',
+    note: 'Encaja mejor si usas la herramienta o puedes enseñar casos de uso reales.',
+    programUrl: 'https://help.holded.com/es/articles/13435604-recomienda-holded-y-gana-dinero-en-efectivo',
+  },
+  {
+    name: 'Quipu',
+    audience: 'Comparativas, tutoriales y contenido para autonomos con intencion de compra.',
+    model: 'Programa de afiliados oficial publicado por Quipu.',
+    note: 'Es la opcion mas parecida a un afiliado clasico para este nicho.',
+    programUrl: 'https://getquipu.com/es/referral',
+  },
+  {
+    name: 'FacturaDirecta',
+    audience: 'Profesionales que gestionan varias cuentas o prestan servicio a clientes.',
+    model: 'Programa partner con descuentos por volumen y gestion consolidada.',
+    note: 'Tiene mas sentido como via reseller o partner que como blog de afiliacion tradicional.',
+    programUrl: 'https://www.facturadirecta.com/partner/',
+  },
+  {
+    name: 'Sage',
+    audience: 'Sites y comparativas con foco mas amplio en software de empresa, no solo microautonomo.',
+    model: 'Programa de afiliados oficial en Impact y partner network para negocios mas estructurados.',
+    note: 'Puede servirte mas adelante si amplias el panel con comparativas de software para pymes.',
+    programUrl: 'https://www.sage.com/es-es/soporte-actualizacion/programa-de-afiliados/',
   },
 ] as const;
 
@@ -152,6 +257,7 @@ export default function MejoresProgramasFacturacionAutonomosPage() {
               <span className="hero-badge">Autonomos en Espana</span>
               <span className="hero-badge">VERI*FACTU</span>
               <span className="hero-badge">Herramientas actuales</span>
+              <span className="hero-badge">Partner y afiliacion oficial</span>
             </div>
             <div className="guide-cta">
               <Link href="/#calculadora" className="primary-button">
@@ -166,6 +272,7 @@ export default function MejoresProgramasFacturacionAutonomosPage() {
               <li>Criterios pensados para autonomos y freelancers en Espana.</li>
               <li>Herramientas revisadas en sus paginas oficiales a 25 de abril de 2026.</li>
               <li>Foco en encaje practico, no en promesas de marketing.</li>
+              <li>Se senalan solo programas comerciales oficiales, no rumores ni directorios externos.</li>
               <li>Util para elegir software antes de casarte con una herramienta.</li>
             </ul>
           </aside>
@@ -230,57 +337,35 @@ export default function MejoresProgramasFacturacionAutonomosPage() {
             verlas juntas. La idea no es coronar una ganadora universal, sino ayudarte a descartar
             mas rapido.
           </p>
+          <div className="disclaimer-box">
+            <strong>Transparencia:</strong> los enlaces de esta guia apuntan a paginas oficiales.
+            A dia de hoy no estoy usando tracking propio en esta comparativa. Si en el futuro
+            anado enlaces de recomendacion o afiliacion, lo indicare de forma expresa en esta
+            misma pagina.
+          </div>
         </div>
         <div className="container feature-grid" aria-label="Programas destacados">
-          <article className="feature-card">
-            <h3>Aplicacion gratuita VERI*FACTU de la AEAT</h3>
-            <p>
-              La opcion oficial y gratuita. La Agencia Tributaria la presenta como una aplicacion
-              para generar facturas electronicas y remitir los registros directamente, orientada a
-              autonomos, profesionales y empresas con volumen reducido de facturas.
-            </p>
-            <p>
-              Encaja si quieres una base muy simple, oficial y sin coste para una operativa pequena.
-            </p>
-          </article>
-
-          <article className="feature-card">
-            <h3>Holded</h3>
-            <p>
-              En sus paginas para autonomos destaca facturacion, control de gastos, sincronizacion
-              bancaria y preparacion de modelos fiscales, ademas de una posicion clara sobre su
-              adaptacion a VERI*FACTU.
-            </p>
-            <p>
-              Tiene sentido si quieres una plataforma mas completa y mas alla de la mera emision de
-              facturas.
-            </p>
-          </article>
-
-          <article className="feature-card">
-            <h3>Quipu</h3>
-            <p>
-              Esta muy orientado a autonomos y pequenos negocios, con foco en facturas, tickets,
-              control de impuestos, banco y una narrativa clara sobre adaptacion a VERI*FACTU.
-            </p>
-            <p>
-              Suele encajar bien si quieres algo pensado para el dia a dia del autonomo y no solo
-              para emitir documentos.
-            </p>
-          </article>
-
-          <article className="feature-card">
-            <h3>FacturaDirecta</h3>
-            <p>
-              Comunica muy fuerte la parte de VERI*FACTU: envio automatico del registro a la AEAT,
-              codigo QR y cumplimiento de la normativa, con un enfoque bastante directo hacia
-              pequena empresa y autonomos.
-            </p>
-            <p>
-              Encaja si tu prioridad es facturar facil y sentir que la parte normativa esta muy
-              aterrizada.
-            </p>
-          </article>
+          {softwareOptions.map((option) => (
+            <article className="feature-card commercial-card" key={option.name}>
+              <span className="card-kicker">Herramienta destacada</span>
+              <h3>{option.name}</h3>
+              <p>{option.summary}</p>
+              <p>
+                <strong>Mejor para:</strong> {option.fit}
+              </p>
+              <p className="commercial-note">{option.commercialModel}</p>
+              <div className="button-row">
+                <a className="secondary-button" href={option.productUrl} target="_blank" rel="noreferrer">
+                  {option.productLabel}
+                </a>
+                {option.programUrl ? (
+                  <a className="link-button" href={option.programUrl} target="_blank" rel="noreferrer">
+                    {option.programLabel}
+                  </a>
+                ) : null}
+              </div>
+            </article>
+          ))}
         </div>
       </section>
 
@@ -356,6 +441,37 @@ export default function MejoresProgramasFacturacionAutonomosPage() {
         </div>
       </section>
 
+      <section className="section alt">
+        <div className="container text-block">
+          <h2>Si quieres monetizar una comparativa, estas son las vias mas claras hoy</h2>
+          <p>
+            Si tu idea es recomendar software desde una web de contenido, no todas las herramientas
+            sirven igual. Algunas tienen un programa de afiliados claro, otras funcionan mejor como
+            partner o reseller, y otras solo tienen sentido como referencia editorial.
+          </p>
+        </div>
+        <div className="container feature-grid" aria-label="Opciones oficiales para monetizar comparativas">
+          {monetizationOptions.map((option) => (
+            <article className="feature-card" key={option.name}>
+              <span className="card-kicker">Opcion comercial oficial</span>
+              <h3>{option.name}</h3>
+              <p>
+                <strong>Encaje:</strong> {option.audience}
+              </p>
+              <p>
+                <strong>Modelo:</strong> {option.model}
+              </p>
+              <p>{option.note}</p>
+              <div className="button-row">
+                <a className="secondary-button" href={option.programUrl} target="_blank" rel="noreferrer">
+                  Ver programa oficial
+                </a>
+              </div>
+            </article>
+          ))}
+        </div>
+      </section>
+
       <section className="section">
         <div className="container text-block">
           <h2>Errores tipicos al elegir software de facturacion</h2>
@@ -370,6 +486,11 @@ export default function MejoresProgramasFacturacionAutonomosPage() {
             Ese ultimo punto importa mucho: si no sabes tu referencia economica, es facil pedir al
             software que te arregle un problema de precios que en realidad viene de antes.
           </p>
+          <div className="disclaimer-box">
+            <strong>Mi criterio:</strong> si algun dia monetizas esta comparativa, intenta que la
+            comision sea una consecuencia del encaje real y no el motivo principal de la
+            recomendacion. A medio plazo, eso suele convertir mejor y quemar menos la confianza.
+          </div>
         </div>
       </section>
 
