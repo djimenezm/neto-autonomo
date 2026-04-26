@@ -14,7 +14,9 @@ export default function Footer() {
           <p className="footer-note">Herramienta orientativa. No constituye asesoramiento fiscal ni legal.</p>
         </div>
         <div className="footer-links">
+          <Link href="/tabla-cuanto-facturar-autonomo">Tabla</Link>
           <Link href="/cuanto-facturar-autonomo-1500-euros">1500 netos</Link>
+          <Link href="/cuanto-facturar-autonomo-2000-euros">2000 netos</Link>
           <Link href="/cuanto-facturar-autonomo-2500-euros">2500 netos</Link>
           <Link href="/cuanto-facturar-autonomo-3000-euros">3000 netos</Link>
           <a href="https://www.cuantopresupuestar.es?utm_source=cuantofacturar&utm_medium=ecosystem-footer&utm_campaign=cross_navigation">

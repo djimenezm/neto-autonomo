@@ -8,6 +8,7 @@ describe('sitemap', () => {
     urls.forEach((url) => expect(url.origin).toBe('https://www.cuantofacturar.es'));
     expect(paths).toContain('/');
     expect(paths).toContain('/cuanto-facturar-autonomo');
+    expect(paths).toContain('/tabla-cuanto-facturar-autonomo');
     expect(paths).toContain('/cuanto-facturar-autonomo-1500-euros');
     expect(paths).toContain('/cuanto-facturar-autonomo-2000-euros');
     expect(paths).toContain('/cuanto-facturar-autonomo-2500-euros');

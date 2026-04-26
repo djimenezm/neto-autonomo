@@ -229,6 +229,19 @@ export default function HomePage() {
             </article>
 
             <article className="feature-card">
+              <h3>Tabla de objetivos netos</h3>
+              <p>
+                Compara objetivos de 1500, 2000, 2500 y 3000 euros netos antes de elegir que guia o
+                calculo necesitas revisar.
+              </p>
+              <div className="guide-cta">
+                <Link href="/tabla-cuanto-facturar-autonomo" className="primary-button">
+                  Ver tabla
+                </Link>
+              </div>
+            </article>
+
+            <article className="feature-card">
               <h3>Cuánto facturar para ganar 1500 euros</h3>
               <p>
                 Convierte un primer objetivo neto en facturación mensual, tarifa por hora y filtro
