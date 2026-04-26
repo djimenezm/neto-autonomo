@@ -3,6 +3,7 @@ import Link from 'next/link';
 import Script from 'next/script';
 import Footer from '@/components/Footer';
 import Header from '@/components/Header';
+import LeadMagnetForm from '@/components/LeadMagnetForm';
 import { getSiteUrl, siteConfig } from '@/lib/site';
 
 const route = '/cuanto-facturar-autonomo-2000-euros';
@@ -286,6 +287,17 @@ export default function CuantoFacturarAutonomo2000EurosPage() {
               Calcular mi referencia
             </Link>
           </div>
+        </div>
+      </section>
+
+      <section className="section">
+        <div className="container">
+          <LeadMagnetForm
+            source="guia-2000-euros"
+            title="Revisa tu tarifa antes de perseguir esos 2.000 euros netos"
+            description="Te enviamos el kit con la estructura mínima para revisar horas facturables, margen, cuota, impuestos e IVA antes de aceptar un precio."
+            buttonLabel="Quiero el kit"
+          />
         </div>
       </section>
 

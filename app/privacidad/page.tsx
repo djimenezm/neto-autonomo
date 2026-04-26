@@ -24,8 +24,9 @@ export default function PrivacidadPage() {
         <h2>Datos que se usan en esta versión</h2>
         <p>
           Los importes y opciones que introduces en la calculadora se procesan en tu navegador para
-          mostrar el resultado de la simulación. En esta versión no existe un formulario de registro,
-          cuenta de usuario ni una base de datos propia asociada al uso de la calculadora.
+          mostrar el resultado de la simulación. Si solicitas el kit de tarifa para autónomos, se
+          tratará el email que indiques para enviarte el recurso y futuras actualizaciones
+          relacionadas.
         </p>
       </section>
 
@@ -54,8 +55,9 @@ export default function PrivacidadPage() {
         <p>
           La finalidad del tratamiento es prestar la herramienta, atender comunicaciones directas y
           mantener la seguridad básica del servicio. Además, se realiza una medición agregada del uso
-          para conocer el rendimiento general de la web. No se realiza un tratamiento comercial de tus
-          datos ni se crean perfiles publicitarios propios desde esta herramienta.
+          para conocer el rendimiento general de la web. Si solicitas el kit, la finalidad adicional
+          es darte acceso al recurso y avisarte de mejoras relacionadas con tarifas, facturación y
+          precios para autónomos.
         </p>
       </section>
 

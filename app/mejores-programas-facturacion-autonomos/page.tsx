@@ -3,6 +3,7 @@ import Link from 'next/link';
 import Script from 'next/script';
 import Footer from '@/components/Footer';
 import Header from '@/components/Header';
+import LeadMagnetForm from '@/components/LeadMagnetForm';
 import { getSiteUrl, siteConfig } from '@/lib/site';
 
 const route = '/mejores-programas-facturacion-autonomos';
@@ -491,6 +492,17 @@ export default function MejoresProgramasFacturacionAutonomosPage() {
             comision sea una consecuencia del encaje real y no el motivo principal de la
             recomendacion. A medio plazo, eso suele convertir mejor y quemar menos la confianza.
           </div>
+        </div>
+      </section>
+
+      <section className="section">
+        <div className="container">
+          <LeadMagnetForm
+            source="programas-facturacion"
+            title="Antes de elegir software, revisa si tu tarifa se sostiene"
+            description="Te enviamos el kit para revisar tu número base, horas facturables, margen e impuestos antes de convertirlo en facturas, presupuestos o cuotas."
+            buttonLabel="Quiero el kit de tarifa"
+          />
         </div>
       </section>
 

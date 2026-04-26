@@ -4,6 +4,7 @@ import CalculatorForm from '@/components/CalculatorForm';
 import FAQ, { faqItems } from '@/components/FAQ';
 import Footer from '@/components/Footer';
 import Header from '@/components/Header';
+import LeadMagnetForm from '@/components/LeadMagnetForm';
 import { siteConfig } from '@/lib/site';
 
 export default function HomePage() {
@@ -190,6 +191,17 @@ export default function HomePage() {
               <p>Usa la cifra final como base para pasar a tarifa por hora, mensualidad o presupuesto cerrado.</p>
             </article>
           </div>
+        </div>
+      </section>
+
+      <section className="section">
+        <div className="container">
+          <LeadMagnetForm
+            source="home"
+            title="Llévate el kit para revisar tu tarifa antes de enviarla"
+            description="Una guía rápida para convertir el resultado de la calculadora en una tarifa más defendible: mínimos, margen, horas facturables y checklist antes de aceptar un precio."
+            buttonLabel="Quiero revisar mi tarifa"
+          />
         </div>
       </section>
 
