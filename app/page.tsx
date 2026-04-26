@@ -229,6 +229,19 @@ export default function HomePage() {
             </article>
 
             <article className="feature-card">
+              <h3>Cuánto facturar para ganar 1500 euros</h3>
+              <p>
+                Convierte un primer objetivo neto en facturación mensual, tarifa por hora y filtro
+                para no trabajar por debajo de tu suelo.
+              </p>
+              <div className="guide-cta">
+                <Link href="/cuanto-facturar-autonomo-1500-euros" className="primary-button">
+                  Leer guía
+                </Link>
+              </div>
+            </article>
+
+            <article className="feature-card">
               <h3>Cuanto facturar para ganar 2000 euros</h3>
               <p>
                 Baja un objetivo muy concreto a una cifra mensual mas realista teniendo en cuenta
