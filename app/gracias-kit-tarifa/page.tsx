@@ -56,7 +56,10 @@ export default function GraciasKitTarifaPage() {
                 con margen, buffer y alcance claro.
               </p>
               <div className="guide-cta">
-                <a href="https://www.cuantopresupuestar.es" className="primary-button">
+                <a
+                  href="https://www.cuantopresupuestar.es?utm_source=cuantofacturar&utm_medium=thank-you&utm_campaign=kit_next_step"
+                  className="primary-button"
+                >
                   Ir a Cuanto Presupuestar
                 </a>
               </div>
@@ -69,7 +72,10 @@ export default function GraciasKitTarifaPage() {
                 ni tu margen.
               </p>
               <div className="guide-cta">
-                <a href="https://www.mantenimientowebmensual.es" className="primary-button">
+                <a
+                  href="https://www.mantenimientowebmensual.es?utm_source=cuantofacturar&utm_medium=thank-you&utm_campaign=kit_next_step"
+                  className="primary-button"
+                >
                   Calcular cuota
                 </a>
               </div>
@@ -82,7 +88,10 @@ export default function GraciasKitTarifaPage() {
                 mantenimiento y landing pages.
               </p>
               <div className="guide-cta">
-                <a href="https://www.paneldeherramientas.es" className="primary-button">
+                <a
+                  href="https://www.paneldeherramientas.es?utm_source=cuantofacturar&utm_medium=thank-you&utm_campaign=kit_next_step"
+                  className="primary-button"
+                >
                   Abrir panel
                 </a>
               </div>
