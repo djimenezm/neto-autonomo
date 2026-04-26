@@ -67,12 +67,33 @@ describe('CalculatorForm', () => {
     expect(
       screen.getByRole('heading', { name: /tu referencia mensual para presupuestar/i }),
     ).toBeInTheDocument();
-    expect(screen.getByText(/facturación objetivo sin iva/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/facturación objetivo sin iva/i).length).toBeGreaterThan(0);
     expect(screen.getByText(/beneficio antes de irpf/i)).toBeInTheDocument();
     expect(screen.getByText(/esta simulación sitúa tu objetivo en/i)).toBeInTheDocument();
     expect(screen.getByText(/tipo efectivo aproximado/i)).toBeInTheDocument();
     expect(screen.getByText(/hemos estimado una cuota mínima orientativa/i)).toBeInTheDocument();
     expect(screen.queryByText('Revisa los campos marcados antes de calcular.')).not.toBeInTheDocument();
+  });
+
+  it('copies a concise calculation summary', async () => {
+    const user = userEvent.setup();
+    const writeText = vi.fn().mockResolvedValue(undefined);
+
+    Object.defineProperty(navigator, 'clipboard', {
+      configurable: true,
+      value: {
+        writeText,
+      },
+    });
+
+    render(<CalculatorForm />);
+
+    await user.click(screen.getByRole('button', { name: /calcular/i }));
+    await user.click(screen.getByRole('button', { name: /copiar resumen/i }));
+
+    expect(writeText).toHaveBeenCalledWith(expect.stringContaining('Facturación objetivo sin IVA'));
+    expect(writeText).toHaveBeenCalledWith(expect.stringContaining('Tarifa media orientativa'));
+    expect(screen.getByText('Resumen copiado.')).toBeInTheDocument();
   });
 
   it('normalizes decimal billable hours to a whole number on blur', async () => {

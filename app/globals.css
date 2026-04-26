@@ -407,6 +407,65 @@ select[aria-invalid='true'] {
   line-height: 1.8;
 }
 
+.result-copy-box {
+  margin-top: 1.35rem;
+  padding: 1rem 1.1rem;
+  border-radius: 18px;
+  border: 1px solid #cfe0ee;
+  background: linear-gradient(135deg, #f7fbff 0%, #eef7ff 100%);
+}
+
+.result-copy-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.result-copy-header strong {
+  display: block;
+  margin-bottom: 0.35rem;
+}
+
+.result-copy-header p {
+  max-width: 640px;
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+.result-copy-button {
+  border: 0;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.result-copy-preview {
+  margin: 1rem 0 0;
+  padding: 0.95rem;
+  border-radius: 14px;
+  background: #10243a;
+  color: #f8fbff;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  font-size: 0.9rem;
+  line-height: 1.65;
+  overflow-x: auto;
+  white-space: pre-wrap;
+}
+
+.result-copy-status {
+  display: block;
+  margin-top: 0.75rem;
+  color: var(--accent-dark);
+  font-size: 0.92rem;
+  font-weight: 800;
+}
+
+.result-copy-status-error {
+  color: #b42318;
+}
+
 .result-next-step {
   margin-top: 1.35rem;
   padding: 1rem 1.1rem;

@@ -1,4 +1,7 @@
-import { AUTONOMOUS_COMMUNITY_LABELS, CalculationResult } from '@/lib/calculator';
+'use client';
+
+import { useMemo, useState } from 'react';
+import { AUTONOMOUS_COMMUNITY_LABELS, type CalculationResult } from '@/lib/calculator';
 import { formatCurrency } from '@/lib/format';
 
 type ResultCardProps = {
@@ -7,8 +10,60 @@ type ResultCardProps = {
   hasIVA: boolean;
 };
 
+type CopyStatus = 'idle' | 'copied' | 'error';
+
+async function copyTextToClipboard(text: string) {
+  if (navigator.clipboard?.writeText) {
+    await navigator.clipboard.writeText(text);
+    return;
+  }
+
+  const textArea = document.createElement('textarea');
+  textArea.value = text;
+  textArea.setAttribute('readonly', '');
+  textArea.style.position = 'fixed';
+  textArea.style.left = '-9999px';
+  document.body.appendChild(textArea);
+  textArea.select();
+
+  const copied = document.execCommand('copy');
+  document.body.removeChild(textArea);
+
+  if (!copied) {
+    throw new Error('No se pudo copiar el resumen.');
+  }
+}
+
 export default function ResultCard({ result, hoursBillable, hasIVA }: ResultCardProps) {
+  const [copyStatus, setCopyStatus] = useState<CopyStatus>('idle');
   const autonomousCommunityLabel = AUTONOMOUS_COMMUNITY_LABELS[result.autonomousCommunity];
+  const resultSummary = useMemo(
+    () =>
+      [
+        'Resumen de cálculo - Cuánto Facturar',
+        `Neto objetivo: ${formatCurrency(result.targetNet)} al mes`,
+        `Facturación objetivo sin IVA: ${formatCurrency(result.billingWithoutVAT)} al mes`,
+        `Tarifa media orientativa: ${formatCurrency(result.hourlyRate)}/h`,
+        `Horas facturables usadas: ${hoursBillable} al mes`,
+        hasIVA
+          ? `IVA a repercutir aparte: ${formatCurrency(result.estimatedVAT)}`
+          : 'IVA: no incluido en esta simulación',
+        `Reserva estimada de IRPF: ${formatCurrency(result.estimatedIRPF)} al mes`,
+        `Cuota de autónomos aplicada: ${formatCurrency(result.selfEmployedFee)} al mes`,
+        `Comunidad de referencia para IRPF: ${autonomousCommunityLabel}`,
+      ].join('\n'),
+    [autonomousCommunityLabel, hasIVA, hoursBillable, result],
+  );
+
+  async function handleCopySummary() {
+    try {
+      await copyTextToClipboard(resultSummary);
+      setCopyStatus('copied');
+      window.setTimeout(() => setCopyStatus('idle'), 2500);
+    } catch {
+      setCopyStatus('error');
+    }
+  }
 
   return (
     <section className="result-card" aria-live="polite">
@@ -109,6 +164,32 @@ export default function ResultCard({ result, hoursBillable, hasIVA }: ResultCard
           ) : null}
         </p>
       )}
+
+      <div className="result-copy-box">
+        <div className="result-copy-header">
+          <div>
+            <strong>Resumen rápido para guardar</strong>
+            <p>
+              Copia una versión corta del cálculo para pegarla en tus notas, una propuesta o una
+              conversación con tu gestoría.
+            </p>
+          </div>
+          <button type="button" className="secondary-button result-copy-button" onClick={handleCopySummary}>
+            {copyStatus === 'copied' ? 'Resumen copiado' : 'Copiar resumen'}
+          </button>
+        </div>
+        <pre className="result-copy-preview">{resultSummary}</pre>
+        {copyStatus === 'copied' && (
+          <span className="result-copy-status" role="status">
+            Resumen copiado.
+          </span>
+        )}
+        {copyStatus === 'error' && (
+          <span className="result-copy-status result-copy-status-error" role="status">
+            No se ha podido copiar automáticamente. Puedes seleccionar el resumen manualmente.
+          </span>
+        )}
+      </div>
 
       <p className="result-summary">
         {result.selfEmployedFeeMode === 'manual' ? (
