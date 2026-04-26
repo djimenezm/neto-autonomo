@@ -44,6 +44,53 @@ export default function GraciasKitTarifaPage() {
         </div>
       </section>
 
+      <section className="section alt">
+        <div className="container">
+          <span className="eyebrow">Siguiente paso</span>
+          <h2>Convierte esa tarifa en decisiones concretas</h2>
+          <div className="feature-grid" aria-label="Siguientes pasos recomendados">
+            <article className="feature-card">
+              <h3>Presupuesto cerrado</h3>
+              <p>
+                Si ya sabes tu suelo mensual, transforma esa referencia en un precio por proyecto
+                con margen, buffer y alcance claro.
+              </p>
+              <div className="guide-cta">
+                <a href="https://www.cuantopresupuestar.es" className="primary-button">
+                  Ir a Cuanto Presupuestar
+                </a>
+              </div>
+            </article>
+
+            <article className="feature-card">
+              <h3>Mantenimiento mensual</h3>
+              <p>
+                Si vendes soporte recurrente, calcula una cuota mensual que no se coma tus horas
+                ni tu margen.
+              </p>
+              <div className="guide-cta">
+                <a href="https://www.mantenimientowebmensual.es" className="primary-button">
+                  Calcular cuota
+                </a>
+              </div>
+            </article>
+
+            <article className="feature-card">
+              <h3>Ver todas las herramientas</h3>
+              <p>
+                Usa el panel central para moverte entre calculadoras de facturacion, presupuestos,
+                mantenimiento y landing pages.
+              </p>
+              <div className="guide-cta">
+                <a href="https://www.paneldeherramientas.es" className="primary-button">
+                  Abrir panel
+                </a>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
       <Footer />
     </main>
   );
