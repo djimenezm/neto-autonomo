@@ -1,3 +1,5 @@
+const productionUrl = 'https://www.cuantofacturar.es';
+
 export const siteConfig = {
   name: 'Neto Autónomo',
   shortName: 'Neto Autónomo',
@@ -16,7 +18,7 @@ export const siteConfig = {
     'IRPF autonomos',
     'IVA autonomos',
   ],
-  url: process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3001',
+  url: process.env.NODE_ENV === 'development' ? 'http://localhost:3001' : productionUrl,
   ownerName: 'Equipo de Cuánto Facturar',
   contactEmail: 'hola@cuantofacturar.es',
   country: 'España',
