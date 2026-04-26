@@ -255,6 +255,19 @@ export default function HomePage() {
             </article>
 
             <article className="feature-card">
+              <h3>Cuanto facturar para ganar 2500 euros</h3>
+              <p>
+                Convierte una meta intermedia en facturacion mensual, tarifa por hora y filtro para
+                revisar si tus proyectos actuales sostienen ese neto.
+              </p>
+              <div className="guide-cta">
+                <Link href="/cuanto-facturar-autonomo-2500-euros" className="primary-button">
+                  Leer guia
+                </Link>
+              </div>
+            </article>
+
+            <article className="feature-card">
               <h3>Cuanto facturar para ganar 3000 euros</h3>
               <p>
                 Convierte un objetivo neto mas alto en facturacion mensual, tarifa por hora y

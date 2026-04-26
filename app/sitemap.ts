@@ -6,6 +6,7 @@ const routes = [
   '/cuanto-facturar-autonomo',
   '/cuanto-facturar-autonomo-1500-euros',
   '/cuanto-facturar-autonomo-2000-euros',
+  '/cuanto-facturar-autonomo-2500-euros',
   '/cuanto-facturar-autonomo-3000-euros',
   '/kit-tarifa-autonomo',
   '/mejores-programas-facturacion-autonomos',

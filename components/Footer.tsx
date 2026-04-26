@@ -15,6 +15,7 @@ export default function Footer() {
         </div>
         <div className="footer-links">
           <Link href="/cuanto-facturar-autonomo-1500-euros">1500 netos</Link>
+          <Link href="/cuanto-facturar-autonomo-2500-euros">2500 netos</Link>
           <Link href="/cuanto-facturar-autonomo-3000-euros">3000 netos</Link>
           <a href="https://www.cuantopresupuestar.es?utm_source=cuantofacturar&utm_medium=ecosystem-footer&utm_campaign=cross_navigation">
             Presupuestar
