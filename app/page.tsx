@@ -307,6 +307,19 @@ export default function HomePage() {
             </article>
 
             <article className="feature-card">
+              <h3>Tarifa diaria freelance</h3>
+              <p>
+                Convierte tu tarifa por hora en una jornada, workshop o bloque de trabajo sin
+                olvidar preparacion, seguimiento y coste de oportunidad.
+              </p>
+              <div className="guide-cta">
+                <Link href="/tarifa-diaria-freelance" className="primary-button">
+                  Leer guia
+                </Link>
+              </div>
+            </article>
+
+            <article className="feature-card">
               <h3>Cuota de autónomos 2026</h3>
               <p>
                 Revisa cómo funciona la cuota por tramos, cuándo encaja la tarifa reducida y qué

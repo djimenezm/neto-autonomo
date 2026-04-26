@@ -315,6 +315,9 @@ export default function TarifaFreelancePorHoraPage() {
             <Link href="/cuanto-facturar-autonomo" className="primary-button">
               Leer guía sobre cuánto facturar
             </Link>
+            <Link href="/tarifa-diaria-freelance" className="primary-button">
+              Ver tarifa diaria freelance
+            </Link>
             <Link href="/cuota-autonomos-2026" className="primary-button">
               Leer guía sobre cuota 2026
             </Link>

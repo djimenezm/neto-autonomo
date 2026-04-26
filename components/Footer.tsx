@@ -19,6 +19,7 @@ export default function Footer() {
           <Link href="/cuanto-facturar-autonomo-2000-euros">2000 netos</Link>
           <Link href="/cuanto-facturar-autonomo-2500-euros">2500 netos</Link>
           <Link href="/cuanto-facturar-autonomo-3000-euros">3000 netos</Link>
+          <Link href="/tarifa-diaria-freelance">Tarifa diaria</Link>
           <a href="https://www.cuantopresupuestar.es?utm_source=cuantofacturar&utm_medium=ecosystem-footer&utm_campaign=cross_navigation">
             Presupuestar
           </a>

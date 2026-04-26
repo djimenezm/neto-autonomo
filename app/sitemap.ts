@@ -12,6 +12,7 @@ const routes = [
   '/kit-tarifa-autonomo',
   '/mejores-programas-facturacion-autonomos',
   '/tarifa-freelance-por-hora',
+  '/tarifa-diaria-freelance',
   '/cuota-autonomos-2026',
   '/aviso-legal',
   '/privacidad',

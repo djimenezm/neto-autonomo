@@ -16,6 +16,7 @@ describe('sitemap', () => {
     expect(paths).toContain('/kit-tarifa-autonomo');
     expect(paths).toContain('/mejores-programas-facturacion-autonomos');
     expect(paths).toContain('/tarifa-freelance-por-hora');
+    expect(paths).toContain('/tarifa-diaria-freelance');
     expect(paths).toContain('/cuota-autonomos-2026');
     expect(paths).not.toContain('/gracias-kit-tarifa');
   });
