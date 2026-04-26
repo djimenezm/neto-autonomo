@@ -14,6 +14,7 @@ export default function Footer() {
           <p className="footer-note">Herramienta orientativa. No constituye asesoramiento fiscal ni legal.</p>
         </div>
         <div className="footer-links">
+          <Link href="/cuanto-facturar-autonomo-3000-euros">3000 netos</Link>
           <Link href="/aviso-legal">Aviso legal</Link>
           <Link href="/privacidad">Privacidad</Link>
           <Link href="/cookies">Cookies</Link>

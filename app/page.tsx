@@ -210,10 +210,9 @@ export default function HomePage() {
           <span className="eyebrow">Guías útiles</span>
           <h2>Empieza por la duda que más te esté bloqueando</h2>
           <p>
-            Hemos preparado tres guías prácticas para ayudarte a aterrizar mejor tus números antes
-            de usar la calculadora: una sobre cuánto facturar como autónomo, otra sobre cómo
-            calcular una tarifa freelance por hora y una tercera centrada en la cuota de autónomos
-            de 2026.
+            Hemos preparado varias guías prácticas para ayudarte a aterrizar mejor tus números
+            antes de usar la calculadora: desde objetivos netos concretos hasta tarifa por hora,
+            cuota de autónomos y herramientas de facturación.
           </p>
           <div className="feature-grid" aria-label="Guías relacionadas">
             <article className="feature-card">
@@ -237,6 +236,19 @@ export default function HomePage() {
               </p>
               <div className="guide-cta">
                 <Link href="/cuanto-facturar-autonomo-2000-euros" className="primary-button">
+                  Leer guia
+                </Link>
+              </div>
+            </article>
+
+            <article className="feature-card">
+              <h3>Cuanto facturar para ganar 3000 euros</h3>
+              <p>
+                Convierte un objetivo neto mas alto en facturacion mensual, tarifa por hora y
+                filtro para aceptar proyectos con margen real.
+              </p>
+              <div className="guide-cta">
+                <Link href="/cuanto-facturar-autonomo-3000-euros" className="primary-button">
                   Leer guia
                 </Link>
               </div>
