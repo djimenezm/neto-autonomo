@@ -30,6 +30,9 @@ export default function Footer() {
           <a href="https://www.cuantocobrarlandingpage.es?utm_source=cuantofacturar&utm_medium=ecosystem-footer&utm_campaign=cross_navigation">
             Landing pages
           </a>
+          <a href="https://www.paneldeherramientas.es/precios-freelance?utm_source=cuantofacturar&utm_medium=ecosystem-footer&utm_campaign=pricing_hub">
+            Precios freelance
+          </a>
           <a href="https://www.paneldeherramientas.es?utm_source=cuantofacturar&utm_medium=ecosystem-footer&utm_campaign=cross_navigation">
             Panel
           </a>
