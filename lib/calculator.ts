@@ -1,12 +1,12 @@
 export type SelfEmployedFeeMode = 'auto' | 'reduced' | 'manual';
 export type ReducedFeePeriod = 'initial' | 'extended';
 export type IrpfMode = 'progressive' | 'manual';
-export type AutonomousCommunity = 'common' | 'madrid' | 'cataluna' | 'andalucia' | 'valencia';
+export type AutonomousCommunity = 'common' | 'madrid' | 'catalunya' | 'andalucia' | 'valencia';
 
 export const AUTONOMOUS_COMMUNITY_LABELS: Record<AutonomousCommunity, string> = {
   common: 'Territorio común',
   madrid: 'Madrid',
-  cataluna: 'Cataluña',
+  catalunya: 'Cataluña',
   andalucia: 'Andalucía',
   valencia: 'Comunitat Valenciana',
 };
@@ -99,7 +99,7 @@ const REGIONAL_IRPF_CONFIG: Record<
     ],
     personalAllowance: 5956.65,
   },
-  cataluna: {
+  catalunya: {
     brackets: [
       { upTo: 12500, rate: 0.095 },
       { upTo: 22000, rate: 0.125 },
