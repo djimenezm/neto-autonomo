@@ -13,6 +13,7 @@ export default function Header() {
           <Link href="/#faq">FAQ</Link>
           <Link href="/cuanto-facturar-autonomo">Guía</Link>
           <Link href="/tabla-cuanto-facturar-autonomo">Tabla</Link>
+          <Link href="/horas-facturables-freelance">Horas</Link>
           <Link href="/cuanto-facturar-autonomo-1500-euros">1500 netos</Link>
           <Link href="/cuanto-facturar-autonomo-2500-euros">2500 netos</Link>
           <Link href="/cuanto-facturar-autonomo-3000-euros">3000 netos</Link>

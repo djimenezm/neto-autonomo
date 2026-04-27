@@ -307,6 +307,19 @@ export default function HomePage() {
             </article>
 
             <article className="feature-card">
+              <h3>Horas facturables freelance</h3>
+              <p>
+                Calcula cuantas horas puedes vender realmente al mes antes de convertir tu objetivo
+                mensual en tarifa por hora o tarifa diaria.
+              </p>
+              <div className="guide-cta">
+                <Link href="/horas-facturables-freelance" className="primary-button">
+                  Leer guia
+                </Link>
+              </div>
+            </article>
+
+            <article className="feature-card">
               <h3>Tarifa diaria freelance</h3>
               <p>
                 Convierte tu tarifa por hora en una jornada, workshop o bloque de trabajo sin

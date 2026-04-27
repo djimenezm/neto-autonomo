@@ -13,6 +13,7 @@ describe('sitemap', () => {
     expect(paths).toContain('/cuanto-facturar-autonomo-2000-euros');
     expect(paths).toContain('/cuanto-facturar-autonomo-2500-euros');
     expect(paths).toContain('/cuanto-facturar-autonomo-3000-euros');
+    expect(paths).toContain('/horas-facturables-freelance');
     expect(paths).toContain('/kit-tarifa-autonomo');
     expect(paths).toContain('/mejores-programas-facturacion-autonomos');
     expect(paths).toContain('/tarifa-freelance-por-hora');
