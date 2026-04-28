@@ -1,4 +1,3 @@
-import Link from 'next/link';
 import { siteConfig } from '@/lib/site';
 
 export default function Footer() {
@@ -14,13 +13,13 @@ export default function Footer() {
           <p className="footer-note">Herramienta orientativa. No constituye asesoramiento fiscal ni legal.</p>
         </div>
         <div className="footer-links">
-          <Link href="/tabla-cuanto-facturar-autonomo">Tabla</Link>
-          <Link href="/cuanto-facturar-autonomo-1500-euros">1500 netos</Link>
-          <Link href="/cuanto-facturar-autonomo-2000-euros">2000 netos</Link>
-          <Link href="/cuanto-facturar-autonomo-2500-euros">2500 netos</Link>
-          <Link href="/cuanto-facturar-autonomo-3000-euros">3000 netos</Link>
-          <Link href="/horas-facturables-freelance">Horas facturables</Link>
-          <Link href="/tarifa-diaria-freelance">Tarifa diaria</Link>
+          <a href="/tabla-cuanto-facturar-autonomo">Tabla</a>
+          <a href="/cuanto-facturar-autonomo-1500-euros">1500 netos</a>
+          <a href="/cuanto-facturar-autonomo-2000-euros">2000 netos</a>
+          <a href="/cuanto-facturar-autonomo-2500-euros">2500 netos</a>
+          <a href="/cuanto-facturar-autonomo-3000-euros">3000 netos</a>
+          <a href="/horas-facturables-freelance">Horas facturables</a>
+          <a href="/tarifa-diaria-freelance">Tarifa diaria</a>
           <a href="https://www.cuantopresupuestar.es?utm_source=cuantofacturar&utm_medium=ecosystem-footer&utm_campaign=cross_navigation">
             Presupuestar
           </a>
@@ -36,9 +35,9 @@ export default function Footer() {
           <a href="https://www.paneldeherramientas.es?utm_source=cuantofacturar&utm_medium=ecosystem-footer&utm_campaign=cross_navigation">
             Panel
           </a>
-          <Link href="/aviso-legal">Aviso legal</Link>
-          <Link href="/privacidad">Privacidad</Link>
-          <Link href="/cookies">Cookies</Link>
+          <a href="/aviso-legal">Aviso legal</a>
+          <a href="/privacidad">Privacidad</a>
+          <a href="/cookies">Cookies</a>
         </div>
       </div>
     </footer>

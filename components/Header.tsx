@@ -1,22 +1,20 @@
-import Link from 'next/link';
-
 export default function Header() {
   return (
     <header className="site-header">
       <div className="container header-inner">
-        <Link href="/" className="brand">
+        <a href="/" className="brand">
           Neto Autónomo
-        </Link>
+        </a>
 
         <nav className="nav" aria-label="Navegación principal">
-          <Link href="/#calculadora">Calculadora</Link>
-          <Link href="/#faq">FAQ</Link>
-          <Link href="/cuanto-facturar-autonomo">Guía</Link>
-          <Link href="/tabla-cuanto-facturar-autonomo">Tabla</Link>
-          <Link href="/horas-facturables-freelance">Horas</Link>
-          <Link href="/cuanto-facturar-autonomo-1500-euros">1500 netos</Link>
-          <Link href="/cuanto-facturar-autonomo-2500-euros">2500 netos</Link>
-          <Link href="/cuanto-facturar-autonomo-3000-euros">3000 netos</Link>
+          <a href="/#calculadora">Calculadora</a>
+          <a href="/#faq">FAQ</a>
+          <a href="/cuanto-facturar-autonomo">Guía</a>
+          <a href="/tabla-cuanto-facturar-autonomo">Tabla</a>
+          <a href="/horas-facturables-freelance">Horas</a>
+          <a href="/cuanto-facturar-autonomo-1500-euros">1500 netos</a>
+          <a href="/cuanto-facturar-autonomo-2500-euros">2500 netos</a>
+          <a href="/cuanto-facturar-autonomo-3000-euros">3000 netos</a>
         </nav>
       </div>
     </header>

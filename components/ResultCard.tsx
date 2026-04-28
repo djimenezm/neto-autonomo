@@ -8,6 +8,7 @@ type ResultCardProps = {
   result: CalculationResult;
   hoursBillable: number;
   hasIVA: boolean;
+  enableCopy?: boolean;
 };
 
 type CopyStatus = 'idle' | 'copied' | 'error';
@@ -34,7 +35,7 @@ async function copyTextToClipboard(text: string) {
   }
 }
 
-export default function ResultCard({ result, hoursBillable, hasIVA }: ResultCardProps) {
+export default function ResultCard({ result, hoursBillable, hasIVA, enableCopy = true }: ResultCardProps) {
   const [copyStatus, setCopyStatus] = useState<CopyStatus>('idle');
   const autonomousCommunityLabel = AUTONOMOUS_COMMUNITY_LABELS[result.autonomousCommunity];
   const resultSummary = useMemo(
@@ -174,17 +175,19 @@ export default function ResultCard({ result, hoursBillable, hasIVA }: ResultCard
               conversación con tu gestoría.
             </p>
           </div>
-          <button type="button" className="secondary-button result-copy-button" onClick={handleCopySummary}>
-            {copyStatus === 'copied' ? 'Resumen copiado' : 'Copiar resumen'}
-          </button>
+          {enableCopy && (
+            <button type="button" className="secondary-button result-copy-button" onClick={handleCopySummary}>
+              {copyStatus === 'copied' ? 'Resumen copiado' : 'Copiar resumen'}
+            </button>
+          )}
         </div>
         <pre className="result-copy-preview">{resultSummary}</pre>
-        {copyStatus === 'copied' && (
+        {enableCopy && copyStatus === 'copied' && (
           <span className="result-copy-status" role="status">
             Resumen copiado.
           </span>
         )}
-        {copyStatus === 'error' && (
+        {enableCopy && copyStatus === 'error' && (
           <span className="result-copy-status result-copy-status-error" role="status">
             No se ha podido copiar automáticamente. Puedes seleccionar el resumen manualmente.
           </span>

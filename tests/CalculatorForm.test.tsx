@@ -29,6 +29,32 @@ describe('CalculatorForm', () => {
     ).not.toBeInTheDocument();
   });
 
+  it('can submit as a plain GET form when JavaScript is disabled', () => {
+    render(<CalculatorForm />);
+
+    const form = screen.getByRole('form');
+
+    expect(form).toHaveAttribute('method', 'get');
+    expect(form).toHaveAttribute('action', '/#calculadora');
+    expect(screen.getByRole('spinbutton', { name: /neto mensual deseado/i })).toHaveAttribute(
+      'name',
+      'targetNet',
+    );
+    expect(screen.getByRole('combobox', { name: /cómo quieres estimar el irpf/i })).toHaveAttribute(
+      'name',
+      'irpfMode',
+    );
+  });
+
+  it('renders a server-submitted result without the copy button when requested', () => {
+    render(<CalculatorForm initiallySubmitted enableResultCopy={false} />);
+
+    expect(
+      screen.getByRole('heading', { name: /tu referencia mensual para presupuestar/i }),
+    ).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /copiar resumen/i })).not.toBeInTheDocument();
+  });
+
   it('shows an error when the target net is 0', async () => {
     const user = userEvent.setup();
 

@@ -3,9 +3,9 @@ import { join } from 'node:path';
 
 describe('link text', () => {
   it('keeps homepage guide CTA labels unique', () => {
-    const homePage = readFileSync(join(process.cwd(), 'app/page.tsx'), 'utf8');
+    const homePage = readFileSync(join(process.cwd(), 'components/HomePage.tsx'), 'utf8');
     const guideCtaLabels = Array.from(
-      homePage.matchAll(/<Link href="[^"]+" className="primary-button">\s*([^<]+?)\s*<\/Link>/g),
+      homePage.matchAll(/<a href="[^"]+" className="primary-button">\s*([^<]+?)\s*<\/a>/g),
       (match) => match[1].replace(/\s+/g, ' ').trim(),
     );
 

@@ -1,13 +1,21 @@
-import Link from 'next/link';
-import Script from 'next/script';
-import CalculatorForm from '@/components/CalculatorForm';
+import CalculatorForm, { type CalculatorFormValues } from '@/components/CalculatorForm';
 import FAQ, { faqItems } from '@/components/FAQ';
-import Footer from '@/components/Footer';
-import Header from '@/components/Header';
 import LeadMagnetForm from '@/components/LeadMagnetForm';
 import { siteConfig } from '@/lib/site';
 
-export default function HomePage() {
+type HomePageProps = {
+  calculatorInitialValues?: Partial<CalculatorFormValues>;
+  calculatorInitiallySubmitted?: boolean;
+  enableResultCopy?: boolean;
+  trackServerConversion?: boolean;
+};
+
+export default function HomePage({
+  calculatorInitialValues,
+  calculatorInitiallySubmitted = false,
+  enableResultCopy = true,
+  trackServerConversion = false,
+}: HomePageProps) {
   const webAppSchema = {
     '@context': 'https://schema.org',
     '@type': 'WebApplication',
@@ -45,19 +53,17 @@ export default function HomePage() {
   };
 
   return (
-    <main>
-      <Script
+    <main id="contenido-principal">
+      <script
         id="webapp-schema"
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(webAppSchema) }}
       />
-      <Script
+      <script
         id="faq-schema"
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
       />
-
-      <Header />
 
       <section className="hero">
         <div className="container hero-grid">
@@ -84,7 +90,12 @@ export default function HomePage() {
             </p>
           </div>
 
-          <CalculatorForm />
+          <CalculatorForm
+            initialValues={calculatorInitialValues}
+            initiallySubmitted={calculatorInitiallySubmitted}
+            enableResultCopy={enableResultCopy}
+            trackServerConversion={trackServerConversion}
+          />
         </div>
       </section>
 
@@ -220,9 +231,9 @@ export default function HomePage() {
                 cuenta cuota, IRPF, IVA y gastos.
               </p>
               <div className="guide-cta">
-                <Link href="/cuanto-facturar-autonomo" className="primary-button">
+                <a href="/cuanto-facturar-autonomo" className="primary-button">
                   Leer guía de facturación
-                </Link>
+                </a>
               </div>
             </article>
 
@@ -233,9 +244,9 @@ export default function HomePage() {
                 calculo necesitas revisar.
               </p>
               <div className="guide-cta">
-                <Link href="/tabla-cuanto-facturar-autonomo" className="primary-button">
+                <a href="/tabla-cuanto-facturar-autonomo" className="primary-button">
                   Ver tabla de objetivos netos
-                </Link>
+                </a>
               </div>
             </article>
 
@@ -246,9 +257,9 @@ export default function HomePage() {
                 para no trabajar por debajo de tu suelo.
               </p>
               <div className="guide-cta">
-                <Link href="/cuanto-facturar-autonomo-1500-euros" className="primary-button">
+                <a href="/cuanto-facturar-autonomo-1500-euros" className="primary-button">
                   Leer guía para 1500 euros netos
-                </Link>
+                </a>
               </div>
             </article>
 
@@ -259,9 +270,9 @@ export default function HomePage() {
                 cuota, gastos, IRPF, IVA y horas facturables.
               </p>
               <div className="guide-cta">
-                <Link href="/cuanto-facturar-autonomo-2000-euros" className="primary-button">
+                <a href="/cuanto-facturar-autonomo-2000-euros" className="primary-button">
                   Leer guía para 2000 euros netos
-                </Link>
+                </a>
               </div>
             </article>
 
@@ -272,9 +283,9 @@ export default function HomePage() {
                 revisar si tus proyectos actuales sostienen ese neto.
               </p>
               <div className="guide-cta">
-                <Link href="/cuanto-facturar-autonomo-2500-euros" className="primary-button">
+                <a href="/cuanto-facturar-autonomo-2500-euros" className="primary-button">
                   Leer guía para 2500 euros netos
-                </Link>
+                </a>
               </div>
             </article>
 
@@ -285,9 +296,9 @@ export default function HomePage() {
                 filtro para aceptar proyectos con margen real.
               </p>
               <div className="guide-cta">
-                <Link href="/cuanto-facturar-autonomo-3000-euros" className="primary-button">
+                <a href="/cuanto-facturar-autonomo-3000-euros" className="primary-button">
                   Leer guía para 3000 euros netos
-                </Link>
+                </a>
               </div>
             </article>
 
@@ -298,9 +309,9 @@ export default function HomePage() {
                 presupuestos, propuestas y proyectos cerrados.
               </p>
               <div className="guide-cta">
-                <Link href="/tarifa-freelance-por-hora" className="primary-button">
+                <a href="/tarifa-freelance-por-hora" className="primary-button">
                   Leer guía de tarifa por hora
-                </Link>
+                </a>
               </div>
             </article>
 
@@ -311,9 +322,9 @@ export default function HomePage() {
                 mensual en tarifa por hora o tarifa diaria.
               </p>
               <div className="guide-cta">
-                <Link href="/horas-facturables-freelance" className="primary-button">
+                <a href="/horas-facturables-freelance" className="primary-button">
                   Leer guía de horas facturables
-                </Link>
+                </a>
               </div>
             </article>
 
@@ -324,9 +335,9 @@ export default function HomePage() {
                 olvidar preparacion, seguimiento y coste de oportunidad.
               </p>
               <div className="guide-cta">
-                <Link href="/tarifa-diaria-freelance" className="primary-button">
+                <a href="/tarifa-diaria-freelance" className="primary-button">
                   Leer guía de tarifa diaria
-                </Link>
+                </a>
               </div>
             </article>
 
@@ -337,9 +348,9 @@ export default function HomePage() {
                 papel juega la cuota en tu cálculo mensual.
               </p>
               <div className="guide-cta">
-                <Link href="/cuota-autonomos-2026" className="primary-button">
+                <a href="/cuota-autonomos-2026" className="primary-button">
                   Leer guía de cuota 2026
-                </Link>
+                </a>
               </div>
             </article>
 
@@ -350,9 +361,9 @@ export default function HomePage() {
                 gratis o una plataforma mas completa.
               </p>
               <div className="guide-cta">
-                <Link href="/mejores-programas-facturacion-autonomos" className="primary-button">
+                <a href="/mejores-programas-facturacion-autonomos" className="primary-button">
                   Ver comparativa de facturación
-                </Link>
+                </a>
               </div>
             </article>
           </div>
@@ -378,7 +389,6 @@ export default function HomePage() {
       </section>
 
       <FAQ />
-      <Footer />
     </main>
   );
 }

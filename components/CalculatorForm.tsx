@@ -20,6 +20,39 @@ type FieldName =
 
 type FormErrors = Partial<Record<FieldName, string>>;
 
+export type CalculatorFormValues = {
+  targetNet: string;
+  monthlyExpenses: string;
+  billableHours: string;
+  irpfMode: IrpfMode;
+  autonomousCommunity: AutonomousCommunity;
+  irpfRate: string;
+  hasIVA: boolean;
+  selfEmployedFeeMode: SelfEmployedFeeMode;
+  reducedFeePeriod: ReducedFeePeriod;
+  selfEmployedFee: string;
+};
+
+type CalculatorFormProps = {
+  initialValues?: Partial<CalculatorFormValues>;
+  initiallySubmitted?: boolean;
+  enableResultCopy?: boolean;
+  trackServerConversion?: boolean;
+};
+
+const DEFAULT_FORM_VALUES: CalculatorFormValues = {
+  targetNet: '1500',
+  monthlyExpenses: '200',
+  billableHours: '80',
+  irpfMode: 'progressive',
+  autonomousCommunity: 'common',
+  irpfRate: '15',
+  hasIVA: true,
+  selfEmployedFeeMode: 'auto',
+  reducedFeePeriod: 'initial',
+  selfEmployedFee: '0',
+};
+
 declare global {
   interface Window {
     va?: (
@@ -176,19 +209,29 @@ function validateForm(
   return nextErrors;
 }
 
-export default function CalculatorForm() {
-  const [targetNet, setTargetNet] = useState('1500');
-  const [monthlyExpenses, setMonthlyExpenses] = useState('200');
-  const [billableHours, setBillableHours] = useState('80');
-  const [irpfMode, setIrpfMode] = useState<IrpfMode>('progressive');
-  const [autonomousCommunity, setAutonomousCommunity] = useState<AutonomousCommunity>('common');
-  const [irpfRate, setIrpfRate] = useState('15');
-  const [hasIVA, setHasIVA] = useState(true);
-  const [selfEmployedFeeMode, setSelfEmployedFeeMode] = useState<SelfEmployedFeeMode>('auto');
-  const [reducedFeePeriod, setReducedFeePeriod] = useState<ReducedFeePeriod>('initial');
-  const [selfEmployedFee, setSelfEmployedFee] = useState('0');
-  const [submitted, setSubmitted] = useState(false);
-  const [hasTrackedConversion, setHasTrackedConversion] = useState(false);
+export default function CalculatorForm({
+  initialValues,
+  initiallySubmitted = false,
+  enableResultCopy = true,
+  trackServerConversion = false,
+}: CalculatorFormProps = {}) {
+  const values = { ...DEFAULT_FORM_VALUES, ...initialValues };
+  const [targetNet, setTargetNet] = useState(values.targetNet);
+  const [monthlyExpenses, setMonthlyExpenses] = useState(values.monthlyExpenses);
+  const [billableHours, setBillableHours] = useState(values.billableHours);
+  const [irpfMode, setIrpfMode] = useState<IrpfMode>(values.irpfMode);
+  const [autonomousCommunity, setAutonomousCommunity] = useState<AutonomousCommunity>(
+    values.autonomousCommunity,
+  );
+  const [irpfRate, setIrpfRate] = useState(values.irpfRate);
+  const [hasIVA, setHasIVA] = useState(values.hasIVA);
+  const [selfEmployedFeeMode, setSelfEmployedFeeMode] = useState<SelfEmployedFeeMode>(
+    values.selfEmployedFeeMode,
+  );
+  const [reducedFeePeriod, setReducedFeePeriod] = useState<ReducedFeePeriod>(values.reducedFeePeriod);
+  const [selfEmployedFee, setSelfEmployedFee] = useState(values.selfEmployedFee);
+  const [submitted, setSubmitted] = useState(initiallySubmitted);
+  const [hasTrackedConversion, setHasTrackedConversion] = useState(initiallySubmitted);
 
   const validationErrors = useMemo(
     () =>
@@ -256,6 +299,9 @@ export default function CalculatorForm() {
 
       <form
         noValidate
+        method="get"
+        action="/#calculadora"
+        aria-label="Calculadora de facturación"
         aria-describedby="calculator-intro"
         onSubmit={(event) => {
           event.preventDefault();
@@ -274,6 +320,7 @@ export default function CalculatorForm() {
         <label>
           <span>Neto mensual deseado (EUR)</span>
           <input
+            name="targetNet"
             type="number"
             min="0"
             step="0.01"
@@ -293,6 +340,7 @@ export default function CalculatorForm() {
         <label>
           <span>Gastos mensuales deducibles (EUR)</span>
           <input
+            name="monthlyExpenses"
             type="number"
             min="0"
             step="0.01"
@@ -316,6 +364,7 @@ export default function CalculatorForm() {
         <label>
           <span>Horas facturables al mes</span>
           <input
+            name="billableHours"
             type="number"
             min="1"
             step="1"
@@ -334,7 +383,11 @@ export default function CalculatorForm() {
 
         <label>
           <span>Cómo quieres estimar el IRPF</span>
-          <select value={irpfMode} onChange={(event) => setIrpfMode(event.target.value as IrpfMode)}>
+          <select
+            name="irpfMode"
+            value={irpfMode}
+            onChange={(event) => setIrpfMode(event.target.value as IrpfMode)}
+          >
             <option value="progressive">Estimación progresiva simplificada</option>
             <option value="manual">Porcentaje manual</option>
           </select>
@@ -350,6 +403,7 @@ export default function CalculatorForm() {
           <label>
             <span>Comunidad autónoma para el IRPF</span>
             <select
+              name="autonomousCommunity"
               value={autonomousCommunity}
               onChange={(event) => setAutonomousCommunity(event.target.value as AutonomousCommunity)}
             >
@@ -370,6 +424,7 @@ export default function CalculatorForm() {
           <label>
             <span>IRPF manual (%)</span>
             <input
+              name="irpfRate"
               type="number"
               min="0"
               max="99"
@@ -391,6 +446,7 @@ export default function CalculatorForm() {
         <label>
           <span>Cómo quieres calcular la cuota de autónomos</span>
           <select
+            name="selfEmployedFeeMode"
             value={selfEmployedFeeMode}
             onChange={(event) => setSelfEmployedFeeMode(event.target.value as SelfEmployedFeeMode)}
           >
@@ -412,6 +468,7 @@ export default function CalculatorForm() {
           <label>
             <span>Periodo de la tarifa reducida</span>
             <select
+              name="reducedFeePeriod"
               value={reducedFeePeriod}
               onChange={(event) => setReducedFeePeriod(event.target.value as ReducedFeePeriod)}
             >
@@ -428,6 +485,7 @@ export default function CalculatorForm() {
           <label>
             <span>Cuota manual de autónomos (EUR)</span>
             <input
+              name="selfEmployedFee"
               type="number"
               min="0.01"
               step="0.01"
@@ -452,11 +510,23 @@ export default function CalculatorForm() {
         <fieldset className="radio-group">
           <legend>¿Tu actividad suele incluir IVA?</legend>
           <label>
-            <input type="radio" name="iva" checked={hasIVA} onChange={() => setHasIVA(true)} />
+            <input
+              type="radio"
+              name="hasIVA"
+              value="yes"
+              checked={hasIVA}
+              onChange={() => setHasIVA(true)}
+            />
             Sí
           </label>
           <label>
-            <input type="radio" name="iva" checked={!hasIVA} onChange={() => setHasIVA(false)} />
+            <input
+              type="radio"
+              name="hasIVA"
+              value="no"
+              checked={!hasIVA}
+              onChange={() => setHasIVA(false)}
+            />
             No
           </label>
         </fieldset>
@@ -474,7 +544,29 @@ export default function CalculatorForm() {
       </form>
 
       {submitted && !hasValidationErrors && (
-        <ResultCard result={result} hoursBillable={parsedHours} hasIVA={hasIVA} />
+        <>
+          {trackServerConversion && (
+            <script
+              dangerouslySetInnerHTML={{
+                __html: `window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments)};window.va('event',${JSON.stringify(
+                  {
+                    name: 'calculator_completed',
+                    data: {
+                      irpfMode,
+                      selfEmployedFeeMode,
+                    },
+                  },
+                )});`,
+              }}
+            />
+          )}
+          <ResultCard
+            result={result}
+            hoursBillable={parsedHours}
+            hasIVA={hasIVA}
+            enableCopy={enableResultCopy}
+          />
+        </>
       )}
     </div>
   );

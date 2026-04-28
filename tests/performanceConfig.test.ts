@@ -20,8 +20,15 @@ describe('performance configuration', () => {
     expect(noPolyfillsModule.trim()).toBe('export {};');
   });
 
+  it('serves the homepage without the Next client runtime', () => {
+    const indexPage = readFileSync(join(process.cwd(), 'pages/index.tsx'), 'utf8');
+
+    expect(indexPage).toMatch(/unstable_runtimeJS:\s*false/);
+    expect(indexPage).toContain('getServerSideProps');
+  });
+
   it('keeps the homepage lead compact for LCP', () => {
-    const homePage = readFileSync(join(process.cwd(), 'app/page.tsx'), 'utf8');
+    const homePage = readFileSync(join(process.cwd(), 'components/HomePage.tsx'), 'utf8');
     const globalStyles = readFileSync(join(process.cwd(), 'app/globals.css'), 'utf8');
     const leadMatch = homePage.match(/<p className="lead">([\s\S]*?)<\/p>/);
     const leadText = leadMatch?.[1].replace(/\s+/g, ' ').trim() ?? '';
