@@ -7,4 +7,16 @@ describe('performance configuration', () => {
 
     expect(nextConfig).toMatch(/inlineCss:\s*true/);
   });
+
+  it('does not ship Next browser polyfills for legacy browsers', () => {
+    const nextConfig = readFileSync(join(process.cwd(), 'next.config.ts'), 'utf8');
+    const noPolyfillsModule = readFileSync(
+      join(process.cwd(), 'lib/no-browser-polyfills.ts'),
+      'utf8',
+    );
+
+    expect(nextConfig).toContain('next/dist/build/polyfills/polyfill-module');
+    expect(nextConfig).toContain('./lib/no-browser-polyfills.ts');
+    expect(noPolyfillsModule.trim()).toBe('export {};');
+  });
 });
