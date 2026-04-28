@@ -221,7 +221,7 @@ export default function HomePage() {
               </p>
               <div className="guide-cta">
                 <Link href="/cuanto-facturar-autonomo" className="primary-button">
-                  Leer guía
+                  Leer guía de facturación
                 </Link>
               </div>
             </article>
@@ -234,7 +234,7 @@ export default function HomePage() {
               </p>
               <div className="guide-cta">
                 <Link href="/tabla-cuanto-facturar-autonomo" className="primary-button">
-                  Ver tabla
+                  Ver tabla de objetivos netos
                 </Link>
               </div>
             </article>
@@ -247,7 +247,7 @@ export default function HomePage() {
               </p>
               <div className="guide-cta">
                 <Link href="/cuanto-facturar-autonomo-1500-euros" className="primary-button">
-                  Leer guía
+                  Leer guía para 1500 euros netos
                 </Link>
               </div>
             </article>
@@ -260,7 +260,7 @@ export default function HomePage() {
               </p>
               <div className="guide-cta">
                 <Link href="/cuanto-facturar-autonomo-2000-euros" className="primary-button">
-                  Leer guia
+                  Leer guía para 2000 euros netos
                 </Link>
               </div>
             </article>
@@ -273,7 +273,7 @@ export default function HomePage() {
               </p>
               <div className="guide-cta">
                 <Link href="/cuanto-facturar-autonomo-2500-euros" className="primary-button">
-                  Leer guia
+                  Leer guía para 2500 euros netos
                 </Link>
               </div>
             </article>
@@ -286,7 +286,7 @@ export default function HomePage() {
               </p>
               <div className="guide-cta">
                 <Link href="/cuanto-facturar-autonomo-3000-euros" className="primary-button">
-                  Leer guia
+                  Leer guía para 3000 euros netos
                 </Link>
               </div>
             </article>
@@ -299,7 +299,7 @@ export default function HomePage() {
               </p>
               <div className="guide-cta">
                 <Link href="/tarifa-freelance-por-hora" className="primary-button">
-                  Leer guía
+                  Leer guía de tarifa por hora
                 </Link>
               </div>
             </article>
@@ -312,7 +312,7 @@ export default function HomePage() {
               </p>
               <div className="guide-cta">
                 <Link href="/horas-facturables-freelance" className="primary-button">
-                  Leer guia
+                  Leer guía de horas facturables
                 </Link>
               </div>
             </article>
@@ -325,7 +325,7 @@ export default function HomePage() {
               </p>
               <div className="guide-cta">
                 <Link href="/tarifa-diaria-freelance" className="primary-button">
-                  Leer guia
+                  Leer guía de tarifa diaria
                 </Link>
               </div>
             </article>
@@ -338,7 +338,7 @@ export default function HomePage() {
               </p>
               <div className="guide-cta">
                 <Link href="/cuota-autonomos-2026" className="primary-button">
-                  Leer guía
+                  Leer guía de cuota 2026
                 </Link>
               </div>
             </article>
@@ -351,7 +351,7 @@ export default function HomePage() {
               </p>
               <div className="guide-cta">
                 <Link href="/mejores-programas-facturacion-autonomos" className="primary-button">
-                  Ver comparativa
+                  Ver comparativa de facturación
                 </Link>
               </div>
             </article>
