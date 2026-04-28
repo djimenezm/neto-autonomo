@@ -631,6 +631,10 @@ select[aria-invalid='true'] {
 
 .site-footer a {
   color: var(--accent-dark);
+  font-weight: 700;
+  text-decoration: underline;
+  text-decoration-thickness: 0.08em;
+  text-underline-offset: 0.18em;
 }
 
 .footer-copy {
@@ -675,6 +679,18 @@ select[aria-invalid='true'] {
 
 .legal-page a {
   color: var(--accent-dark);
+  font-weight: 700;
+  text-decoration: underline;
+  text-decoration-thickness: 0.08em;
+  text-underline-offset: 0.18em;
+}
+
+.text-block a:not(.primary-button) {
+  color: var(--accent-dark);
+  font-weight: 700;
+  text-decoration: underline;
+  text-decoration-thickness: 0.08em;
+  text-underline-offset: 0.18em;
 }
 
 @media (max-width: 900px) {
