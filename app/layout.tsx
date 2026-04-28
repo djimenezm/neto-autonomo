@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import { Analytics } from '@vercel/analytics/next';
 import { getSiteUrl, siteConfig } from '@/lib/site';
 import './globals.css';
 
@@ -66,7 +65,12 @@ export default function RootLayout({
     <html lang="es" data-scroll-behavior="smooth">
       <body>
         {children}
-        <Analytics />
+        <script
+          defer
+          src="/_vercel/insights/script.js"
+          data-sdkn="@vercel/analytics/next"
+          data-sdkv="2.0.1"
+        />
       </body>
     </html>
   );

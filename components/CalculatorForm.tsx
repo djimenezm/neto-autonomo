@@ -1,7 +1,6 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { track } from '@vercel/analytics';
 import ResultCard from '@/components/ResultCard';
 import {
   AUTONOMOUS_COMMUNITY_LABELS,
@@ -20,6 +19,18 @@ type FieldName =
   | 'selfEmployedFee';
 
 type FormErrors = Partial<Record<FieldName, string>>;
+
+declare global {
+  interface Window {
+    va?: (
+      command: 'event',
+      payload: {
+        name: string;
+        data?: Record<string, string>;
+      },
+    ) => void;
+  }
+}
 
 function parseNumericValue(value: string) {
   const normalizedValue = value.replace(',', '.').trim();
@@ -57,6 +68,13 @@ function normalizeFieldValue(field: FieldName, value: string) {
     case 'selfEmployedFee':
       return formatNormalizedNumber(Math.max(0, parsedValue));
   }
+}
+
+function trackCalculatorCompleted(data: Record<string, string>) {
+  window.va?.('event', {
+    name: 'calculator_completed',
+    data,
+  });
 }
 
 function getFieldError(field: FieldName, value: string) {
@@ -244,7 +262,7 @@ export default function CalculatorForm() {
           setSubmitted(true);
 
           if (!hasValidationErrors && !hasTrackedConversion) {
-            track('calculator_completed', {
+            trackCalculatorCompleted({
               irpfMode,
               selfEmployedFeeMode,
             });

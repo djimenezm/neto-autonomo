@@ -2,15 +2,10 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import CalculatorForm from '@/components/CalculatorForm';
-import { track } from '@vercel/analytics';
-
-vi.mock('@vercel/analytics', () => ({
-  track: vi.fn(),
-}));
 
 describe('CalculatorForm', () => {
   beforeEach(() => {
-    vi.mocked(track).mockClear();
+    window.va = vi.fn();
   });
 
   it('shows an error and blocks results when billable hours are 0', async () => {
@@ -28,7 +23,7 @@ describe('CalculatorForm', () => {
 
     expect(screen.getByText('Las horas facturables deben ser mayores que 0.')).toBeInTheDocument();
     expect(screen.getByText('Revisa los campos marcados antes de calcular.')).toBeInTheDocument();
-    expect(track).not.toHaveBeenCalled();
+    expect(window.va).not.toHaveBeenCalled();
     expect(
       screen.queryByRole('heading', { name: /tu referencia mensual para presupuestar/i }),
     ).not.toBeInTheDocument();
@@ -60,9 +55,12 @@ describe('CalculatorForm', () => {
 
     await user.click(screen.getByRole('button', { name: /calcular/i }));
 
-    expect(track).toHaveBeenCalledWith('calculator_completed', {
-      irpfMode: 'progressive',
-      selfEmployedFeeMode: 'auto',
+    expect(window.va).toHaveBeenCalledWith('event', {
+      name: 'calculator_completed',
+      data: {
+        irpfMode: 'progressive',
+        selfEmployedFeeMode: 'auto',
+      },
     });
     expect(
       screen.getByRole('heading', { name: /tu referencia mensual para presupuestar/i }),
@@ -156,7 +154,7 @@ describe('CalculatorForm', () => {
     await user.click(submitButton);
     await user.click(submitButton);
 
-    expect(track).toHaveBeenCalledTimes(1);
+    expect(window.va).toHaveBeenCalledTimes(1);
   });
 
   it('shows the SMI warning when the user chooses the reduced-fee extension', async () => {

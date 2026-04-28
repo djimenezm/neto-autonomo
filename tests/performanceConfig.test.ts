@@ -19,4 +19,15 @@ describe('performance configuration', () => {
     expect(nextConfig).toContain('./lib/no-browser-polyfills.ts');
     expect(noPolyfillsModule.trim()).toBe('export {};');
   });
+
+  it('keeps the homepage lead compact for LCP', () => {
+    const homePage = readFileSync(join(process.cwd(), 'app/page.tsx'), 'utf8');
+    const globalStyles = readFileSync(join(process.cwd(), 'app/globals.css'), 'utf8');
+    const leadMatch = homePage.match(/<p className="lead">([\s\S]*?)<\/p>/);
+    const leadText = leadMatch?.[1].replace(/\s+/g, ' ').trim() ?? '';
+
+    expect(leadText.length).toBeLessThanOrEqual(130);
+    expect(globalStyles).toMatch(/\.lead\s*{[^}]*font-size:\s*1rem/s);
+    expect(globalStyles).toMatch(/\.lead\s*{[^}]*line-height:\s*1\.55/s);
+  });
 });

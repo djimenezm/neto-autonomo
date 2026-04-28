@@ -66,9 +66,7 @@ export default function HomePage() {
             <h1>Calculadora de autónomos para saber cuánto facturar y cuánto cobrar por hora</h1>
             <p className="lead">
               Calcula cuánto facturar como autónomo o freelance en España con una referencia clara
-              de cuota, IRPF, IVA y tarifa por hora. Pensada para ayudarte a poner precio con más
-              criterio, defender mejor tus presupuestos y detectar si estás cobrando por debajo de
-              lo que necesitas.
+              de cuota, IRPF, IVA y tarifa por hora.
             </p>
             <div className="hero-badges" aria-label="Ventajas principales">
               <span className="hero-badge">Sin registro</span>
