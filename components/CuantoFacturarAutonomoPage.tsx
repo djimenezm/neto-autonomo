@@ -1,16 +1,11 @@
-import type { Metadata } from 'next';
-import Link from 'next/link';
-import Script from 'next/script';
-import Footer from '@/components/Footer';
-import Header from '@/components/Header';
 import { getSiteUrl, siteConfig } from '@/lib/site';
 
-const route = '/cuanto-facturar-autonomo';
-const title = 'Cuánto facturar como autónomo en España';
-const description =
+export const route = '/cuanto-facturar-autonomo';
+export const title = 'Cuánto facturar como autónomo en España';
+export const description =
   'Guía práctica para calcular cuánto facturar como autónomo o freelance en España sin quedarte corto al presupuestar. Entiende neto, cuota, IRPF, IVA y tarifa por hora antes de usar la calculadora.';
 
-const pageFaqItems = [
+export const pageFaqItems = [
   {
     question: '¿Cuánto tengo que facturar para ganar 1.500 euros netos?',
     answer:
@@ -27,41 +22,6 @@ const pageFaqItems = [
       'Sí. Está pensada para profesionales independientes que facturan servicios en España. Si trabajas como freelance, consultor o proveedor de servicios, la lógica de neto, gastos, impuestos y horas facturables te afecta igual.',
   },
 ] as const;
-
-export const metadata: Metadata = {
-  title,
-  description,
-  alternates: {
-    canonical: route,
-  },
-  keywords: [
-    'cuanto facturar autonomo',
-    'cuanto facturar freelance',
-    'como calcular cuanto facturar autonomo',
-    'tarifa freelance por hora',
-    'cuanto cobrar por proyecto',
-  ],
-  openGraph: {
-    title: `${title} | ${siteConfig.name}`,
-    description,
-    url: route,
-    type: 'article',
-    images: [
-      {
-        url: '/opengraph-image',
-        width: 1200,
-        height: 630,
-        alt: `${siteConfig.name} - ${title}`,
-      },
-    ],
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: `${title} | ${siteConfig.name}`,
-    description,
-    images: ['/opengraph-image'],
-  },
-};
 
 export default function CuantoFacturarAutonomoPage() {
   const siteUrl = getSiteUrl();
@@ -119,24 +79,22 @@ export default function CuantoFacturarAutonomoPage() {
   };
 
   return (
-    <main>
-      <Script
+    <main id="contenido-principal">
+      <script
         id="cuanto-facturar-autonomo-article-schema"
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
       />
-      <Script
+      <script
         id="cuanto-facturar-autonomo-breadcrumb-schema"
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
       />
-      <Script
+      <script
         id="cuanto-facturar-autonomo-faq-schema"
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
       />
-
-      <Header />
 
       <section className="hero">
         <div className="container article-layout">
@@ -155,9 +113,9 @@ export default function CuantoFacturarAutonomoPage() {
               <span className="hero-badge">Tarifa por hora</span>
             </div>
             <div className="guide-cta">
-              <Link href="/#calculadora" className="primary-button">
+              <a href="/#calculadora" className="primary-button">
                 Ir a la calculadora
-              </Link>
+              </a>
             </div>
           </div>
 
@@ -281,22 +239,22 @@ export default function CuantoFacturarAutonomoPage() {
           <p>
             Si tu objetivo esta cerca de un caso muy concreto, tambien puedes apoyarte en la guia
             sobre{' '}
-            <Link href="/cuanto-facturar-autonomo-2000-euros">
+            <a href="/cuanto-facturar-autonomo-2000-euros">
               cuanto facturar como autonomo para ganar 2000 euros netos
-            </Link>
+            </a>
             .
           </p>
           <p>
             Y cuando ya tengas clara tu cifra, puedes revisar tambien la comparativa de{' '}
-            <Link href="/mejores-programas-facturacion-autonomos">
+            <a href="/mejores-programas-facturacion-autonomos">
               mejores programas de facturacion para autonomos
-            </Link>{' '}
+            </a>{' '}
             para elegir con que herramienta ordenar esa parte del negocio.
           </p>
           <div className="guide-cta">
-            <Link href="/#calculadora" className="primary-button">
+            <a href="/#calculadora" className="primary-button">
               Calcular mi referencia
-            </Link>
+            </a>
           </div>
         </div>
       </section>
@@ -329,17 +287,15 @@ export default function CuantoFacturarAutonomoPage() {
             cómo encaja la cuota de autónomos de 2026 dentro de este cálculo.
           </p>
           <div className="guide-cta">
-            <Link href="/tarifa-freelance-por-hora" className="primary-button">
+            <a href="/tarifa-freelance-por-hora" className="primary-button">
               Leer guía sobre tarifa por hora
-            </Link>
-            <Link href="/cuota-autonomos-2026" className="primary-button">
+            </a>
+            <a href="/cuota-autonomos-2026" className="primary-button">
               Ver guía sobre cuota 2026
-            </Link>
+            </a>
           </div>
         </div>
       </section>
-
-      <Footer />
     </main>
   );
 }

@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 describe('performance configuration', () => {
@@ -25,6 +25,16 @@ describe('performance configuration', () => {
 
     expect(indexPage).toMatch(/unstable_runtimeJS:\s*false/);
     expect(indexPage).toContain('getServerSideProps');
+  });
+
+  it('serves the main billing guide without the Next client runtime', () => {
+    const guidePage = readFileSync(
+      join(process.cwd(), 'pages/cuanto-facturar-autonomo.tsx'),
+      'utf8',
+    );
+
+    expect(guidePage).toMatch(/unstable_runtimeJS:\s*false/);
+    expect(existsSync(join(process.cwd(), 'app/cuanto-facturar-autonomo/page.tsx'))).toBe(false);
   });
 
   it('keeps the homepage lead compact for LCP', () => {
