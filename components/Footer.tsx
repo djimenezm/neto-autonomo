@@ -6,9 +6,11 @@ export default function Footer() {
       <div className="container footer-inner">
         <div className="footer-copy">
           <p>Copyright {new Date().getFullYear()} Neto Autónomo</p>
-          <p>
-            Titular: {siteConfig.ownerName} · Contacto:{' '}
-            <a href={`mailto:${siteConfig.contactEmail}`}>{siteConfig.contactEmail}</a>
+          <p>Titular: {siteConfig.ownerName}</p>
+          <p className="footer-contact-row">
+            <a className="footer-contact-link" href={`mailto:${siteConfig.contactEmail}`}>
+              Contacto: {siteConfig.contactEmail}
+            </a>
           </p>
           <p className="footer-note">Herramienta orientativa. No constituye asesoramiento fiscal ni legal.</p>
         </div>

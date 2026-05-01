@@ -647,6 +647,31 @@ select[aria-invalid='true'] {
   gap: 0.35rem;
 }
 
+.footer-contact-row {
+  margin-top: 0.15rem;
+}
+
+.footer-contact-link {
+  display: inline-flex;
+  width: fit-content;
+  align-items: center;
+  border: 1px solid rgba(20, 93, 160, 0.34);
+  border-radius: 999px;
+  padding: 0.2rem 0.55rem;
+  background: #eef6ff;
+  color: var(--accent-dark);
+  font-weight: 700;
+  text-decoration: underline;
+  text-decoration-thickness: 0.08em;
+  text-underline-offset: 0.18em;
+}
+
+.footer-contact-link:hover,
+.footer-contact-link:focus-visible {
+  background: #dcecff;
+  color: #073763;
+}
+
 .footer-note {
   font-size: 0.92rem;
 }
