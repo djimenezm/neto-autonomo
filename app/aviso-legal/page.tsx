@@ -4,6 +4,9 @@ import { siteConfig } from '@/lib/site';
 export const metadata: Metadata = {
   title: 'Aviso legal',
   description: 'Condiciones de uso y limitación de responsabilidad de la calculadora Neto Autónomo.',
+  alternates: {
+    canonical: '/aviso-legal',
+  },
 };
 
 export default function AvisoLegalPage() {

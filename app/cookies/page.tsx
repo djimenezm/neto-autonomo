@@ -4,6 +4,9 @@ import { siteConfig } from '@/lib/site';
 export const metadata: Metadata = {
   title: 'Política de cookies',
   description: 'Información sobre el uso de cookies en Neto Autónomo.',
+  alternates: {
+    canonical: '/cookies',
+  },
 };
 
 export default function CookiesPage() {
