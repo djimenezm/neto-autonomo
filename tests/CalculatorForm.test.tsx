@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import CalculatorForm from '@/components/CalculatorForm';
@@ -97,6 +97,25 @@ describe('CalculatorForm', () => {
     expect(screen.getByText(/tipo efectivo aproximado/i)).toBeInTheDocument();
     expect(screen.getByText(/hemos estimado una cuota mínima orientativa/i)).toBeInTheDocument();
     expect(screen.queryByText('Revisa los campos marcados antes de calcular.')).not.toBeInTheDocument();
+  });
+
+  it('moves focus to the result card after a successful calculation', async () => {
+    const user = userEvent.setup();
+
+    render(<CalculatorForm />);
+
+    await user.click(screen.getByRole('button', { name: /calcular/i }));
+
+    const resultCardHeading = screen.getByRole('heading', {
+      name: /tu referencia mensual para presupuestar/i,
+    });
+    const resultCard = resultCardHeading.closest('section');
+
+    expect(resultCard).not.toBeNull();
+    expect(resultCard).toHaveAttribute('tabindex', '-1');
+    await waitFor(() => {
+      expect(resultCard).toHaveFocus();
+    });
   });
 
   it('copies a concise calculation summary', async () => {

@@ -47,4 +47,11 @@ describe('performance configuration', () => {
     expect(globalStyles).toMatch(/\.lead\s*{[^}]*font-size:\s*1rem/s);
     expect(globalStyles).toMatch(/\.lead\s*{[^}]*line-height:\s*1\.55/s);
   });
+
+  it('provides a visible focus state for generated calculator results', () => {
+    const globalStyles = readFileSync(join(process.cwd(), 'app/globals.css'), 'utf8');
+
+    expect(globalStyles).toMatch(/\.result-card:focus\s*{[^}]*outline:\s*3px solid var\(--accent\)/s);
+    expect(globalStyles).toMatch(/\.result-card:focus\s*{[^}]*outline-offset:\s*4px/s);
+  });
 });

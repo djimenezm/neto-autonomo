@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { forwardRef, useMemo, useState } from 'react';
 import { AUTONOMOUS_COMMUNITY_LABELS, type CalculationResult } from '@/lib/calculator';
 import { formatCurrency } from '@/lib/format';
 
@@ -35,7 +35,10 @@ async function copyTextToClipboard(text: string) {
   }
 }
 
-export default function ResultCard({ result, hoursBillable, hasIVA, enableCopy = true }: ResultCardProps) {
+const ResultCard = forwardRef<HTMLElement, ResultCardProps>(function ResultCard(
+  { result, hoursBillable, hasIVA, enableCopy = true },
+  ref,
+) {
   const [copyStatus, setCopyStatus] = useState<CopyStatus>('idle');
   const autonomousCommunityLabel = AUTONOMOUS_COMMUNITY_LABELS[result.autonomousCommunity];
   const resultSummary = useMemo(
@@ -67,8 +70,14 @@ export default function ResultCard({ result, hoursBillable, hasIVA, enableCopy =
   }
 
   return (
-    <section className="result-card" aria-live="polite">
-      <h3>Tu referencia mensual para presupuestar</h3>
+    <section
+      ref={ref}
+      className="result-card"
+      tabIndex={-1}
+      aria-live="polite"
+      aria-labelledby="result-card-title"
+    >
+      <h3 id="result-card-title">Tu referencia mensual para presupuestar</h3>
 
       <p className="result-lead">
         Esta simulación sitúa tu objetivo en <strong>{formatCurrency(result.billingWithoutVAT)}</strong>{' '}
@@ -258,4 +267,6 @@ export default function ResultCard({ result, hoursBillable, hasIVA, enableCopy =
       </div>
     </section>
   );
-}
+});
+
+export default ResultCard;

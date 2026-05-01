@@ -367,6 +367,11 @@ select[aria-invalid='true'] {
   padding: 1.5rem;
 }
 
+.result-card:focus {
+  outline: 3px solid var(--accent);
+  outline-offset: 4px;
+}
+
 .result-lead {
   margin: 0.9rem 0 0;
   color: var(--text);

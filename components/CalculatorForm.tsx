@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import ResultCard from '@/components/ResultCard';
 import {
   AUTONOMOUS_COMMUNITY_LABELS,
@@ -232,6 +232,8 @@ export default function CalculatorForm({
   const [selfEmployedFee, setSelfEmployedFee] = useState(values.selfEmployedFee);
   const [submitted, setSubmitted] = useState(initiallySubmitted);
   const [hasTrackedConversion, setHasTrackedConversion] = useState(initiallySubmitted);
+  const [validSubmissionCount, setValidSubmissionCount] = useState(0);
+  const resultRegionRef = useRef<HTMLElement | null>(null);
 
   const validationErrors = useMemo(
     () =>
@@ -289,6 +291,23 @@ export default function CalculatorForm({
     reducedFeePeriod,
   ]);
 
+  useEffect(() => {
+    if (validSubmissionCount > 0) {
+      resultRegionRef.current?.focus({ preventScroll: false });
+    }
+  }, [validSubmissionCount]);
+
+  const setResultRegionRef = useCallback(
+    (node: HTMLElement | null) => {
+      resultRegionRef.current = node;
+
+      if (node && validSubmissionCount > 0) {
+        window.requestAnimationFrame(() => node.focus({ preventScroll: false }));
+      }
+    },
+    [validSubmissionCount],
+  );
+
   return (
     <div className="calculator-card" id="calculadora">
       <h2>Calculadora</h2>
@@ -306,6 +325,10 @@ export default function CalculatorForm({
         onSubmit={(event) => {
           event.preventDefault();
           setSubmitted(true);
+
+          if (!hasValidationErrors) {
+            setValidSubmissionCount((currentCount) => currentCount + 1);
+          }
 
           if (!hasValidationErrors && !hasTrackedConversion) {
             trackCalculatorCompleted({
@@ -561,6 +584,7 @@ export default function CalculatorForm({
             />
           )}
           <ResultCard
+            ref={setResultRegionRef}
             result={result}
             hoursBillable={parsedHours}
             hasIVA={hasIVA}
