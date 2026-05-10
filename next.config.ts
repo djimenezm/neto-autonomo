@@ -1,13 +1,14 @@
 import type { NextConfig } from 'next';
 
-export const contentSecurityPolicy = [
+const trustedTypesDirective = "require-trusted-types-for 'script'";
+
+const baseContentSecurityPolicy: string[] = [
   "default-src 'self'",
   "base-uri 'self'",
   "object-src 'none'",
   "frame-ancestors 'none'",
   "form-action 'self' https://formsubmit.co",
   "script-src 'self' 'unsafe-inline' https://va.vercel-scripts.com",
-  "require-trusted-types-for 'script'",
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob:",
   "font-src 'self'",
@@ -16,7 +17,19 @@ export const contentSecurityPolicy = [
   "worker-src 'self' blob:",
   "frame-src 'none'",
   'upgrade-insecure-requests',
-].join('; ');
+];
+
+export function getContentSecurityPolicy(environment = process.env.NODE_ENV) {
+  const directives = [...baseContentSecurityPolicy];
+
+  if (environment !== 'development') {
+    directives.splice(6, 0, trustedTypesDirective);
+  }
+
+  return directives.join('; ');
+}
+
+export const contentSecurityPolicy = getContentSecurityPolicy('production');
 
 export const securityHeaders = [
   {
@@ -52,10 +65,17 @@ export const securityHeaders = [
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   async headers() {
+    const activeContentSecurityPolicy = getContentSecurityPolicy();
+    const activeSecurityHeaders = securityHeaders.map((header) =>
+      header.key === 'Content-Security-Policy'
+        ? { ...header, value: activeContentSecurityPolicy }
+        : header,
+    );
+
     return [
       {
         source: '/:path*',
-        headers: securityHeaders,
+        headers: activeSecurityHeaders,
       },
     ];
   },

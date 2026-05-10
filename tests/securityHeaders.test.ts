@@ -1,4 +1,8 @@
-import nextConfig, { contentSecurityPolicy, securityHeaders } from '../next.config';
+import nextConfig, {
+  contentSecurityPolicy,
+  getContentSecurityPolicy,
+  securityHeaders,
+} from '../next.config';
 
 describe('security headers', () => {
   it('serves a Content Security Policy in enforcement mode', async () => {
@@ -20,6 +24,13 @@ describe('security headers', () => {
     expect(contentSecurityPolicy).toContain("require-trusted-types-for 'script'");
     expect(contentSecurityPolicy).toContain("style-src 'self'");
     expect(contentSecurityPolicy).not.toContain(' *');
+  });
+
+  it('relaxes Trusted Types only in development so the Next.js overlay can render', () => {
+    expect(getContentSecurityPolicy('production')).toContain("require-trusted-types-for 'script'");
+    expect(getContentSecurityPolicy('development')).not.toContain(
+      "require-trusted-types-for 'script'",
+    );
   });
 
   it('adds complementary browser security headers', () => {
