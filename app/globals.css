@@ -492,6 +492,39 @@ select[aria-invalid='true'] {
   color: #b42318;
 }
 
+.result-share-box {
+  display: grid;
+  gap: 0.9rem;
+  margin-top: 1.35rem;
+  padding: 1rem 1.1rem;
+  border-radius: 16px;
+  border: 1px solid var(--line);
+  background: #fbfdff;
+}
+
+.result-share-copy strong {
+  display: block;
+  margin-bottom: 0.35rem;
+}
+
+.result-share-copy p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+.result-share-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+}
+
+.result-share-actions button,
+.result-share-actions a {
+  min-height: 2.75rem;
+  cursor: pointer;
+}
+
 .result-next-step {
   margin-top: 1.35rem;
   padding: 1rem 1.1rem;

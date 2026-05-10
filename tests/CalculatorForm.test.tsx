@@ -99,6 +99,44 @@ describe('CalculatorForm', () => {
     expect(screen.queryByText('Revisa los campos marcados antes de calcular.')).not.toBeInTheDocument();
   });
 
+  it('updates the URL with a shareable calculation after a valid submit', async () => {
+    const user = userEvent.setup();
+
+    render(<CalculatorForm />);
+
+    await user.click(screen.getByRole('button', { name: /calcular/i }));
+
+    expect(window.location.search).toContain('targetNet=1500');
+    expect(window.location.search).toContain('billableHours=80');
+    expect(window.location.hash).toBe('#calculadora');
+    expect(screen.getByRole('button', { name: /copiar enlace/i })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /linkedin/i })).toHaveAttribute(
+      'href',
+      expect.stringContaining('utm_source%3Dlinkedin'),
+    );
+  });
+
+  it('copies a tracked share link for the calculation', async () => {
+    const user = userEvent.setup();
+    const writeText = vi.fn().mockResolvedValue(undefined);
+
+    Object.defineProperty(navigator, 'clipboard', {
+      configurable: true,
+      value: {
+        writeText,
+      },
+    });
+
+    render(<CalculatorForm />);
+
+    await user.click(screen.getByRole('button', { name: /calcular/i }));
+    await user.click(screen.getByRole('button', { name: /copiar enlace/i }));
+
+    expect(writeText).toHaveBeenCalledWith(expect.stringContaining('utm_source=copy_link'));
+    expect(writeText).toHaveBeenCalledWith(expect.stringContaining('targetNet=1500'));
+    expect(screen.getByText('Enlace preparado y copiado.')).toBeInTheDocument();
+  });
+
   it('moves focus to the result card after a successful calculation', async () => {
     const user = userEvent.setup();
 

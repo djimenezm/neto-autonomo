@@ -56,6 +56,24 @@ function getAllowedValue<T extends string>(
   return value && allowedValues.includes(value as T) ? (value as T) : fallback;
 }
 
+function getResultImageUrl(values?: Partial<CalculatorFormValues>) {
+  if (!values) {
+    return `${siteConfig.url}/opengraph-image`;
+  }
+
+  const params = new URLSearchParams();
+
+  calculatorQueryKeys.forEach((key) => {
+    const value = values[key as keyof CalculatorFormValues];
+
+    if (value !== undefined) {
+      params.set(key, typeof value === 'boolean' ? (value ? 'yes' : 'no') : String(value));
+    }
+  });
+
+  return `${siteConfig.url}/resultado-opengraph-image?${params.toString()}`;
+}
+
 export const getServerSideProps: GetServerSideProps<HomeIndexProps> = async ({ query, res }) => {
   const calculatorInitiallySubmitted = calculatorQueryKeys.some((key) => query[key] !== undefined);
 
@@ -106,6 +124,16 @@ export default function IndexPage({
   calculatorInitialValues,
   calculatorInitiallySubmitted,
 }: HomeIndexProps) {
+  const openGraphImage = calculatorInitiallySubmitted
+    ? getResultImageUrl(calculatorInitialValues)
+    : `${siteConfig.url}/opengraph-image`;
+  const openGraphTitle = calculatorInitiallySubmitted
+    ? 'Resultado orientativo para facturar como autónomo'
+    : pageTitle;
+  const openGraphDescription = calculatorInitiallySubmitted
+    ? 'Calculadora precargada con una referencia de facturación mensual y tarifa por hora para autónomos.'
+    : siteConfig.description;
+
   return (
     <>
       <Head>
@@ -120,15 +148,15 @@ export default function IndexPage({
         <meta property="og:locale" content={siteConfig.locale} />
         <meta property="og:site_name" content={siteConfig.name} />
         <meta property="og:url" content={`${siteConfig.url}/`} />
-        <meta property="og:title" content={pageTitle} />
-        <meta property="og:description" content={siteConfig.description} />
-        <meta property="og:image" content={`${siteConfig.url}/opengraph-image`} />
+        <meta property="og:title" content={openGraphTitle} />
+        <meta property="og:description" content={openGraphDescription} />
+        <meta property="og:image" content={openGraphImage} />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content={pageTitle} />
-        <meta name="twitter:description" content={siteConfig.description} />
-        <meta name="twitter:image" content={`${siteConfig.url}/opengraph-image`} />
+        <meta name="twitter:title" content={openGraphTitle} />
+        <meta name="twitter:description" content={openGraphDescription} />
+        <meta name="twitter:image" content={openGraphImage} />
         <meta name="theme-color" content={siteConfig.themeColor} />
       </Head>
       <HomePage

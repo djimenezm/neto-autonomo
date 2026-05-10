@@ -110,6 +110,25 @@ function trackCalculatorCompleted(data: Record<string, string>) {
   });
 }
 
+function buildCalculatorUrl(values: CalculatorFormValues) {
+  const url = new URL(window.location.href);
+  url.pathname = '/';
+  url.hash = 'calculadora';
+  url.search = '';
+  url.searchParams.set('targetNet', values.targetNet);
+  url.searchParams.set('monthlyExpenses', values.monthlyExpenses);
+  url.searchParams.set('billableHours', values.billableHours);
+  url.searchParams.set('irpfMode', values.irpfMode);
+  url.searchParams.set('autonomousCommunity', values.autonomousCommunity);
+  url.searchParams.set('irpfRate', values.irpfRate);
+  url.searchParams.set('hasIVA', values.hasIVA ? 'yes' : 'no');
+  url.searchParams.set('selfEmployedFeeMode', values.selfEmployedFeeMode);
+  url.searchParams.set('reducedFeePeriod', values.reducedFeePeriod);
+  url.searchParams.set('selfEmployedFee', values.selfEmployedFee);
+
+  return url.toString();
+}
+
 function getFieldError(field: FieldName, value: string) {
   const parsedValue = parseNumericValue(value);
 
@@ -233,6 +252,9 @@ export default function CalculatorForm({
   const [submitted, setSubmitted] = useState(initiallySubmitted);
   const [hasTrackedConversion, setHasTrackedConversion] = useState(initiallySubmitted);
   const [validSubmissionCount, setValidSubmissionCount] = useState(0);
+  const [shareUrl, setShareUrl] = useState(() =>
+    initiallySubmitted && typeof window !== 'undefined' ? window.location.href : '',
+  );
   const resultRegionRef = useRef<HTMLElement | null>(null);
 
   const validationErrors = useMemo(
@@ -327,6 +349,21 @@ export default function CalculatorForm({
           setSubmitted(true);
 
           if (!hasValidationErrors) {
+            const nextShareUrl = buildCalculatorUrl({
+              targetNet: normalizeFieldValue('targetNet', targetNet),
+              monthlyExpenses: normalizeFieldValue('monthlyExpenses', monthlyExpenses),
+              billableHours: normalizeFieldValue('billableHours', billableHours),
+              irpfMode,
+              autonomousCommunity,
+              irpfRate: normalizeFieldValue('irpfRate', irpfRate),
+              hasIVA,
+              selfEmployedFeeMode,
+              reducedFeePeriod,
+              selfEmployedFee: normalizeFieldValue('selfEmployedFee', selfEmployedFee),
+            });
+
+            window.history.replaceState(null, '', nextShareUrl);
+            setShareUrl(nextShareUrl);
             setValidSubmissionCount((currentCount) => currentCount + 1);
           }
 
@@ -589,6 +626,7 @@ export default function CalculatorForm({
             hoursBillable={parsedHours}
             hasIVA={hasIVA}
             enableCopy={enableResultCopy}
+            shareUrl={shareUrl}
           />
         </>
       )}

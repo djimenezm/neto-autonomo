@@ -9,9 +9,11 @@ type ResultCardProps = {
   hoursBillable: number;
   hasIVA: boolean;
   enableCopy?: boolean;
+  shareUrl?: string;
 };
 
 type CopyStatus = 'idle' | 'copied' | 'error';
+type ShareStatus = 'idle' | 'copied' | 'shared' | 'error';
 
 async function copyTextToClipboard(text: string) {
   if (navigator.clipboard?.writeText) {
@@ -36,11 +38,23 @@ async function copyTextToClipboard(text: string) {
 }
 
 const ResultCard = forwardRef<HTMLElement, ResultCardProps>(function ResultCard(
-  { result, hoursBillable, hasIVA, enableCopy = true },
+  { result, hoursBillable, hasIVA, enableCopy = true, shareUrl },
   ref,
 ) {
   const [copyStatus, setCopyStatus] = useState<CopyStatus>('idle');
+  const [shareStatus, setShareStatus] = useState<ShareStatus>('idle');
   const autonomousCommunityLabel = AUTONOMOUS_COMMUNITY_LABELS[result.autonomousCommunity];
+  const shareText = useMemo(
+    () =>
+      [
+        `Para quedarme con ${formatCurrency(result.targetNet)} netos al mes como autónomo, la referencia sale en ${formatCurrency(
+          result.billingWithoutVAT,
+        )}/mes sin IVA y ${formatCurrency(result.hourlyRate)}/h.`,
+        'Lo he calculado en Cuanto Facturar.',
+      ].join(' '),
+    [result.billingWithoutVAT, result.hourlyRate, result.targetNet],
+  );
+  const shareTitle = 'Mi referencia para facturar como autónomo';
   const resultSummary = useMemo(
     () =>
       [
@@ -58,6 +72,29 @@ const ResultCard = forwardRef<HTMLElement, ResultCardProps>(function ResultCard(
       ].join('\n'),
     [autonomousCommunityLabel, hasIVA, hoursBillable, result],
   );
+  const channelShareUrls = useMemo(() => {
+    if (!shareUrl) {
+      return null;
+    }
+
+    const buildTrackedUrl = (source: string, medium: string) => {
+      const trackedUrl = new URL(shareUrl);
+      trackedUrl.searchParams.set('utm_source', source);
+      trackedUrl.searchParams.set('utm_medium', medium);
+      trackedUrl.searchParams.set('utm_campaign', 'shared_calculator_result');
+      return trackedUrl.toString();
+    };
+
+    const linkedinUrl = buildTrackedUrl('linkedin', 'social_share');
+    const whatsappUrl = buildTrackedUrl('whatsapp', 'social_share');
+    const xUrl = buildTrackedUrl('x', 'social_share');
+
+    return {
+      linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(linkedinUrl)}`,
+      whatsapp: `https://wa.me/?text=${encodeURIComponent(`${shareText} ${whatsappUrl}`)}`,
+      x: `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(xUrl)}`,
+    };
+  }, [shareText, shareUrl]);
 
   async function handleCopySummary() {
     try {
@@ -66,6 +103,51 @@ const ResultCard = forwardRef<HTMLElement, ResultCardProps>(function ResultCard(
       window.setTimeout(() => setCopyStatus('idle'), 2500);
     } catch {
       setCopyStatus('error');
+    }
+  }
+
+  async function handleCopyShareLink() {
+    if (!shareUrl) {
+      return;
+    }
+
+    try {
+      const trackedUrl = new URL(shareUrl);
+      trackedUrl.searchParams.set('utm_source', 'copy_link');
+      trackedUrl.searchParams.set('utm_medium', 'share_button');
+      trackedUrl.searchParams.set('utm_campaign', 'shared_calculator_result');
+      await copyTextToClipboard(`${shareText}\n${trackedUrl.toString()}`);
+      setShareStatus('copied');
+      window.setTimeout(() => setShareStatus('idle'), 2500);
+    } catch {
+      setShareStatus('error');
+    }
+  }
+
+  async function handleNativeShare() {
+    if (!shareUrl || !navigator.share) {
+      await handleCopyShareLink();
+      return;
+    }
+
+    try {
+      const trackedUrl = new URL(shareUrl);
+      trackedUrl.searchParams.set('utm_source', 'native_share');
+      trackedUrl.searchParams.set('utm_medium', 'share_button');
+      trackedUrl.searchParams.set('utm_campaign', 'shared_calculator_result');
+      await navigator.share({
+        title: shareTitle,
+        text: shareText,
+        url: trackedUrl.toString(),
+      });
+      setShareStatus('shared');
+      window.setTimeout(() => setShareStatus('idle'), 2500);
+    } catch (error) {
+      if (error instanceof DOMException && error.name === 'AbortError') {
+        return;
+      }
+
+      setShareStatus('error');
     }
   }
 
@@ -116,6 +198,50 @@ const ResultCard = forwardRef<HTMLElement, ResultCardProps>(function ResultCard(
           <strong>{formatCurrency(result.hourlyRate)}/h</strong>
         </div>
       </div>
+
+      {shareUrl && channelShareUrls && (
+        <div className="result-share-box">
+          <div className="result-share-copy">
+            <strong>Haz que el cálculo trabaje por ti</strong>
+            <p>
+              Comparte este escenario con el enlace ya precargado. Quien lo abra verá la calculadora
+              con estos números y podrá ajustar su propio caso.
+            </p>
+          </div>
+          <div className="result-share-actions" aria-label="Opciones para compartir el resultado">
+            <button type="button" className="secondary-button" onClick={handleNativeShare}>
+              Compartir
+            </button>
+            <button type="button" className="link-button" onClick={handleCopyShareLink}>
+              Copiar enlace
+            </button>
+            <a className="link-button" href={channelShareUrls.linkedin} target="_blank" rel="noreferrer">
+              LinkedIn
+            </a>
+            <a className="link-button" href={channelShareUrls.whatsapp} target="_blank" rel="noreferrer">
+              WhatsApp
+            </a>
+            <a className="link-button" href={channelShareUrls.x} target="_blank" rel="noreferrer">
+              X
+            </a>
+          </div>
+          {shareStatus === 'copied' && (
+            <span className="result-copy-status" role="status">
+              Enlace preparado y copiado.
+            </span>
+          )}
+          {shareStatus === 'shared' && (
+            <span className="result-copy-status" role="status">
+              Resultado compartido.
+            </span>
+          )}
+          {shareStatus === 'error' && (
+            <span className="result-copy-status result-copy-status-error" role="status">
+              No se ha podido compartir automáticamente. Prueba con Copiar enlace.
+            </span>
+          )}
+        </div>
+      )}
 
       <p className="result-summary">
         Si quieres acercarte a un neto mensual de <strong>{formatCurrency(result.targetNet)}</strong>,
