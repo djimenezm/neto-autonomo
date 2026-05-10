@@ -37,6 +37,7 @@ type CalculatorFormProps = {
   initialValues?: Partial<CalculatorFormValues>;
   initiallySubmitted?: boolean;
   enableResultCopy?: boolean;
+  initialShareUrl?: string;
   trackServerConversion?: boolean;
 };
 
@@ -232,6 +233,7 @@ export default function CalculatorForm({
   initialValues,
   initiallySubmitted = false,
   enableResultCopy = true,
+  initialShareUrl = '',
   trackServerConversion = false,
 }: CalculatorFormProps = {}) {
   const values = { ...DEFAULT_FORM_VALUES, ...initialValues };
@@ -253,7 +255,7 @@ export default function CalculatorForm({
   const [hasTrackedConversion, setHasTrackedConversion] = useState(initiallySubmitted);
   const [validSubmissionCount, setValidSubmissionCount] = useState(0);
   const [shareUrl, setShareUrl] = useState(() =>
-    initiallySubmitted && typeof window !== 'undefined' ? window.location.href : '',
+    initialShareUrl || (initiallySubmitted && typeof window !== 'undefined' ? window.location.href : ''),
   );
   const resultRegionRef = useRef<HTMLElement | null>(null);
 

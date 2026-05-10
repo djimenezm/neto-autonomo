@@ -55,6 +55,23 @@ describe('CalculatorForm', () => {
     expect(screen.queryByRole('button', { name: /copiar resumen/i })).not.toBeInTheDocument();
   });
 
+  it('renders share actions for a server-submitted result when a share URL is provided', () => {
+    render(
+      <CalculatorForm
+        initiallySubmitted
+        enableResultCopy={false}
+        initialShareUrl="https://www.cuantofacturar.es/?targetNet=1500#calculadora"
+      />,
+    );
+
+    expect(screen.queryByRole('button', { name: /copiar resumen/i })).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /copiar enlace/i })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /linkedin/i })).toHaveAttribute(
+      'href',
+      expect.stringContaining('utm_source%3Dlinkedin'),
+    );
+  });
+
   it('shows an error when the target net is 0', async () => {
     const user = userEvent.setup();
 

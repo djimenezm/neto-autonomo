@@ -31,6 +31,7 @@ const reducedFeePeriods = ['initial', 'extended'] satisfies readonly CalculatorF
 type HomeIndexProps = {
   calculatorInitialValues?: Partial<CalculatorFormValues>;
   calculatorInitiallySubmitted: boolean;
+  calculatorShareUrl?: string;
 };
 
 export const config = {
@@ -74,6 +75,26 @@ function getResultImageUrl(values?: Partial<CalculatorFormValues>) {
   return `${siteConfig.url}/resultado-opengraph-image?${params.toString()}`;
 }
 
+function getCalculatorShareUrl(values?: Partial<CalculatorFormValues>) {
+  if (!values) {
+    return `${siteConfig.url}/#calculadora`;
+  }
+
+  const url = new URL(siteConfig.url);
+  url.pathname = '/';
+  url.hash = 'calculadora';
+
+  calculatorQueryKeys.forEach((key) => {
+    const value = values[key as keyof CalculatorFormValues];
+
+    if (value !== undefined) {
+      url.searchParams.set(key, typeof value === 'boolean' ? (value ? 'yes' : 'no') : String(value));
+    }
+  });
+
+  return url.toString();
+}
+
 export const getServerSideProps: GetServerSideProps<HomeIndexProps> = async ({ query, res }) => {
   const calculatorInitiallySubmitted = calculatorQueryKeys.some((key) => query[key] !== undefined);
 
@@ -89,33 +110,36 @@ export const getServerSideProps: GetServerSideProps<HomeIndexProps> = async ({ q
 
   res.setHeader('Cache-Control', 'private, no-store');
 
+  const calculatorInitialValues: Partial<CalculatorFormValues> = {
+    targetNet: getQueryValue(query, 'targetNet') ?? '1500',
+    monthlyExpenses: getQueryValue(query, 'monthlyExpenses') ?? '200',
+    billableHours: getQueryValue(query, 'billableHours') ?? '80',
+    irpfMode: getAllowedValue(getQueryValue(query, 'irpfMode'), irpfModes, 'progressive'),
+    autonomousCommunity: getAllowedValue(
+      getQueryValue(query, 'autonomousCommunity'),
+      autonomousCommunities,
+      'common',
+    ),
+    irpfRate: getQueryValue(query, 'irpfRate') ?? '15',
+    hasIVA: getQueryValue(query, 'hasIVA') !== 'no',
+    selfEmployedFeeMode: getAllowedValue(
+      getQueryValue(query, 'selfEmployedFeeMode'),
+      selfEmployedFeeModes,
+      'auto',
+    ),
+    reducedFeePeriod: getAllowedValue(
+      getQueryValue(query, 'reducedFeePeriod'),
+      reducedFeePeriods,
+      'initial',
+    ),
+    selfEmployedFee: getQueryValue(query, 'selfEmployedFee') ?? '0',
+  };
+
   return {
     props: {
       calculatorInitiallySubmitted: true,
-      calculatorInitialValues: {
-        targetNet: getQueryValue(query, 'targetNet') ?? '1500',
-        monthlyExpenses: getQueryValue(query, 'monthlyExpenses') ?? '200',
-        billableHours: getQueryValue(query, 'billableHours') ?? '80',
-        irpfMode: getAllowedValue(getQueryValue(query, 'irpfMode'), irpfModes, 'progressive'),
-        autonomousCommunity: getAllowedValue(
-          getQueryValue(query, 'autonomousCommunity'),
-          autonomousCommunities,
-          'common',
-        ),
-        irpfRate: getQueryValue(query, 'irpfRate') ?? '15',
-        hasIVA: getQueryValue(query, 'hasIVA') !== 'no',
-        selfEmployedFeeMode: getAllowedValue(
-          getQueryValue(query, 'selfEmployedFeeMode'),
-          selfEmployedFeeModes,
-          'auto',
-        ),
-        reducedFeePeriod: getAllowedValue(
-          getQueryValue(query, 'reducedFeePeriod'),
-          reducedFeePeriods,
-          'initial',
-        ),
-        selfEmployedFee: getQueryValue(query, 'selfEmployedFee') ?? '0',
-      },
+      calculatorInitialValues,
+      calculatorShareUrl: getCalculatorShareUrl(calculatorInitialValues),
     },
   };
 };
@@ -123,6 +147,7 @@ export const getServerSideProps: GetServerSideProps<HomeIndexProps> = async ({ q
 export default function IndexPage({
   calculatorInitialValues,
   calculatorInitiallySubmitted,
+  calculatorShareUrl,
 }: HomeIndexProps) {
   const openGraphImage = calculatorInitiallySubmitted
     ? getResultImageUrl(calculatorInitialValues)
@@ -163,6 +188,7 @@ export default function IndexPage({
         calculatorInitialValues={calculatorInitialValues}
         calculatorInitiallySubmitted={calculatorInitiallySubmitted}
         enableResultCopy={false}
+        initialShareUrl={calculatorShareUrl}
         trackServerConversion={calculatorInitiallySubmitted}
       />
     </>

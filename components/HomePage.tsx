@@ -7,6 +7,7 @@ type HomePageProps = {
   calculatorInitialValues?: Partial<CalculatorFormValues>;
   calculatorInitiallySubmitted?: boolean;
   enableResultCopy?: boolean;
+  initialShareUrl?: string;
   trackServerConversion?: boolean;
 };
 
@@ -14,6 +15,7 @@ export default function HomePage({
   calculatorInitialValues,
   calculatorInitiallySubmitted = false,
   enableResultCopy = true,
+  initialShareUrl,
   trackServerConversion = false,
 }: HomePageProps) {
   const webAppSchema = {
@@ -94,6 +96,7 @@ export default function HomePage({
             initialValues={calculatorInitialValues}
             initiallySubmitted={calculatorInitiallySubmitted}
             enableResultCopy={enableResultCopy}
+            initialShareUrl={initialShareUrl}
             trackServerConversion={trackServerConversion}
           />
         </div>
