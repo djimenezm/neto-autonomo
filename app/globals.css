@@ -513,6 +513,16 @@ select[aria-invalid='true'] {
   line-height: 1.7;
 }
 
+.result-share-text {
+  min-height: 13rem;
+  resize: vertical;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: var(--text);
+  background: #fff;
+}
+
 .result-share-actions {
   display: flex;
   flex-wrap: wrap;

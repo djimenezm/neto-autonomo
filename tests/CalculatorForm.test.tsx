@@ -65,10 +65,14 @@ describe('CalculatorForm', () => {
     );
 
     expect(screen.queryByRole('button', { name: /copiar resumen/i })).not.toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /copiar enlace/i })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /linkedin/i })).toHaveAttribute(
+    const shareText = screen.getByLabelText(/resumen detallado para compartir/i);
+
+    expect((shareText as HTMLTextAreaElement).value).toContain('Resumen de cálculo - Cuánto Facturar');
+    expect((shareText as HTMLTextAreaElement).value).toContain('Calculadora: https://www.cuantofacturar.es/');
+    expect(screen.queryByRole('link', { name: /linkedin/i })).not.toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /whatsapp/i })).toHaveAttribute(
       'href',
-      expect.stringContaining('utm_source%3Dlinkedin'),
+      expect.stringContaining('Resumen%20de%20c%C3%A1lculo'),
     );
   });
 
@@ -126,32 +130,31 @@ describe('CalculatorForm', () => {
     expect(window.location.search).toContain('targetNet=1500');
     expect(window.location.search).toContain('billableHours=80');
     expect(window.location.hash).toBe('#calculadora');
-    expect(screen.getByRole('button', { name: /copiar enlace/i })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /linkedin/i })).toHaveAttribute(
+    const shareText = screen.getByLabelText(/resumen detallado para compartir/i);
+
+    expect((shareText as HTMLTextAreaElement).value).toContain('Calculadora: http://localhost:3000/');
+    expect(screen.getByRole('link', { name: /whatsapp/i })).toHaveAttribute(
       'href',
-      expect.stringContaining('utm_source%3Dlinkedin'),
+      expect.stringContaining('Resumen%20de%20c%C3%A1lculo'),
     );
   });
 
-  it('copies a tracked share link for the calculation', async () => {
+  it('uses the detailed result summary in social share links', async () => {
     const user = userEvent.setup();
-    const writeText = vi.fn().mockResolvedValue(undefined);
-
-    Object.defineProperty(navigator, 'clipboard', {
-      configurable: true,
-      value: {
-        writeText,
-      },
-    });
 
     render(<CalculatorForm />);
 
     await user.click(screen.getByRole('button', { name: /calcular/i }));
-    await user.click(screen.getByRole('button', { name: /copiar enlace/i }));
 
-    expect(writeText).toHaveBeenCalledWith(expect.stringContaining('utm_source=copy_link'));
-    expect(writeText).toHaveBeenCalledWith(expect.stringContaining('targetNet=1500'));
-    expect(screen.getByText('Enlace preparado y copiado.')).toBeInTheDocument();
+    const whatsappLink = screen.getByRole('link', { name: /whatsapp/i });
+    const xLink = screen.getByRole('link', { name: 'X' });
+    const emailLink = screen.getByRole('link', { name: /email/i });
+
+    expect(whatsappLink).toHaveAttribute('href', expect.stringContaining('Neto%20objetivo'));
+    expect(whatsappLink).toHaveAttribute('href', expect.stringContaining('Facturaci%C3%B3n%20objetivo'));
+    expect(whatsappLink).toHaveAttribute('href', expect.stringContaining('Calculadora%3A%20http'));
+    expect(xLink).toHaveAttribute('href', expect.stringContaining('Tarifa%20media%20orientativa'));
+    expect(emailLink).toHaveAttribute('href', expect.stringContaining('body=Resumen%20de%20c%C3%A1lculo'));
   });
 
   it('moves focus to the result card after a successful calculation', async () => {
