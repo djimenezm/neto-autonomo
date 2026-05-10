@@ -74,6 +74,10 @@ describe('CalculatorForm', () => {
       'href',
       expect.stringContaining('Resumen%20de%20c%C3%A1lculo'),
     );
+    expect(screen.getByRole('link', { name: /whatsapp/i })).toHaveAttribute(
+      'data-share-channel',
+      'whatsapp',
+    );
   });
 
   it('shows an error when the target net is 0', async () => {
@@ -153,6 +157,9 @@ describe('CalculatorForm', () => {
     expect(whatsappLink).toHaveAttribute('href', expect.stringContaining('Neto%20objetivo'));
     expect(whatsappLink).toHaveAttribute('href', expect.stringContaining('Facturaci%C3%B3n%20objetivo'));
     expect(whatsappLink).toHaveAttribute('href', expect.stringContaining('Calculadora%3A%20http'));
+    expect(whatsappLink).toHaveAttribute('data-share-channel', 'whatsapp');
+    expect(xLink).toHaveAttribute('data-share-channel', 'x');
+    expect(emailLink).toHaveAttribute('data-share-channel', 'email');
     expect(xLink).toHaveAttribute('href', expect.stringContaining('Tarifa%20media%20orientativa'));
     expect(emailLink).toHaveAttribute('href', expect.stringContaining('body=Resumen%20de%20c%C3%A1lculo'));
   });

@@ -154,6 +154,11 @@ const ResultCard = forwardRef<HTMLElement, ResultCardProps>(function ResultCard(
               persona ve primero los números y luego puede abrir el escenario precargado.
             </p>
           </div>
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments)};(function(){if(window.__cuantoFacturarShareTracking)return;window.__cuantoFacturarShareTracking=true;document.addEventListener('click',function(event){var link=event.target&&event.target.closest?event.target.closest('[data-share-channel]'):null;if(!link)return;window.va('event',{name:'result_shared',data:{channel:link.getAttribute('data-share-channel')||'unknown'}});});})();`,
+            }}
+          />
           <textarea
             className="result-share-text"
             readOnly
@@ -161,13 +166,25 @@ const ResultCard = forwardRef<HTMLElement, ResultCardProps>(function ResultCard(
             value={channelShareUrls.text}
           />
           <div className="result-share-actions" aria-label="Opciones para compartir el resultado">
-            <a className="link-button" href={channelShareUrls.whatsapp} target="_blank" rel="noreferrer">
+            <a
+              className="link-button"
+              href={channelShareUrls.whatsapp}
+              target="_blank"
+              rel="noreferrer"
+              data-share-channel="whatsapp"
+            >
               WhatsApp
             </a>
-            <a className="link-button" href={channelShareUrls.x} target="_blank" rel="noreferrer">
+            <a
+              className="link-button"
+              href={channelShareUrls.x}
+              target="_blank"
+              rel="noreferrer"
+              data-share-channel="x"
+            >
               X
             </a>
-            <a className="link-button" href={channelShareUrls.email}>
+            <a className="link-button" href={channelShareUrls.email} data-share-channel="email">
               Email
             </a>
           </div>
