@@ -17,6 +17,13 @@ describe('LeadMagnetForm', () => {
     expect(emailInput).toHaveAttribute('type', 'email');
     expect(sourceInput).toHaveAttribute('name', 'origen');
     expect(autoresponseInput).toHaveAttribute('name', '_autoresponse');
+    expect(document.querySelector('input[name="utm_source"]')).toHaveAttribute(
+      'data-attribution-field',
+      'utm_source',
+    );
+    expect(document.querySelector('input[name="gclid"]')).toHaveAttribute('data-attribution-field', 'gclid');
+    expect(document.querySelector('input[name="landing_page"]')).toBeInTheDocument();
+    expect(document.body.innerHTML).toContain('cf_attribution');
     expect((autoresponseInput as HTMLInputElement).value).toContain('/kit-tarifa-autonomo');
     expect((autoresponseInput as HTMLInputElement).value).toContain(
       '/recursos/kit-tarifa-autonomo.txt',

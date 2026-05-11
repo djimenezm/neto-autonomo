@@ -18,6 +18,16 @@ export default function LeadMagnetForm({
   const resourceUrl = new URL('/kit-tarifa-autonomo', siteUrl).toString();
   const downloadUrl = new URL('/recursos/kit-tarifa-autonomo.txt', siteUrl).toString();
   const formAction = `https://formsubmit.co/${siteConfig.contactEmail}`;
+  const attributionFields = [
+    'utm_source',
+    'utm_medium',
+    'utm_campaign',
+    'utm_content',
+    'utm_term',
+    'gclid',
+    'landing_page',
+    'referrer',
+  ];
 
   return (
     <section className="lead-card" aria-labelledby={`lead-form-title-${source}`}>
@@ -37,6 +47,9 @@ export default function LeadMagnetForm({
         <input type="hidden" name="_next" value={thankYouUrl} />
         <input type="hidden" name="origen" value={source} />
         <input type="hidden" name="interes" value="kit-tarifa-autonomo" />
+        {attributionFields.map((field) => (
+          <input key={field} type="hidden" name={field} data-attribution-field={field} />
+        ))}
         <label>
           <span>Email</span>
           <input type="email" name="email" placeholder="tu@email.com" required />
@@ -50,6 +63,12 @@ export default function LeadMagnetForm({
           avisarte de futuras actualizaciones relacionadas. Más información en{' '}
           <a href="/privacidad">privacidad</a>.
         </p>
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              "(function(){var form=document.currentScript&&document.currentScript.closest('form');if(!form)return;var keys=['utm_source','utm_medium','utm_campaign','utm_content','utm_term','gclid'];var params=new URLSearchParams(window.location.search);var stored={};try{stored=JSON.parse(window.localStorage.getItem('cf_attribution')||'{}')||{};}catch(error){stored={};}var next=Object.assign({},stored);keys.forEach(function(key){var value=params.get(key);if(value)next[key]=value;});if(!next.landing_page)next.landing_page=window.location.href;if(document.referrer&&!next.referrer)next.referrer=document.referrer;try{window.localStorage.setItem('cf_attribution',JSON.stringify(next));}catch(error){}Object.keys(next).forEach(function(key){var input=form.querySelector('[data-attribution-field=\"'+key+'\"]');if(input)input.value=next[key];});})();",
+          }}
+        />
       </form>
     </section>
   );

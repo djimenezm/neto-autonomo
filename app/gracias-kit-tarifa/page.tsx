@@ -22,6 +22,12 @@ export default function GraciasKitTarifaPage() {
         <div className="container text-block">
           <span className="eyebrow">Todo correcto</span>
           <h1>Gracias por pedir el kit de tarifa para autónomos</h1>
+          <script
+            dangerouslySetInnerHTML={{
+              __html:
+                "window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments)};window.va('event',{name:'kit_requested',data:{resource:'kit-tarifa-autonomo'}});if(window.gtag){window.gtag('event','kit_requested',{resource:'kit-tarifa-autonomo'});}",
+            }}
+          />
           <p className="lead">
             Ya hemos recibido tu solicitud. Acabas de desbloquear el kit con estructura para revisar
             tu tarifa, checklist de mínimos y una guía corta para defender mejor tus números.
