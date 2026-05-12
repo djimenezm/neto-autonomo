@@ -3,6 +3,7 @@ import { getSiteUrl, siteConfig } from '@/lib/site';
 import './globals.css';
 
 const siteUrl = getSiteUrl();
+const googleAdsPageViewConversion = `${siteConfig.googleAdsId}/${siteConfig.googleAdsPageViewConversionLabel}`;
 
 export const metadata: Metadata = {
   metadataBase: siteUrl,
@@ -77,7 +78,7 @@ export default function RootLayout({
         <script async src={`https://www.googletagmanager.com/gtag/js?id=${siteConfig.googleAdsId}`} />
         <script
           dangerouslySetInnerHTML={{
-            __html: `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','${siteConfig.googleAdsId}');`,
+            __html: `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','${siteConfig.googleAdsId}');if(['/', '/cuanto-facturar-autonomo'].includes(window.location.pathname)){gtag('event','conversion',{'send_to':'${googleAdsPageViewConversion}'});}`,
           }}
         />
       </body>

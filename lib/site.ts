@@ -22,6 +22,7 @@ export const siteConfig = {
   ownerName: 'Equipo de Cuánto Facturar',
   contactEmail: 'hola@cuantofacturar.es',
   googleAdsId: 'AW-18153863846',
+  googleAdsPageViewConversionLabel: '8a21CPLC-qocEKb1t9BD',
   country: 'España',
   themeColor: '#145da0',
   backgroundColor: '#f6f8fb',
