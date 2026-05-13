@@ -176,6 +176,13 @@ h3 {
   padding: 2rem 0;
 }
 
+.section-lead {
+  max-width: 760px;
+  margin: 0 0 1rem;
+  color: var(--muted);
+  line-height: 1.75;
+}
+
 .section.alt {
   background: var(--surface-alt);
   border-top: 1px solid var(--line);
@@ -566,6 +573,10 @@ select[aria-invalid='true'] {
 
 .disclaimer-box strong {
   color: var(--text);
+}
+
+.affiliate-disclosure {
+  margin: 1rem 0 1.25rem;
 }
 
 .article-layout {

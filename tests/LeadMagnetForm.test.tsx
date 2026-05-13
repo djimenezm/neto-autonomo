@@ -10,7 +10,7 @@ describe('LeadMagnetForm', () => {
     const form = screen.getByRole('button', { name: /quiero el kit/i }).closest('form');
     const emailInput = screen.getByRole('textbox', { name: /email/i });
     const sourceInput = screen.getByDisplayValue('test-source');
-    const autoresponseInput = screen.getByDisplayValue(/kit de tarifa para autónomos/i);
+    const autoresponseInput = screen.getByDisplayValue(/kit de tarifa para autonomos/i);
 
     expect(form).toHaveAttribute('action', `https://formsubmit.co/${siteConfig.contactEmail}`);
     expect(form).toHaveAttribute('method', 'POST');
@@ -27,6 +27,9 @@ describe('LeadMagnetForm', () => {
     expect((autoresponseInput as HTMLInputElement).value).toContain('/kit-tarifa-autonomo');
     expect((autoresponseInput as HTMLInputElement).value).toContain(
       '/recursos/kit-tarifa-autonomo.txt',
+    );
+    expect((autoresponseInput as HTMLInputElement).value).toContain(
+      '/mejores-programas-facturacion-autonomos',
     );
   });
 });

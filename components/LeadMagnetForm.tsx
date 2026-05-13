@@ -17,6 +17,7 @@ export default function LeadMagnetForm({
   const thankYouUrl = new URL('/gracias-kit-tarifa', siteUrl).toString();
   const resourceUrl = new URL('/kit-tarifa-autonomo', siteUrl).toString();
   const downloadUrl = new URL('/recursos/kit-tarifa-autonomo.txt', siteUrl).toString();
+  const recommendedToolsUrl = new URL('/mejores-programas-facturacion-autonomos', siteUrl).toString();
   const formAction = `https://formsubmit.co/${siteConfig.contactEmail}`;
   const attributionFields = [
     'utm_source',
@@ -42,7 +43,7 @@ export default function LeadMagnetForm({
         <input
           type="hidden"
           name="_autoresponse"
-          value={`Gracias por pedir el kit de tarifa para autónomos. Puedes verlo aquí: ${resourceUrl} y descargar la versión en texto aquí: ${downloadUrl}. Si publicamos mejoras importantes, te avisaremos en este mismo email.`}
+          value={`Gracias por pedir el kit de tarifa para autonomos. Puedes verlo aqui: ${resourceUrl} y descargar la version en texto aqui: ${downloadUrl}. Si ya tienes clara tu tarifa, el siguiente paso es ordenar facturas e impuestos. Hemos preparado esta guia de programas de facturacion: ${recommendedToolsUrl}. Si publicamos mejoras importantes, te avisaremos en este mismo email.`}
         />
         <input type="hidden" name="_next" value={thankYouUrl} />
         <input type="hidden" name="origen" value={source} />
