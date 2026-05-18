@@ -19,7 +19,7 @@ describe('security headers', () => {
     expect(contentSecurityPolicy).toContain("base-uri 'self'");
     expect(contentSecurityPolicy).toContain("object-src 'none'");
     expect(contentSecurityPolicy).toContain("frame-ancestors 'none'");
-    expect(contentSecurityPolicy).toContain("form-action 'self' https://formsubmit.co");
+    expect(contentSecurityPolicy).toContain("form-action 'self' https://2caafd8d.sibforms.com");
     expect(contentSecurityPolicy).toContain("script-src 'self'");
     expect(contentSecurityPolicy).toContain('https://www.googletagmanager.com');
     expect(contentSecurityPolicy).toContain('https://www.google-analytics.com');

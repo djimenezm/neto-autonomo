@@ -151,3 +151,11 @@ Actualizacion 18 de mayo de 2026:
 - Se decide no pagar Pro solo para este dato.
 - Se actualiza el CTA para enviar `result_kit_cta_clicked` tambien con `window.gtag`.
 - A partir del proximo despliegue, medir los clics del CTA desde Google/Tag Assistant en lugar de depender de Vercel Events.
+
+Actualizacion posterior:
+- Tag Assistant confirma que `result_kit_cta_clicked` aparece al pulsar el CTA del kit.
+- Durante la prueba, el envio del formulario falla porque `formsubmit.co` devuelve error 522 / timeout.
+- Se recomienda pausar Google Ads hasta sustituir FormSubmit o anadir un mecanismo de captura mas fiable.
+- El usuario confirma que la campana `Search - Calculadora autonomos` queda en pausa.
+- El usuario crea formulario en Brevo para la lista `Kit tarifa autonomos - Cuanto Facturar`.
+- Se sustituye el envio a FormSubmit por el endpoint de Brevo `2caafd8d.sibforms.com`.

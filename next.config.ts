@@ -7,7 +7,7 @@ const baseContentSecurityPolicy: string[] = [
   "base-uri 'self'",
   "object-src 'none'",
   "frame-ancestors 'none'",
-  "form-action 'self' https://formsubmit.co",
+  "form-action 'self' https://2caafd8d.sibforms.com",
   "script-src 'self' 'unsafe-inline' https://va.vercel-scripts.com https://www.googletagmanager.com https://www.googleadservices.com",
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob: https://www.google.com https://www.google.es https://www.googletagmanager.com https://www.googleadservices.com https://googleads.g.doubleclick.net",

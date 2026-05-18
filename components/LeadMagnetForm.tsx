@@ -1,4 +1,4 @@
-import { getSiteUrl, siteConfig } from '@/lib/site';
+import { siteConfig } from '@/lib/site';
 
 type LeadMagnetFormProps = {
   source: string;
@@ -10,26 +10,9 @@ type LeadMagnetFormProps = {
 export default function LeadMagnetForm({
   source,
   title = 'Te enviamos el kit de tarifa para autónomos',
-  description = 'Deja tu email y te enviaremos acceso al kit con checklist de tarifa, estructura de números y una revisión rápida antes de subir o defender tus precios.',
+  description = 'Deja tu email y te daremos acceso al kit con checklist de tarifa, estructura de números y una revisión rápida antes de subir o defender tus precios.',
   buttonLabel = 'Quiero el kit',
 }: LeadMagnetFormProps) {
-  const siteUrl = getSiteUrl();
-  const thankYouUrl = new URL('/gracias-kit-tarifa', siteUrl).toString();
-  const resourceUrl = new URL('/kit-tarifa-autonomo', siteUrl).toString();
-  const downloadUrl = new URL('/recursos/kit-tarifa-autonomo.txt', siteUrl).toString();
-  const recommendedToolsUrl = new URL('/mejores-programas-facturacion-autonomos', siteUrl).toString();
-  const formAction = `https://formsubmit.co/${siteConfig.contactEmail}`;
-  const attributionFields = [
-    'utm_source',
-    'utm_medium',
-    'utm_campaign',
-    'utm_content',
-    'utm_term',
-    'gclid',
-    'landing_page',
-    'referrer',
-  ];
-
   return (
     <section className="lead-card" aria-labelledby={`lead-form-title-${source}`}>
       <div className="lead-card-copy">
@@ -38,24 +21,14 @@ export default function LeadMagnetForm({
         <p>{description}</p>
       </div>
 
-      <form className="lead-form" action={formAction} method="POST">
-        <input type="hidden" name="_subject" value="Nueva solicitud del kit de tarifa autónomo" />
-        <input
-          type="hidden"
-          name="_autoresponse"
-          value={`Gracias por pedir el kit de tarifa para autonomos. Puedes verlo aqui: ${resourceUrl} y descargar la version en texto aqui: ${downloadUrl}. Te recomiendo usarlo en este orden: primero revisa tu numero base, despues comprueba las senales de riesgo y por ultimo adapta el guion de precio antes de enviarlo a un cliente. Si ya tienes clara tu tarifa, el siguiente paso natural es ordenar facturas e impuestos. Hemos preparado esta guia de programas de facturacion: ${recommendedToolsUrl}. Si publicamos mejoras importantes, te avisaremos en este mismo email.`}
-        />
-        <input type="hidden" name="_next" value={thankYouUrl} />
-        <input type="hidden" name="origen" value={source} />
-        <input type="hidden" name="interes" value="kit-tarifa-autonomo" />
-        {attributionFields.map((field) => (
-          <input key={field} type="hidden" name={field} data-attribution-field={field} />
-        ))}
+      <form className="lead-form" action={siteConfig.brevoKitFormAction} method="POST">
+        <input type="hidden" name="locale" value="es" />
+        <input type="hidden" name="html_type" value="simple" />
+        <input type="hidden" name="email_address_check" value="" />
         <label>
           <span>Email</span>
-          <input type="email" name="email" placeholder="tu@email.com" required />
+          <input type="email" name="EMAIL" placeholder="tu@email.com" autoComplete="email" required />
         </label>
-        <input type="text" name="_honey" className="honey-field" tabIndex={-1} autoComplete="off" />
         <button type="submit" className="primary-button">
           {buttonLabel}
         </button>
@@ -64,12 +37,6 @@ export default function LeadMagnetForm({
           avisarte de futuras actualizaciones relacionadas. Más información en{' '}
           <a href="/privacidad">privacidad</a>.
         </p>
-        <script
-          dangerouslySetInnerHTML={{
-            __html:
-              "(function(){var form=document.currentScript&&document.currentScript.closest('form');if(!form)return;var keys=['utm_source','utm_medium','utm_campaign','utm_content','utm_term','gclid'];var params=new URLSearchParams(window.location.search);var stored={};try{stored=JSON.parse(window.localStorage.getItem('cf_attribution')||'{}')||{};}catch(error){stored={};}var next=Object.assign({},stored);keys.forEach(function(key){var value=params.get(key);if(value)next[key]=value;});if(!next.landing_page)next.landing_page=window.location.href;if(document.referrer&&!next.referrer)next.referrer=document.referrer;try{window.localStorage.setItem('cf_attribution',JSON.stringify(next));}catch(error){}Object.keys(next).forEach(function(key){var input=form.querySelector('[data-attribution-field=\"'+key+'\"]');if(input)input.value=next[key];});})();",
-          }}
-        />
       </form>
     </section>
   );

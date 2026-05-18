@@ -4,32 +4,19 @@ import LeadMagnetForm from '@/components/LeadMagnetForm';
 import { siteConfig } from '@/lib/site';
 
 describe('LeadMagnetForm', () => {
-  it('submits to the configured contact inbox and includes the resource links', () => {
+  it('submits the kit request to Brevo with the expected fields', () => {
     render(<LeadMagnetForm source="test-source" />);
 
     const form = screen.getByRole('button', { name: /quiero el kit/i }).closest('form');
     const emailInput = screen.getByRole('textbox', { name: /email/i });
-    const sourceInput = screen.getByDisplayValue('test-source');
-    const autoresponseInput = screen.getByDisplayValue(/kit de tarifa para autonomos/i);
 
-    expect(form).toHaveAttribute('action', `https://formsubmit.co/${siteConfig.contactEmail}`);
+    expect(form).toHaveAttribute('action', siteConfig.brevoKitFormAction);
     expect(form).toHaveAttribute('method', 'POST');
     expect(emailInput).toHaveAttribute('type', 'email');
-    expect(sourceInput).toHaveAttribute('name', 'origen');
-    expect(autoresponseInput).toHaveAttribute('name', '_autoresponse');
-    expect(document.querySelector('input[name="utm_source"]')).toHaveAttribute(
-      'data-attribution-field',
-      'utm_source',
-    );
-    expect(document.querySelector('input[name="gclid"]')).toHaveAttribute('data-attribution-field', 'gclid');
-    expect(document.querySelector('input[name="landing_page"]')).toBeInTheDocument();
-    expect(document.body.innerHTML).toContain('cf_attribution');
-    expect((autoresponseInput as HTMLInputElement).value).toContain('/kit-tarifa-autonomo');
-    expect((autoresponseInput as HTMLInputElement).value).toContain(
-      '/recursos/kit-tarifa-autonomo.txt',
-    );
-    expect((autoresponseInput as HTMLInputElement).value).toContain(
-      '/mejores-programas-facturacion-autonomos',
-    );
+    expect(emailInput).toHaveAttribute('name', 'EMAIL');
+    expect(emailInput).toHaveAttribute('autocomplete', 'email');
+    expect(document.querySelector('input[name="locale"]')).toHaveValue('es');
+    expect(document.querySelector('input[name="html_type"]')).toHaveValue('simple');
+    expect(document.querySelector('input[name="email_address_check"]')).toHaveValue('');
   });
 });
