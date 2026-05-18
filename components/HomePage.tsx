@@ -206,7 +206,7 @@ export default function HomePage({
         </div>
       </section>
 
-      <section className="section">
+      <section className="section" id="kit-tarifa-form">
         <div className="container">
           <LeadMagnetForm
             source="home"

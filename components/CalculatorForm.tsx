@@ -63,6 +63,11 @@ declare global {
         data?: Record<string, string>;
       },
     ) => void;
+    gtag?: (
+      command: 'event',
+      eventName: string,
+      eventParams?: Record<string, string>,
+    ) => void;
   }
 }
 

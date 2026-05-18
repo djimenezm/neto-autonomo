@@ -561,6 +561,29 @@ select[aria-invalid='true'] {
   line-height: 1.75;
 }
 
+.result-lead-magnet {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 1.35rem;
+  padding: 1rem 1.1rem;
+  border-radius: 16px;
+  border: 1px solid #b9d3eb;
+  background: #f3f9ff;
+}
+
+.result-lead-magnet strong {
+  display: block;
+  margin-bottom: 0.35rem;
+}
+
+.result-lead-magnet p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.7;
+}
+
 .disclaimer-box {
   margin-top: 1.5rem;
   padding: 1rem 1.1rem;
@@ -827,5 +850,10 @@ select[aria-invalid='true'] {
   .footer-inner {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .result-lead-magnet {
+    align-items: stretch;
+    flex-direction: column;
   }
 }

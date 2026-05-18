@@ -170,6 +170,7 @@ export default function KitTarifaAutonomoPage() {
               <li>Una estructura rápida para revisar tu tarifa mensual y por hora.</li>
               <li>Una checklist para detectar si tu precio está demasiado ajustado.</li>
               <li>Un guion para defender mejor la cifra ante un cliente.</li>
+              <li>Una mini revisión para convertir la cifra en presupuesto, cuota o factura.</li>
               <li>Una versión descargable para adaptarla a tu actividad.</li>
             </ul>
           </aside>
@@ -193,21 +194,39 @@ export default function KitTarifaAutonomoPage() {
 
       <section className="section alt">
         <div className="container text-block">
-          <h2>2. Checklist antes de aceptar una tarifa</h2>
+          <h2>2. Señales de que tu tarifa está demasiado ajustada</h2>
+          <p>
+            Antes de enviar un precio, revisa si se cumple alguna de estas señales. No significan
+            que el proyecto sea malo, pero sí que conviene ajustar alcance, plazos o condiciones.
+          </p>
           <ol className="article-list article-list-ordered">
-            <li>La tarifa cubre gastos, cuota e impuestos antes de hablar de beneficio.</li>
-            <li>No depende de facturar todas tus horas disponibles.</li>
-            <li>El precio deja margen si el proyecto se alarga un poco.</li>
-            <li>El IVA aparece separado y no se confunde con ingreso disponible.</li>
-            <li>La cifra se puede explicar sin pedir disculpas.</li>
-            <li>El cliente entiende qué entra y qué no entra en el precio.</li>
+            <li>Solo sale rentable si todo va perfecto y sin cambios.</li>
+            <li>Necesitas facturar casi todas tus horas disponibles para llegar al neto objetivo.</li>
+            <li>No queda margen para reuniones, administración, soporte o imprevistos.</li>
+            <li>El IVA o el IRPF se confunden con dinero disponible.</li>
+            <li>Te cuesta explicar la cifra sin justificarte demasiado.</li>
+            <li>El cliente no tiene claro qué entra, qué no entra y dónde acaba el trabajo.</li>
           </ol>
         </div>
       </section>
 
       <section className="section">
         <div className="container text-block">
-          <h2>3. Guion corto para defender la cifra</h2>
+          <h2>3. Checklist antes de aceptar una tarifa</h2>
+          <ol className="article-list article-list-ordered">
+            <li>La tarifa cubre gastos, cuota e impuestos antes de hablar de beneficio.</li>
+            <li>No depende de facturar todas tus horas disponibles.</li>
+            <li>El precio deja margen si el proyecto se alarga un poco.</li>
+            <li>El IVA aparece separado y no se confunde con ingreso disponible.</li>
+            <li>La cifra se puede explicar con calma y sin pedir disculpas.</li>
+            <li>El cliente entiende qué entra, qué no entra y qué se cobraría aparte.</li>
+          </ol>
+        </div>
+      </section>
+
+      <section className="section alt">
+        <div className="container text-block">
+          <h2>4. Guion corto para defender la cifra</h2>
           <p>
             Cuando presentes una tarifa, intenta unir precio y alcance. No digas solo una cifra:
             explica qué problema resuelves, qué entregas, qué límites tiene el trabajo y qué
@@ -217,6 +236,28 @@ export default function KitTarifaAutonomoPage() {
             <strong>Recuerda:</strong> una tarifa sana no es solo una cifra alta. Es una cifra que
             cubre tu realidad, deja margen y puede sostenerse sin depender de trabajar más horas de
             las razonables.
+          </div>
+        </div>
+      </section>
+
+      <section className="section">
+        <div className="container text-block">
+          <h2>5. Convierte la tarifa en una decisión concreta</h2>
+          <p>
+            Una vez revisada la cifra, decide qué formato necesita: tarifa por hora, precio cerrado,
+            cuota mensual o presupuesto por fases. Si todavía no puedes explicarlo en una frase,
+            normalmente falta concretar alcance.
+          </p>
+          <ol className="article-list article-list-ordered">
+            <li>Si el trabajo es recurrente, piensa en cuota mensual con límites claros.</li>
+            <li>Si el trabajo tiene inicio y fin, bájalo a presupuesto cerrado con fases.</li>
+            <li>Si el alcance es incierto, usa bolsa de horas o primera fase de diagnóstico.</li>
+            <li>Si ya vas a facturarlo, prepara también cobros, gastos e impuestos.</li>
+          </ol>
+          <div className="guide-cta">
+            <Link href="/mejores-programas-facturacion-autonomos" className="primary-button">
+              Ver programas de facturación
+            </Link>
           </div>
         </div>
       </section>

@@ -1,5 +1,18 @@
 KIT DE TARIFA PARA AUTONOMOS
 
+COMO USAR ESTE KIT
+
+Usalo en este orden:
+
+1. Revisa tu numero base.
+2. Comprueba senales de riesgo.
+3. Pasa la checklist antes de aceptar.
+4. Adapta el guion de precio al cliente.
+5. Convierte la tarifa en presupuesto, cuota o factura.
+
+El objetivo no es subir precios porque si. El objetivo es no aceptar una cifra que solo funciona si todo sale perfecto.
+
+
 1. ESTRUCTURA RAPIDA PARA REVISAR TU TARIFA
 
 - Neto mensual que quieres conservar.
@@ -10,16 +23,34 @@ KIT DE TARIFA PARA AUTONOMOS
 - Margen minimo que quieres proteger.
 - IVA separado de tu ingreso real cuando aplique.
 
-2. CHECKLIST ANTES DE ACEPTAR UNA TARIFA
+Pregunta util:
+
+Si este proyecto se alarga un 15% o exige mas reuniones de las previstas, la tarifa sigue teniendo sentido?
+
+
+2. SENALES DE QUE TU TARIFA ESTA DEMASIADO AJUSTADA
+
+- Solo sale rentable si todo va perfecto y sin cambios.
+- Necesitas facturar casi todas tus horas disponibles para llegar al neto objetivo.
+- No queda margen para reuniones, administracion, soporte o imprevistos.
+- El IVA o el IRPF se confunden con dinero disponible.
+- Te cuesta explicar la cifra sin justificarte demasiado.
+- El cliente no tiene claro que entra, que no entra y donde acaba el trabajo.
+
+Si aparecen varias de estas senales, no siempre hace falta rechazar el proyecto. A veces basta con reducir alcance, separar fases o cambiar las condiciones.
+
+
+3. CHECKLIST ANTES DE ACEPTAR UNA TARIFA
 
 - La tarifa cubre gastos, cuota e impuestos antes de hablar de beneficio.
 - No depende de facturar todas tus horas disponibles.
 - El precio deja margen si el proyecto se alarga un poco.
 - El IVA aparece separado y no se confunde con ingreso disponible.
-- La cifra se puede explicar sin pedir disculpas.
-- El cliente entiende que entra y que no entra en el precio.
+- La cifra se puede explicar con calma y sin pedir disculpas.
+- El cliente entiende que entra, que no entra y que se cobraria aparte.
 
-3. GUION CORTO PARA DEFENDER LA CIFRA
+
+4. GUION CORTO PARA DEFENDER LA CIFRA
 
 Cuando presentes una tarifa, intenta unir precio y alcance:
 
@@ -28,5 +59,21 @@ Cuando presentes una tarifa, intenta unir precio y alcance:
 - Que limites tiene el trabajo.
 - Que no esta incluido.
 - Que siguiente paso necesita el cliente para avanzar.
+
+Ejemplo:
+
+"Para este trabajo te propongo una tarifa de X euros. Incluye A, B y C, con una ronda de ajustes y entrega en la fecha acordada. No incluye D ni cambios de alcance, que se presupuestarian aparte. Si te encaja, el siguiente paso es confirmar alcance y fecha de inicio."
+
+
+5. CONVIERTE LA TARIFA EN UNA DECISION CONCRETA
+
+- Si el trabajo es recurrente, piensa en cuota mensual con limites claros.
+- Si el trabajo tiene inicio y fin, bajalo a presupuesto cerrado con fases.
+- Si el alcance es incierto, usa bolsa de horas o primera fase de diagnostico.
+- Si ya vas a facturarlo, prepara tambien cobros, gastos e impuestos.
+
+Siguiente paso natural:
+
+Cuando la tarifa ya tiene sentido, ordena la parte operativa: factura, cobro, gastos, IVA e IRPF. Puedes revisar la guia de programas de facturacion para autonomos en cuantofacturar.es/mejores-programas-facturacion-autonomos
 
 Recuerda: una tarifa sana no es solo una cifra alta. Es una cifra que cubre tu realidad, deja margen y puede sostenerse sin depender de trabajar mas horas de las razonables.

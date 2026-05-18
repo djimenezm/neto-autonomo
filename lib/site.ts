@@ -23,6 +23,7 @@ export const siteConfig = {
   contactEmail: 'hola@cuantofacturar.es',
   googleAdsId: 'AW-18153863846',
   googleAdsPageViewConversionLabel: '8a21CPLC-qocEKb1t9BD',
+  googleAdsKitConversionLabel: process.env.NEXT_PUBLIC_GOOGLE_ADS_KIT_CONVERSION_LABEL ?? '',
   country: 'España',
   themeColor: '#145da0',
   backgroundColor: '#f6f8fb',

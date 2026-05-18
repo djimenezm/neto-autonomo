@@ -41,6 +41,10 @@ export const metadata: Metadata = {
 };
 
 export default function GraciasKitTarifaPage() {
+  const googleAdsKitConversion = siteConfig.googleAdsKitConversionLabel
+    ? `${siteConfig.googleAdsId}/${siteConfig.googleAdsKitConversionLabel}`
+    : '';
+
   return (
     <main>
       <Header />
@@ -51,8 +55,7 @@ export default function GraciasKitTarifaPage() {
           <h1>Gracias por pedir el kit de tarifa para autónomos</h1>
           <script
             dangerouslySetInnerHTML={{
-              __html:
-                "window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments)};window.va('event',{name:'kit_requested',data:{resource:'kit-tarifa-autonomo'}});if(window.gtag){window.gtag('event','kit_requested',{resource:'kit-tarifa-autonomo'});}document.addEventListener('click',function(event){var link=event.target.closest('[data-recommendation-id]');if(!link)return;var id=link.getAttribute('data-recommendation-id');window.va('event',{name:'recommendation_clicked',data:{source:'gracias-kit-tarifa',recommendation:id}});if(window.gtag){window.gtag('event','recommendation_clicked',{source:'gracias-kit-tarifa',recommendation:id});}});",
+              __html: `window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments)};window.va('event',{name:'kit_requested',data:{resource:'kit-tarifa-autonomo'}});if(window.gtag){window.gtag('event','kit_requested',{resource:'kit-tarifa-autonomo'});${googleAdsKitConversion ? `window.gtag('event','conversion',{'send_to':'${googleAdsKitConversion}'});` : ''}}document.addEventListener('click',function(event){var link=event.target.closest('[data-recommendation-id]');if(!link)return;var id=link.getAttribute('data-recommendation-id');window.va('event',{name:'recommendation_clicked',data:{source:'gracias-kit-tarifa',recommendation:id}});if(window.gtag){window.gtag('event','recommendation_clicked',{source:'gracias-kit-tarifa',recommendation:id});}});`,
             }}
           />
           <p className="lead">

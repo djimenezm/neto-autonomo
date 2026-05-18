@@ -6,6 +6,7 @@ import CalculatorForm from '@/components/CalculatorForm';
 describe('CalculatorForm', () => {
   beforeEach(() => {
     window.va = vi.fn();
+    window.gtag = vi.fn();
   });
 
   it('shows an error and blocks results when billable hours are 0', async () => {
@@ -119,9 +120,31 @@ describe('CalculatorForm', () => {
     expect(screen.getAllByText(/facturación objetivo sin iva/i).length).toBeGreaterThan(0);
     expect(screen.getByText(/beneficio antes de irpf/i)).toBeInTheDocument();
     expect(screen.getByText(/esta simulación sitúa tu objetivo en/i)).toBeInTheDocument();
+    expect(screen.getByText(/revisa esta tarifa antes de enviarla/i)).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /quiero el kit/i })).toHaveAttribute(
+      'href',
+      '#kit-tarifa-form',
+    );
     expect(screen.getByText(/tipo efectivo aproximado/i)).toBeInTheDocument();
     expect(screen.getByText(/hemos estimado una cuota mínima orientativa/i)).toBeInTheDocument();
     expect(screen.queryByText('Revisa los campos marcados antes de calcular.')).not.toBeInTheDocument();
+  });
+
+  it('tracks the result kit CTA in Vercel Analytics and Google tags', async () => {
+    const user = userEvent.setup();
+
+    render(<CalculatorForm />);
+
+    await user.click(screen.getByRole('button', { name: /calcular/i }));
+    await user.click(screen.getByRole('link', { name: /quiero el kit/i }));
+
+    expect(window.va).toHaveBeenCalledWith('event', {
+      name: 'result_kit_cta_clicked',
+      data: { source: 'result-card' },
+    });
+    expect(window.gtag).toHaveBeenCalledWith('event', 'result_kit_cta_clicked', {
+      source: 'result-card',
+    });
   });
 
   it('updates the URL with a shareable calculation after a valid submit', async () => {

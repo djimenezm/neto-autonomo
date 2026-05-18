@@ -43,7 +43,7 @@ export default function LeadMagnetForm({
         <input
           type="hidden"
           name="_autoresponse"
-          value={`Gracias por pedir el kit de tarifa para autonomos. Puedes verlo aqui: ${resourceUrl} y descargar la version en texto aqui: ${downloadUrl}. Si ya tienes clara tu tarifa, el siguiente paso es ordenar facturas e impuestos. Hemos preparado esta guia de programas de facturacion: ${recommendedToolsUrl}. Si publicamos mejoras importantes, te avisaremos en este mismo email.`}
+          value={`Gracias por pedir el kit de tarifa para autonomos. Puedes verlo aqui: ${resourceUrl} y descargar la version en texto aqui: ${downloadUrl}. Te recomiendo usarlo en este orden: primero revisa tu numero base, despues comprueba las senales de riesgo y por ultimo adapta el guion de precio antes de enviarlo a un cliente. Si ya tienes clara tu tarifa, el siguiente paso natural es ordenar facturas e impuestos. Hemos preparado esta guia de programas de facturacion: ${recommendedToolsUrl}. Si publicamos mejoras importantes, te avisaremos en este mismo email.`}
         />
         <input type="hidden" name="_next" value={thankYouUrl} />
         <input type="hidden" name="origen" value={source} />

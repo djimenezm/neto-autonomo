@@ -36,6 +36,16 @@ async function copyTextToClipboard(text: string) {
   }
 }
 
+function trackResultKitCtaClicked() {
+  const eventData = { source: 'result-card' };
+
+  window.va?.('event', {
+    name: 'result_kit_cta_clicked',
+    data: eventData,
+  });
+  window.gtag?.('event', 'result_kit_cta_clicked', eventData);
+}
+
 const ResultCard = forwardRef<HTMLElement, ResultCardProps>(function ResultCard(
   { result, hoursBillable, hasIVA, enableCopy = true, shareUrl },
   ref,
@@ -198,6 +208,23 @@ const ResultCard = forwardRef<HTMLElement, ResultCardProps>(function ResultCard(
         quedan por debajo de esa cifra, es una buena señal para revisar precio, alcance o número de
         horas antes de aceptar el trabajo.
       </p>
+
+      <div className="result-lead-magnet">
+        <div>
+          <strong>Revisa esta tarifa antes de enviarla</strong>
+          <p>
+            Te mandamos el kit gratuito con señales de riesgo, checklist de mínimos y un guion corto
+            para defender mejor la cifra ante un cliente.
+          </p>
+        </div>
+        <a
+          className="primary-button"
+          href="#kit-tarifa-form"
+          onClick={trackResultKitCtaClicked}
+        >
+          Quiero el kit
+        </a>
+      </div>
 
       <p className="result-summary">
         Ese objetivo incluye unos gastos deducibles estimados de{' '}
