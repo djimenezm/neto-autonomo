@@ -125,6 +125,10 @@ describe('CalculatorForm', () => {
       'href',
       '#kit-tarifa-form',
     );
+    expect(screen.getByRole('link', { name: /quiero el kit/i })).toHaveAttribute(
+      'data-result-kit-cta',
+      'result-card',
+    );
     expect(screen.getByText(/tipo efectivo aproximado/i)).toBeInTheDocument();
     expect(screen.getByText(/hemos estimado una cuota mínima orientativa/i)).toBeInTheDocument();
     expect(screen.queryByText('Revisa los campos marcados antes de calcular.')).not.toBeInTheDocument();

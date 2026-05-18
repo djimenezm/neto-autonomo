@@ -22,9 +22,12 @@ describe('performance configuration', () => {
 
   it('serves the homepage without the Next client runtime', () => {
     const indexPage = readFileSync(join(process.cwd(), 'pages/index.tsx'), 'utf8');
+    const appPage = readFileSync(join(process.cwd(), 'pages/_app.tsx'), 'utf8');
 
     expect(indexPage).toMatch(/unstable_runtimeJS:\s*false/);
     expect(indexPage).toContain('getServerSideProps');
+    expect(appPage).toContain('result_kit_cta_clicked');
+    expect(appPage).toContain('data-result-kit-cta');
   });
 
   it('serves the main billing guide without the Next client runtime', () => {

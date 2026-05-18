@@ -4,6 +4,7 @@ import './globals.css';
 
 const siteUrl = getSiteUrl();
 const googleAdsPageViewConversion = `${siteConfig.googleAdsId}/${siteConfig.googleAdsPageViewConversionLabel}`;
+const resultKitCtaTrackingScript = `window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments)};(function(){if(window.__cuantoFacturarResultKitTracking)return;window.__cuantoFacturarResultKitTracking=true;document.addEventListener('click',function(event){var target=event.target&&event.target.closest?event.target.closest('[data-result-kit-cta]'):null;if(!target||event.__cuantoFacturarResultKitTracked)return;var data={source:target.getAttribute('data-result-kit-cta')||'result-card'};window.va('event',{name:'result_kit_cta_clicked',data:data});if(window.gtag){window.gtag('event','result_kit_cta_clicked',data);}});})();`;
 
 export const metadata: Metadata = {
   metadataBase: siteUrl,
@@ -79,6 +80,11 @@ export default function RootLayout({
         <script
           dangerouslySetInnerHTML={{
             __html: `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','${siteConfig.googleAdsId}');if(['/', '/cuanto-facturar-autonomo'].includes(window.location.pathname)){gtag('event','conversion',{'send_to':'${googleAdsPageViewConversion}'});}`,
+          }}
+        />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: resultKitCtaTrackingScript,
           }}
         />
       </body>

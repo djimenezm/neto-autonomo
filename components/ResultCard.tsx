@@ -13,6 +13,11 @@ type ResultCardProps = {
 };
 
 type CopyStatus = 'idle' | 'copied' | 'error';
+type ResultKitCtaEvent = {
+  nativeEvent?: Event & {
+    __cuantoFacturarResultKitTracked?: boolean;
+  };
+};
 
 async function copyTextToClipboard(text: string) {
   if (navigator.clipboard?.writeText) {
@@ -36,8 +41,12 @@ async function copyTextToClipboard(text: string) {
   }
 }
 
-function trackResultKitCtaClicked() {
+function trackResultKitCtaClicked(event?: ResultKitCtaEvent) {
   const eventData = { source: 'result-card' };
+
+  if (event?.nativeEvent) {
+    event.nativeEvent.__cuantoFacturarResultKitTracked = true;
+  }
 
   window.va?.('event', {
     name: 'result_kit_cta_clicked',
@@ -220,6 +229,7 @@ const ResultCard = forwardRef<HTMLElement, ResultCardProps>(function ResultCard(
         <a
           className="primary-button"
           href="#kit-tarifa-form"
+          data-result-kit-cta="result-card"
           onClick={trackResultKitCtaClicked}
         >
           Quiero el kit
