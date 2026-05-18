@@ -159,3 +159,7 @@ Actualizacion posterior:
 - El usuario confirma que la campana `Search - Calculadora autonomos` queda en pausa.
 - El usuario crea formulario en Brevo para la lista `Kit tarifa autonomos - Cuanto Facturar`.
 - Se sustituye el envio a FormSubmit por el endpoint de Brevo `2caafd8d.sibforms.com`.
+- El formulario redirige correctamente a `/gracias-kit-tarifa`.
+- Brevo muestra el email de prueba dentro de la lista del kit.
+- Embudo de captacion reparado; siguiente paso recomendado: reactivar Google Ads con presupuesto bajo y observar leads reales.
+- El usuario confirma que la campana se reactiva despues de validar el nuevo formulario.
