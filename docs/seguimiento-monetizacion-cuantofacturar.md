@@ -163,3 +163,6 @@ Actualizacion posterior:
 - Brevo muestra el email de prueba dentro de la lista del kit.
 - Embudo de captacion reparado; siguiente paso recomendado: reactivar Google Ads con presupuesto bajo y observar leads reales.
 - El usuario confirma que la campana se reactiva despues de validar el nuevo formulario.
+- Se crea y conecta la plantilla de email `Entrega kit tarifa autonomos`.
+- El formulario queda con confirmacion simple por email y redireccion a `/gracias-kit-tarifa`.
+- Prueba real confirmada: el usuario recibe el email del kit correctamente.
