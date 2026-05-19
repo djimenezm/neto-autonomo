@@ -166,3 +166,46 @@ Actualizacion posterior:
 - Se crea y conecta la plantilla de email `Entrega kit tarifa autonomos`.
 - El formulario queda con confirmacion simple por email y redireccion a `/gracias-kit-tarifa`.
 - Prueba real confirmada: el usuario recibe el email del kit correctamente.
+
+## Revision 19 de mayo de 2026
+
+Primer dato despues de sustituir FormSubmit por Brevo y reactivar la campana.
+
+Clics: 150
+
+Impresiones: 4,67 mil
+
+CPC medio: 0,02 EUR
+
+Coste: 3,63 EUR
+
+Lectura:
+- El trafico es extremadamente barato.
+- Ya hay muestra suficiente para comprobar si hay contactos nuevos en Brevo.
+- Antes de tocar web o campana, revisar contactos reales y conversiones de `/gracias-kit-tarifa`.
+
+Siguiente pregunta:
+
+"En Brevo, cuantos contactos nuevos hay en la lista `Kit tarifa autonomos - Cuanto Facturar` desde que se reactivo la campana?"
+
+Dato recibido:
+- Google Ads muestra 150 clics, 4.665 impresiones, 3,63 EUR de coste y 0 conversiones principales.
+- Brevo muestra 1 contacto en la lista del kit, aparentemente el contacto de prueba.
+- No hay leads nuevos con esta muestra inicial.
+
+Lectura:
+- El formulario y el email funcionan, pero el trafico nuevo no esta convirtiendo.
+- La campana aparece como tipo `Maximo rendimiento`, no como una busqueda pura.
+- Antes de tocar el formulario, revisar terminos/canales de trafico y calidad de la campana.
+
+Dato de terminos:
+- En el periodo amplio, solo aparecen pocos terminos visibles con clics.
+- Terminos visibles con clics: `calculadora salario neto espana`, `calcular nomina autonomo`, `cuanto cotiza un autonomo`, `cuanto pagan los autonomos en espana`, `cuotas de autonomos`, `cuotas de autonomos 2026`, `tarifas autonomos 2026`.
+- Total campana: 361 clics.
+- Total terminos visibles: 7 clics.
+- Total otros terminos: 7 clics.
+
+Lectura:
+- La mayoria de clics no queda explicada por terminos de busqueda visibles.
+- Esto refuerza que la campana de Maximo rendimiento puede estar captando trafico barato fuera de busqueda pura o con poca trazabilidad.
+- No escalar presupuesto hasta tener leads reales.
