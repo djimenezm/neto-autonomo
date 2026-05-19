@@ -209,3 +209,14 @@ Lectura:
 - La mayoria de clics no queda explicada por terminos de busqueda visibles.
 - Esto refuerza que la campana de Maximo rendimiento puede estar captando trafico barato fuera de busqueda pura o con poca trazabilidad.
 - No escalar presupuesto hasta tener leads reales.
+
+Actualizacion:
+- Se pausa la campana de Maximo rendimiento `Search - Calculadora autonomos`.
+- Se crea una campana nueva de busqueda pura: `Search - Leads calculadora autonomos`.
+- Objetivo: clientes potenciales / envio de formularios.
+- Redes: sin partners de busqueda y sin Display.
+- Ubicacion: Espana.
+- Idioma: espanol.
+- AI Max desactivado.
+- Presupuesto: 5 EUR/dia.
+- Estado inicial visto: activa, tipo `Busqueda`, estrategia de puja en fase de aprendizaje.
