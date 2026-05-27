@@ -277,3 +277,17 @@ Lectura:
 - El trafico actual depende casi por completo de una sola keyword de intencion razonable pero amplia.
 - La campana necesita mas volumen controlado antes de decidir sobre landing/formulario.
 - Siguiente microaccion posible: ampliar palabras clave con variantes de alta intencion y mantener presupuesto bajo.
+
+Actualizacion:
+- Se anaden nuevas palabras clave en concordancia de frase:
+  - `cuanto cobrar como freelance`
+  - `cuanto cobrar por hora autonomo`
+  - `cuanto facturar para ganar 2000`
+  - `cuanto facturar para ganar 1500`
+  - `calculadora sueldo neto autonomo`
+  - `calculadora ingresos autonomo`
+  - `cuanto tengo que facturar como autonomo`
+  - `calcular tarifa hora autonomo`
+- El nuevo informe confirma que estan anadidas.
+- Varias quedan `Pendiente / en revision` o `No apto / no suele publicarse`; normal justo tras anadirlas y por bajo volumen.
+- No tocar presupuesto ni landing hasta ver datos tras la revision.
