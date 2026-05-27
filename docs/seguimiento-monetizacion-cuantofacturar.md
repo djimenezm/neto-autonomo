@@ -220,3 +220,42 @@ Actualizacion:
 - AI Max desactivado.
 - Presupuesto: 5 EUR/dia.
 - Estado inicial visto: activa, tipo `Busqueda`, estrategia de puja en fase de aprendizaje.
+
+## Revision 27 de mayo de 2026
+
+Captura con periodo mostrado como 26 de mayo de 2026.
+
+Campana: `Search - Leads calculadora autonomos`
+
+Clics: 13
+
+Impresiones: 250
+
+CPC medio: 0,76 EUR
+
+Coste: 9,92 EUR
+
+Aviso visible: `Estas llegando a menos busquedas`.
+
+Lectura:
+- La campana de busqueda pura tiene mucho menos volumen y CPC bastante mas alto que Maximo rendimiento, lo esperable al quitar trafico de baja trazabilidad.
+- CTR aproximado: 5,2 %, razonable para una primera campana de busqueda.
+- Antes de tocar presupuesto o palabras clave, comprobar contactos nuevos en Brevo y terminos de busqueda.
+
+Dato adicional recibido:
+- El usuario confirma que no hay contactos nuevos en Brevo.
+- CSV `Informe de campana.csv` del 27 de mayo de 2026:
+  - Campana: `Search - Leads calculadora autonomos`
+  - Estado: habilitada / apto
+  - Tipo: buscar
+  - Clics: 4
+  - Impresiones: 92
+  - CTR: 4,35 %
+  - CPC medio: 0,84 EUR
+  - Coste: 3,35 EUR
+  - Conversiones: 0
+
+Lectura:
+- El informe adjunto es un informe agregado de campana, no de terminos de busqueda.
+- No hay contactos nuevos ni conversiones, pero la muestra sigue siendo baja.
+- Siguiente paso: revisar terminos de busqueda reales antes de tocar web o formulario.
