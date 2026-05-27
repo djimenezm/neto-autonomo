@@ -259,3 +259,21 @@ Lectura:
 - El informe adjunto es un informe agregado de campana, no de terminos de busqueda.
 - No hay contactos nuevos ni conversiones, pero la muestra sigue siendo baja.
 - Siguiente paso: revisar terminos de busqueda reales antes de tocar web o formulario.
+
+Dato adicional de palabras clave:
+- CSV `Informe de palabras clave de busqueda.csv` del 27 de mayo de 2026.
+- La unica palabra clave con clics es `"cuanto cobrar como autonomo"`:
+  - Concordancia: frase.
+  - Estado: apto.
+  - Clics: 4.
+  - Impresiones: 97.
+  - CTR: 4,12 %.
+  - CPC medio: 0,84 EUR.
+  - Coste: 3,35 EUR.
+  - Conversiones: 0.
+- Varias palabras clave relevantes aparecen como `No apto` / `no suele publicarse`, por bajo volumen o poca elegibilidad.
+
+Lectura:
+- El trafico actual depende casi por completo de una sola keyword de intencion razonable pero amplia.
+- La campana necesita mas volumen controlado antes de decidir sobre landing/formulario.
+- Siguiente microaccion posible: ampliar palabras clave con variantes de alta intencion y mantener presupuesto bajo.
