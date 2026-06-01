@@ -323,3 +323,19 @@ Dato Brevo:
 Lectura:
 - Con 7 clics hoy y sin leads nuevos, no tocar web todavia.
 - Revisar periodo de ultimos 7 dias y terminos de busqueda antes de decidir si ampliar keywords, pausar alguna o ajustar copy.
+
+Dato ultimos 7 dias:
+- Periodo: 25 a 31 de mayo de 2026.
+- Campana: `Search - Leads calculadora autonomos`.
+- Clics: 75.
+- Impresiones: 2.489.
+- CTR: 3,01 %.
+- CPC medio: 0,74 EUR.
+- Coste: 55,55 EUR.
+- Conversiones: 0.
+- Brevo sigue con 1 contacto total, sin leads nuevos confirmados.
+
+Lectura:
+- 75 clics y 0 leads ya es senal suficiente para parar y diagnosticar antes de gastar mas.
+- No aplicar recomendaciones de AI Max ni concordancia amplia.
+- Siguiente paso: pausar temporalmente la campana y revisar terminos de busqueda de los ultimos 7 dias.
