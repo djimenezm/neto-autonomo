@@ -339,3 +339,35 @@ Lectura:
 - 75 clics y 0 leads ya es senal suficiente para parar y diagnosticar antes de gastar mas.
 - No aplicar recomendaciones de AI Max ni concordancia amplia.
 - Siguiente paso: pausar temporalmente la campana y revisar terminos de busqueda de los ultimos 7 dias.
+
+Dato adicional de terminos de busqueda:
+- Archivo revisado: `Informe de terminos de busqueda.xlsx`.
+- Periodo: 25 a 31 de mayo de 2026.
+- Total campana:
+  - Clics: 75.
+  - Impresiones: 2.489.
+  - Coste: 55,55 EUR.
+  - Conversiones: 0.
+- Google solo desglosa 15 clics / 9,00 EUR en terminos visibles.
+- Los otros 60 clics / 46,55 EUR aparecen agrupados como `Otros terminos de busqueda`.
+- Terminos visibles con clics:
+  - `calculadora precio hora autonomo`: 1 clic, 1,48 EUR.
+  - `cuota de autonomos`: 2 clics, 1,23 EUR.
+  - `precio autonomo`: 1 clic, 1,10 EUR.
+  - `cuanto paga un autonomo de seguridad social`: 1 clic, 0,67 EUR.
+  - `calculo impuestos autonomo`: 1 clic, 0,62 EUR.
+  - `pluriactividad en espana`: 1 clic, 0,60 EUR.
+  - `registrarse como autonomo en espana`: 1 clic, 0,57 EUR.
+  - `cuanto cuesta hacerse autonomo`: 1 clic, 0,55 EUR.
+  - `que paga un autonomo de seguridad social`: 1 clic, 0,50 EUR.
+  - `cuanto se paga de autonomo`: 1 clic, 0,41 EUR.
+  - `cuanto pagaria de autonomo`: 1 clic, 0,39 EUR.
+  - `gastos de un autonomo`: 1 clic, 0,36 EUR.
+  - `cuanto paga un autonomo en espana de irpf`: 1 clic, 0,29 EUR.
+  - `tabla cuota autonomos 2026`: 1 clic, 0,23 EUR.
+
+Lectura:
+- La mayoria de terminos visibles apuntan a cuota, seguridad social, alta de autonomo, impuestos o tarifa plana.
+- Esa intencion no encaja bien con el lead magnet de revisar una tarifa antes de enviarla.
+- La ausencia de leads no prueba todavia que el formulario falle; la explicacion mas probable es desajuste de trafico/intencion.
+- Siguiente microaccion recomendada: mantener la campana pausada, anadir negativas de intencion baja y revisar si existen palabras clave en concordancia amplia antes de reactivar.
