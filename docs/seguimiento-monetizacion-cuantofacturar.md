@@ -291,3 +291,35 @@ Actualizacion:
 - El nuevo informe confirma que estan anadidas.
 - Varias quedan `Pendiente / en revision` o `No apto / no suele publicarse`; normal justo tras anadirlas y por bajo volumen.
 - No tocar presupuesto ni landing hasta ver datos tras la revision.
+
+## Revision 1 de junio de 2026
+
+Captura con periodo `Hoy`, 1 de junio de 2026.
+
+Campana: `Search - Leads calculadora autonomos`
+
+Clics: 7
+
+Impresiones: 197
+
+CTR: 3,55 %
+
+CPC medio: 0,79 EUR
+
+Coste: 5,56 EUR
+
+Conversiones: 0
+
+Lectura:
+- La campana de busqueda esta activa y recibiendo trafico.
+- No hay conversiones hoy, pero 7 clics no son muestra suficiente para cambiar landing o formulario.
+- Google recomienda activar AI Max y concordancia amplia; no aplicar de momento para mantener control.
+- Siguiente dato clave: contactos nuevos en Brevo y vista de ultimos 7 dias, no solo hoy.
+
+Dato Brevo:
+- La lista `Kit tarifa autonomos - Cuanto Facturar` sigue con 1 contacto.
+- Ese contacto corresponde al test inicial, asi que no hay leads nuevos confirmados.
+
+Lectura:
+- Con 7 clics hoy y sin leads nuevos, no tocar web todavia.
+- Revisar periodo de ultimos 7 dias y terminos de busqueda antes de decidir si ampliar keywords, pausar alguna o ajustar copy.
