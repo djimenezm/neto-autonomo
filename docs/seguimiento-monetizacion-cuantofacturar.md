@@ -371,3 +371,15 @@ Lectura:
 - Esa intencion no encaja bien con el lead magnet de revisar una tarifa antes de enviarla.
 - La ausencia de leads no prueba todavia que el formulario falle; la explicacion mas probable es desajuste de trafico/intencion.
 - Siguiente microaccion recomendada: mantener la campana pausada, anadir negativas de intencion baja y revisar si existen palabras clave en concordancia amplia antes de reactivar.
+
+Dato adicional de negativas:
+- Archivo revisado: `Informe de palabras clave negativas.xlsx`.
+- Las negativas estan anadidas a nivel de campana en `Search - Leads calculadora autonomos`.
+- Total de negativas detectadas: 22.
+- Se ven negativas alineadas con el diagnostico: cuota, cuotas, seguridad social, tarifa plana, darse de alta, hacerse autonomo, registrarse, registrar, registro, societario, pluriactividad, ayudas, base reguladora, cotizaciones, reta.
+- Tambien aparecen negativas mas especificas: `cuota de autonomo`, `cuota autonomo`, `seguridad social autonomo`, `cuanto pagan los autonomos`, `cuanto paga un autonomo`.
+
+Lectura:
+- La configuracion principal es correcta y reduce trafico de coste/cuota/tramites.
+- Conviene quitar `autonomo al mes` antes de reactivar, porque podria bloquear busquedas utiles como `cuanto facturar autonomo al mes`.
+- Revisar mas adelante si `empresa` bloquea busquedas utiles, aunque de momento no es critico.
