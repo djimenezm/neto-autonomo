@@ -466,3 +466,15 @@ Lectura:
 - Casi todo el gasto reciente viene de una unica palabra clave en concordancia amplia.
 - Esa palabra clave probablemente explica que sigan apareciendo busquedas de cooperativas, gestorias, altas, herramientas y temas alejados del calculo de tarifa.
 - Siguiente microaccion recomendada: pausar o retirar `calcular tarifa autonomo` en concordancia amplia y, si se quiere mantener la idea, anadirla solo como frase/exacta.
+
+Dato adicional tras ajuste de palabra clave:
+- Archivo revisado: `Informe de palabras clave de busqueda (4).csv`.
+- `calcular tarifa autonomo` ya no aparece como concordancia amplia.
+- Ahora aparece como:
+  - `"calcular tarifa autonomo"` en concordancia de frase.
+  - `[calcular tarifa autonomo]` en concordancia exacta.
+- Ambas estan habilitadas, pero no aptas mientras la campana siga pausada.
+
+Lectura:
+- El ajuste queda correcto.
+- Antes de reactivar, la campana ya no deberia usar esa entrada amplia que estaba concentrando gasto de baja calidad.
