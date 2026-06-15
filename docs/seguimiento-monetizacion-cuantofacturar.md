@@ -383,3 +383,32 @@ Lectura:
 - La configuracion principal es correcta y reduce trafico de coste/cuota/tramites.
 - Conviene quitar `autonomo al mes` antes de reactivar, porque podria bloquear busquedas utiles como `cuanto facturar autonomo al mes`.
 - Revisar mas adelante si `empresa` bloquea busquedas utiles, aunque de momento no es critico.
+
+## Revision 15 de junio de 2026
+
+Campana: `Search - Leads calculadora autonomos`
+
+Datos vistos en Google Ads:
+- Clics: 43.
+- Impresiones: 1.637.
+- CTR: 2,63 %.
+- CPC medio: 0,78 EUR.
+- Coste: 33,70 EUR.
+- Conversiones: 0.
+
+Dato del dia 15 de junio de 2026:
+- Clics: 8.
+- Impresiones: 265.
+- CTR: 3,02 %.
+- CPC medio: 0,88 EUR.
+- Coste: 7,05 EUR.
+- Conversiones: 0.
+
+Dato Brevo:
+- La lista `Kit tarifa autonomos - Cuanto Facturar` sigue con 1 contacto.
+- Ese contacto corresponde al test inicial, asi que no hay leads nuevos confirmados.
+
+Lectura:
+- Tras limpiar negativas, la campana sigue gastando sin captar emails.
+- No parece un problema de entrega de Brevo, porque el formulario ya fue probado y el email llego.
+- Siguiente paso: pausar de nuevo la campana y revisar terminos de busqueda del periodo posterior a las negativas antes de tocar la web.
