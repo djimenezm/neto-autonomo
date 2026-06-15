@@ -412,3 +412,34 @@ Lectura:
 - Tras limpiar negativas, la campana sigue gastando sin captar emails.
 - No parece un problema de entrega de Brevo, porque el formulario ya fue probado y el email llego.
 - Siguiente paso: pausar de nuevo la campana y revisar terminos de busqueda del periodo posterior a las negativas antes de tocar la web.
+
+Dato adicional de terminos de busqueda del 15 de junio de 2026:
+- Archivo revisado: `Informe de terminos de busqueda.csv`.
+- Periodo del informe: 15 de junio de 2026.
+- Total campana:
+  - Clics: 10.
+  - Impresiones: 295.
+  - CPC medio: 0,87 EUR.
+  - Coste: 8,70 EUR.
+  - Conversiones: 0.
+- Google solo desglosa 2 clics / 2,57 EUR en terminos visibles.
+- Los otros 8 clics / 6,13 EUR aparecen como `Otros terminos de busqueda`.
+- Terminos visibles con clics:
+  - `factoo cooperativa`: 1 clic, 1,31 EUR.
+  - `hacerse autonomo`: 1 clic, 1,26 EUR.
+- Terminos visibles con impresiones que muestran mala intencion:
+  - `ser autonomo en espana`
+  - `cooperativa de autonomos`
+  - `contasimple telefono atencion al cliente`
+  - `cese actividad autonomos`
+  - `asesoria algeciras`
+  - `gestoria gandia`
+  - `taxfix`
+  - `billeo`
+  - `hacienda`
+  - `autonomos`
+
+Lectura:
+- Las negativas anteriores redujeron parte del trafico, pero la campana sigue entrando por concordancia amplia y terminos de baja intencion.
+- El problema principal sigue estando en Google Ads, no en Brevo ni necesariamente en la web.
+- Siguiente microaccion recomendada: no reactivar todavia; anadir nuevas negativas conservadoras y revisar palabras clave positivas para quitar cualquier concordancia amplia.
