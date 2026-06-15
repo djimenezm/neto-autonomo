@@ -443,3 +443,26 @@ Lectura:
 - Las negativas anteriores redujeron parte del trafico, pero la campana sigue entrando por concordancia amplia y terminos de baja intencion.
 - El problema principal sigue estando en Google Ads, no en Brevo ni necesariamente en la web.
 - Siguiente microaccion recomendada: no reactivar todavia; anadir nuevas negativas conservadoras y revisar palabras clave positivas para quitar cualquier concordancia amplia.
+
+Dato adicional de palabras clave y negativas:
+- Archivos revisados:
+  - `Informe de palabras clave negativas.csv`.
+  - `Informe de palabras clave de busqueda (3).csv`.
+- Las negativas nuevas estan anadidas a nivel de campana.
+- Total de negativas detectadas: 45.
+- La campana aparece pausada en el informe.
+- Total de palabras clave de la campana el 15 de junio de 2026:
+  - Clics: 11.
+  - Impresiones: 299.
+  - CTR: 3,68 %.
+  - CPC medio: 0,88 EUR.
+  - Coste: 9,72 EUR.
+  - Conversiones: 0.
+- Distribucion relevante:
+  - `calcular tarifa autonomo`, concordancia amplia: 8 clics, 224 impresiones, 7,48 EUR, 0 conversiones.
+  - `"cuanto cobrar como autonomo"`, concordancia de frase: 3 clics, 58 impresiones, 2,24 EUR, 0 conversiones.
+
+Lectura:
+- Casi todo el gasto reciente viene de una unica palabra clave en concordancia amplia.
+- Esa palabra clave probablemente explica que sigan apareciendo busquedas de cooperativas, gestorias, altas, herramientas y temas alejados del calculo de tarifa.
+- Siguiente microaccion recomendada: pausar o retirar `calcular tarifa autonomo` en concordancia amplia y, si se quiere mantener la idea, anadirla solo como frase/exacta.
