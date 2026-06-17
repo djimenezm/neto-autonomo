@@ -478,3 +478,30 @@ Dato adicional tras ajuste de palabra clave:
 Lectura:
 - El ajuste queda correcto.
 - Antes de reactivar, la campana ya no deberia usar esa entrada amplia que estaba concentrando gasto de baja calidad.
+
+## Revision 17 de junio de 2026
+
+Archivo revisado: `Informe de grupo de anuncios.csv`.
+
+Periodo del informe: 17 de junio de 2026.
+
+Grupo de anuncios: `Grupo de anuncios 1`
+
+Estado:
+- Grupo de anuncios habilitado.
+- Estado: apto.
+- Tipo: estandar.
+
+Datos:
+- Clics: 3.
+- Impresiones: 124.
+- CTR: 2,42 %.
+- CPC medio: 0,78 EUR.
+- Coste: 2,35 EUR.
+- Conversiones: 0.
+- Tasa de conversion: 0,00 %.
+
+Lectura:
+- Tras retirar la concordancia amplia problematica, la campana vuelve a recibir algo de trafico.
+- La muestra todavia es demasiado pequena para decidir si el cambio ha funcionado.
+- No tocar web ni oferta con solo 3 clics nuevos; esperar hasta unos 10-15 EUR de gasto o revisar terminos de busqueda si vuelve a entrar trafico raro.
