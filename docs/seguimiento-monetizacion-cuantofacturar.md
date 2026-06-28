@@ -539,3 +539,33 @@ Lectura:
 - El CTR es alto, por lo que el anuncio parece atraer clics, pero no sabemos todavia si las busquedas son las correctas.
 - El CPC sube respecto a revisiones anteriores, asi que cada prueba cuesta mas.
 - Este informe no trae terminos de busqueda; el siguiente paso antes de tocar la web es revisar `Terminos de busqueda` para este mismo periodo o ultimos 7/14 dias.
+
+Dato adicional de terminos de busqueda:
+- Archivo revisado: `Informe de terminos de busqueda (1).csv`.
+- Periodo del informe: 21 a 27 de junio de 2026.
+- Total campana:
+  - Clics: 37.
+  - Impresiones: 1.103.
+  - CTR: 3,35 %.
+  - CPC medio: 0,71 EUR.
+  - Coste: 26,16 EUR.
+  - Conversiones: 0.
+- Google desglosa 11 clics / 8,78 EUR en terminos visibles.
+- Los otros 26 clics / 17,38 EUR aparecen como `Otros terminos de busqueda`.
+- Terminos visibles con clics:
+  - `calculadora autonomo espana`: 2 clics, 2,08 EUR.
+  - `autonomo precio primer ano`: 1 clic, 2,03 EUR.
+  - `autonomo espana cuanto paga`: 1 clic, 0,92 EUR.
+  - `coste autonomo primer ano`: 1 clic, 0,72 EUR.
+  - `cuanto paga un autonomo al mes en espana`: 1 clic, 0,62 EUR.
+  - `cuanto paga un autonomo al mes`: 1 clic, 0,58 EUR.
+  - `calcular nomina autonomo`: 1 clic, 0,57 EUR.
+  - `calculo autonomos 2026`: 1 clic, 0,55 EUR.
+  - `cuanto vale el autonomo en espana`: 1 clic, 0,47 EUR.
+  - `cuanto cuesta ser autonomo en espana`: 1 clic, 0,24 EUR.
+
+Lectura:
+- Despues de retirar la concordancia amplia problematica, el trafico ha mejorado algo, pero sigue orientado a coste/cuota/alta/lo que paga un autonomo.
+- No aparecen clics visibles claros de alta intencion como `cuanto facturar`, `cuanto cobrar por hora`, `tarifa hora freelance` o similares.
+- Con 37 clics, 26,16 EUR y 0 leads nuevos, no conviene seguir gastando igual.
+- Siguiente microaccion recomendada: pausar la campana y decidir si cerramos mas negativas o cambiamos el enfoque de la landing/oferta para trafico de coste de autonomo.
