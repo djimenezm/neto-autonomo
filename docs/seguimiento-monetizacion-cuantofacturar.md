@@ -505,3 +505,37 @@ Lectura:
 - Tras retirar la concordancia amplia problematica, la campana vuelve a recibir algo de trafico.
 - La muestra todavia es demasiado pequena para decidir si el cambio ha funcionado.
 - No tocar web ni oferta con solo 3 clics nuevos; esperar hasta unos 10-15 EUR de gasto o revisar terminos de busqueda si vuelve a entrar trafico raro.
+
+## Revision 28 de junio de 2026
+
+Archivo revisado: `Informe de campana (1).csv`.
+
+Periodo del informe: 28 de junio de 2026.
+
+Campana: `Search - Leads calculadora autonomos`
+
+Estado:
+- Campana habilitada.
+- Estado: apto.
+- Tipo: busqueda.
+- Presupuesto: 5,00 EUR/dia.
+- Estrategia: maximizar conversiones.
+
+Datos:
+- Clics: 7.
+- Impresiones: 69.
+- CTR: 10,14 %.
+- CPC medio: 1,38 EUR.
+- Coste: 9,66 EUR.
+- Conversiones: 0.
+- Tasa de conversion: 0,00 %.
+
+Dato Brevo:
+- La lista `Kit tarifa autonomos - Cuanto Facturar` sigue con 1 contacto.
+- No hay leads nuevos confirmados.
+
+Lectura:
+- La campana esta activa y recibe trafico, pero vuelve a gastar sin captar emails.
+- El CTR es alto, por lo que el anuncio parece atraer clics, pero no sabemos todavia si las busquedas son las correctas.
+- El CPC sube respecto a revisiones anteriores, asi que cada prueba cuesta mas.
+- Este informe no trae terminos de busqueda; el siguiente paso antes de tocar la web es revisar `Terminos de busqueda` para este mismo periodo o ultimos 7/14 dias.
