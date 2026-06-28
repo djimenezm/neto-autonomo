@@ -569,3 +569,23 @@ Lectura:
 - No aparecen clics visibles claros de alta intencion como `cuanto facturar`, `cuanto cobrar por hora`, `tarifa hora freelance` o similares.
 - Con 37 clics, 26,16 EUR y 0 leads nuevos, no conviene seguir gastando igual.
 - Siguiente microaccion recomendada: pausar la campana y decidir si cerramos mas negativas o cambiamos el enfoque de la landing/oferta para trafico de coste de autonomo.
+
+Dato adicional de negativas:
+- Archivo revisado: `Informe de palabras clave negativas (1).csv`.
+- Total de negativas detectadas: 57.
+- Las negativas estan anadidas a nivel de campana en `Search - Leads calculadora autonomos`.
+- Se confirma que se han anadido las nuevas negativas recomendadas:
+  - `paga`
+  - `pago`
+  - `cuesta`
+  - `coste`
+  - `vale`
+  - `primer ano`
+  - `nomina` sin y con tilde
+  - `ser autonomo` sin y con tilde
+  - `darme de alta`
+  - `cotizar`
+
+Lectura:
+- El filtro de negativas queda aplicado correctamente.
+- Como son negativas amplias de una sola palabra, especialmente `vale`, `coste` y `cuesta`, conviene revisarlas si el volumen cae demasiado; de momento son coherentes con el diagnostico de trafico de coste/alta/cuota.
