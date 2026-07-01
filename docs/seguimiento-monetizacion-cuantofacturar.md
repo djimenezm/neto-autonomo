@@ -589,3 +589,51 @@ Dato adicional de negativas:
 Lectura:
 - El filtro de negativas queda aplicado correctamente.
 - Como son negativas amplias de una sola palabra, especialmente `vale`, `coste` y `cuesta`, conviene revisarlas si el volumen cae demasiado; de momento son coherentes con el diagnostico de trafico de coste/alta/cuota.
+
+## Revision 1 de julio de 2026
+
+Archivos revisados:
+- `Informe de campana (2).csv`.
+- `Informe de terminos de busqueda (2).csv`.
+
+Periodo de los informes: 24 a 30 de junio de 2026.
+
+Campana: `Search - Leads calculadora autonomos`
+
+Estado:
+- Campana habilitada.
+- Estado: apto.
+- Presupuesto: 5,00 EUR/dia.
+- Tipo: busqueda.
+- Estrategia: maximizar conversiones.
+
+Datos de campana:
+- Clics: 38.
+- Impresiones: 877.
+- CTR: 4,33 %.
+- CPC medio: 0,96 EUR.
+- Coste: 36,41 EUR.
+- Conversiones: 0.
+- Tasa de conversion: 0,00 %.
+
+Terminos de busqueda:
+- Google desglosa 10 clics / 10,20 EUR en terminos visibles.
+- Los otros 28 clics / 26,21 EUR aparecen como `Otros terminos de busqueda`.
+- Terminos visibles con clics:
+  - `autonomo espana precio`: 2 clics, 5,10 EUR.
+  - `calculadora autonomo espana`: 2 clics, 2,08 EUR.
+  - `coste autonomo primer ano`: 1 clic, 0,72 EUR.
+  - `calcular nomina autonomo`: 1 clic, 0,57 EUR.
+  - `calculo autonomos 2026`: 1 clic, 0,55 EUR.
+  - `cuanto vale el autonomo en espana`: 1 clic, 0,47 EUR.
+  - `calculadora impuestos autonomo espana`: 1 clic, 0,47 EUR.
+  - `cuanto cuesta ser autonomo en espana`: 1 clic, 0,24 EUR.
+
+Lectura:
+- El trafico visible sigue estando centrado en coste, precio, impuestos, nomina y cuanto paga/cuesta ser autonomo.
+- Sigue sin aparecer intencion clara de `cuanto facturar`, `cuanto cobrar`, `tarifa hora freelance` o decision de precio de servicio.
+- El porcentaje de clics ocultos en `Otros terminos de busqueda` sigue siendo alto: 28 de 38 clics.
+- Con 38 clics, 36,41 EUR y 0 conversiones, mantener esta campana igual no parece razonable.
+- Siguiente decision recomendada: pausar y elegir entre dos caminos:
+  - campana mucho mas estrecha solo con exactas/frases de `cuanto cobrar/facturar/tarifa hora`, aceptando bajo volumen;
+  - o crear una ruta/oferta especifica para trafico de `cuanto cuesta ser autonomo`, porque ese parece ser el mercado real que Google esta encontrando.
