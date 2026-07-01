@@ -19,6 +19,7 @@ describe('sitemap', () => {
     expect(paths).toContain('/tarifa-freelance-por-hora');
     expect(paths).toContain('/tarifa-diaria-freelance');
     expect(paths).toContain('/cuota-autonomos-2026');
+    expect(paths).toContain('/cuanto-cuesta-ser-autonomo');
     expect(paths).not.toContain('/gracias-kit-tarifa');
   });
 });

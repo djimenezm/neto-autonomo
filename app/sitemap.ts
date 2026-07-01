@@ -15,6 +15,7 @@ const routes = [
   '/tarifa-freelance-por-hora',
   '/tarifa-diaria-freelance',
   '/cuota-autonomos-2026',
+  '/cuanto-cuesta-ser-autonomo',
   '/aviso-legal',
   '/privacidad',
   '/cookies',

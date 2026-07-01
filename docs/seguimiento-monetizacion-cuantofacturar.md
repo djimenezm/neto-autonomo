@@ -637,3 +637,18 @@ Lectura:
 - Siguiente decision recomendada: pausar y elegir entre dos caminos:
   - campana mucho mas estrecha solo con exactas/frases de `cuanto cobrar/facturar/tarifa hora`, aceptando bajo volumen;
   - o crear una ruta/oferta especifica para trafico de `cuanto cuesta ser autonomo`, porque ese parece ser el mercado real que Google esta encontrando.
+
+Decision aplicada:
+- Se elige el segundo camino: crear una ruta/oferta especifica para trafico de coste de autonomo.
+- Nueva ruta creada: `/cuanto-cuesta-ser-autonomo`.
+- Enfoque de la pagina:
+  - responder a la duda `cuanto cuesta ser autonomo`;
+  - explicar que el coste no es solo la cuota;
+  - llevar de forma natural a `cuanto necesitas facturar para cubrirlo`;
+  - ofrecer el kit/checklist como siguiente paso para revisar costes y tarifa.
+- La ruta se anade al sitemap.
+- Verificaciones locales:
+  - `npm test`: correcto.
+  - `npm run lint`: correcto.
+  - `npm run build`: correcto.
+  - `http://localhost:3001/cuanto-cuesta-ser-autonomo`: responde 200.
