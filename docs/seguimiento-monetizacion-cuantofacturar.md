@@ -652,3 +652,10 @@ Decision aplicada:
   - `npm run lint`: correcto.
   - `npm run build`: correcto.
   - `http://localhost:3001/cuanto-cuesta-ser-autonomo`: responde 200.
+- Verificacion en produccion:
+  - `https://www.cuantofacturar.es/cuanto-cuesta-ser-autonomo`: responde 200.
+  - La pagina contiene el enfoque de coste de autonomo y el formulario de checklist.
+- Siguiente paso en Ads:
+  - usar esta ruta como URL final de la campana o de un grupo/anuncio especifico para busquedas de coste de autonomo;
+  - mantener presupuesto bajo;
+  - revisar Brevo y terminos de busqueda tras 10-15 EUR de gasto.
