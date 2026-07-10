@@ -1,7 +1,5 @@
 import type { NextConfig } from 'next';
 
-const trustedTypesDirective = "require-trusted-types-for 'script'";
-
 const baseContentSecurityPolicy: string[] = [
   "default-src 'self'",
   "base-uri 'self'",
@@ -22,9 +20,9 @@ const baseContentSecurityPolicy: string[] = [
 export function getContentSecurityPolicy(environment = process.env.NODE_ENV) {
   const directives = [...baseContentSecurityPolicy];
 
-  if (environment !== 'development') {
-    directives.splice(6, 0, trustedTypesDirective);
-  }
+  // Trusted Types is intentionally not enforced yet: React/Next hydration still
+  // writes legitimate JSON-LD and analytics script contents through innerHTML.
+  void environment;
 
   return directives.join('; ');
 }

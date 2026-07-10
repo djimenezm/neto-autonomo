@@ -25,13 +25,15 @@ describe('security headers', () => {
     expect(contentSecurityPolicy).toContain('https://www.google-analytics.com');
     expect(contentSecurityPolicy).toContain('https://www.googleadservices.com');
     expect(contentSecurityPolicy).toContain('https://googleads.g.doubleclick.net');
-    expect(contentSecurityPolicy).toContain("require-trusted-types-for 'script'");
+    expect(contentSecurityPolicy).not.toContain("require-trusted-types-for 'script'");
     expect(contentSecurityPolicy).toContain("style-src 'self'");
     expect(contentSecurityPolicy).not.toContain(' *');
   });
 
-  it('relaxes Trusted Types only in development so the Next.js overlay can render', () => {
-    expect(getContentSecurityPolicy('production')).toContain("require-trusted-types-for 'script'");
+  it('keeps Trusted Types disabled until there is a React-compatible policy', () => {
+    expect(getContentSecurityPolicy('production')).not.toContain(
+      "require-trusted-types-for 'script'",
+    );
     expect(getContentSecurityPolicy('development')).not.toContain(
       "require-trusted-types-for 'script'",
     );
