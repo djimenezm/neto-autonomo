@@ -176,6 +176,10 @@ h3 {
   padding: 2rem 0;
 }
 
+#costes-kit {
+  scroll-margin-top: 5rem;
+}
+
 .section-lead {
   max-width: 760px;
   margin: 0 0 1rem;
@@ -822,6 +826,10 @@ select[aria-invalid='true'] {
 }
 
 @media (max-width: 900px) {
+  #costes-kit {
+    scroll-margin-top: 8rem;
+  }
+
   .hero-grid {
     grid-template-columns: 1fr;
   }

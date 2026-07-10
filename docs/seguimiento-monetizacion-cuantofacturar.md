@@ -659,3 +659,45 @@ Decision aplicada:
   - usar esta ruta como URL final de la campana o de un grupo/anuncio especifico para busquedas de coste de autonomo;
   - mantener presupuesto bajo;
   - revisar Brevo y terminos de busqueda tras 10-15 EUR de gasto.
+
+## Revision 10 de julio de 2026
+
+Archivos revisados:
+- `Informe de grupo de anuncios (2).csv`.
+- `Informe de terminos de busqueda (3).csv`.
+
+Periodo de los informes: 3 a 9 de julio de 2026.
+
+Campana: `Search - Coste autonomo`
+
+Datos:
+- Clics: 20.
+- Impresiones: 265.
+- CTR: 7,55 %.
+- CPC medio: 1,12 EUR.
+- Coste: 22,39 EUR.
+- Conversiones: 0.
+- Tasa de conversion: 0,00 %.
+
+Terminos de busqueda:
+- Google desglosa 4 clics / 6,86 EUR en terminos visibles.
+- Los otros 16 clics / 15,54 EUR aparecen como `Otros terminos de busqueda`.
+- Los terminos visibles con clics estan alineados con la pagina:
+  - `cuanto cuesta la cuota de autonomos`: 1 clic, 0,93 EUR.
+  - `cuanto es la cuota de autonomo en espana`: 1 clic, 1,09 EUR.
+  - `cuota autonomos mensual`: 1 clic, 3,10 EUR.
+  - `cuanto vale darse de alta como autonomo`: 1 clic, 1,74 EUR.
+
+Lectura:
+- El anuncio atrae busquedas coherentes con coste, cuota, gastos y alta de autonomo.
+- El CTR es bueno, por lo que no se cambia el anuncio, las palabras clave ni el presupuesto en esta revision.
+- Los 20 clics y 22,39 EUR sin leads indican que el siguiente ajuste debe hacerse despues del clic.
+- La captacion estaba al final de una pagina larga y el boton principal enviaba primero a la calculadora.
+
+Decision aplicada:
+- La campana se pausa el 10 de julio de 2026 mientras se prepara el siguiente test.
+- En `/cuanto-cuesta-ser-autonomo` la checklist de costes pasa a ser la accion principal de la cabecera.
+- El formulario se mueve justo despues de la introduccion y se presenta como checklist de cuota, gestoria, herramientas, impuestos y horas no facturables.
+- La calculadora queda como accion secundaria.
+- Se corrige el salto al formulario para que la cabecera fija no tape el titulo en movil.
+- Siguiente medicion: reactivar tras publicar y revisar resultados despues de 15-20 clics nuevos, sin hacer otros cambios durante esa muestra.

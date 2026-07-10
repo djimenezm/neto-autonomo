@@ -158,12 +158,12 @@ export default function CuantoCuestaSerAutonomoPage() {
               <span className="hero-badge">Facturacion minima</span>
             </div>
             <div className="guide-cta">
-              <Link href={calculatorHref} className="primary-button">
+              <a href="#costes-kit" className="primary-button">
+                Recibir checklist de costes
+              </a>
+              <Link href={calculatorHref} className="link-button">
                 Calcular mi facturacion minima
               </Link>
-              <a href="#costes-kit" className="link-button">
-                Recibir checklist
-              </a>
             </div>
           </div>
 
@@ -176,6 +176,17 @@ export default function CuantoCuestaSerAutonomoPage() {
               <li>Que revisar antes de aceptar un precio demasiado ajustado.</li>
             </ul>
           </aside>
+        </div>
+      </section>
+
+      <section className="section" id="costes-kit">
+        <div className="container">
+          <LeadMagnetForm
+            source="cuanto-cuesta-ser-autonomo"
+            title="Recibe la checklist de costes del autonomo"
+            description="Una lista sencilla para revisar cuota, gestoria, herramientas, impuestos y horas no facturables antes de calcular cuanto necesitas facturar."
+            buttonLabel="Enviar checklist gratis"
+          />
         </div>
       </section>
 
@@ -275,17 +286,6 @@ export default function CuantoCuestaSerAutonomoPage() {
               y reservas.
             </p>
           </article>
-        </div>
-      </section>
-
-      <section className="section" id="costes-kit">
-        <div className="container">
-          <LeadMagnetForm
-            source="cuanto-cuesta-ser-autonomo"
-            title="Recibe una checklist para revisar costes y tarifa"
-            description="Te enviamos el kit gratuito para revisar si tus costes, cuota, horas e impuestos estan bien reflejados antes de aceptar una tarifa o enviar un presupuesto."
-            buttonLabel="Quiero revisar mis costes"
-          />
         </div>
       </section>
 
