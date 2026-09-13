@@ -40,15 +40,13 @@ describe('performance configuration', () => {
     expect(existsSync(join(process.cwd(), 'app/cuanto-facturar-autonomo/page.tsx'))).toBe(false);
   });
 
-  it('keeps the homepage lead compact for LCP', () => {
+  it('keeps the homepage message compact for LCP', () => {
     const homePage = readFileSync(join(process.cwd(), 'components/HomePage.tsx'), 'utf8');
     const globalStyles = readFileSync(join(process.cwd(), 'app/globals.css'), 'utf8');
-    const leadMatch = homePage.match(/<p className="lead">([\s\S]*?)<\/p>/);
-    const leadText = leadMatch?.[1].replace(/\s+/g, ' ').trim() ?? '';
 
-    expect(leadText.length).toBeLessThanOrEqual(130);
-    expect(globalStyles).toMatch(/\.lead\s*{[^}]*font-size:\s*1rem/s);
-    expect(globalStyles).toMatch(/\.lead\s*{[^}]*line-height:\s*1\.55/s);
+    expect(homePage).toContain('Convierte tu neto objetivo, gastos y horas en una tarifa clara');
+    expect(homePage).not.toContain('<FAQ />');
+    expect(globalStyles).toMatch(/\.cost-hero p\s*{[^}]*font-size:\s*[\d.]+rem/s);
   });
 
   it('provides a visible focus state for generated calculator results', () => {

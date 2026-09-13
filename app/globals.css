@@ -10,6 +10,7 @@
   --shadow: 0 14px 40px rgba(16, 24, 40, 0.08);
   --radius: 18px;
   --container: 1120px;
+  --type-mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
 }
 
 * {
@@ -22,9 +23,25 @@ html {
 
 body {
   margin: 0;
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-body, Aptos), Arial, sans-serif;
+  font-optical-sizing: auto;
+  text-rendering: optimizeLegibility;
   background: var(--bg);
   color: var(--text);
+}
+
+.font-root {
+  min-height: 100vh;
+  font-family: var(--font-body, Aptos), Arial, sans-serif;
+  font-optical-sizing: auto;
+  text-rendering: optimizeLegibility;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
 }
 
 a {
@@ -77,8 +94,10 @@ a {
 }
 
 .brand {
-  font-weight: 800;
-  font-size: 1.1rem;
+  font-family: var(--font-display, Georgia), serif;
+  font-weight: 720;
+  font-size: 1.18rem;
+  font-variation-settings: "opsz" 28;
 }
 
 .nav,
@@ -117,6 +136,13 @@ h3 {
   margin-top: 0;
 }
 
+h1,
+h2 {
+  font-family: var(--font-display, Georgia), serif;
+  font-weight: 700;
+  font-variation-settings: "opsz" 56;
+}
+
 h1 {
   font-size: clamp(2rem, 4vw, 3.5rem);
   margin-bottom: 1rem;
@@ -129,6 +155,7 @@ h2 {
 
 h3 {
   font-size: 1.15rem;
+  font-weight: 820;
 }
 
 .lead {
@@ -485,7 +512,7 @@ select[aria-invalid='true'] {
   border-radius: 14px;
   background: #10243a;
   color: #f8fbff;
-  font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  font-family: var(--type-mono);
   font-size: 0.9rem;
   line-height: 1.65;
   overflow-x: auto;
@@ -528,7 +555,7 @@ select[aria-invalid='true'] {
 .result-share-text {
   min-height: 13rem;
   resize: vertical;
-  font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  font-family: var(--type-mono);
   font-size: 0.9rem;
   line-height: 1.6;
   color: var(--text);
@@ -749,8 +776,10 @@ select[aria-invalid='true'] {
   max-width: 10.5ch;
   margin-bottom: 1.1rem;
   color: #fff;
-  font-size: 4.85rem;
-  line-height: 0.94;
+  font-size: clamp(3.75rem, 6.8vw, 5.8rem);
+  font-weight: 720;
+  font-variation-settings: "opsz" 72;
+  line-height: 0.92;
 }
 
 .cost-hero p {
@@ -889,7 +918,7 @@ select[aria-invalid='true'] {
 .cost-calculator-copy h2 {
   margin-bottom: 0.9rem;
   color: #fff;
-  font-size: 2.35rem;
+  font-size: 2.5rem;
   line-height: 1;
 }
 
@@ -1002,8 +1031,8 @@ select[aria-invalid='true'] {
 .cost-faq-heading h2,
 .cost-final-panel h2 {
   color: #07110e;
-  font-size: 2.55rem;
-  line-height: 0.98;
+  font-size: 2.75rem;
+  line-height: 0.96;
 }
 
 .cost-outcome-card {
@@ -1207,8 +1236,10 @@ select[aria-invalid='true'] {
 .footer-brand {
   width: fit-content;
   color: #fff;
-  font-size: 1.5rem;
-  font-weight: 900;
+  font-family: var(--font-display, Georgia), serif;
+  font-size: 1.65rem;
+  font-weight: 720;
+  font-variation-settings: "opsz" 32;
 }
 
 .footer-brand-block p,

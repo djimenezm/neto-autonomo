@@ -1,6 +1,7 @@
 import type { AppProps } from 'next/app';
 import Footer from '@/components/Footer';
 import Header from '@/components/Header';
+import { fontVariables } from '@/lib/fonts';
 import { siteConfig } from '@/lib/site';
 import '@/app/globals.css';
 
@@ -9,7 +10,7 @@ const resultKitCtaTrackingScript = `window.va=window.va||function(){(window.vaq=
 
 export default function App({ Component, pageProps }: AppProps) {
   return (
-    <>
+    <div className={`font-root ${fontVariables}`}>
       <a className="skip-link" href="#contenido-principal">
         Saltar al contenido principal
       </a>
@@ -33,6 +34,6 @@ export default function App({ Component, pageProps }: AppProps) {
           __html: resultKitCtaTrackingScript,
         }}
       />
-    </>
+    </div>
   );
 }

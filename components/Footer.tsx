@@ -30,7 +30,7 @@ export default function Footer() {
             <a href="/" className="footer-brand">
               Neto Autónomo
             </a>
-            <p>Calcula precios con más margen y menos ruido antes de enviar un presupuesto.</p>
+            <p>Calcula cuánto facturar y qué tarifa defender antes de enviar un presupuesto.</p>
             <p className="footer-contact-row">
               <a className="footer-contact-link" href={`mailto:${siteConfig.contactEmail}`}>
                 Contacto: {siteConfig.contactEmail}

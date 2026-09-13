@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { fontVariables } from '@/lib/fonts';
 import { getSiteUrl, siteConfig } from '@/lib/site';
 import './globals.css';
 
@@ -64,7 +65,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="es" data-scroll-behavior="smooth">
+    <html
+      lang="es"
+      data-scroll-behavior="smooth"
+      className={fontVariables}
+    >
       <body>
         <a className="skip-link" href="#contenido-principal">
           Saltar al contenido principal
