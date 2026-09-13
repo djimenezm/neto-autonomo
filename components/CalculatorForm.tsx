@@ -39,6 +39,7 @@ type CalculatorFormProps = {
   enableResultCopy?: boolean;
   initialShareUrl?: string;
   trackServerConversion?: boolean;
+  updateUrlOnSubmit?: boolean;
 };
 
 const DEFAULT_FORM_VALUES: CalculatorFormValues = {
@@ -240,6 +241,7 @@ export default function CalculatorForm({
   enableResultCopy = true,
   initialShareUrl = '',
   trackServerConversion = false,
+  updateUrlOnSubmit = true,
 }: CalculatorFormProps = {}) {
   const values = { ...DEFAULT_FORM_VALUES, ...initialValues };
   const [targetNet, setTargetNet] = useState(values.targetNet);
@@ -369,8 +371,11 @@ export default function CalculatorForm({
               selfEmployedFee: normalizeFieldValue('selfEmployedFee', selfEmployedFee),
             });
 
-            window.history.replaceState(null, '', nextShareUrl);
-            setShareUrl(nextShareUrl);
+            if (updateUrlOnSubmit) {
+              window.history.replaceState(null, '', nextShareUrl);
+              setShareUrl(nextShareUrl);
+            }
+
             setValidSubmissionCount((currentCount) => currentCount + 1);
           }
 

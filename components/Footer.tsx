@@ -1,45 +1,98 @@
 import { siteConfig } from '@/lib/site';
 
+const footerGroups = [
+  {
+    title: 'Calcular',
+    links: [
+      { href: '/#calculadora', label: 'Calculadora' },
+      { href: '/tabla-cuanto-facturar-autonomo', label: 'Tabla' },
+      { href: '/horas-facturables-freelance', label: 'Horas facturables' },
+      { href: '/tarifa-diaria-freelance', label: 'Tarifa diaria' },
+    ],
+  },
+  {
+    title: 'Escenarios',
+    links: [
+      { href: '/cuanto-facturar-autonomo-1500-euros', label: '1500 netos' },
+      { href: '/cuanto-facturar-autonomo-2000-euros', label: '2000 netos' },
+      { href: '/cuanto-facturar-autonomo-2500-euros', label: '2500 netos' },
+      { href: '/cuanto-facturar-autonomo-3000-euros', label: '3000 netos' },
+    ],
+  },
+] as const;
+
 export default function Footer() {
   return (
     <footer className="site-footer">
-      <div className="container footer-inner">
-        <div className="footer-copy">
-          <p>Copyright {new Date().getFullYear()} Neto Autónomo</p>
-          <p>Titular: {siteConfig.ownerName}</p>
-          <p className="footer-contact-row">
-            <a className="footer-contact-link" href={`mailto:${siteConfig.contactEmail}`}>
-              Contacto: {siteConfig.contactEmail}
+      <div className="container footer-shell">
+        <div className="footer-main">
+          <div className="footer-brand-block">
+            <a href="/" className="footer-brand">
+              Neto Autónomo
             </a>
-          </p>
-          <p className="footer-note">Herramienta orientativa. No constituye asesoramiento fiscal ni legal.</p>
+            <p>Calcula precios con más margen y menos ruido antes de enviar un presupuesto.</p>
+            <p className="footer-contact-row">
+              <a className="footer-contact-link" href={`mailto:${siteConfig.contactEmail}`}>
+                Contacto: {siteConfig.contactEmail}
+              </a>
+            </p>
+          </div>
+
+          <nav className="footer-nav" aria-label="Enlaces del pie de página">
+            {footerGroups.map((group) => (
+              <div className="footer-group" key={group.title}>
+                <p className="footer-group-title">{group.title}</p>
+                {group.links.map((link) => (
+                  <a href={link.href} key={link.href}>
+                    {link.label}
+                  </a>
+                ))}
+              </div>
+            ))}
+            <div className="footer-group">
+              <p className="footer-group-title">Herramientas</p>
+              <a
+                href="https://www.cuantopresupuestar.es?utm_source=cuantofacturar&utm_medium=ecosystem-footer&utm_campaign=cross_navigation"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Presupuestar
+              </a>
+              <a
+                href="https://www.mantenimientowebmensual.es?utm_source=cuantofacturar&utm_medium=ecosystem-footer&utm_campaign=cross_navigation"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Mantenimiento web
+              </a>
+              <a
+                href="https://www.cuantocobrarlandingpage.es?utm_source=cuantofacturar&utm_medium=ecosystem-footer&utm_campaign=cross_navigation"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Landing pages
+              </a>
+              <a
+                href="https://www.paneldeherramientas.es/precios-freelance?utm_source=cuantofacturar&utm_medium=ecosystem-footer&utm_campaign=pricing_hub"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Precios freelance
+              </a>
+            </div>
+          </nav>
         </div>
-        <div className="footer-links">
-          <a href="/tabla-cuanto-facturar-autonomo">Tabla</a>
-          <a href="/cuanto-facturar-autonomo-1500-euros">1500 netos</a>
-          <a href="/cuanto-facturar-autonomo-2000-euros">2000 netos</a>
-          <a href="/cuanto-facturar-autonomo-2500-euros">2500 netos</a>
-          <a href="/cuanto-facturar-autonomo-3000-euros">3000 netos</a>
-          <a href="/horas-facturables-freelance">Horas facturables</a>
-          <a href="/tarifa-diaria-freelance">Tarifa diaria</a>
-          <a href="https://www.cuantopresupuestar.es?utm_source=cuantofacturar&utm_medium=ecosystem-footer&utm_campaign=cross_navigation">
-            Presupuestar
-          </a>
-          <a href="https://www.mantenimientowebmensual.es?utm_source=cuantofacturar&utm_medium=ecosystem-footer&utm_campaign=cross_navigation">
-            Mantenimiento web
-          </a>
-          <a href="https://www.cuantocobrarlandingpage.es?utm_source=cuantofacturar&utm_medium=ecosystem-footer&utm_campaign=cross_navigation">
-            Landing pages
-          </a>
-          <a href="https://www.paneldeherramientas.es/precios-freelance?utm_source=cuantofacturar&utm_medium=ecosystem-footer&utm_campaign=pricing_hub">
-            Precios freelance
-          </a>
-          <a href="https://www.paneldeherramientas.es?utm_source=cuantofacturar&utm_medium=ecosystem-footer&utm_campaign=cross_navigation">
-            Panel
-          </a>
-          <a href="/aviso-legal">Aviso legal</a>
-          <a href="/privacidad">Privacidad</a>
-          <a href="/cookies">Cookies</a>
+
+        <div className="footer-bottom">
+          <div className="footer-legal-copy">
+            <p>© {new Date().getFullYear()} Neto Autónomo · Titular: {siteConfig.ownerName}</p>
+            <p>Herramienta orientativa. No constituye asesoramiento fiscal ni legal.</p>
+          </div>
+          <nav aria-label="Enlaces legales">
+            <a href="/aviso-legal">Aviso legal</a>
+            <a href="/privacidad">Privacidad</a>
+            <a href="/cookies">Cookies</a>
+          </nav>
         </div>
       </div>
     </footer>

@@ -286,33 +286,33 @@ const ResultCard = forwardRef<HTMLElement, ResultCardProps>(function ResultCard(
         </p>
       )}
 
-      <div className="result-copy-box">
-        <div className="result-copy-header">
-          <div>
-            <strong>Resumen rápido para guardar</strong>
-            <p>
-              Copia una versión corta del cálculo para pegarla en tus notas, una propuesta o una
-              conversación con tu gestoría.
-            </p>
-          </div>
-          {enableCopy && (
+      {enableCopy && (
+        <div className="result-copy-box">
+          <div className="result-copy-header">
+            <div>
+              <strong>Resumen rápido para guardar</strong>
+              <p>
+                Copia una versión corta del cálculo para pegarla en tus notas, una propuesta o una
+                conversación con tu gestoría.
+              </p>
+            </div>
             <button type="button" className="secondary-button result-copy-button" onClick={handleCopySummary}>
               {copyStatus === 'copied' ? 'Resumen copiado' : 'Copiar resumen'}
             </button>
+          </div>
+          <pre className="result-copy-preview">{resultSummary}</pre>
+          {copyStatus === 'copied' && (
+            <span className="result-copy-status" role="status">
+              Resumen copiado.
+            </span>
+          )}
+          {copyStatus === 'error' && (
+            <span className="result-copy-status result-copy-status-error" role="status">
+              No se ha podido copiar automáticamente. Puedes seleccionar el resumen manualmente.
+            </span>
           )}
         </div>
-        <pre className="result-copy-preview">{resultSummary}</pre>
-        {enableCopy && copyStatus === 'copied' && (
-          <span className="result-copy-status" role="status">
-            Resumen copiado.
-          </span>
-        )}
-        {enableCopy && copyStatus === 'error' && (
-          <span className="result-copy-status result-copy-status-error" role="status">
-            No se ha podido copiar automáticamente. Puedes seleccionar el resumen manualmente.
-          </span>
-        )}
-      </div>
+      )}
 
       <p className="result-summary">
         {result.selfEmployedFeeMode === 'manual' ? (

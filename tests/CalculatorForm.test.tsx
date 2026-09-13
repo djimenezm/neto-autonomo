@@ -54,6 +54,7 @@ describe('CalculatorForm', () => {
       screen.getByRole('heading', { name: /tu referencia mensual para presupuestar/i }),
     ).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /copiar resumen/i })).not.toBeInTheDocument();
+    expect(screen.queryByText(/resumen rápido para guardar/i)).not.toBeInTheDocument();
   });
 
   it('renders share actions for a server-submitted result when a share URL is provided', () => {
@@ -168,6 +169,23 @@ describe('CalculatorForm', () => {
       'href',
       expect.stringContaining('Resumen%20de%20c%C3%A1lculo'),
     );
+  });
+
+  it('can calculate without changing the URL when embedded in another landing', async () => {
+    const user = userEvent.setup();
+
+    window.history.replaceState(null, '', '/cuanto-cuesta-ser-autonomo');
+    render(<CalculatorForm updateUrlOnSubmit={false} enableResultCopy={false} />);
+
+    await user.click(screen.getByRole('button', { name: /calcular/i }));
+
+    expect(window.location.pathname).toBe('/cuanto-cuesta-ser-autonomo');
+    expect(window.location.search).toBe('');
+    expect(
+      screen.getByRole('heading', { name: /tu referencia mensual para presupuestar/i }),
+    ).toBeInTheDocument();
+    expect(screen.queryByLabelText(/resumen detallado para compartir/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/resumen rápido para guardar/i)).not.toBeInTheDocument();
   });
 
   it('uses the detailed result summary in social share links', async () => {
