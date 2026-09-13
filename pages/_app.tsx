@@ -1,4 +1,5 @@
 import type { AppProps } from 'next/app';
+import AdSenseScript from '@/components/AdSenseScript';
 import Footer from '@/components/Footer';
 import Header from '@/components/Header';
 import { fontVariables } from '@/lib/fonts';
@@ -17,6 +18,7 @@ export default function App({ Component, pageProps }: AppProps) {
       <Header />
       <Component {...pageProps} />
       <Footer />
+      <AdSenseScript />
       <script
         defer
         src="/_vercel/insights/script.js"

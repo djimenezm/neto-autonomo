@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import AdSlot from '@/components/AdSlot';
 import CalculatorForm, { type CalculatorFormValues } from '@/components/CalculatorForm';
 import LeadMagnetForm from '@/components/LeadMagnetForm';
 import { siteConfig } from '@/lib/site';
@@ -111,6 +112,8 @@ export default function HomePage({
         </div>
       </section>
 
+      <AdSlot placement="primary" />
+
       <section className="cost-checklist-band" id="kit-tarifa-form">
         <div className="container cost-checklist-grid">
           <div className="cost-checklist-copy">
@@ -127,6 +130,8 @@ export default function HomePage({
           />
         </div>
       </section>
+
+      <AdSlot placement="secondary" />
     </main>
   );
 }

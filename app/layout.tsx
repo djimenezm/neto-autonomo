@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import AdSenseScript from '@/components/AdSenseScript';
 import { fontVariables } from '@/lib/fonts';
 import { getSiteUrl, siteConfig } from '@/lib/site';
 import './globals.css';
@@ -75,6 +76,7 @@ export default function RootLayout({
           Saltar al contenido principal
         </a>
         {children}
+        <AdSenseScript />
         <script
           defer
           src="/_vercel/insights/script.js"
