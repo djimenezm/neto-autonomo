@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import LegalShell from '@/components/LegalShell';
 import { siteConfig } from '@/lib/site';
 
 export const metadata: Metadata = {
@@ -11,7 +12,7 @@ export const metadata: Metadata = {
 
 export default function AvisoLegalPage() {
   return (
-    <main className="legal-page container">
+    <LegalShell>
       <h1>Aviso legal</h1>
       <div className="legal-card">
         <p>
@@ -58,6 +59,6 @@ export default function AvisoLegalPage() {
           fines comerciales sin permiso previo.
         </p>
       </section>
-    </main>
+    </LegalShell>
   );
 }

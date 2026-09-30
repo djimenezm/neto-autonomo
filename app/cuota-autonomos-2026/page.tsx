@@ -35,10 +35,10 @@ export const metadata: Metadata = {
     canonical: route,
   },
   keywords: [
-    'cuota autonomos 2026',
-    'cuanto paga un autonomo en 2026',
-    'tramos autonomos 2026',
-    'tarifa reducida autonomos 2026',
+    'cuota autónomos 2026',
+    'cuánto paga un autónomo en 2026',
+    'tramos autónomos 2026',
+    'tarifa reducida autónomos 2026',
     'cuota reta 2026',
   ],
   openGraph: {
@@ -207,7 +207,7 @@ export default function CuotaAutonomos2026Page() {
             <h2>Tarifa reducida</h2>
             <p>
               Tiene sentido si estás en un supuesto de nueva alta o en un escenario compatible con la
-              reducción. Puede cambiar bastante tu resultado mensual durante ese periodo.
+              reducción. Puede cambiar bastante tu resultado mensual durante ese período.
             </p>
           </article>
 

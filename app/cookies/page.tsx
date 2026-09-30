@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import LegalShell from '@/components/LegalShell';
 import { siteConfig } from '@/lib/site';
 
 export const metadata: Metadata = {
@@ -11,7 +12,7 @@ export const metadata: Metadata = {
 
 export default function CookiesPage() {
   return (
-    <main className="legal-page container">
+    <LegalShell>
       <h1>Política de cookies</h1>
       <div className="legal-card">
         <p>
@@ -22,9 +23,10 @@ export default function CookiesPage() {
       <section className="legal-section">
         <h2>Estado actual del sitio</h2>
         <p>
-          En esta versión no se utilizan cookies propias de publicidad, perfilado ni medición avanzada
-          configuradas por el titular del sitio. La web usa Vercel Web Analytics para obtener una
-          medición agregada del uso del sitio, incluidos eventos básicos de uso de la calculadora.
+          La web usa Vercel Web Analytics para obtener medición agregada y Google Ads para medir de
+          forma limitada cuándo se completa la calculadora. El consentimiento publicitario se inicia
+          como denegado, por lo que Google no debe utilizar cookies publicitarias ni personalización
+          mientras no exista una elección válida del usuario.
         </p>
       </section>
 
@@ -41,11 +43,11 @@ export default function CookiesPage() {
       <section className="legal-section">
         <h2>Cambios futuros</h2>
         <p>
-          Si más adelante se incorporan herramientas de analítica, publicidad, afiliación o servicios
-          de terceros que instalen cookies no esenciales, esta política se actualizará para reflejarlo
-          con más detalle.
+          La infraestructura para mostrar publicidad de Google AdSense permanece desactivada. Antes de
+          activarla se deberá configurar una plataforma de consentimiento admitida por Google y
+          actualizar esta política con los proveedores, finalidades y opciones disponibles.
         </p>
       </section>
-    </main>
+    </LegalShell>
   );
 }

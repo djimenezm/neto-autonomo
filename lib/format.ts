@@ -5,3 +5,7 @@ export function formatCurrency(value: number) {
     maximumFractionDigits: 2,
   }).format(value);
 }
+
+export function formatNumber(value: number, maximumFractionDigits = 2) {
+  return new Intl.NumberFormat('es-ES', { maximumFractionDigits }).format(value);
+}

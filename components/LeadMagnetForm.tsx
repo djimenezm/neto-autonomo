@@ -10,7 +10,7 @@ type LeadMagnetFormProps = {
 export default function LeadMagnetForm({
   source,
   title = 'Te enviamos el kit de tarifa para autónomos',
-  description = 'Deja tu email y te daremos acceso al kit con checklist de tarifa, estructura de números y una revisión rápida antes de subir o defender tus precios.',
+  description = 'Deja tu email y te daremos acceso al kit con lista de comprobación de tarifa, estructura de números y una revisión rápida antes de subir o defender tus precios.',
   buttonLabel = 'Quiero el kit',
 }: LeadMagnetFormProps) {
   return (

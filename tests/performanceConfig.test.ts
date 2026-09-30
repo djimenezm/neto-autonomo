@@ -1,3 +1,4 @@
+import { readStyles } from './readStyles';
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
@@ -20,11 +21,11 @@ describe('performance configuration', () => {
     expect(noPolyfillsModule.trim()).toBe('export {};');
   });
 
-  it('serves the homepage without the Next client runtime', () => {
+  it('keeps the client runtime on the interactive homepage', () => {
     const indexPage = readFileSync(join(process.cwd(), 'pages/index.tsx'), 'utf8');
     const appPage = readFileSync(join(process.cwd(), 'pages/_app.tsx'), 'utf8');
 
-    expect(indexPage).toMatch(/unstable_runtimeJS:\s*false/);
+    expect(indexPage).not.toMatch(/unstable_runtimeJS:\s*false/);
     expect(indexPage).toContain('getServerSideProps');
     expect(appPage).toContain('result_kit_cta_clicked');
     expect(appPage).toContain('data-result-kit-cta');
@@ -42,7 +43,7 @@ describe('performance configuration', () => {
 
   it('keeps the homepage message compact for LCP', () => {
     const homePage = readFileSync(join(process.cwd(), 'components/HomePage.tsx'), 'utf8');
-    const globalStyles = readFileSync(join(process.cwd(), 'app/globals.css'), 'utf8');
+    const globalStyles = readStyles();
 
     expect(homePage).toContain('Convierte tu neto objetivo, gastos y horas en una tarifa clara');
     expect(homePage).not.toContain('<FAQ />');
@@ -50,7 +51,7 @@ describe('performance configuration', () => {
   });
 
   it('provides a visible focus state for generated calculator results', () => {
-    const globalStyles = readFileSync(join(process.cwd(), 'app/globals.css'), 'utf8');
+    const globalStyles = readStyles();
 
     expect(globalStyles).toMatch(/\.result-card:focus\s*{[^}]*outline:\s*3px solid var\(--accent\)/s);
     expect(globalStyles).toMatch(/\.result-card:focus\s*{[^}]*outline-offset:\s*4px/s);

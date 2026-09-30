@@ -1,6 +1,10 @@
 import sitemap from '@/app/sitemap';
 
 describe('sitemap', () => {
+  it('does not invent last modification dates', () => {
+    expect(sitemap().every((entry) => entry.lastModified === undefined)).toBe(true);
+  });
+
   it('includes the main indexable routes and excludes conversion-only pages', () => {
     const urls = sitemap().map((entry) => new URL(entry.url));
     const paths = urls.map((url) => url.pathname);
@@ -10,8 +14,8 @@ describe('sitemap', () => {
     expect(paths).toContain('/cuanto-facturar-autonomo');
     expect(paths).toContain('/tabla-cuanto-facturar-autonomo');
     expect(paths).toContain('/cuanto-facturar-autonomo-1500-euros');
-    expect(paths).toContain('/cuanto-facturar-autonomo-2000-euros');
-    expect(paths).toContain('/cuanto-facturar-autonomo-2500-euros');
+    expect(paths).not.toContain('/cuanto-facturar-autonomo-2000-euros');
+    expect(paths).not.toContain('/cuanto-facturar-autonomo-2500-euros');
     expect(paths).toContain('/cuanto-facturar-autonomo-3000-euros');
     expect(paths).toContain('/horas-facturables-freelance');
     expect(paths).toContain('/kit-tarifa-autonomo');

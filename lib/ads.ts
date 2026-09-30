@@ -19,12 +19,14 @@ export function createAdsConfig(environment: AdsEnvironment) {
     SLOT_PATTERN,
   );
   const requested = environment.NEXT_PUBLIC_ADSENSE_ENABLED === 'true';
+  const consentManaged = environment.NEXT_PUBLIC_ADSENSE_CONSENT_MANAGED === 'true';
 
   return {
     client,
     primarySlot,
     secondarySlot,
-    enabled: requested && Boolean(client) && Boolean(primarySlot || secondarySlot),
+    consentManaged,
+    enabled: requested && consentManaged && Boolean(client) && Boolean(primarySlot || secondarySlot),
   } as const;
 }
 

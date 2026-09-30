@@ -1,5 +1,6 @@
 'use client';
 
+import type { ClipboardEvent } from 'react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import ResultCard from '@/components/ResultCard';
 import {
@@ -10,28 +11,19 @@ import {
   type ReducedFeePeriod,
   type SelfEmployedFeeMode,
 } from '@/lib/calculator';
+import {
+  buildCalculatorUrl,
+  DEFAULT_FORM_VALUES,
+  type CalculatorFormValues,
+  type FieldName,
+  getNormalizedPastedValue,
+  normalizeFieldValue,
+  validateForm,
+} from '@/lib/calculatorForm';
+import { parseSpanishNumber as parseNumericValue } from '@/lib/spanishNumber';
+import { siteConfig } from '@/lib/site';
 
-type FieldName =
-  | 'targetNet'
-  | 'monthlyExpenses'
-  | 'billableHours'
-  | 'irpfRate'
-  | 'selfEmployedFee';
-
-type FormErrors = Partial<Record<FieldName, string>>;
-
-export type CalculatorFormValues = {
-  targetNet: string;
-  monthlyExpenses: string;
-  billableHours: string;
-  irpfMode: IrpfMode;
-  autonomousCommunity: AutonomousCommunity;
-  irpfRate: string;
-  hasIVA: boolean;
-  selfEmployedFeeMode: SelfEmployedFeeMode;
-  reducedFeePeriod: ReducedFeePeriod;
-  selfEmployedFee: string;
-};
+export type { CalculatorFormValues } from '@/lib/calculatorForm';
 
 type CalculatorFormProps = {
   initialValues?: Partial<CalculatorFormValues>;
@@ -40,20 +32,10 @@ type CalculatorFormProps = {
   initialShareUrl?: string;
   trackServerConversion?: boolean;
   updateUrlOnSubmit?: boolean;
+  importedFromCosts?: boolean;
 };
 
-const DEFAULT_FORM_VALUES: CalculatorFormValues = {
-  targetNet: '1500',
-  monthlyExpenses: '200',
-  billableHours: '80',
-  irpfMode: 'progressive',
-  autonomousCommunity: 'common',
-  irpfRate: '15',
-  hasIVA: true,
-  selfEmployedFeeMode: 'auto',
-  reducedFeePeriod: 'initial',
-  selfEmployedFee: '0',
-};
+const googleAdsCalculatorConversion = `${siteConfig.googleAdsId}/${siteConfig.googleAdsCalculatorConversionLabel}`;
 
 declare global {
   interface Window {
@@ -72,167 +54,31 @@ declare global {
   }
 }
 
-function parseNumericValue(value: string) {
-  const normalizedValue = value.replace(',', '.').trim();
-
-  if (normalizedValue === '') {
-    return Number.NaN;
-  }
-
-  return Number(normalizedValue);
-}
-
-function formatNormalizedNumber(value: number, maximumFractionDigits = 2) {
-  return value.toLocaleString('en-US', {
-    useGrouping: false,
-    maximumFractionDigits,
-  });
-}
-
-function normalizeFieldValue(field: FieldName, value: string) {
-  const parsedValue = parseNumericValue(value);
-
-  if (!Number.isFinite(parsedValue)) {
-    return value.trim() === '' ? '' : value;
-  }
-
-  switch (field) {
-    case 'targetNet':
-      return formatNormalizedNumber(Math.max(0, parsedValue));
-    case 'monthlyExpenses':
-      return formatNormalizedNumber(Math.max(0, parsedValue));
-    case 'billableHours':
-      return formatNormalizedNumber(Math.max(0, Math.round(parsedValue)), 0);
-    case 'irpfRate':
-      return formatNormalizedNumber(Math.min(99, Math.max(0, parsedValue)), 1);
-    case 'selfEmployedFee':
-      return formatNormalizedNumber(Math.max(0, parsedValue));
-  }
-}
-
 function trackCalculatorCompleted(data: Record<string, string>) {
   window.va?.('event', {
     name: 'calculator_completed',
     data,
   });
-}
-
-function buildCalculatorUrl(values: CalculatorFormValues) {
-  const url = new URL(window.location.href);
-  url.pathname = '/';
-  url.hash = 'calculadora';
-  url.search = '';
-  url.searchParams.set('targetNet', values.targetNet);
-  url.searchParams.set('monthlyExpenses', values.monthlyExpenses);
-  url.searchParams.set('billableHours', values.billableHours);
-  url.searchParams.set('irpfMode', values.irpfMode);
-  url.searchParams.set('autonomousCommunity', values.autonomousCommunity);
-  url.searchParams.set('irpfRate', values.irpfRate);
-  url.searchParams.set('hasIVA', values.hasIVA ? 'yes' : 'no');
-  url.searchParams.set('selfEmployedFeeMode', values.selfEmployedFeeMode);
-  url.searchParams.set('reducedFeePeriod', values.reducedFeePeriod);
-  url.searchParams.set('selfEmployedFee', values.selfEmployedFee);
-
-  return url.toString();
-}
-
-function getFieldError(field: FieldName, value: string) {
-  const parsedValue = parseNumericValue(value);
-
-  if (value.trim() === '') {
-    switch (field) {
-      case 'targetNet':
-        return 'Indica tu neto mensual deseado.';
-      case 'monthlyExpenses':
-        return 'Indica tus gastos mensuales deducibles.';
-      case 'billableHours':
-        return 'Indica tus horas facturables al mes.';
-      case 'irpfRate':
-        return 'Indica el porcentaje de IRPF.';
-      case 'selfEmployedFee':
-        return 'Indica una cuota estimada de autónomos.';
-    }
-  }
-
-  if (!Number.isFinite(parsedValue)) {
-    switch (field) {
-      case 'billableHours':
-        return 'Introduce un número válido de horas.';
-      case 'irpfRate':
-        return 'Introduce un porcentaje válido.';
-      default:
-        return 'Introduce un importe válido.';
-    }
-  }
-
-  if (field === 'billableHours' && parsedValue <= 0) {
-    return 'Las horas facturables deben ser mayores que 0.';
-  }
-
-  if (field === 'billableHours' && !Number.isInteger(parsedValue)) {
-    return 'Las horas facturables deben ser un número entero.';
-  }
-
-  if (field === 'targetNet' && parsedValue <= 0) {
-    return 'El neto mensual debe ser mayor que 0.';
-  }
-
-  if (field === 'irpfRate' && parsedValue >= 100) {
-    return 'El IRPF debe ser menor que 100.';
-  }
-
-  if (parsedValue < 0) {
-    switch (field) {
-      case 'targetNet':
-        return 'El neto mensual no puede ser negativo.';
-      case 'monthlyExpenses':
-        return 'Los gastos mensuales no pueden ser negativos.';
-      case 'billableHours':
-        return 'Las horas facturables no pueden ser negativas.';
-      case 'irpfRate':
-        return 'El IRPF no puede ser negativo.';
-      case 'selfEmployedFee':
-        return 'La cuota de autónomos no puede ser negativa.';
-    }
-  }
-
-  return '';
-}
-
-function validateForm(
-  values: Record<FieldName, string>,
-  irpfMode: IrpfMode,
-  selfEmployedFeeMode: SelfEmployedFeeMode,
-): FormErrors {
-  const nextErrors: FormErrors = {};
-
-  (Object.keys(values) as FieldName[]).forEach((field) => {
-    if (field === 'irpfRate' && irpfMode !== 'manual') {
-      return;
-    }
-
-    if (field === 'selfEmployedFee' && selfEmployedFeeMode !== 'manual') {
-      return;
-    }
-
-    const error = getFieldError(field, values[field]);
-
-    if (field === 'selfEmployedFee' && selfEmployedFeeMode === 'manual' && !error) {
-      const parsedValue = parseNumericValue(values[field]);
-
-      if (parsedValue <= 0) {
-        nextErrors[field] = 'La cuota manual debe ser mayor que 0.';
-      }
-
-      return;
-    }
-
-    if (error) {
-      nextErrors[field] = error;
-    }
+  window.gtag?.('event', 'calculator_completed', data);
+  window.gtag?.('event', 'conversion', {
+    send_to: googleAdsCalculatorConversion,
   });
+}
 
-  return nextErrors;
+function handleNumericPaste(
+  event: ClipboardEvent<HTMLInputElement>,
+  field: FieldName,
+  setValue: (value: string) => void,
+) {
+  const pastedValue = event.clipboardData.getData('text');
+  const normalizedValue = getNormalizedPastedValue(field, pastedValue);
+
+  if (normalizedValue === null) {
+    return;
+  }
+
+  event.preventDefault();
+  setValue(normalizedValue);
 }
 
 export default function CalculatorForm({
@@ -242,10 +88,14 @@ export default function CalculatorForm({
   initialShareUrl = '',
   trackServerConversion = false,
   updateUrlOnSubmit = true,
+  importedFromCosts = false,
 }: CalculatorFormProps = {}) {
   const values = { ...DEFAULT_FORM_VALUES, ...initialValues };
   const [targetNet, setTargetNet] = useState(values.targetNet);
   const [monthlyExpenses, setMonthlyExpenses] = useState(values.monthlyExpenses);
+  const [monthlyNonDeductibleExpenses, setMonthlyNonDeductibleExpenses] = useState(
+    values.monthlyNonDeductibleExpenses,
+  );
   const [billableHours, setBillableHours] = useState(values.billableHours);
   const [irpfMode, setIrpfMode] = useState<IrpfMode>(values.irpfMode);
   const [autonomousCommunity, setAutonomousCommunity] = useState<AutonomousCommunity>(
@@ -259,12 +109,28 @@ export default function CalculatorForm({
   const [reducedFeePeriod, setReducedFeePeriod] = useState<ReducedFeePeriod>(values.reducedFeePeriod);
   const [selfEmployedFee, setSelfEmployedFee] = useState(values.selfEmployedFee);
   const [submitted, setSubmitted] = useState(initiallySubmitted);
+  const [invalidSubmissionCount, setInvalidSubmissionCount] = useState(0);
+  const formRef = useRef<HTMLFormElement | null>(null);
   const [hasTrackedConversion, setHasTrackedConversion] = useState(initiallySubmitted);
   const [validSubmissionCount, setValidSubmissionCount] = useState(0);
   const [shareUrl, setShareUrl] = useState(() =>
     initialShareUrl || (initiallySubmitted && typeof window !== 'undefined' ? window.location.href : ''),
   );
   const resultRegionRef = useRef<HTMLElement | null>(null);
+  const hasTrackedCostImport = useRef(false);
+
+  useEffect(() => {
+    if (!importedFromCosts || hasTrackedCostImport.current) return;
+
+    hasTrackedCostImport.current = true;
+    window.va?.('event', { name: 'monthly_costs_transferred' });
+  }, [importedFromCosts]);
+
+  useEffect(() => {
+    if (invalidSubmissionCount > 0) {
+      formRef.current?.querySelector<HTMLInputElement>('[aria-invalid="true"]')?.focus();
+    }
+  }, [invalidSubmissionCount]);
 
   const validationErrors = useMemo(
     () =>
@@ -272,6 +138,7 @@ export default function CalculatorForm({
         {
           targetNet,
           monthlyExpenses,
+          monthlyNonDeductibleExpenses,
           billableHours,
           irpfRate,
           selfEmployedFee,
@@ -282,6 +149,7 @@ export default function CalculatorForm({
     [
       targetNet,
       monthlyExpenses,
+      monthlyNonDeductibleExpenses,
       billableHours,
       irpfRate,
       selfEmployedFee,
@@ -300,6 +168,7 @@ export default function CalculatorForm({
     return calculateFreelanceBilling({
       targetNet: parseNumericValue(targetNet),
       monthlyExpenses: parseNumericValue(monthlyExpenses),
+      monthlyNonDeductibleExpenses: parseNumericValue(monthlyNonDeductibleExpenses),
       billableHours: parseNumericValue(billableHours),
       irpfRate: parseNumericValue(irpfRate),
       irpfMode,
@@ -312,6 +181,7 @@ export default function CalculatorForm({
   }, [
     targetNet,
     monthlyExpenses,
+    monthlyNonDeductibleExpenses,
     billableHours,
     irpfRate,
     irpfMode,
@@ -346,8 +216,14 @@ export default function CalculatorForm({
         Introduce tus datos para obtener una referencia orientativa de facturación mensual y una
         tarifa por hora más defendible.
       </p>
+      {importedFromCosts && (
+        <p className="calculator-import-note" role="status">
+          Hemos traído tus costes y horas. Revisa el neto mensual que deseas conservar y calcula tu tarifa.
+        </p>
+      )}
 
       <form
+        ref={formRef}
         noValidate
         method="get"
         action="/#calculadora"
@@ -357,19 +233,30 @@ export default function CalculatorForm({
           event.preventDefault();
           setSubmitted(true);
 
+          if (hasValidationErrors) {
+            setInvalidSubmissionCount((count) => count + 1);
+          }
+
           if (!hasValidationErrors) {
-            const nextShareUrl = buildCalculatorUrl({
-              targetNet: normalizeFieldValue('targetNet', targetNet),
-              monthlyExpenses: normalizeFieldValue('monthlyExpenses', monthlyExpenses),
-              billableHours: normalizeFieldValue('billableHours', billableHours),
-              irpfMode,
-              autonomousCommunity,
-              irpfRate: normalizeFieldValue('irpfRate', irpfRate),
-              hasIVA,
-              selfEmployedFeeMode,
-              reducedFeePeriod,
-              selfEmployedFee: normalizeFieldValue('selfEmployedFee', selfEmployedFee),
-            });
+            const nextShareUrl = buildCalculatorUrl(
+              {
+                targetNet: normalizeFieldValue('targetNet', targetNet),
+                monthlyExpenses: normalizeFieldValue('monthlyExpenses', monthlyExpenses),
+                monthlyNonDeductibleExpenses: normalizeFieldValue(
+                  'monthlyNonDeductibleExpenses',
+                  monthlyNonDeductibleExpenses,
+                ),
+                billableHours: normalizeFieldValue('billableHours', billableHours),
+                irpfMode,
+                autonomousCommunity,
+                irpfRate: normalizeFieldValue('irpfRate', irpfRate),
+                hasIVA,
+                selfEmployedFeeMode,
+                reducedFeePeriod,
+                selfEmployedFee: normalizeFieldValue('selfEmployedFee', selfEmployedFee),
+              },
+              window.location.href,
+            );
 
             if (updateUrlOnSubmit) {
               window.history.replaceState(null, '', nextShareUrl);
@@ -384,6 +271,9 @@ export default function CalculatorForm({
               irpfMode,
               selfEmployedFeeMode,
             });
+            if (importedFromCosts) {
+              window.va?.('event', { name: 'monthly_costs_tariff_calculated' });
+            }
             setHasTrackedConversion(true);
           }
         }}
@@ -398,6 +288,7 @@ export default function CalculatorForm({
             step="0.01"
             value={targetNet}
             onChange={(event) => setTargetNet(event.target.value)}
+            onPaste={(event) => handleNumericPaste(event, 'targetNet', setTargetNet)}
             onBlur={(event) => setTargetNet(normalizeFieldValue('targetNet', event.target.value))}
             aria-invalid={submitted && Boolean(validationErrors.targetNet)}
             aria-describedby={submitted && validationErrors.targetNet ? 'target-net-error' : undefined}
@@ -418,6 +309,9 @@ export default function CalculatorForm({
             step="0.01"
             value={monthlyExpenses}
             onChange={(event) => setMonthlyExpenses(event.target.value)}
+            onPaste={(event) =>
+              handleNumericPaste(event, 'monthlyExpenses', setMonthlyExpenses)
+            }
             onBlur={(event) =>
               setMonthlyExpenses(normalizeFieldValue('monthlyExpenses', event.target.value))
             }
@@ -434,6 +328,40 @@ export default function CalculatorForm({
         </label>
 
         <label>
+          <span>Gastos mensuales no deducibles (EUR)</span>
+          <input
+            name="monthlyNonDeductibleExpenses"
+            type="number"
+            min="0"
+            step="0.01"
+            value={monthlyNonDeductibleExpenses}
+            onChange={(event) => setMonthlyNonDeductibleExpenses(event.target.value)}
+            onPaste={(event) =>
+              handleNumericPaste(event, 'monthlyNonDeductibleExpenses', setMonthlyNonDeductibleExpenses)
+            }
+            onBlur={(event) =>
+              setMonthlyNonDeductibleExpenses(
+                normalizeFieldValue('monthlyNonDeductibleExpenses', event.target.value),
+              )
+            }
+            aria-invalid={submitted && Boolean(validationErrors.monthlyNonDeductibleExpenses)}
+            aria-describedby={
+              submitted && validationErrors.monthlyNonDeductibleExpenses
+                ? 'monthly-non-deductible-expenses-error'
+                : 'monthly-non-deductible-expenses-hint'
+            }
+          />
+          <small className="field-hint" id="monthly-non-deductible-expenses-hint">
+            Costes que pagas pero no descuentas en esta estimación de IRPF. Escribe 0 si no tienes.
+          </small>
+          {submitted && validationErrors.monthlyNonDeductibleExpenses && (
+            <small className="field-error" id="monthly-non-deductible-expenses-error" role="alert">
+              {validationErrors.monthlyNonDeductibleExpenses}
+            </small>
+          )}
+        </label>
+
+        <label>
           <span>Horas facturables al mes</span>
           <input
             name="billableHours"
@@ -442,6 +370,7 @@ export default function CalculatorForm({
             step="1"
             value={billableHours}
             onChange={(event) => setBillableHours(event.target.value)}
+            onPaste={(event) => handleNumericPaste(event, 'billableHours', setBillableHours)}
             onBlur={(event) => setBillableHours(normalizeFieldValue('billableHours', event.target.value))}
             aria-invalid={showHoursError}
             aria-describedby={showHoursError ? 'billable-hours-error' : undefined}
@@ -503,6 +432,7 @@ export default function CalculatorForm({
               step="0.1"
               value={irpfRate}
               onChange={(event) => setIrpfRate(event.target.value)}
+              onPaste={(event) => handleNumericPaste(event, 'irpfRate', setIrpfRate)}
               onBlur={(event) => setIrpfRate(normalizeFieldValue('irpfRate', event.target.value))}
               aria-invalid={submitted && Boolean(validationErrors.irpfRate)}
               aria-describedby={submitted && validationErrors.irpfRate ? 'irpf-rate-error' : undefined}
@@ -538,7 +468,7 @@ export default function CalculatorForm({
 
         {selfEmployedFeeMode === 'reduced' && (
           <label>
-            <span>Periodo de la tarifa reducida</span>
+            <span>Período de la tarifa reducida</span>
             <select
               name="reducedFeePeriod"
               value={reducedFeePeriod}
@@ -563,6 +493,9 @@ export default function CalculatorForm({
               step="0.01"
               value={selfEmployedFee}
               onChange={(event) => setSelfEmployedFee(event.target.value)}
+              onPaste={(event) =>
+                handleNumericPaste(event, 'selfEmployedFee', setSelfEmployedFee)
+              }
               onBlur={(event) =>
                 setSelfEmployedFee(normalizeFieldValue('selfEmployedFee', event.target.value))
               }

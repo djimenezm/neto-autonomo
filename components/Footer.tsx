@@ -6,6 +6,7 @@ const footerGroups = [
     links: [
       { href: '/#calculadora', label: 'Calculadora' },
       { href: '/tabla-cuanto-facturar-autonomo', label: 'Tabla' },
+      { href: '/cuanto-cuesta-ser-autonomo', label: 'Costes mensuales' },
       { href: '/horas-facturables-freelance', label: 'Horas facturables' },
       { href: '/tarifa-diaria-freelance', label: 'Tarifa diaria' },
     ],
@@ -14,8 +15,8 @@ const footerGroups = [
     title: 'Escenarios',
     links: [
       { href: '/cuanto-facturar-autonomo-1500-euros', label: '1500 netos' },
-      { href: '/cuanto-facturar-autonomo-2000-euros', label: '2000 netos' },
-      { href: '/cuanto-facturar-autonomo-2500-euros', label: '2500 netos' },
+      { href: '/tabla-cuanto-facturar-autonomo#neto-2000', label: '2000 netos' },
+      { href: '/tabla-cuanto-facturar-autonomo#neto-2500', label: '2500 netos' },
       { href: '/cuanto-facturar-autonomo-3000-euros', label: '3000 netos' },
     ],
   },
@@ -24,6 +25,15 @@ const footerGroups = [
 export default function Footer() {
   return (
     <footer className="site-footer">
+      <div className="footer-invite-band">
+        <div className="container footer-invite">
+          <div>
+            <span className="footer-invite-kicker">Tu próxima cifra</span>
+            <p>Calcula tu tarifa con criterio.</p>
+          </div>
+          <a href="/#calculadora" className="footer-invite-link">Hacer el cálculo <span aria-hidden="true">↗</span></a>
+        </div>
+      </div>
       <div className="container footer-shell">
         <div className="footer-main">
           <div className="footer-brand-block">
@@ -31,11 +41,16 @@ export default function Footer() {
               Neto Autónomo
             </a>
             <p>Calcula cuánto facturar y qué tarifa defender antes de enviar un presupuesto.</p>
-            <p className="footer-contact-row">
-              <a className="footer-contact-link" href={`mailto:${siteConfig.contactEmail}`}>
-                Contacto: {siteConfig.contactEmail}
+            <div className="footer-contact">
+              <span className="footer-contact-label">Contacto</span>
+              <a
+                className="footer-contact-link"
+                href={`mailto:${siteConfig.contactEmail}`}
+                aria-label={`Enviar un correo a ${siteConfig.contactEmail}`}
+              >
+                {siteConfig.contactEmail}
               </a>
-            </p>
+            </div>
           </div>
 
           <nav className="footer-nav" aria-label="Enlaces del pie de página">

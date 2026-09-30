@@ -1,46 +1,46 @@
-KIT DE TARIFA PARA AUTONOMOS
+KIT DE TARIFA PARA AUTÓNOMOS
 
 COMO USAR ESTE KIT
 
 Usalo en este orden:
 
-1. Revisa tu numero base.
-2. Comprueba senales de riesgo.
-3. Pasa la checklist antes de aceptar.
+1. Revisa tu número base.
+2. Comprueba señales de riesgo.
+3. Pasa la lista de comprobación antes de aceptar.
 4. Adapta el guion de precio al cliente.
 5. Convierte la tarifa en presupuesto, cuota o factura.
 
 El objetivo no es subir precios porque si. El objetivo es no aceptar una cifra que solo funciona si todo sale perfecto.
 
 
-1. ESTRUCTURA RAPIDA PARA REVISAR TU TARIFA
+1. ESTRUCTURA RÁPIDA PARA REVISAR TU TARIFA
 
 - Neto mensual que quieres conservar.
 - Gastos fijos y variables de tu actividad.
-- Cuota de autonomos o cotizacion estimada.
+- Cuota de autónomos o cotización estimada.
 - Reserva de IRPF antes de tocar ese dinero.
 - Horas facturables reales, no todas tus horas de trabajo.
-- Margen minimo que quieres proteger.
+- Margen mínimo que quieres proteger.
 - IVA separado de tu ingreso real cuando aplique.
 
-Pregunta util:
+Pregunta útil:
 
-Si este proyecto se alarga un 15% o exige mas reuniones de las previstas, la tarifa sigue teniendo sentido?
+Si este proyecto se alarga un 15% o exige más reuniones de las previstas, la tarifa sigue teniendo sentido?
 
 
-2. SENALES DE QUE TU TARIFA ESTA DEMASIADO AJUSTADA
+2. SEÑALES DE QUE TU TARIFA ESTA DEMASIADO AJUSTADA
 
 - Solo sale rentable si todo va perfecto y sin cambios.
 - Necesitas facturar casi todas tus horas disponibles para llegar al neto objetivo.
-- No queda margen para reuniones, administracion, soporte o imprevistos.
+- No queda margen para reuniones, administración, soporte o imprevistos.
 - El IVA o el IRPF se confunden con dinero disponible.
 - Te cuesta explicar la cifra sin justificarte demasiado.
 - El cliente no tiene claro que entra, que no entra y donde acaba el trabajo.
 
-Si aparecen varias de estas senales, no siempre hace falta rechazar el proyecto. A veces basta con reducir alcance, separar fases o cambiar las condiciones.
+Si aparecen varias de estas señales, no siempre hace falta rechazar el proyecto. A veces basta con reducir alcance, separar fases o cambiar las condiciones.
 
 
-3. CHECKLIST ANTES DE ACEPTAR UNA TARIFA
+3. LISTA DE COMPROBACIÓN ANTES DE ACEPTAR UNA TARIFA
 
 - La tarifa cubre gastos, cuota e impuestos antes de hablar de beneficio.
 - No depende de facturar todas tus horas disponibles.
@@ -56,7 +56,7 @@ Cuando presentes una tarifa, intenta unir precio y alcance:
 
 - Que problema resuelves.
 - Que entregas.
-- Que limites tiene el trabajo.
+- Que límites tiene el trabajo.
 - Que no esta incluido.
 - Que siguiente paso necesita el cliente para avanzar.
 
@@ -67,13 +67,13 @@ Ejemplo:
 
 5. CONVIERTE LA TARIFA EN UNA DECISION CONCRETA
 
-- Si el trabajo es recurrente, piensa en cuota mensual con limites claros.
+- Si el trabajo es recurrente, piensa en cuota mensual con límites claros.
 - Si el trabajo tiene inicio y fin, bajalo a presupuesto cerrado con fases.
-- Si el alcance es incierto, usa bolsa de horas o primera fase de diagnostico.
-- Si ya vas a facturarlo, prepara tambien cobros, gastos e impuestos.
+- Si el alcance es incierto, usa bolsa de horas o primera fase de diagnóstico.
+- Si ya vas a facturarlo, prepara también cobros, gastos e impuestos.
 
 Siguiente paso natural:
 
-Cuando la tarifa ya tiene sentido, ordena la parte operativa: factura, cobro, gastos, IVA e IRPF. Puedes revisar la guia de programas de facturacion para autonomos en cuantofacturar.es/mejores-programas-facturacion-autonomos
+Cuando la tarifa ya tiene sentido, ordena la parte operativa: factura, cobro, gastos, IVA e IRPF. Puedes revisar la guía de programas de facturación para autónomos en cuantofacturar.es/mejores-programas-facturacion-autonomos
 
-Recuerda: una tarifa sana no es solo una cifra alta. Es una cifra que cubre tu realidad, deja margen y puede sostenerse sin depender de trabajar mas horas de las razonables.
+Recuerda: una tarifa sana no es solo una cifra alta. Es una cifra que cubre tu realidad, deja margen y puede sostenerse sin depender de trabajar más horas de las razonables.

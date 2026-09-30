@@ -4,28 +4,32 @@ import Script from 'next/script';
 import Footer from '@/components/Footer';
 import Header from '@/components/Header';
 import LeadMagnetForm from '@/components/LeadMagnetForm';
+import { calculateExample, formatEuro, getExampleUrl } from '@/lib/scenarioExamples';
 import { getSiteUrl, siteConfig } from '@/lib/site';
 
 const route = '/cuanto-facturar-autonomo-3000-euros';
-const title = 'Cuanto facturar como autonomo para ganar 3000 euros netos';
+const title = 'Cuánto facturar como autónomo para ganar 3000 euros netos';
 const description =
-  'Guia practica para estimar cuanto facturar como autonomo o freelance en Espana si quieres llegar a 3000 euros netos al mes teniendo en cuenta cuota, IRPF, IVA, gastos y horas facturables.';
+  'Guía práctica para estimar cuánto facturar como autónomo o freelance en España si quieres llegar a 3000 euros netos al mes teniendo en cuenta cuota, IRPF, IVA, gastos y horas facturables.';
+
+const hourScenarios = [60, 80, 120] as const;
+const eightyHourResult = calculateExample(3000);
 
 const pageFaqItems = [
   {
-    question: 'Cuanto hay que facturar para ganar 3000 euros netos?',
+    question: '¿Cuánto habría que facturar con 80 horas vendibles?',
     answer:
-      'Depende de tus gastos, cuota, IRPF, IVA y horas facturables. Para conservar 3000 euros netos normalmente necesitas facturar bastante mas, porque parte del ingreso cubre costes, cotizacion y reserva fiscal.',
+      `En el ejemplo de esta página, ${formatEuro(eightyHourResult.billingWithoutVAT)} al mes sin IVA, unos ${formatEuro(eightyHourResult.hourlyRate)} por hora facturable. Cambia los gastos, la cuota y la reserva fiscal para obtener tu referencia.`,
   },
   {
-    question: '3000 euros netos son una buena meta para un autonomo?',
+    question: '¿Basta con vender más horas para llegar al objetivo?',
     answer:
-      'Puede ser una meta razonable si tu actividad tiene margen suficiente, pero conviene traducirla a facturacion mensual y tarifa por hora antes de usarla como objetivo comercial.',
+      'Solo si esas horas son facturables de verdad. Revisa cuánto tiempo dedicas a captación, gestión y revisiones antes de asumir 120 horas vendidas cada mes.',
   },
   {
-    question: 'Como paso ese objetivo a una tarifa por hora?',
+    question: '¿Qué ocurre si un proyecto consume más horas de las previstas?',
     answer:
-      'Primero calcula la facturacion mensual necesaria sin confundir IVA con ingreso real. Despues divide entre tus horas facturables reales, no entre todas las horas que trabajas.',
+      'Tu tarifa efectiva baja. Registra las horas reales de cada encargo y revisa precio, alcance o número de revisiones antes de repetir un presupuesto similar.',
   },
 ] as const;
 
@@ -36,11 +40,11 @@ export const metadata: Metadata = {
     canonical: route,
   },
   keywords: [
-    'cuanto facturar autonomo para ganar 3000 euros',
-    'cuanto facturar 3000 euros netos',
-    'ganar 3000 euros autonomo',
-    'cuanto cobrar freelance 3000 netos',
-    'facturacion autonomo 3000 euros netos',
+    'cuánto facturar autónomo para ganar 3000 euros',
+    'cuánto facturar 3000 euros netos',
+    'ganar 3000 euros autónomo',
+    'cuánto cobrar freelance 3000 netos',
+    'facturación autónomo 3000 euros netos',
   ],
   openGraph: {
     title: `${title} | ${siteConfig.name}`,
@@ -84,7 +88,7 @@ export default function CuantoFacturarAutonomo3000EurosPage() {
       name: siteConfig.name,
     },
     datePublished: '2026-04-26',
-    dateModified: '2026-04-26',
+    dateModified: '2026-09-22',
   };
 
   const breadcrumbSchema = {
@@ -142,14 +146,14 @@ export default function CuantoFacturarAutonomo3000EurosPage() {
       <section className="hero">
         <div className="container article-layout">
           <div className="text-block">
-            <span className="eyebrow">Guia practica</span>
-            <h1>Cuanto facturar como autonomo para ganar 3000 euros netos</h1>
+            <span className="eyebrow">Guía práctica</span>
+            <h1>Cuánto facturar como autónomo para ganar 3000 euros netos</h1>
             <p className="lead">
-              Llegar a 3000 euros netos al mes como autonomo no significa facturar 3000 euros. La
-              cifra que necesitas emitir suele ser mayor porque antes debes cubrir gastos, cuota,
+              Llegar a 3000 euros netos al mes como autónomo no significa facturar 3000 euros. La
+              cifra qué necesitas emitir suele ser mayor porque antes debes cubrir gastos, cuota,
               IRPF, tiempo no facturable y separar el IVA cuando corresponda.
             </p>
-            <div className="hero-badges" aria-label="Que cubre esta guia">
+            <div className="hero-badges" aria-label="Qué cubre esta guía">
               <span className="hero-badge">3000 euros netos</span>
               <span className="hero-badge">Tarifa por hora</span>
               <span className="hero-badge">Margen real</span>
@@ -158,18 +162,18 @@ export default function CuantoFacturarAutonomo3000EurosPage() {
               <Link href="/#calculadora" className="primary-button">
                 Ir a la calculadora
               </Link>
-              <Link href="/cuanto-facturar-autonomo-2000-euros" className="primary-button">
+              <Link href="/tabla-cuanto-facturar-autonomo#neto-2000" className="primary-button">
                 Ver objetivo de 2000 euros
               </Link>
             </div>
           </div>
 
           <aside className="feature-card article-summary">
-            <h2>Que vas a aterrizar aqui</h2>
+            <h2>Qué vas a aterrizar aquí</h2>
             <ul className="article-list">
-              <li>Por que el objetivo neto no coincide con lo que facturas.</li>
-              <li>Que variables empujan la facturacion necesaria hacia arriba.</li>
-              <li>Como convertir 3000 euros netos en tarifa por hora o presupuesto.</li>
+              <li>Por qué el objetivo neto no coincide con lo que facturas.</li>
+              <li>Qué variables empujan la facturación necesaria hacia arriba.</li>
+              <li>Cómo convertir 3000 euros netos en tarifa por hora o presupuesto.</li>
               <li>Que revisar antes de subir precios o aceptar nuevos clientes.</li>
             </ul>
           </aside>
@@ -178,79 +182,88 @@ export default function CuantoFacturarAutonomo3000EurosPage() {
 
       <section className="section">
         <div className="container text-block">
-          <h2>El objetivo neto es el final del calculo, no el principio</h2>
+          <h2>El reto es sostener la capacidad que promete tu tarifa</h2>
           <p>
-            Cuando piensas en 3000 euros netos, estas pensando en el dinero que quieres conservar
-            despues de cubrir impuestos, cuota y costes de actividad. Si empiezas la cuenta desde
-            3000 euros facturados, la tarifa resultante casi siempre se queda corta.
+            Con los supuestos de esta página, conservar 3.000 € netos exige facturar{' '}
+            {formatEuro(eightyHourResult.billingWithoutVAT)} al mes sin IVA. Si puedes vender 80
+            horas, la referencia es {formatEuro(eightyHourResult.hourlyRate)}/h. Pero una agenda de
+            80 horas disponibles no equivale necesariamente a 80 horas cobradas.
           </p>
           <p>
-            La forma mas sana es trabajar hacia atras: primero defines el neto que quieres, despues
-            sumas gastos y cuota, reservas IRPF, separas IVA si aplica y finalmente lo traduces a
-            horas facturables o presupuestos cerrados.
+            Antes de subir el objetivo, mira tus últimos proyectos: horas presupuestadas, horas
+            reales, revisiones no cobradas y tiempo invertido en captar al siguiente cliente.
+            La diferencia entre esas cifras decide si el precio puede sostenerse mes tras mes.
           </p>
-          <div className="disclaimer-box">
-            <strong>Idea clave:</strong> 3000 euros netos pueden parecer una cifra clara, pero solo
-            sirven como objetivo si los conviertes en una facturacion mensual sostenible.
+        </div>
+      </section>
+
+      <section className="section" aria-labelledby="ejemplos-3000">
+        <div className="container">
+          <span className="eyebrow">Capacidad de trabajo</span>
+          <h2 id="ejemplos-3000">El objetivo mensual es el mismo; la presión por hora no</h2>
+          <p>
+            Ejemplo con 300 € de gastos, una cuota mensual supuesta de 320 € y una reserva de IRPF
+            hipotética del 15 %. Compara las horas que realmente puedes facturar, no toda tu jornada.
+          </p>
+          <div className="scenario-table-scroll" role="region" aria-label="Comparación de horas para 3.000 euros netos" tabIndex={0}>
+            <table className="scenario-table">
+              <caption>Objetivo de 3.000 € netos mensuales con 60, 80 y 120 horas facturables.</caption>
+              <thead>
+                <tr>
+                  <th scope="col">Horas facturables/mes</th>
+                  <th scope="col">Facturación sin IVA</th>
+                  <th scope="col">Tarifa por hora</th>
+                  <th scope="col">Probar</th>
+                </tr>
+              </thead>
+              <tbody>
+                {hourScenarios.map((hours) => {
+                  const result = calculateExample(3000, { billableHours: hours });
+
+                  return (
+                    <tr key={hours}>
+                      <th scope="row">{hours} h</th>
+                      <td>{formatEuro(result.billingWithoutVAT)}</td>
+                      <td>{formatEuro(result.hourlyRate)}/h</td>
+                      <td><Link href={getExampleUrl(3000, { billableHours: hours })}>Ajustar</Link></td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
           </div>
+          <p className="scenario-note">
+            La facturación no cambia porque el neto y los costes son los mismos. Con menos horas
+            vendibles, cada hora debe soportar una parte mayor. El IVA no se trata como ingreso
+            disponible y estas cifras no sustituyen una liquidación fiscal real.
+          </p>
         </div>
       </section>
 
       <section className="section alt">
-        <div className="container feature-grid" aria-label="Factores que cambian la cifra">
-          <article className="feature-card">
-            <h2>1. Gastos y cuota</h2>
-            <p>
-              Herramientas, gestor, seguros, software, colaboraciones y cuota reducen el margen
-              disponible antes de llegar al neto que quieres conservar.
-            </p>
-          </article>
-
-          <article className="feature-card">
-            <h2>2. Reserva fiscal</h2>
-            <p>
-              Si no separas una parte para IRPF y no distingues el IVA de tu ingreso real, puedes
-              creer que estas llegando al objetivo cuando en realidad solo estas aplazando el ajuste.
-            </p>
-          </article>
-
-          <article className="feature-card">
-            <h2>3. Horas vendibles</h2>
-            <p>
-              Cuanto menos tiempo facturable tengas, mas exigente sera la tarifa por hora necesaria
-              para sostener 3000 euros netos sin quemarte.
-            </p>
-          </article>
-        </div>
-      </section>
-
-      <section className="section">
         <div className="container article-layout">
           <div className="text-block">
-            <h2>Formula para bajar 3000 euros netos a numeros reales</h2>
+            <h2>Comprueba si tus proyectos cubren el mes</h2>
             <ol className="article-list article-list-ordered">
-              <li>Define 3000 euros como neto mensual que quieres conservar.</li>
-              <li>Suma gastos fijos y variables de tu actividad.</li>
-              <li>Incluye una cuota de autonomos realista para tu situacion.</li>
-              <li>Reserva IRPF antes de contar ese dinero como disponible.</li>
-              <li>Separa el IVA si tu actividad lo repercute.</li>
-              <li>Divide la facturacion objetivo entre horas facturables reales.</li>
-              <li>Comprueba si tus presupuestos actuales sostienen esa tarifa minima.</li>
+              <li>Cuenta solo las horas que has cobrado durante los tres últimos meses.</li>
+              <li>Divide la facturación mensual objetivo entre los proyectos que puedes entregar sin solaparlos.</li>
+              <li>Compara horas previstas y reales; añade margen para cambios y revisiones.</li>
+              <li>Vuelve a calcular si cambian tus gastos, tu cuota o tu reserva fiscal.</li>
             </ol>
             <p>
-              Si el resultado te parece alto, no significa que la cuenta este mal: puede significar
-              que necesitas subir precios, vender proyectos con mas margen, reducir horas no
-              facturables o replantear el tipo de cliente que aceptas.
+              Por ejemplo, con dos proyectos de 40 horas al mes, cada presupuesto tendría que
+              rondar {formatEuro(eightyHourResult.billingWithoutVAT / 2)} sin IVA bajo estos
+              supuestos. Si uno requiere 60 horas, el otro no cabe en el mismo mes sin aumentar
+              capacidad o ajustar el plan.
             </p>
           </div>
 
           <aside className="feature-card article-summary">
-            <h2>Senales de que tu precio se queda corto</h2>
+            <h2>Cuando el cálculo deja de encajar</h2>
             <ul className="article-list">
-              <li>Llegas a final de mes facturando bien, pero con poco neto real.</li>
-              <li>Mucho tiempo se va en gestion, ventas o cambios no presupuestados.</li>
-              <li>El IVA o el IRPF te obligan a corregir despues.</li>
-              <li>Tus proyectos cerrados no cubren las horas que realmente consumen.</li>
+              <li>Las revisiones convierten 40 horas previstas en 55 reales.</li>
+              <li>La captación te deja menos horas vendibles de las calculadas.</li>
+              <li>Necesitas un volumen de proyectos que no puedes entregar con calidad.</li>
             </ul>
           </aside>
         </div>
@@ -258,16 +271,16 @@ export default function CuantoFacturarAutonomo3000EurosPage() {
 
       <section className="section alt">
         <div className="container text-block">
-          <h2>Como usar este objetivo para presupuestar mejor</h2>
+          <h2>Cómo usar este objetivo para presupuestar mejor</h2>
           <p>
             Un objetivo de 3000 euros netos puede servirte como filtro comercial. Si una propuesta,
             una tarifa por hora o una mensualidad no te acercan a esa referencia, necesitas ajustar
             precio, alcance o tipo de cliente antes de comprometerte.
           </p>
           <p>
-            Tambien puedes usarlo para comparar escenarios: mas horas facturables, menos gastos,
-            tickets de proyecto mas altos, servicios recurrentes o una mezcla mas equilibrada entre
-            clientes pequenos y clientes de mayor margen.
+            También puedes usarlo para comparar escenarios: más horas facturables, menos gastos,
+            tickets de proyecto más altos, servicios recurrentes o una mezcla más equilibrada entre
+            clientes pequeños y clientes de mayor margen.
           </p>
           <div className="guide-cta">
             <Link href="/#calculadora" className="primary-button">
@@ -285,7 +298,7 @@ export default function CuantoFacturarAutonomo3000EurosPage() {
           <LeadMagnetForm
             source="guia-3000-euros"
             title="Revisa si tu tarifa sostiene 3000 euros netos"
-            description="Llevate el kit para contrastar tu tarifa, tus horas facturables y tu margen antes de aceptar un proyecto o subir precios."
+            description="Llévate el kit para contrastar tu tarifa, tus horas facturables y tu margen antes de aceptar un proyecto o subir precios."
             buttonLabel="Quiero revisar mi tarifa"
           />
         </div>
@@ -294,7 +307,7 @@ export default function CuantoFacturarAutonomo3000EurosPage() {
       <section className="section" id="faq-3000-euros">
         <div className="container text-block">
           <span className="eyebrow">Preguntas frecuentes</span>
-          <h2>Dudas habituales sobre ganar 3000 euros netos como autonomo</h2>
+          <h2>Dudas habituales sobre ganar 3000 euros netos como autónomo</h2>
           {pageFaqItems.map((item) => (
             <article className="disclaimer-box" key={item.question}>
               <h3>{item.question}</h3>

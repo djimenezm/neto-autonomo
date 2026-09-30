@@ -1,10 +1,11 @@
+import { readStyles } from './readStyles';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 describe('focused home calculator', () => {
   it('uses the approved photographic calculator-first structure', () => {
     const homePage = readFileSync(join(process.cwd(), 'components/HomePage.tsx'), 'utf8');
-    const styles = readFileSync(join(process.cwd(), 'app/globals.css'), 'utf8');
+    const styles = readStyles();
 
     expect(homePage).toContain('className="cost-landing"');
     expect(homePage).toContain('src="/images/cost-hero-autonomo.webp"');

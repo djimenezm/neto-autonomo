@@ -22,6 +22,8 @@ describe('calculateFreelanceBilling', () => {
     expect(result.reducedFeePeriod).toBe('initial');
     expect(result.annualPreTaxProfit).toBeGreaterThan(20000);
     expect(result.annualEstimatedIRPF).toBeGreaterThan(3000);
+    expect(result.annualPreTaxProfit).toBeCloseTo(21587.14, 2);
+    expect(result.annualEstimatedIRPF).toBeCloseTo(3587.14, 2);
     expect(result.annualTaxableIrpfBase).toBeGreaterThan(15000);
     expect(result.annualRegionalTaxableIrpfBase).toBeGreaterThan(15000);
     expect(result.irpfRate).toBeGreaterThan(10);
@@ -143,6 +145,45 @@ describe('calculateFreelanceBilling', () => {
     expect(result.annualPreTaxProfit).toBe(21176.47);
     expect(result.annualEstimatedIRPF).toBe(3176.47);
     expect(result.billingWithoutVAT).toBe(2284.71);
+  });
+
+  it('covers non-deductible costs without treating them as an IRPF deduction', () => {
+    const result = calculateFreelanceBilling({
+      targetNet: 1500,
+      monthlyExpenses: 100,
+      monthlyNonDeductibleExpenses: 60,
+      billableHours: 80,
+      irpfRate: 15,
+      irpfMode: 'manual',
+      hasIVA: false,
+      selfEmployedFee: 320,
+      selfEmployedFeeMode: 'manual',
+    });
+
+    expect(result.monthlyExpenses).toBe(100);
+    expect(result.monthlyNonDeductibleExpenses).toBe(60);
+    expect(result.preTaxProfit - result.estimatedIRPF - result.monthlyNonDeductibleExpenses)
+      .toBeCloseTo(result.targetNet, 2);
+    expect(result.billingWithoutVAT).toBeCloseTo(
+      result.preTaxProfit + result.monthlyExpenses + result.selfEmployedFee,
+      2,
+    );
+  });
+
+  it('includes non-deductible costs in a progressive target as well', () => {
+    const result = calculateFreelanceBilling({
+      targetNet: 1500,
+      monthlyExpenses: 100,
+      monthlyNonDeductibleExpenses: 60,
+      billableHours: 80,
+      irpfRate: 15,
+      hasIVA: true,
+      selfEmployedFee: 320,
+      selfEmployedFeeMode: 'manual',
+    });
+
+    expect(result.preTaxProfit - result.estimatedIRPF - result.monthlyNonDeductibleExpenses)
+      .toBeCloseTo(result.targetNet, 2);
   });
 
   it('sanitizes invalid numeric values before calculating', () => {

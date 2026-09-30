@@ -40,6 +40,7 @@ export async function GET(request: Request) {
   const result = calculateFreelanceBilling({
     targetNet: parseNumber(searchParams.get('targetNet'), 1500),
     monthlyExpenses: parseNumber(searchParams.get('monthlyExpenses'), 200),
+    monthlyNonDeductibleExpenses: parseNumber(searchParams.get('monthlyNonDeductibleExpenses'), 0),
     billableHours: parseNumber(searchParams.get('billableHours'), 80),
     irpfMode: getAllowedValue(searchParams.get('irpfMode'), irpfModes, 'progressive'),
     autonomousCommunity: getAllowedValue(

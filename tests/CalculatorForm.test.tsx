@@ -47,6 +47,38 @@ describe('CalculatorForm', () => {
     );
   });
 
+  it('prefills imported costs without calculating until the target net is reviewed', async () => {
+    const user = userEvent.setup();
+
+    render(
+      <CalculatorForm
+        importedFromCosts
+        initialValues={{
+          monthlyExpenses: '100',
+          monthlyNonDeductibleExpenses: '60',
+          billableHours: '80',
+          selfEmployedFeeMode: 'manual',
+          selfEmployedFee: '320',
+        }}
+      />,
+    );
+
+    expect(screen.getByRole('status')).toHaveTextContent(/hemos traído tus costes y horas/i);
+    expect(screen.getByRole('spinbutton', { name: /gastos mensuales deducibles/i })).toHaveValue(100);
+    expect(screen.getByRole('spinbutton', { name: /gastos mensuales no deducibles/i })).toHaveValue(60);
+    expect(screen.getByRole('combobox', { name: /cómo quieres calcular la cuota/i })).toHaveValue('manual');
+    expect(screen.getByRole('spinbutton', { name: /cuota manual/i })).toHaveValue(320);
+    expect(screen.queryByRole('heading', { name: /tu referencia mensual para presupuestar/i }))
+      .not.toBeInTheDocument();
+    expect(window.va).toHaveBeenCalledWith('event', { name: 'monthly_costs_transferred' });
+
+    await user.click(screen.getByRole('button', { name: /calcular mi tarifa/i }));
+
+    expect(screen.getByText(/costes no deducibles cubiertos/i)).toBeInTheDocument();
+    expect(window.va).toHaveBeenCalledWith('event', { name: 'monthly_costs_tariff_calculated' });
+    expect(window.location.search).toContain('monthlyNonDeductibleExpenses=60');
+  });
+
   it('renders a server-submitted result without the copy button when requested', () => {
     render(<CalculatorForm initiallySubmitted enableResultCopy={false} />);
 
@@ -114,6 +146,13 @@ describe('CalculatorForm', () => {
         irpfMode: 'progressive',
         selfEmployedFeeMode: 'auto',
       },
+    });
+    expect(window.gtag).toHaveBeenCalledWith('event', 'calculator_completed', {
+      irpfMode: 'progressive',
+      selfEmployedFeeMode: 'auto',
+    });
+    expect(window.gtag).toHaveBeenCalledWith('event', 'conversion', {
+      send_to: 'AW-18153863846/8a21CPLC-qocEKb1t9BD',
     });
     expect(
       screen.getByRole('heading', { name: /tu referencia mensual para presupuestar/i }),
@@ -249,7 +288,7 @@ describe('CalculatorForm', () => {
     expect(screen.getByText('Resumen copiado.')).toBeInTheDocument();
   });
 
-  it('normalizes decimal billable hours to a whole number on blur', async () => {
+  it('keeps fractional billable hours visible for correction', async () => {
     const user = userEvent.setup();
 
     render(<CalculatorForm />);
@@ -262,7 +301,37 @@ describe('CalculatorForm', () => {
     await user.type(hoursInput, '80.4');
     await user.tab();
 
-    expect(hoursInput).toHaveValue(80);
+    expect(hoursInput).toHaveValue(80.4);
+  });
+
+  it('preserves an invalid expense and focuses it after submission', async () => {
+    const user = userEvent.setup();
+    render(<CalculatorForm />);
+
+    const expensesInput = screen.getByRole('spinbutton', { name: /gastos mensuales deducibles/i });
+    await user.clear(expensesInput);
+    await user.type(expensesInput, '-100');
+    await user.click(screen.getByRole('button', { name: /calcular/i }));
+
+    expect(expensesInput).toHaveValue(-100);
+    expect(screen.getByText('Los gastos mensuales no pueden ser negativos.')).toBeInTheDocument();
+    await waitFor(() => expect(expensesInput).toHaveFocus());
+    expect(screen.queryByRole('heading', { name: /tu referencia mensual para presupuestar/i })).not.toBeInTheDocument();
+  });
+
+  it('normalizes a pasted Spanish currency amount', async () => {
+    const user = userEvent.setup();
+
+    render(<CalculatorForm />);
+
+    const targetInput = screen.getByRole('spinbutton', {
+      name: /neto mensual deseado/i,
+    });
+
+    await user.click(targetInput);
+    await user.paste('2.500,50 €');
+
+    expect(targetInput).toHaveValue(2500.5);
   });
 
   it('uses the selected autonomous community in the progressive IRPF explanation', async () => {
@@ -325,7 +394,7 @@ describe('CalculatorForm', () => {
     );
     await user.selectOptions(
       screen.getByRole('combobox', {
-        name: /periodo de la tarifa reducida/i,
+        name: /período de la tarifa reducida/i,
       }),
       'extended',
     );
@@ -335,7 +404,7 @@ describe('CalculatorForm', () => {
     expect(screen.getByText(/así que esa prórroga podría no corresponderte/i)).toBeInTheDocument();
   });
 
-  it('normalizes IRPF manual values above 99 before calculating', async () => {
+  it('asks for correction when manual IRPF reaches 100', async () => {
     const user = userEvent.setup();
 
     render(<CalculatorForm />);
@@ -355,9 +424,11 @@ describe('CalculatorForm', () => {
     await user.type(irpfInput, '100');
     await user.click(screen.getByRole('button', { name: /calcular/i }));
 
-    expect(irpfInput).toHaveValue(99);
+    expect(irpfInput).toHaveValue(100);
+    expect(screen.getByText('El IRPF debe ser menor que 100.')).toBeInTheDocument();
+    await waitFor(() => expect(irpfInput).toHaveFocus());
     expect(
-      screen.getByRole('heading', { name: /tu referencia mensual para presupuestar/i }),
-    ).toBeInTheDocument();
+      screen.queryByRole('heading', { name: /tu referencia mensual para presupuestar/i }),
+    ).not.toBeInTheDocument();
   });
 });

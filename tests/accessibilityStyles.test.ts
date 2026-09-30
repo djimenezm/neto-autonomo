@@ -1,9 +1,8 @@
-import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { readStyles } from './readStyles';
 
 describe('accessibility styles', () => {
   it('does not rely on color alone for footer and text links', () => {
-    const globalStyles = readFileSync(join(process.cwd(), 'app/globals.css'), 'utf8');
+    const globalStyles = readStyles();
 
     expect(globalStyles).toMatch(/\.site-footer a\s*{[^}]*text-decoration:\s*underline/s);
     expect(globalStyles).toMatch(/\.legal-page a\s*{[^}]*text-decoration:\s*underline/s);
@@ -14,7 +13,7 @@ describe('accessibility styles', () => {
   });
 
   it('keeps the skip link available on focus without taking visible page space', () => {
-    const globalStyles = readFileSync(join(process.cwd(), 'app/globals.css'), 'utf8');
+    const globalStyles = readStyles();
 
     expect(globalStyles).toMatch(/\.skip-link\s*{[^}]*position:\s*fixed/s);
     expect(globalStyles).toMatch(/\.skip-link\s*{[^}]*transform:\s*translateY\(-160%\)/s);

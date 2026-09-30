@@ -4,10 +4,11 @@ import HomePage from '@/components/HomePage';
 import type { CalculatorFormValues } from '@/components/CalculatorForm';
 import { siteConfig } from '@/lib/site';
 
-const pageTitle = `${siteConfig.name} | ${siteConfig.title}`;
+const pageTitle = 'Cuánto facturar como autónomo | Calculadora gratis';
 const calculatorQueryKeys = [
   'targetNet',
   'monthlyExpenses',
+  'monthlyNonDeductibleExpenses',
   'billableHours',
   'irpfMode',
   'autonomousCommunity',
@@ -32,11 +33,7 @@ type HomeIndexProps = {
   calculatorInitialValues?: Partial<CalculatorFormValues>;
   calculatorInitiallySubmitted: boolean;
   calculatorShareUrl?: string;
-};
-
-export const config = {
-  maxDuration: undefined,
-  unstable_runtimeJS: false,
+  importedFromCosts?: boolean;
 };
 
 function getQueryValue(query: Record<string, string | string[] | undefined>, key: string) {
@@ -96,9 +93,11 @@ function getCalculatorShareUrl(values?: Partial<CalculatorFormValues>) {
 }
 
 export const getServerSideProps: GetServerSideProps<HomeIndexProps> = async ({ query, res }) => {
-  const calculatorInitiallySubmitted = calculatorQueryKeys.some((key) => query[key] !== undefined);
+  const hasCalculatorValues = calculatorQueryKeys.some((key) => query[key] !== undefined);
+  const importedFromCosts = hasCalculatorValues && getQueryValue(query, 'source') === 'monthly-costs';
+  const calculatorInitiallySubmitted = hasCalculatorValues && !importedFromCosts;
 
-  if (!calculatorInitiallySubmitted) {
+  if (!hasCalculatorValues) {
     res.setHeader('Cache-Control', 'public, s-maxage=3600, stale-while-revalidate=86400');
 
     return {
@@ -113,6 +112,7 @@ export const getServerSideProps: GetServerSideProps<HomeIndexProps> = async ({ q
   const calculatorInitialValues: Partial<CalculatorFormValues> = {
     targetNet: getQueryValue(query, 'targetNet') ?? '1500',
     monthlyExpenses: getQueryValue(query, 'monthlyExpenses') ?? '200',
+    monthlyNonDeductibleExpenses: getQueryValue(query, 'monthlyNonDeductibleExpenses') ?? '0',
     billableHours: getQueryValue(query, 'billableHours') ?? '80',
     irpfMode: getAllowedValue(getQueryValue(query, 'irpfMode'), irpfModes, 'progressive'),
     autonomousCommunity: getAllowedValue(
@@ -137,9 +137,12 @@ export const getServerSideProps: GetServerSideProps<HomeIndexProps> = async ({ q
 
   return {
     props: {
-      calculatorInitiallySubmitted: true,
+      calculatorInitiallySubmitted,
+      importedFromCosts,
       calculatorInitialValues,
-      calculatorShareUrl: getCalculatorShareUrl(calculatorInitialValues),
+      ...(calculatorInitiallySubmitted
+        ? { calculatorShareUrl: getCalculatorShareUrl(calculatorInitialValues) }
+        : {}),
     },
   };
 };
@@ -148,6 +151,7 @@ export default function IndexPage({
   calculatorInitialValues,
   calculatorInitiallySubmitted,
   calculatorShareUrl,
+  importedFromCosts,
 }: HomeIndexProps) {
   const openGraphImage = calculatorInitiallySubmitted
     ? getResultImageUrl(calculatorInitialValues)
@@ -190,6 +194,7 @@ export default function IndexPage({
         enableResultCopy={false}
         initialShareUrl={calculatorShareUrl}
         trackServerConversion={calculatorInitiallySubmitted}
+        importedFromCosts={importedFromCosts}
       />
     </>
   );

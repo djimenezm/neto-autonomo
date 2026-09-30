@@ -2,7 +2,7 @@
 
 import { forwardRef, useMemo, useState } from 'react';
 import { AUTONOMOUS_COMMUNITY_LABELS, type CalculationResult } from '@/lib/calculator';
-import { formatCurrency } from '@/lib/format';
+import { formatCurrency, formatNumber } from '@/lib/format';
 
 type ResultCardProps = {
   result: CalculationResult;
@@ -74,6 +74,9 @@ const ResultCard = forwardRef<HTMLElement, ResultCardProps>(function ResultCard(
           : 'IVA: no incluido en esta simulación',
         `Reserva estimada de IRPF: ${formatCurrency(result.estimatedIRPF)} al mes`,
         `Cuota de autónomos aplicada: ${formatCurrency(result.selfEmployedFee)} al mes`,
+        ...(result.monthlyNonDeductibleExpenses > 0
+          ? [`Otros costes no deducibles: ${formatCurrency(result.monthlyNonDeductibleExpenses)} al mes`]
+          : []),
         `Comunidad de referencia para IRPF: ${autonomousCommunityLabel}`,
       ].join('\n'),
     [autonomousCommunityLabel, hasIVA, hoursBillable, result],
@@ -158,6 +161,13 @@ const ResultCard = forwardRef<HTMLElement, ResultCardProps>(function ResultCard(
           <strong>{formatCurrency(result.selfEmployedFee)}</strong>
         </div>
 
+        {result.monthlyNonDeductibleExpenses > 0 && (
+          <div className="result-item">
+            <span>Costes no deducibles cubiertos</span>
+            <strong>{formatCurrency(result.monthlyNonDeductibleExpenses)}</strong>
+          </div>
+        )}
+
         <div className="result-item result-item-full">
           <span>Tarifa media por hora</span>
           <strong>{formatCurrency(result.hourlyRate)}/h</strong>
@@ -222,7 +232,7 @@ const ResultCard = forwardRef<HTMLElement, ResultCardProps>(function ResultCard(
         <div>
           <strong>Revisa esta tarifa antes de enviarla</strong>
           <p>
-            Te mandamos el kit gratuito con señales de riesgo, checklist de mínimos y un guion corto
+            Te mandamos el kit gratuito con señales de riesgo, lista de comprobación de mínimos y un guion corto
             para defender mejor la cifra ante un cliente.
           </p>
         </div>
@@ -241,10 +251,16 @@ const ResultCard = forwardRef<HTMLElement, ResultCardProps>(function ResultCard(
         <strong>{formatCurrency(result.monthlyExpenses)}</strong>, una cuota de autónomos de{' '}
         <strong>{formatCurrency(result.selfEmployedFee)}</strong> y una reserva mensual de IRPF de{' '}
         <strong>{formatCurrency(result.estimatedIRPF)}</strong>.
+        {result.monthlyNonDeductibleExpenses > 0 && (
+          <>
+            {' '}Además cubre <strong>{formatCurrency(result.monthlyNonDeductibleExpenses)}</strong> de
+            costes que no hemos descontado al estimar el IRPF.
+          </>
+        )}
         {result.irpfMode === 'manual' ? (
           <>
             {' '}
-            En este escenario usamos un IRPF manual del <strong>{result.irpfRate}%</strong> y un
+            En este escenario usamos un IRPF manual del <strong>{formatNumber(result.irpfRate)}%</strong> y un
             beneficio previo de <strong>{formatCurrency(result.preTaxProfit)}</strong>.
           </>
         ) : (
@@ -252,7 +268,7 @@ const ResultCard = forwardRef<HTMLElement, ResultCardProps>(function ResultCard(
             {' '}
             En el modo progresivo, el beneficio previo sería de{' '}
             <strong>{formatCurrency(result.preTaxProfit)}</strong> al mes. Eso equivale a un tipo
-            efectivo aproximado del <strong>{result.irpfRate}%</strong> sobre un beneficio anual de{' '}
+            efectivo aproximado del <strong>{formatNumber(result.irpfRate)}%</strong> sobre un beneficio anual de{' '}
             <strong>{formatCurrency(result.annualPreTaxProfit)}</strong>, aplicando un mínimo personal
             estatal de <strong>{formatCurrency(result.personalAllowance)}</strong> y la referencia
             autonómica de <strong>{autonomousCommunityLabel}</strong>.

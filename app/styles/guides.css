@@ -1,0 +1,367 @@
+/* Interior guides share the focused visual language of the calculator. */
+.hero:is([class]) {
+  --interior-accent: #9cff62;
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  min-height: 31rem;
+  align-items: center;
+  overflow: hidden;
+  padding: 3.5rem 0 3.8rem;
+  background-color: #07110e;
+  background-image:
+    linear-gradient(90deg, rgba(7, 17, 14, 0.96) 0%, rgba(7, 17, 14, 0.76) 48%, rgba(7, 17, 14, 0.18) 100%),
+    linear-gradient(180deg, rgba(7, 17, 14, 0.05) 0%, rgba(7, 17, 14, 0.74) 100%),
+    url("/images/cost-hero-autonomo.webp");
+  background-position: center, center, 62% center;
+  background-size: cover;
+  color: #fff;
+}
+
+.hero > .container {
+  position: relative;
+  z-index: 1;
+}
+
+.hero .article-layout,
+.hero .hero-grid {
+  grid-template-columns: minmax(0, 1.5fr) minmax(15rem, 0.5fr);
+  gap: 4rem;
+  align-items: center;
+}
+
+.hero .text-block,
+.hero .hero-grid > :first-child {
+  max-width: 53rem;
+}
+
+.hero .eyebrow {
+  margin-bottom: 1.15rem;
+  border-bottom: 2px solid var(--interior-accent);
+  border-radius: 0;
+  padding: 0 0 0.45rem;
+  background: transparent;
+  color: var(--interior-accent);
+  font-size: 0.82rem;
+  font-weight: 900;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.hero h1 {
+  max-width: 22ch;
+  margin-bottom: 1rem;
+  color: #fff;
+  font-size: 3.6rem;
+  font-weight: 700;
+  font-variation-settings: "opsz" 72;
+  line-height: 1.03;
+  text-wrap: balance;
+}
+
+.hero .lead {
+  max-width: 42rem;
+  margin: 0;
+  color: rgba(255, 255, 255, 0.82);
+  font-size: 1.07rem;
+  line-height: 1.58;
+}
+
+.hero .hero-badges {
+  gap: 0.6rem 0.85rem;
+  margin-top: 1.3rem;
+}
+
+.hero .hero-badge {
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.86);
+  box-shadow: none;
+  font-size: 0.86rem;
+}
+
+.hero .hero-badge + .hero-badge {
+  border-left: 1px solid rgba(156, 255, 98, 0.65);
+  padding-left: 0.85rem;
+}
+
+.hero .article-summary,
+.hero .feature-card {
+  border: 0;
+  border-left: 1px solid rgba(156, 255, 98, 0.75);
+  border-radius: 0;
+  padding: 0.2rem 0 0.2rem 1.4rem;
+  background: transparent;
+  color: #fff;
+  box-shadow: none;
+  backdrop-filter: none;
+}
+
+.hero .article-summary::before,
+.hero .feature-card::before {
+  display: none;
+}
+
+.hero .article-summary h2,
+.hero .feature-card h2,
+.hero .feature-card h3 {
+  color: #fff;
+}
+
+.hero .article-list,
+.hero .feature-card p {
+  color: rgba(255, 255, 255, 0.76);
+  font-size: 0.92rem;
+  line-height: 1.58;
+}
+
+.hero .article-list li::marker {
+  color: var(--interior-accent);
+}
+
+.hero .guide-cta {
+  margin-top: 1.5rem;
+}
+
+.hero .primary-button {
+  border: 1px solid var(--interior-accent);
+  border-radius: 8px;
+  background: var(--interior-accent);
+  color: #07110e;
+}
+
+.hero .guide-cta .primary-button + .primary-button {
+  border-color: rgba(255, 255, 255, 0.4);
+  background: rgba(7, 17, 14, 0.3);
+  color: #fff;
+  backdrop-filter: blur(8px);
+}
+
+main > .section {
+  padding: 4.25rem 0;
+}
+
+main > .section.alt {
+  border: 0;
+  background: #e9f3ef;
+}
+
+.section h2 {
+  max-width: 20ch;
+  font-size: 2.35rem;
+  line-height: 1.02;
+  text-wrap: balance;
+}
+
+.section .text-block > p:first-of-type {
+  font-size: 1.06rem;
+}
+
+.section .text-block p,
+.section .article-list {
+  line-height: 1.8;
+}
+
+main > .section .feature-grid {
+  gap: 0.8rem;
+}
+
+main > .section .feature-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 8px;
+  padding: 1.45rem;
+  box-shadow: 0 14px 38px rgba(7, 17, 14, 0.06);
+}
+
+main > .section .feature-card::before {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 3px;
+  background: #0e6d54;
+  content: "";
+}
+
+main > .section .feature-card h2,
+main > .section .feature-card h3 {
+  max-width: none;
+  color: #07110e;
+}
+
+.article-summary::before,
+.hero .feature-card::before {
+  background: var(--interior-accent);
+}
+
+main > .section .article-list li + li {
+  margin-top: 0.65rem;
+}
+
+main > .section .disclaimer-box {
+  border-width: 0 0 0 3px;
+  border-color: #0e6d54;
+  border-radius: 0 8px 8px 0;
+  padding: 1.2rem 1.35rem;
+  background: #f1f7f4;
+}
+
+main > .section .faq-item {
+  border-radius: 8px;
+  padding: 1.25rem 1.35rem;
+  box-shadow: 0 10px 30px rgba(7, 17, 14, 0.05);
+}
+
+.section table {
+  width: 100%;
+  border-collapse: collapse;
+  border: 1px solid var(--line);
+  background: #fff;
+}
+
+.section th,
+.section td {
+  border-bottom: 1px solid var(--line);
+  padding: 0.9rem 1rem;
+  text-align: left;
+}
+
+.section th {
+  background: #07110e;
+  color: #fff;
+}
+
+.scenario-table-scroll {
+  max-width: 100%;
+  overflow-x: auto;
+  margin: 1.5rem 0 1rem;
+}
+
+#costes-mensuales {
+  scroll-margin-top: 7rem;
+}
+
+.scenario-table {
+  min-width: 720px;
+  font-variant-numeric: tabular-nums;
+}
+
+.scenario-table caption {
+  margin-bottom: 0.65rem;
+  color: #52605b;
+  text-align: left;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.scenario-table tbody th {
+  background: #f1f7f4;
+  color: #07110e;
+  white-space: nowrap;
+}
+
+.scenario-table tbody tr:target th,
+.scenario-table tbody tr:target td {
+  background: #e5f6dd;
+}
+
+.scenario-table tbody tr {
+  scroll-margin-top: 6rem;
+}
+
+.scenario-table td:not(:last-child) {
+  white-space: nowrap;
+}
+
+.scenario-table a {
+  color: #0e6d54;
+  font-weight: 800;
+}
+
+.scenario-note {
+  max-width: 55rem;
+  color: #52605b;
+  line-height: 1.65;
+}
+
+.section .guide-cta .primary-button {
+  border-radius: 8px;
+}
+
+.section .guide-cta .primary-button + .primary-button {
+  border: 1px solid #0e6d54;
+  background: transparent;
+  color: #0e6d54;
+}
+
+@media (max-width: 900px) {
+  .hero:is([class]) {
+    min-height: auto;
+    padding: 3rem 0;
+    background-image:
+      linear-gradient(180deg, rgba(7, 17, 14, 0.94) 0%, rgba(7, 17, 14, 0.78) 72%, rgba(7, 17, 14, 0.9) 100%),
+      url("/images/cost-hero-autonomo.webp");
+    background-position: center, 68% center;
+  }
+
+  .hero .article-layout,
+  .hero .hero-grid {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+
+  .hero h1 {
+    max-width: 20ch;
+    font-size: 3rem;
+  }
+
+  .hero .article-summary,
+  .hero .feature-card {
+    max-width: 38rem;
+    border-top: 1px solid rgba(156, 255, 98, 0.75);
+    border-left: 0;
+    padding: 1.15rem 0 0;
+  }
+
+  main > .section {
+    padding: 3.4rem 0;
+  }
+}
+
+@media (max-width: 620px) {
+  .hero:is([class]) {
+    padding: 2.5rem 0;
+  }
+
+  .hero h1 {
+    max-width: none;
+    font-size: 2.3rem;
+  }
+
+  .hero .lead {
+    font-size: 1.02rem;
+  }
+
+  .hero .guide-cta,
+  .hero .guide-cta .primary-button {
+    width: 100%;
+  }
+
+  main > .section {
+    padding: 2.8rem 0;
+  }
+
+  .section h2 {
+    font-size: 1.85rem;
+  }
+
+  .section th,
+  .section td {
+    padding: 0.75rem;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}

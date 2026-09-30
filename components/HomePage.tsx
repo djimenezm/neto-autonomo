@@ -10,6 +10,7 @@ type HomePageProps = {
   enableResultCopy?: boolean;
   initialShareUrl?: string;
   trackServerConversion?: boolean;
+  importedFromCosts?: boolean;
 };
 
 const outcomeItems = [
@@ -24,6 +25,7 @@ export default function HomePage({
   enableResultCopy = true,
   initialShareUrl,
   trackServerConversion = false,
+  importedFromCosts = false,
 }: HomePageProps) {
   const webAppSchema = {
     '@context': 'https://schema.org',
@@ -97,6 +99,7 @@ export default function HomePage({
             enableResultCopy={enableResultCopy}
             initialShareUrl={initialShareUrl}
             trackServerConversion={trackServerConversion}
+            importedFromCosts={importedFromCosts}
           />
         </div>
       </section>
@@ -114,19 +117,42 @@ export default function HomePage({
 
       <AdSlot placement="primary" />
 
+      <section className="cost-method-band" aria-labelledby="cost-method-heading">
+        <div className="container cost-method-grid">
+          <div>
+            <span className="eyebrow">Cómo se calcula</span>
+            <h2 id="cost-method-heading">Del neto que buscas a lo que debes facturar.</h2>
+          </div>
+          <div className="cost-method-detail">
+            <p>
+              Partimos de tu objetivo neto mensual. Sumamos los gastos, estimamos el IRPF y la cuota
+              de autónomos, y dividimos la facturación necesaria entre tus horas facturables reales.
+            </p>
+            <p>
+              El IVA aparece por separado: no es ingreso. La cifra es orientativa y depende de tu
+              situación fiscal.
+            </p>
+            <nav aria-label="Profundiza en el cálculo de tu tarifa">
+              <a href="/horas-facturables-freelance">Cómo estimar tus horas facturables</a>
+              <a href="/tabla-cuanto-facturar-autonomo">Ver la tabla de facturación</a>
+            </nav>
+          </div>
+        </div>
+      </section>
+
       <section className="cost-checklist-band" id="kit-tarifa-form">
         <div className="container cost-checklist-grid">
           <div className="cost-checklist-copy">
             <span className="eyebrow">Después del cálculo</span>
             <h2>Revisa la tarifa antes de enviarla.</h2>
-            <p>Una checklist corta para comprobar margen, alcance y horas no facturables.</p>
+            <p>Una lista de comprobación corta para comprobar margen, alcance y horas no facturables.</p>
           </div>
 
           <LeadMagnetForm
             source="home"
-            title="Recibe la checklist para revisar tu tarifa"
+            title="Recibe la lista de comprobación para revisar tu tarifa"
             description="Comprueba que tu precio no se queda corto antes de presupuestar."
-            buttonLabel="Enviar checklist gratis"
+            buttonLabel="Enviar lista de comprobación gratis"
           />
         </div>
       </section>

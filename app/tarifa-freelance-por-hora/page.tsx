@@ -36,9 +36,9 @@ export const metadata: Metadata = {
   },
   keywords: [
     'tarifa freelance por hora',
-    'como calcular tarifa por hora freelance',
-    'cuanto cobrar por hora freelance',
-    'precio por hora autonomo',
+    'cómo calcular tarifa por hora freelance',
+    'cuánto cobrar por hora freelance',
+    'precio por hora autónomo',
     'tarifa consultor freelance',
   ],
   openGraph: {

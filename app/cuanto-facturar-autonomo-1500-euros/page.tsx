@@ -4,12 +4,18 @@ import Script from 'next/script';
 import Footer from '@/components/Footer';
 import Header from '@/components/Header';
 import LeadMagnetForm from '@/components/LeadMagnetForm';
+import { calculateExample, formatEuro, getExampleUrl } from '@/lib/scenarioExamples';
 import { getSiteUrl, siteConfig } from '@/lib/site';
 
 const route = '/cuanto-facturar-autonomo-1500-euros';
 const title = 'Cuánto facturar como autónomo para ganar 1500 euros netos';
 const description =
   'Guía práctica para estimar cuánto facturar como autónomo o freelance en España si quieres llegar a 1500 euros netos al mes teniendo en cuenta cuota, IRPF, IVA, gastos y horas facturables.';
+
+const leanScenario = { monthlyExpenses: 150, billableHours: 70 };
+const higherCostsScenario = { monthlyExpenses: 500, billableHours: 90 };
+const leanResult = calculateExample(1500, leanScenario);
+const higherCostsResult = calculateExample(1500, higherCostsScenario);
 
 const pageFaqItems = [
   {
@@ -36,11 +42,11 @@ export const metadata: Metadata = {
     canonical: route,
   },
   keywords: [
-    'cuanto facturar autonomo para ganar 1500 euros',
-    'cuanto facturar 1500 euros netos',
-    'ganar 1500 euros autonomo',
-    'cuanto cobrar freelance 1500 netos',
-    'facturacion autonomo 1500 euros netos',
+    'cuánto facturar autónomo para ganar 1500 euros',
+    'cuánto facturar 1500 euros netos',
+    'ganar 1500 euros autónomo',
+    'cuánto cobrar freelance 1500 netos',
+    'facturación autónomo 1500 euros netos',
   ],
   openGraph: {
     title: `${title} | ${siteConfig.name}`,
@@ -84,7 +90,7 @@ export default function CuantoFacturarAutonomo1500EurosPage() {
       name: siteConfig.name,
     },
     datePublished: '2026-04-26',
-    dateModified: '2026-04-26',
+    dateModified: '2026-09-22',
   };
 
   const breadcrumbSchema = {
@@ -158,7 +164,7 @@ export default function CuantoFacturarAutonomo1500EurosPage() {
               <Link href="/#calculadora" className="primary-button">
                 Ir a la calculadora
               </Link>
-              <Link href="/cuanto-facturar-autonomo-2000-euros" className="primary-button">
+              <Link href="/tabla-cuanto-facturar-autonomo#neto-2000" className="primary-button">
                 Ver objetivo de 2000 euros
               </Link>
             </div>
@@ -195,6 +201,56 @@ export default function CuantoFacturarAutonomo1500EurosPage() {
             funcionan como referencia si los conviertes en facturación, tarifa y presupuestos
             defendibles.
           </div>
+        </div>
+      </section>
+
+      <section className="section" aria-labelledby="ejemplos-1500">
+        <div className="container">
+          <span className="eyebrow">Dos situaciones distintas</span>
+          <h2 id="ejemplos-1500">El mismo neto puede exigir tarifas diferentes</h2>
+          <p>
+            Supongamos una cuota de 320 € al mes y una reserva de IRPF del 15 %. Son importes
+            hipotéticos para comparar el efecto de gastos y horas, no una cuota ni un tipo fiscal
+            aplicables a todo el mundo. El IVA queda fuera de la facturación mostrada.
+          </p>
+          <div className="scenario-table-scroll" role="region" aria-label="Dos ejemplos para 1.500 euros netos" tabIndex={0}>
+            <table className="scenario-table">
+              <caption>Objetivo de 1.500 € netos mensuales con distintos gastos y horas facturables.</caption>
+              <thead>
+                <tr>
+                  <th scope="col">Situación</th>
+                  <th scope="col">Gastos/mes</th>
+                  <th scope="col">Horas/mes</th>
+                  <th scope="col">Facturación sin IVA</th>
+                  <th scope="col">Tarifa por hora</th>
+                  <th scope="col">Probar</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th scope="row">Estructura ligera</th>
+                  <td>{formatEuro(leanScenario.monthlyExpenses)}</td>
+                  <td>{leanScenario.billableHours}</td>
+                  <td>{formatEuro(leanResult.billingWithoutVAT)}</td>
+                  <td>{formatEuro(leanResult.hourlyRate)}/h</td>
+                  <td><Link href={getExampleUrl(1500, leanScenario)}>Ajustar</Link></td>
+                </tr>
+                <tr>
+                  <th scope="row">Más costes, más horas</th>
+                  <td>{formatEuro(higherCostsScenario.monthlyExpenses)}</td>
+                  <td>{higherCostsScenario.billableHours}</td>
+                  <td>{formatEuro(higherCostsResult.billingWithoutVAT)}</td>
+                  <td>{formatEuro(higherCostsResult.hourlyRate)}/h</td>
+                  <td><Link href={getExampleUrl(1500, higherCostsScenario)}>Ajustar</Link></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p className="scenario-note">
+            En el segundo caso necesitas facturar {formatEuro(higherCostsResult.billingWithoutVAT - leanResult.billingWithoutVAT)}
+            {' '}más al mes, pero vender 20 horas adicionales reduce la tarifa media necesaria.
+            La dificultad real es comprobar si esas horas adicionales se pueden vender de forma estable.
+          </p>
         </div>
       </section>
 
@@ -274,7 +330,7 @@ export default function CuantoFacturarAutonomo1500EurosPage() {
             <Link href="/#calculadora" className="primary-button">
               Calcular mi escenario
             </Link>
-            <Link href="/cuanto-facturar-autonomo-2000-euros" className="primary-button">
+            <Link href="/tabla-cuanto-facturar-autonomo#neto-2000" className="primary-button">
               Ver objetivo de 2000 euros
             </Link>
           </div>

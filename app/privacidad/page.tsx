@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import LegalShell from '@/components/LegalShell';
 import { siteConfig } from '@/lib/site';
 
 export const metadata: Metadata = {
@@ -11,7 +12,7 @@ export const metadata: Metadata = {
 
 export default function PrivacidadPage() {
   return (
-    <main className="legal-page container">
+    <LegalShell>
       <h1>Política de privacidad</h1>
       <div className="legal-card">
         <p>
@@ -72,6 +73,6 @@ export default function PrivacidadPage() {
           <a href={`mailto:${siteConfig.contactEmail}`}>{siteConfig.contactEmail}</a>.
         </p>
       </section>
-    </main>
+    </LegalShell>
   );
 }

@@ -8,21 +8,21 @@ import { getSiteUrl, siteConfig } from '@/lib/site';
 const route = '/kit-tarifa-autonomo';
 const title = 'Kit de tarifa para autónomos';
 const description =
-  'Recurso práctico con checklist, estructura de números y guía rápida para revisar una tarifa de autónomo antes de enviar un presupuesto o subir precios.';
+  'Recurso práctico con lista de comprobación, estructura de números y guía rápida para revisar una tarifa de autónomo antes de enviar un presupuesto o subir precios.';
 
 const faqItems = [
   {
-    question: 'Qué incluye este kit de tarifa para autónomos?',
+    question: '¿Qué incluye este kit de tarifa para autónomos?',
     answer:
-      'Incluye una estructura base para revisar tus números, una checklist de mínimos antes de fijar tarifa y una guía corta para defender mejor el precio ante un cliente.',
+      'Incluye una estructura base para revisar tus números, una lista de comprobación de mínimos antes de fijar tarifa y una guía corta para defender mejor el precio ante un cliente.',
   },
   {
-    question: 'Este kit sustituye la calculadora?',
+    question: '¿Este kit sustituye la calculadora?',
     answer:
       'No. La calculadora te da una referencia numérica. El kit te ayuda a revisar si esa referencia está bien aterrizada antes de convertirla en tarifa, presupuesto o cuota mensual.',
   },
   {
-    question: 'Puedo adaptarlo a mi actividad?',
+    question: '¿Puedo adaptarlo a mi actividad?',
     answer:
       'Sí. Está pensado como una estructura editable para que la adaptes a tus gastos, horas, margen, tipo de cliente y forma de trabajar.',
   },
@@ -35,10 +35,10 @@ export const metadata: Metadata = {
     canonical: route,
   },
   keywords: [
-    'kit tarifa autonomo',
-    'checklist tarifa freelance',
-    'plantilla tarifa autonomo',
-    'como revisar tarifa autonomo',
+    'kit tarifa autónomo',
+    'lista de comprobación tarifa freelance',
+    'plantilla tarifa autónomo',
+    'como revisar tarifa autónomo',
     'recurso para calcular tarifa freelance',
   ],
   openGraph: {
@@ -150,7 +150,7 @@ export default function KitTarifaAutonomoPage() {
               cobrando por debajo de lo que necesitas.
             </p>
             <div className="hero-badges" aria-label="Qué incluye el kit">
-              <span className="hero-badge">Checklist de mínimos</span>
+              <span className="hero-badge">Lista de comprobación de mínimos</span>
               <span className="hero-badge">Estructura de tarifa</span>
               <span className="hero-badge">Revisión antes de enviar</span>
             </div>
@@ -168,7 +168,7 @@ export default function KitTarifaAutonomoPage() {
             <h2>Qué te llevas</h2>
             <ul className="article-list">
               <li>Una estructura rápida para revisar tu tarifa mensual y por hora.</li>
-              <li>Una checklist para detectar si tu precio está demasiado ajustado.</li>
+              <li>Una lista de comprobación para detectar si tu precio está demasiado ajustado.</li>
               <li>Un guion para defender mejor la cifra ante un cliente.</li>
               <li>Una mini revisión para convertir la cifra en presupuesto, cuota o factura.</li>
               <li>Una versión descargable para adaptarla a tu actividad.</li>
@@ -197,7 +197,7 @@ export default function KitTarifaAutonomoPage() {
           <h2>2. Señales de que tu tarifa está demasiado ajustada</h2>
           <p>
             Antes de enviar un precio, revisa si se cumple alguna de estas señales. No significan
-            que el proyecto sea malo, pero sí que conviene ajustar alcance, plazos o condiciones.
+            que el proyecto sea malo, pero sí qué conviene ajustar alcance, plazos o condiciones.
           </p>
           <ol className="article-list article-list-ordered">
             <li>Solo sale rentable si todo va perfecto y sin cambios.</li>
@@ -212,7 +212,7 @@ export default function KitTarifaAutonomoPage() {
 
       <section className="section">
         <div className="container text-block">
-          <h2>3. Checklist antes de aceptar una tarifa</h2>
+          <h2>3. Lista de comprobación antes de aceptar una tarifa</h2>
           <ol className="article-list article-list-ordered">
             <li>La tarifa cubre gastos, cuota e impuestos antes de hablar de beneficio.</li>
             <li>No depende de facturar todas tus horas disponibles.</li>
@@ -283,7 +283,7 @@ export default function KitTarifaAutonomoPage() {
             <h2>Objetivo de 2.000 euros</h2>
             <p>
               Si quieres partir de un objetivo concreto, revisa cuánto facturar para ganar{' '}
-              <Link href="/cuanto-facturar-autonomo-2000-euros">2.000 euros netos</Link>.
+              <Link href="/tabla-cuanto-facturar-autonomo#neto-2000">2.000 euros netos</Link>.
             </p>
           </article>
         </div>

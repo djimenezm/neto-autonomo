@@ -18,12 +18,14 @@ const baseContentSecurityPolicy: string[] = [
 ];
 
 export function getContentSecurityPolicy(environment = process.env.NODE_ENV) {
-  const directives = [...baseContentSecurityPolicy];
+  const directives = baseContentSecurityPolicy.map((directive) =>
+    environment === 'development' && directive.startsWith('script-src ')
+      ? `${directive} 'unsafe-eval'`
+      : directive,
+  );
 
   // Trusted Types is intentionally not enforced yet: React/Next hydration still
   // writes legitimate JSON-LD and analytics script contents through innerHTML.
-  void environment;
-
   return directives.join('; ');
 }
 
@@ -62,6 +64,20 @@ export const securityHeaders = [
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+  async redirects() {
+    return [
+      {
+        source: '/cuanto-facturar-autonomo-2000-euros',
+        destination: '/tabla-cuanto-facturar-autonomo#neto-2000',
+        permanent: true,
+      },
+      {
+        source: '/cuanto-facturar-autonomo-2500-euros',
+        destination: '/tabla-cuanto-facturar-autonomo#neto-2500',
+        permanent: true,
+      },
+    ];
+  },
   async headers() {
     const activeContentSecurityPolicy = getContentSecurityPolicy();
     const activeSecurityHeaders = securityHeaders.map((header) =>

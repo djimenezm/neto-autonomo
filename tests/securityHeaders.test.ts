@@ -39,6 +39,12 @@ describe('security headers', () => {
     );
   });
 
+  it('allows React debugging eval only in development', () => {
+    expect(getContentSecurityPolicy('development')).toContain("script-src 'self'");
+    expect(getContentSecurityPolicy('development')).toContain("'unsafe-eval'");
+    expect(getContentSecurityPolicy('production')).not.toContain("'unsafe-eval'");
+  });
+
   it('adds complementary browser security headers', () => {
     const headerMap = new Map(securityHeaders.map((header) => [header.key, header.value]));
 

@@ -237,19 +237,18 @@ export default function CuantoFacturarAutonomoPage() {
             defendible.
           </p>
           <p>
-            Si tu objetivo esta cerca de un caso muy concreto, tambien puedes apoyarte en la guia
+            Si tu objetivo está cerca de un caso muy concreto, también puedes apoyarte en la guía
             sobre{' '}
-            <a href="/cuanto-facturar-autonomo-2000-euros">
-              cuanto facturar como autonomo para ganar 2000 euros netos
-            </a>
-            .
+            <a href="/tabla-cuanto-facturar-autonomo#neto-2000">
+              cuánto facturar como autónomo para ganar 2000 euros netos
+            </a>.
           </p>
           <p>
-            Y cuando ya tengas clara tu cifra, puedes revisar tambien la comparativa de{' '}
+            Y cuando ya tengas clara tu cifra, puedes revisar también la comparativa de{' '}
             <a href="/mejores-programas-facturacion-autonomos">
-              mejores programas de facturacion para autonomos
+              mejores programas de facturación para autónomos
             </a>{' '}
-            para elegir con que herramienta ordenar esa parte del negocio.
+            para elegir con qué herramienta ordenar esa parte del negocio.
           </p>
           <div className="guide-cta">
             <a href="/#calculadora" className="primary-button">

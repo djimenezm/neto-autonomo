@@ -1,3 +1,4 @@
+import { readStyles } from './readStyles';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
@@ -6,7 +7,7 @@ describe('typography system', () => {
     const appShell = readFileSync(join(process.cwd(), 'pages/_app.tsx'), 'utf8');
     const fonts = readFileSync(join(process.cwd(), 'lib/fonts.ts'), 'utf8');
     const layout = readFileSync(join(process.cwd(), 'app/layout.tsx'), 'utf8');
-    const styles = readFileSync(join(process.cwd(), 'app/globals.css'), 'utf8');
+    const styles = readStyles();
 
     expect(fonts).toContain("import { Instrument_Sans, Source_Serif_4 } from 'next/font/google'");
     expect(fonts).toContain("variable: '--font-body'");

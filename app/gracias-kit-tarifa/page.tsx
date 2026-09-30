@@ -9,23 +9,23 @@ const recommendationCards = [
     id: 'facturacion',
     title: 'Ordenar facturas e impuestos',
     description:
-      'Si ya sabes cuanto deberias facturar, el siguiente paso es elegir una forma comoda de emitir facturas, guardar gastos y preparar IVA e IRPF.',
+      'Si ya sabes cuánto deberías facturar, el siguiente paso es elegir una forma cómoda de emitir facturas, guardar gastos y preparar IVA e IRPF.',
     href: '/mejores-programas-facturacion-autonomos?utm_source=cuantofacturar&utm_medium=thank-you&utm_campaign=affiliate_prepare',
-    cta: 'Ver programas de facturacion',
+    cta: 'Ver programas de facturación',
   },
   {
     id: 'presupuestos',
     title: 'Convertir tu tarifa en presupuesto',
     description:
-      'Cuando tengas tu precio base, bajalo a un proyecto cerrado con alcance, margen, revisiones y condiciones claras antes de enviarlo.',
+      'Cuando tengas tu precio base, bájalo a un proyecto cerrado con alcance, margen, revisiones y condiciones claras antes de enviarlo.',
     href: 'https://www.cuantopresupuestar.es?utm_source=cuantofacturar&utm_medium=thank-you&utm_campaign=kit_next_step',
-    cta: 'Ir a Cuanto Presupuestar',
+    cta: 'Ir a Cuánto Presupuestar',
   },
   {
     id: 'herramientas',
     title: 'Ver el mapa completo de herramientas',
     description:
-      'Usa el panel central para moverte entre calculadoras de facturacion, presupuestos, mantenimiento y landing pages sin perder contexto.',
+      'Usa el panel central para moverte entre calculadoras de facturación, presupuestos, mantenimiento y landing pages sin perder contexto.',
     href: 'https://www.paneldeherramientas.es?utm_source=cuantofacturar&utm_medium=thank-you&utm_campaign=kit_next_step',
     cta: 'Abrir panel de herramientas',
   },
@@ -60,7 +60,7 @@ export default function GraciasKitTarifaPage() {
           />
           <p className="lead">
             Ya hemos recibido tu solicitud. Acabas de desbloquear el kit con estructura para revisar
-            tu tarifa, checklist de mínimos y una guía corta para defender mejor tus números.
+            tu tarifa, lista de comprobación de mínimos y una guía corta para defender mejor tus números.
           </p>
           <div className="disclaimer-box">
             <strong>Nota:</strong> también deberías recibir un email con el acceso directo al kit.
@@ -85,7 +85,7 @@ export default function GraciasKitTarifaPage() {
           <span className="eyebrow">Siguiente paso</span>
           <h2>Convierte esa tarifa en decisiones concretas</h2>
           <p className="section-lead">
-            Primero revisa tu tarifa con el kit. Despues, si tiene sentido para tu caso, estas
+            Primero revisa tu tarifa con el kit. Después, si tiene sentido para tu caso, estas
             rutas te ayudan a ordenar facturas, presupuestos y herramientas.
           </p>
           <div className="disclaimer-box affiliate-disclosure">

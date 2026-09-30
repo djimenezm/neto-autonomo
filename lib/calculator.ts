@@ -14,6 +14,7 @@ export const AUTONOMOUS_COMMUNITY_LABELS: Record<AutonomousCommunity, string> = 
 export type CalculatorInput = {
   targetNet: number;
   monthlyExpenses: number;
+  monthlyNonDeductibleExpenses?: number;
   billableHours: number;
   irpfRate: number;
   irpfMode?: IrpfMode;
@@ -27,6 +28,7 @@ export type CalculatorInput = {
 export type CalculationResult = {
   targetNet: number;
   monthlyExpenses: number;
+  monthlyNonDeductibleExpenses: number;
   selfEmployedFee: number;
   selfEmployedFeeMode: SelfEmployedFeeMode;
   reducedFeePeriod: ReducedFeePeriod;
@@ -199,8 +201,22 @@ function calculateSimplifiedAnnualIRPF(preTaxProfitAnnual: number, autonomousCom
   const regionalConfig = REGIONAL_IRPF_CONFIG[autonomousCommunity];
   const stateTaxableBase = Math.max(0, preTaxProfitAnnual - STATE_PERSONAL_ALLOWANCE_2026);
   const regionalTaxableBase = Math.max(0, preTaxProfitAnnual - regionalConfig.personalAllowance);
-  const stateQuota = calculateProgressiveQuota(stateTaxableBase, STATE_IRPF_BRACKETS_2026);
-  const regionalQuota = calculateProgressiveQuota(regionalTaxableBase, regionalConfig.brackets);
+  const stateQuota = Math.max(
+    0,
+    calculateProgressiveQuota(preTaxProfitAnnual, STATE_IRPF_BRACKETS_2026) -
+      calculateProgressiveQuota(
+        Math.min(preTaxProfitAnnual, STATE_PERSONAL_ALLOWANCE_2026),
+        STATE_IRPF_BRACKETS_2026,
+      ),
+  );
+  const regionalQuota = Math.max(
+    0,
+    calculateProgressiveQuota(preTaxProfitAnnual, regionalConfig.brackets) -
+      calculateProgressiveQuota(
+        Math.min(preTaxProfitAnnual, regionalConfig.personalAllowance),
+        regionalConfig.brackets,
+      ),
+  );
 
   return {
     annualStateTaxableBase: stateTaxableBase,
@@ -238,6 +254,7 @@ function solveAnnualPreTaxProfit(targetNetAnnual: number, autonomousCommunity: A
 export function calculateFreelanceBilling({
   targetNet,
   monthlyExpenses,
+  monthlyNonDeductibleExpenses = 0,
   billableHours,
   irpfRate,
   irpfMode = 'progressive',
@@ -249,14 +266,15 @@ export function calculateFreelanceBilling({
 }: CalculatorInput): CalculationResult {
   const safeTargetNet = Math.max(0, safeNumber(targetNet));
   const safeExpenses = Math.max(0, safeNumber(monthlyExpenses));
+  const safeNonDeductibleExpenses = Math.max(0, safeNumber(monthlyNonDeductibleExpenses));
   const safeHours = Math.max(1, Math.round(safeNumber(billableHours, 1)));
   const safeIrpfRatePercent = Math.min(99, Math.max(0, safeNumber(irpfRate)));
   const safeIrpfRate = safeIrpfRatePercent / 100;
   const safeManualFee = Math.max(0, safeNumber(selfEmployedFee));
-  const targetNetAnnual = safeTargetNet * 12;
+  const targetNetAnnual = (safeTargetNet + safeNonDeductibleExpenses) * 12;
   const annualPreTaxProfit =
     irpfMode === 'manual'
-      ? safeTargetNet / Math.max(0.01, 1 - safeIrpfRate) * 12
+      ? targetNetAnnual / Math.max(0.01, 1 - safeIrpfRate)
       : solveAnnualPreTaxProfit(targetNetAnnual, autonomousCommunity);
   const {
     annualStateTaxableBase,
@@ -291,6 +309,7 @@ export function calculateFreelanceBilling({
   return {
     targetNet: roundToTwo(safeTargetNet),
     monthlyExpenses: roundToTwo(safeExpenses),
+    monthlyNonDeductibleExpenses: roundToTwo(safeNonDeductibleExpenses),
     selfEmployedFee: roundToTwo(appliedSelfEmployedFee),
     selfEmployedFeeMode: appliedFeeMode,
     reducedFeePeriod,

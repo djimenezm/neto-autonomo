@@ -1,0 +1,14 @@
+:root {
+  --bg: #f6f8fb;
+  --surface: #ffffff;
+  --surface-alt: #eef3f8;
+  --text: #18212b;
+  --muted: #5c6b7a;
+  --line: #d7e0ea;
+  --accent: #145da0;
+  --accent-dark: #0e477d;
+  --shadow: 0 14px 40px rgba(16, 24, 40, 0.08);
+  --radius: 18px;
+  --container: 1120px;
+  --type-mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+}
