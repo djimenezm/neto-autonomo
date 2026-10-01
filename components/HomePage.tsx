@@ -135,6 +135,7 @@ export default function HomePage({
             <nav aria-label="Profundiza en el cálculo de tu tarifa">
               <a href="/horas-facturables-freelance">Cómo estimar tus horas facturables</a>
               <a href="/tabla-cuanto-facturar-autonomo">Ver la tabla de facturación</a>
+              <a href="/mejores-programas-facturacion-autonomos">Comparar programas para emitir facturas</a>
             </nav>
           </div>
         </div>
