@@ -1,6 +1,6 @@
 import { getAdsTxtRecord } from '@/lib/ads';
 
-export const dynamic = 'force-dynamic';
+export const dynamic = 'force-static';
 
 export function GET() {
   const record = getAdsTxtRecord();
