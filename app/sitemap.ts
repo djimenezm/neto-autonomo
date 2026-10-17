@@ -23,6 +23,7 @@ const routes = [
 const lastContentUpdates: Record<string, string> = {
   '/': '2026-10-02',
   '/mejores-programas-facturacion-autonomos': '2026-10-02',
+  '/horas-facturables-freelance': '2026-10-17',
 };
 
 export default function sitemap(): MetadataRoute.Sitemap {

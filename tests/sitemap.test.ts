@@ -11,6 +11,7 @@ describe('sitemap', () => {
     expect(updatedRoutes).toEqual({
       '/': '2026-10-02',
       '/mejores-programas-facturacion-autonomos': '2026-10-02',
+      '/horas-facturables-freelance': '2026-10-17',
     });
   });
 

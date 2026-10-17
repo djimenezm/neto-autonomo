@@ -4,6 +4,8 @@ import Script from 'next/script';
 import Footer from '@/components/Footer';
 import Header from '@/components/Header';
 import LeadMagnetForm from '@/components/LeadMagnetForm';
+import { availableMonthlyHours, billableHoursExamples, monthlyBillingExample } from '@/lib/billableHoursExamples';
+import { formatCurrency } from '@/lib/format';
 import { getSiteUrl, siteConfig } from '@/lib/site';
 
 const route = '/horas-facturables-freelance';
@@ -15,7 +17,7 @@ const pageFaqItems = [
   {
     question: '¿Cuántas horas facturables tiene un freelance al mes?',
     answer:
-      'Depende de la actividad, pero suele ser bastante menos que las horas trabajadas. Una referencia prudente puede estar entre 70 y 110 horas facturables mensuales si también haces ventas, gestión, reuniones y administración.',
+      'No existe una cifra universal. Resta de tu disponibilidad mensual la gestión, la captación, la formación y una reserva para imprevistos, sin contar dos veces la misma tarea. Los ejemplos de esta guía son agendas hipotéticas, no medias del sector.',
   },
   {
     question: '¿Por qué no puedo contar todas mis horas de trabajo?',
@@ -83,8 +85,9 @@ export default function HorasFacturablesFreelancePage() {
       '@type': 'Organization',
       name: siteConfig.name,
     },
+    accountablePerson: { '@type': 'Person', name: siteConfig.ownerName },
     datePublished: '2026-04-27',
-    dateModified: '2026-04-27',
+    dateModified: '2026-10-17',
   };
 
   const breadcrumbSchema = {
@@ -120,7 +123,7 @@ export default function HorasFacturablesFreelancePage() {
   };
 
   return (
-    <main>
+    <main id="contenido-principal">
       <Script
         id="horas-facturables-article-schema"
         type="application/ld+json"
@@ -146,8 +149,8 @@ export default function HorasFacturablesFreelancePage() {
             <h1>Horas facturables freelance: cuántas puedes vender al mes</h1>
             <p className="lead">
               Tu tarifa no se calcula dividiendo tu objetivo mensual entre todas las horas que
-              trabajas. Se calcula sobre las horas que realmente puedes facturar. La diferencia
-              parece pequeña en una hoja de cálculo, pero en tu margen mensual es un pequeño dragón.
+              trabajas. Se calcula sobre las horas que realmente puedes facturar: sobreestimarlas
+              puede dejarte una tarifa insuficiente para cubrir tu actividad.
             </p>
             <div className="hero-badges" aria-label="Qué cubre esta guía">
               <span className="hero-badge">Horas vendibles</span>
@@ -218,8 +221,8 @@ export default function HorasFacturablesFreelancePage() {
           <article className="feature-card">
             <h2>Horas de margen</h2>
             <p>
-              Espacio para imprevistos, descanso, huecos entre proyectos, clientes lentos y semanas
-              donde no todo sale con la precisión de un reloj suizo.
+              Espacio para imprevistos, descanso y huecos entre proyectos. Es tiempo que reservas,
+              no una tarea adicional que debas restar de nuevo si ya la has contado.
             </p>
           </article>
         </div>
@@ -238,52 +241,81 @@ export default function HorasFacturablesFreelancePage() {
               <li>Revisa el dato cada trimestre según tu agenda real.</li>
             </ol>
             <p>
-              Un error habitual es usar 160 horas mensuales como si fueran todas vendibles. En la
-              práctica, muchos freelancers trabajan bastante, pero facturan muchas menos horas
-              directas. Por eso la tarifa mínima sube cuando el cálculo se vuelve realista.
+              Si partes de 20 días de 8 horas, dispones de {availableMonthlyHours} horas antes de
+              descontar otras tareas. Es solo una hipótesis: usa tus días reales, vacaciones,
+              festivos y jornada. Una reunión incluida en un proyecto ya puede estar dentro de
+              sus horas facturables; no la restes también como gestión.
             </p>
           </div>
 
           <aside className="feature-card article-summary">
-            <h2>Rangos orientativos</h2>
+            <h2>La fórmula de tu agenda</h2>
+            <p>Disponibilidad − gestión − captación − formación − reserva = horas facturables.</p>
             <ul className="article-list">
-              <li>70 a 90 horas: agenda con mucha venta, gestión o proyectos variables.</li>
-              <li>90 a 110 horas: escenario razonable para servicios profesionales estables.</li>
-              <li>110 a 130 horas: posible, pero exige procesos claros y poca dispersión.</li>
-              <li>Más de 130 horas: revísalo con cuidado; puede esconder sobrecarga.</li>
+              <li>Clasifica cada hora una sola vez.</li>
+              <li>Contrasta la estimación con tu registro de varias semanas.</li>
+              <li>Separa capacidad disponible de trabajo realmente contratado.</li>
             </ul>
           </aside>
         </div>
       </section>
 
-      <section className="section alt">
+      <section className="section alt" aria-labelledby="agendas-title">
         <div className="container text-block">
-          <h2>Ejemplo rápido: por qué cambia tanto la tarifa</h2>
+          <h2 id="agendas-title">Tres agendas, no una media del sector</h2>
           <p>
-            Imagina qué necesitas facturar 4.000 EUR al mes sin IVA para sostener tu actividad. Si
-            divides esa cifra entre 160 horas, la referencia sale a 25 EUR/h. Pero si solo puedes
-            facturar 90 horas reales, la referencia sube a 44,44 EUR/h.
+            Estos casos son inventados para mostrar la resta. No proceden de una encuesta ni
+            describen la productividad esperable de un profesional. Todas las cifras de la tabla
+            son horas mensuales; sustituye cada partida por tus propios datos.
           </p>
+          <div className="scenario-table-scroll" role="region" aria-label="Ejemplos de agendas mensuales" tabIndex={0}>
+            <table className="scenario-table">
+              <caption>Disponibilidad de partida: {availableMonthlyHours} h (20 días × 8 h).</caption>
+              <thead>
+                <tr>
+                  <th scope="col">Agenda hipotética</th>
+                  <th scope="col">Gestión</th>
+                  <th scope="col">Captación</th>
+                  <th scope="col">Formación</th>
+                  <th scope="col">Reserva</th>
+                  <th scope="col">Facturables</th>
+                </tr>
+              </thead>
+              <tbody>
+                {billableHoursExamples.map((agenda) => (
+                  <tr key={agenda.name}>
+                    <th scope="row">{agenda.name}</th>
+                    <td>{agenda.administration}</td>
+                    <td>{agenda.sales}</td>
+                    <td>{agenda.learning}</td>
+                    <td>{agenda.reserve}</td>
+                    <td><strong>{agenda.billableHours}</strong></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <h2>Mismo objetivo, distinta disponibilidad</h2>
           <p>
-            La diferencia no es un capricho: es el tiempo no vendible apareciendo por fin en el
-            cálculo. Si no lo incluyes, lo pagas tú con agenda, margen o cansancio.
+            Supongamos que ya has estimado una facturación necesaria de{' '}
+            {formatCurrency(monthlyBillingExample)} al mes sin IVA. No es un sueldo neto: ese
+            objetivo debe cubrir previamente tus costes, cuota e impuestos. La referencia por
+            hora es ese importe dividido entre las horas facturables de cada agenda.
           </p>
           <div className="feature-grid" aria-label="Comparativa de horas facturables">
-            <article className="feature-card">
-              <h3>160 horas</h3>
-              <p>Referencia baja, pero poco realista para muchas actividades freelance.</p>
-            </article>
-
-            <article className="feature-card">
-              <h3>110 horas</h3>
-              <p>Mejor si tienes procesos, clientes estables y poca carga comercial.</p>
-            </article>
-
-            <article className="feature-card">
-              <h3>90 horas</h3>
-              <p>Más prudente si haces venta, propuestas, gestión y varios proyectos a la vez.</p>
-            </article>
+            {billableHoursExamples.map((agenda) => (
+              <article className="feature-card" key={agenda.name}>
+                <h3>{agenda.billableHours} horas facturables</h3>
+                <p>{formatCurrency(monthlyBillingExample)} ÷ {agenda.billableHours} h</p>
+                <p><strong>{formatCurrency(agenda.hourlyRate)}/h sin IVA</strong></p>
+              </article>
+            ))}
           </div>
+          <p className="scenario-note">
+            Es una referencia de cobertura, no un precio de mercado ni una garantía de que
+            conseguirás vender todas esas horas. Para estimar primero tu objetivo mensual,
+            consulta <Link href="/cuanto-facturar-autonomo">cómo calcular cuánto facturar</Link>.
+          </p>
         </div>
       </section>
 
@@ -326,6 +358,11 @@ export default function HorasFacturablesFreelancePage() {
         <div className="container text-block">
           <span className="eyebrow">Preguntas frecuentes</span>
           <h2>Dudas habituales sobre horas facturables freelance</h2>
+          <p className="scenario-note">
+            Responsable del sitio: <Link href="/aviso-legal">{siteConfig.ownerName}</Link>.
+            {' '}Método: ejemplos aritméticos propios con supuestos explícitos, no un estudio
+            de mercado. Actualizada el <time dateTime="2026-10-17">17 de octubre de 2026</time>.
+          </p>
           <div className="faq-list">
             {pageFaqItems.map((item) => (
               <article className="faq-item" key={item.question}>

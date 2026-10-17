@@ -14,6 +14,7 @@ Volver al [README](../README.md).
 | `lib/calculator.ts` | Reglas de cálculo y fiscales, independientes de React. |
 | `lib/calculatorForm.ts`, `spanishNumber.ts` | Valores iniciales, validación, URL compartible y lectura de números españoles. |
 | `lib/site.ts` y `lib/format.ts` | Configuración global y formato de resultados. |
+| `lib/billableHoursExamples.ts` | Agendas hipotéticas de la guía de horas, con sus restas y tarifas derivadas. |
 | `pages/` | Rutas heredadas y redirecciones, entre ellas `index.tsx` y `cuanto-facturar-autonomo.tsx`. |
 | `public/recursos/` | Descarga del kit de tarifa. |
 | `tests/` | Pruebas de cálculo, formularios, accesibilidad y configuración. |
@@ -46,6 +47,23 @@ Los espacios publicitarios están preparados, pero `lib/ads.ts` exige `NEXT_PUBL
 - Las solicitudes de indexación ya aceptadas no se repiten para intentar adelantar la cola. La aprobación de AdSense y la indexación son procesos independientes de Google.
 
 ## Revisión local antes de publicar
+
+### Evidencia editorial y titularidad
+
+`lib/site.ts` identifica al responsable real del sitio y alimenta el pie, el aviso
+legal y privacidad. No atribuirle experiencia profesional, titulaciones ni una
+revisión personal que no se haya confirmado.
+
+La guía de horas facturables sustituye los antiguos rangos sin fuente por tres
+agendas hipotéticas. Las 160 horas de partida y cada descuento se muestran en la
+tabla; las tarifas parten de 4000 EUR de facturación sin IVA, no de sueldo neto.
+`billableHoursEvidence.test.tsx` comprueba que tabla, importes y explicación
+corresponden a los mismos datos. La modificación editorial del 17 de octubre de
+2026 figura tanto en el artículo como en el sitemap; no debe cambiar por desplegar.
+
+Antes de publicar se comprobaron los ejemplos y la titularidad con pruebas,
+compilación y revisión visual en escritorio y móvil. Esa validación no implica
+que Google haya indexado la guía o aprobado AdSense.
 
 `npm run dev` abre el servidor de desarrollo en el puerto 3001; `npm run start` sirve en ese mismo puerto una compilación creada con `npm run build`.
 

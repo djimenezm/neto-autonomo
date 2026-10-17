@@ -207,7 +207,8 @@ export default function TarifaFreelancePorHoraPage() {
             <h2>2. Tus horas facturables reales</h2>
             <p>
               No cuentan solo las horas que trabajas. Cuenta el tiempo que realmente puedes vender sin
-              asumir una agenda imposible de sostener.
+              asumir una agenda imposible de sostener. Puedes calcular esa disponibilidad con los{' '}
+              <Link href="/horas-facturables-freelance">ejemplos de horas facturables mensuales</Link>.
             </p>
           </article>
 

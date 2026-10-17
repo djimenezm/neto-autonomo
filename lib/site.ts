@@ -19,7 +19,7 @@ export const siteConfig = {
     'IVA autonomos',
   ],
   url: process.env.NODE_ENV === 'development' ? 'http://localhost:3001' : productionUrl,
-  ownerName: 'Equipo de Cuánto Facturar',
+  ownerName: 'Diego Antonio Jiménez Moreno',
   contactEmail: 'hola@cuantofacturar.es',
   brevoKitFormAction:
     'https://2caafd8d.sibforms.com/serve/MUIFAKj4ZtUq9F3Gr6uDW_NzJ0TMBYrXq72FOHbxjDFoIp2-NhEAPr0pHjTTRCAlWEja5CPj0BNxcx4pt2QYm83WDznUzcZMs3_JlykjIu-UbB7yROpHbbDZSyzt9jpFltS6Ky9-DGtC6Dty-TK7-ZH-qHuBPj5IvH4kOHZc0g4dFq6M9F0qJ-wBdDVm1xjZrH7cBNT0h2z3WGzA5A==',
