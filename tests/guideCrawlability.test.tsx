@@ -32,5 +32,9 @@ describe('billable hours guide crawlability', () => {
 
     expect(links.length).toBeGreaterThan(0);
     expect(links[0].textContent).toMatch(/horas facturables/);
+    const schemas = [...document.querySelectorAll('script[type="application/ld+json"]')]
+      .map((script) => JSON.parse(script.textContent!));
+    expect(schemas.map((schema) => schema['@type'])).toEqual(['Article', 'BreadcrumbList', 'FAQPage']);
+    expect(schemas[0].mainEntityOfPage).not.toContain('/horas-facturables-freelance');
   });
 });
