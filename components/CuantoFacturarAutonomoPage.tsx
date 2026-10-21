@@ -175,6 +175,8 @@ export default function CuantoFacturarAutonomoPage() {
             <p>
               Una vez tienes la facturación objetivo, compárala con tus horas facturables reales para
               saber qué tarifa por hora te sostiene o cuánto margen tienes en cada propuesta.
+              {' '}La <a href="/horas-facturables-freelance">guía de horas facturables mensuales</a>{' '}
+              muestra cómo descontar gestión, captación y reserva sin contar dos veces una tarea.
             </p>
           </article>
         </div>

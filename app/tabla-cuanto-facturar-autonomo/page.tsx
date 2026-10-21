@@ -258,6 +258,8 @@ export default function TablaCuantoFacturarAutonomoPage() {
             {' '}de facturación mensual sin IVA. Dividido entre 80 horas facturables son{' '}
             {formatEuro(calculateExample(2000).hourlyRate)}/h. Si solo puedes vender 60 horas,
             el objetivo mensual no cambia, pero la tarifa mínima por hora sube.
+            {' '}Antes de usar esa referencia, contrástala con los{' '}
+            <Link href="/horas-facturables-freelance">ejemplos de agendas y horas facturables</Link>.
           </p>
           <p>
             Puedes comprobar la cuenta: 2.000 € de neto + 300 € de gastos + 320 € de cuota +{' '}
