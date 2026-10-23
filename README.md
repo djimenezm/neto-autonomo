@@ -32,14 +32,15 @@ npm audit --omit=dev
 npm audit
 ```
 
-La auditoría de producción no debe devolver avisos conocidos. La auditoría completa
-mantiene cinco avisos propagados desde un único problema sin parche publicado:
-`braces@3.0.3` ([CVE-2026-93687](https://github.com/advisories/GHSA-vfj7-8cjw-p6xm)).
-La cadena es `eslint-config-next > @next/eslint-plugin-next > fast-glob > micromatch > braces`.
-Solo se utiliza al analizar código de desarrollo y no recibe entradas de visitantes.
-No ejecutar ESLint sobre código o patrones no confiables ni usar `npm audit fix --force`:
-la sugerencia automática implica bajar a una configuración de Next.js incompatible.
-No se oculta este aviso; hay que revisarlo al actualizar ESLint o cuando exista un parche.
+Las auditorías de producción y completa no deben devolver avisos conocidos.
+Se ha eliminado la cadena `fast-glob > micromatch > braces` del plugin de ESLint de Next.js,
+sin bajar versiones ni desactivar reglas. Como `braces@3.0.3` aún no tiene un parche publicado
+para [CVE-2026-93687](https://github.com/advisories/GHSA-vfj7-8cjw-p6xm), se utiliza un
+[adaptador local limitado al plugin de Next.js](tooling/eslint-root-glob/README.md),
+basado en Tinyglobby. No es una versión parcheada de braces ni una sustitución general de fast-glob.
+Las pruebas comprueban sus rutas y que las reglas de ESLint siguen detectando errores.
+Al actualizar Next.js hay que revisar el adaptador y su override; no usar `npm audit fix --force`
+para forzar una configuración incompatible.
 
 Node.js debe permanecer en una versión corregida de la rama 24. La compilación comprueba
 la versión real y la registra. Vercel gestiona las actualizaciones de su runtime;

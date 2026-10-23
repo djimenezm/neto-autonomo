@@ -1,0 +1,17 @@
+{
+  "name": "@calculadoras/eslint-root-glob",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Scoped globSync adapter for @next/eslint-plugin-next 16.4.2 root directories",
+  "exports": {
+    ".": "./index.mjs",
+    "./package.json": "./package.json"
+  },
+  "engines": {
+    "node": "^24.22.1"
+  },
+  "dependencies": {
+    "tinyglobby": "0.2.17"
+  }
+}
