@@ -48,6 +48,24 @@ Los espacios publicitarios están preparados, pero `lib/ads.ts` exige `NEXT_PUBL
 
 ## Revisión local antes de publicar
 
+### Interpretar facturación y neto (26 de octubre de 2026)
+
+La siguiente mejora sustituye explicaciones genéricas por una resta verificable
+con los datos de cada resultado. `BillingBreakdown.tsx` muestra gastos, cuota,
+reserva de IRPF y costes no deducibles antes del neto. El IVA se suma aparte;
+no se interpreta como neto, cobro o liquidación de impuestos. La explicación es
+opcional en el resultado y visible en el ejemplo de la guía de tarifa por hora.
+
+`lib/billingBreakdown.ts` trabaja con las cantidades ya mostradas, en céntimos.
+Si sus redondeos no suman exactamente, expone una fila de conciliación; no altera
+las fórmulas fiscales ni los importes del motor. La guía usa `calculateExample`
+y `getExampleUrl` para que el desglose y los casos de 80 y 40 horas se puedan
+reproducir en la calculadora. Las cuotas y porcentajes son supuestos hipotéticos.
+La interpretación del IVA enlaza a la documentación de la AEAT.
+
+La publicación de esta mejora no activa anuncios ni solicita una revisión de
+AdSense. Las fórmulas, el piloto y los seguimientos se conservan.
+
 ### Ayuda para estimar horas (26 de octubre de 2026)
 
 La revisión de páginas detectó que la calculadora partía de 80 h/mes sin ayudar

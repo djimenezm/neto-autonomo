@@ -1,0 +1,92 @@
+.disclosure {
+  margin: 1.25rem 0;
+  border: 1px solid #cbded4;
+  border-radius: 8px;
+  padding: 1rem;
+  background: #f6faf7;
+}
+
+.disclosure summary {
+  cursor: pointer;
+  font-weight: 800;
+  line-height: 1.5;
+}
+
+.disclosure > a {
+  display: inline-block;
+  margin-top: 0.75rem;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.breakdown {
+  container-type: inline-size;
+  min-width: 0;
+  color: #173a2c;
+}
+
+.breakdown h3,
+.breakdown h4 {
+  margin: 1rem 0 0.65rem;
+  font-size: 1.15rem;
+}
+
+.breakdown p {
+  margin: 0.75rem 0;
+  font-size: 0.95rem;
+  line-height: 1.65;
+}
+
+.rows {
+  margin: 1rem 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.65rem;
+  border-bottom: 1px solid #d3dfd7;
+  padding: 0.8rem 0;
+  font-size: 0.95rem;
+  line-height: 1.45;
+}
+
+.row dd {
+  margin: 0;
+  white-space: nowrap;
+  font-weight: 700;
+}
+
+.net {
+  border-top: 2px solid #0e6d54;
+  border-bottom: 0;
+  font-weight: 800;
+}
+
+.vat {
+  border-left: 3px solid #0e6d54;
+  padding: 0.75rem 1rem;
+  background: #edf6ef;
+}
+
+.vat p:last-child {
+  margin-bottom: 0;
+}
+
+@container (max-width: 240px) {
+  .row {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.3rem;
+  }
+
+  .row dd {
+    text-align: right;
+  }
+}
+
+@media (max-width: 480px) {
+  .disclosure {
+    padding: 0.75rem 0.55rem;
+  }
+}

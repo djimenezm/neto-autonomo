@@ -3,14 +3,26 @@ import Link from 'next/link';
 import Script from 'next/script';
 import Footer from '@/components/Footer';
 import Header from '@/components/Header';
+import BillingBreakdown from '@/components/BillingBreakdown';
+import { calculateExample, exampleAssumptions, formatEuro, getExampleUrl } from '@/lib/scenarioExamples';
 import { getSiteUrl, siteConfig } from '@/lib/site';
 
 const route = '/tarifa-freelance-por-hora';
 const title = 'Tarifa freelance por hora: cómo calcularla bien';
 const description =
-  'Guía práctica para calcular tu tarifa freelance por hora en España sin quedarte corto. Entiende horas facturables, gastos, cuota, IRPF, IVA y cómo usar tu referencia mensual para presupuestar mejor.';
+  'Calcula tu tarifa freelance por hora con un ejemplo desglosado: de la facturación al neto, gastos, cuota, reserva de IRPF e IVA separado. Ajusta los mismos datos en la calculadora.';
+
+const targetNet = 2000;
+const example = calculateExample(targetNet);
+const fewerHours = exampleAssumptions.billableHours / 2;
+const fewerHoursExample = calculateExample(targetNet, { billableHours: fewerHours });
 
 const pageFaqItems = [
+  {
+    question: '¿La tarifa por hora es lo que gano limpio?',
+    answer:
+      `No. En el ejemplo hipotético, ${formatEuro(example.hourlyRate)}/h sin IVA permiten facturar ${formatEuro(example.billingWithoutVAT)} con ${exampleAssumptions.billableHours} horas mensuales. De ahí se cubren gastos, cuota y reserva de IRPF para conservar ${formatEuro(targetNet)} netos. No es una tarifa de mercado ni una estimación de tu fiscalidad real.`,
+  },
   {
     question: '¿Cómo sé si mi tarifa por hora es demasiado baja?',
     answer:
@@ -83,7 +95,8 @@ export default function TarifaFreelancePorHoraPage() {
       name: siteConfig.name,
     },
     datePublished: '2026-04-22',
-    dateModified: '2026-04-22',
+    dateModified: '2026-10-26',
+    accountablePerson: { '@type': 'Person', name: siteConfig.ownerName },
   };
 
   const breadcrumbSchema = {
@@ -119,7 +132,7 @@ export default function TarifaFreelancePorHoraPage() {
   };
 
   return (
-    <main>
+    <main id="contenido-principal">
       <Script
         id="tarifa-freelance-por-hora-article-schema"
         type="application/ld+json"
@@ -144,9 +157,10 @@ export default function TarifaFreelancePorHoraPage() {
             <span className="eyebrow">Guía práctica</span>
             <h1>Tarifa freelance por hora: cómo calcularla sin quedarte corto</h1>
             <p className="lead">
-              Una tarifa por hora útil no sale de coger un número al azar ni de copiar lo que cobra
-              otra persona. Tiene que salir de tu realidad: cuánto necesitas facturar al mes, cuántas
-              horas puedes vender de verdad y cuánto se te va en gastos, cuota, IRPF e IVA.
+              Ejemplo hipotético: <strong>{formatEuro(example.hourlyRate)}/h sin IVA</strong> con
+              {' '}{exampleAssumptions.billableHours} horas facturables al mes para conservar
+              {' '}{formatEuro(targetNet)} netos. La cuenta depende de tus gastos, cuota e impuestos;
+              no es un precio de mercado.
             </p>
             <div className="hero-badges" aria-label="Qué cubre esta guía">
               <span className="hero-badge">Horas facturables</span>
@@ -154,42 +168,73 @@ export default function TarifaFreelancePorHoraPage() {
               <span className="hero-badge">Margen real</span>
             </div>
             <div className="guide-cta">
-              <Link href="/#calculadora" className="primary-button">
-                Calcular mi tarifa
+              <Link href={getExampleUrl(targetNet)} className="primary-button">
+                Ajustar este ejemplo a mis datos
               </Link>
             </div>
           </div>
 
           <aside className="feature-card article-summary">
-            <h2>Qué vas a sacar de esta guía</h2>
+            <h2>Supuestos del ejemplo</h2>
             <ul className="article-list">
-              <li>Cómo pasar de una referencia mensual a una tarifa por hora defendible.</li>
-              <li>Qué errores suelen hundir la rentabilidad aunque el precio parezca bueno.</li>
-              <li>Cómo usar la tarifa por hora incluso si presupuestas por proyecto.</li>
-              <li>Qué mirar antes de aceptar una propuesta aparentemente atractiva.</li>
+              <li>Gastos deducibles: {formatEuro(exampleAssumptions.monthlyExpenses)}/mes.</li>
+              <li>Cuota manual: {formatEuro(exampleAssumptions.selfEmployedFee)}/mes.</li>
+              <li>Reserva manual de IRPF: {exampleAssumptions.irpfRate} %.</li>
+              <li>Horas facturables: {exampleAssumptions.billableHours}/mes.</li>
             </ul>
           </aside>
         </div>
       </section>
 
-      <section className="section">
+      <section className="section" aria-labelledby="ejemplo-tarifa">
         <div className="container text-block">
-          <h2>Tu tarifa por hora no depende solo de las horas</h2>
+          <h2 id="ejemplo-tarifa">Una tarifa de {formatEuro(example.hourlyRate)} no es un sueldo de {formatEuro(example.hourlyRate)} por hora</h2>
           <p>
-            El error más común es pensar que una tarifa por hora se calcula dividiendo lo que quieres
-            ganar entre el número de horas que trabajas. En realidad deberías dividir entre tus horas
-            facturables y, antes de hacerlo, haber sumado todos los costes que tu actividad necesita
-            cubrir.
+            Para conservar {formatEuro(targetNet)} al mes con estos supuestos necesitas facturar
+            {' '}{formatEuro(example.billingWithoutVAT)} sin IVA. Esta es la resta completa: la reserva
+            de IRPF se cuenta una sola vez y el IVA queda fuera del reparto.
           </p>
+          <BillingBreakdown result={example} hasIVA={exampleAssumptions.hasIVA} headingId="guide-billing-breakdown-title" />
           <p>
-            Eso incluye gastos, cuota de autónomos, una reserva razonable de IRPF y el hecho de que no
-            todas tus horas se cobran. Hay tiempo comercial, administrativo y de coordinación que
-            también existe, aunque el cliente no lo vea en la factura.
+            Después divides {formatEuro(example.billingWithoutVAT)} entre
+            {' '}{exampleAssumptions.billableHours} h: <strong>{formatEuro(example.hourlyRate)}/h sin IVA</strong>.
+            {' '}No hemos añadido un margen comercial extra ni costes específicos de un proyecto.
+            La reserva del {exampleAssumptions.irpfRate} % y la cuota manual son supuestos elegidos
+            para el ejemplo, no tipos ni cuotas aplicables a todas las personas.
           </p>
           <div className="disclaimer-box">
-            <strong>Idea clave:</strong> una tarifa aparentemente correcta puede ser mala si parte de
-            demasiadas horas vendibles o si ignora impuestos y costes fijos.
+            Con el mismo objetivo y los mismos costes, si solo puedes vender {fewerHours} h al mes,
+            la tarifa de cobertura sube a <strong>{formatEuro(fewerHoursExample.hourlyRate)}/h sin IVA</strong>.
+            {' '}La facturación mensual necesaria sigue siendo {formatEuro(fewerHoursExample.billingWithoutVAT)}.
+            {' '}<Link href={getExampleUrl(targetNet, { billableHours: fewerHours })}>Probar el caso de {fewerHours} horas</Link>.
           </div>
+          <p className="scenario-note">
+            Método: simulación aritmética con el mismo motor de la calculadora, no una encuesta de
+            precios. Responsable del sitio: <Link href="/aviso-legal">{siteConfig.ownerName}</Link>.
+            {' '}Actualizada el <time dateTime="2026-10-26">26 de octubre de 2026</time>.
+          </p>
+        </div>
+      </section>
+
+      <section className="section alt" aria-labelledby="iva-y-reserva">
+        <div className="container text-block">
+          <h2 id="iva-y-reserva">IVA añadido y reserva de IRPF son cuentas diferentes</h2>
+          <p>
+            El selector de esta calculadora añade un 21 % de IVA cuando lo activas; no comprueba
+            el régimen ni el tipo que corresponde a tu actividad. El IVA añadido se muestra aparte
+            y no aumenta el neto objetivo del ejemplo.
+          </p>
+          <p>
+            La Agencia Tributaria explica que, en el régimen general, la liquidación tiene en cuenta
+            la diferencia entre el IVA repercutido y el soportado deducible. Por eso el IVA que ves
+            aquí no equivale por sí solo a lo que ingresarás a Hacienda. Consulta la explicación
+            oficial del <a href="https://sede.agenciatributaria.gob.es/Sede/iva/regimenes-tributacion-iva/regimen-general.html" className="text-link">régimen general del IVA de la AEAT</a>.
+          </p>
+          <p>
+            La reserva de IRPF del ejemplo se estima sobre el beneficio del modelo, no sobre el total
+            con IVA. Tampoco calcula una retención en factura ni descuenta pagos a cuenta ya
+            realizados: sirve para planificar el objetivo, no para rellenar una declaración.
+          </p>
         </div>
       </section>
 

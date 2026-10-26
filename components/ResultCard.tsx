@@ -3,6 +3,8 @@
 import { forwardRef, useMemo, useState } from 'react';
 import { AUTONOMOUS_COMMUNITY_LABELS, type CalculationResult } from '@/lib/calculator';
 import { formatCurrency, formatNumber } from '@/lib/format';
+import BillingBreakdown from '@/components/BillingBreakdown';
+import breakdownStyles from './BillingBreakdown.module.css';
 
 type ResultCardProps = {
   result: CalculationResult;
@@ -173,6 +175,17 @@ const ResultCard = forwardRef<HTMLElement, ResultCardProps>(function ResultCard(
           <strong>{formatCurrency(result.hourlyRate)}/h</strong>
         </div>
       </div>
+
+      <details className={breakdownStyles.disclosure}>
+        <summary>Ver cómo se reparte la facturación</summary>
+        <BillingBreakdown
+          result={result}
+          hasIVA={hasIVA}
+          headingId="result-billing-breakdown-title"
+          headingLevel="h4"
+        />
+        <a href="/tarifa-freelance-por-hora#ejemplo-tarifa">Ver un ejemplo completo de tarifa por hora</a>
+      </details>
 
       {shareUrl && channelShareUrls && (
         <div className="result-share-box">
