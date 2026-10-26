@@ -12,6 +12,7 @@ describe('sitemap', () => {
       '/': '2026-10-02',
       '/mejores-programas-facturacion-autonomos': '2026-10-02',
       '/horas-facturables-freelance': '2026-10-17',
+      '/cuanto-facturar-autonomo-1500-euros': '2026-10-26',
     });
   });
 

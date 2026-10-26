@@ -4,24 +4,25 @@ import Script from 'next/script';
 import Footer from '@/components/Footer';
 import Header from '@/components/Header';
 import LeadMagnetForm from '@/components/LeadMagnetForm';
-import { calculateExample, formatEuro, getExampleUrl } from '@/lib/scenarioExamples';
+import { calculateExample, exampleAssumptions, formatEuro, getExampleUrl } from '@/lib/scenarioExamples';
 import { getSiteUrl, siteConfig } from '@/lib/site';
 
 const route = '/cuanto-facturar-autonomo-1500-euros';
 const title = 'Cuánto facturar como autónomo para ganar 1500 euros netos';
 const description =
-  'Guía práctica para estimar cuánto facturar como autónomo o freelance en España si quieres llegar a 1500 euros netos al mes teniendo en cuenta cuota, IRPF, IVA, gastos y horas facturables.';
+  'Calcula cuánto facturar para conservar 1500 euros netos. Compara dos ejemplos con gastos, cuota y reserva de IRPF, y ajusta sus cifras en la calculadora gratis.';
 
 const leanScenario = { monthlyExpenses: 150, billableHours: 70 };
 const higherCostsScenario = { monthlyExpenses: 500, billableHours: 90 };
 const leanResult = calculateExample(1500, leanScenario);
 const higherCostsResult = calculateExample(1500, higherCostsScenario);
+const leanExampleUrl = getExampleUrl(1500, leanScenario);
 
 const pageFaqItems = [
   {
     question: '¿Cuánto hay que facturar para ganar 1500 euros netos?',
     answer:
-      'Depende de tus gastos, cuota de autónomos, reserva de IRPF, IVA y horas facturables. Para conservar 1500 euros netos normalmente tendrás que facturar más que esa cifra, porque antes debes cubrir costes e impuestos.',
+      `En el ejemplo de estructura ligera, la facturación es ${formatEuro(leanResult.billingWithoutVAT)} al mes sin IVA: 1500 euros netos, ${formatEuro(leanScenario.monthlyExpenses)} de gastos, ${formatEuro(exampleAssumptions.selfEmployedFee)} de cuota y una reserva orientativa de IRPF del ${exampleAssumptions.irpfRate} %. Son supuestos hipotéticos, no una estimación de tu fiscalidad real.`,
   },
   {
     question: '¿1500 euros netos equivalen a 1500 euros facturados?',
@@ -90,7 +91,7 @@ export default function CuantoFacturarAutonomo1500EurosPage() {
       name: siteConfig.name,
     },
     datePublished: '2026-04-26',
-    dateModified: '2026-09-22',
+    dateModified: '2026-10-26',
   };
 
   const breadcrumbSchema = {
@@ -126,7 +127,7 @@ export default function CuantoFacturarAutonomo1500EurosPage() {
   };
 
   return (
-    <main>
+    <main id="contenido-principal">
       <Script
         id="cuanto-facturar-1500-article-schema"
         type="application/ld+json"
@@ -145,73 +146,47 @@ export default function CuantoFacturarAutonomo1500EurosPage() {
 
       <Header />
 
-      <section className="hero">
-        <div className="container article-layout">
+      <section className="hero income-target-hero">
+        <div className="container">
           <div className="text-block">
             <span className="eyebrow">Guía práctica</span>
             <h1>Cuánto facturar como autónomo para ganar 1500 euros netos</h1>
             <p className="lead">
-              Si quieres quedarte con 1500 euros netos al mes, no basta con emitir facturas por
-              1500 euros. Antes tienes que cubrir cuota, gastos, reserva de IRPF y separar el IVA
-              cuando corresponda.
+              Ejemplo hipotético: <strong>{formatEuro(leanResult.billingWithoutVAT)} al mes sin IVA</strong>
+              {' '}dejan 1500 euros netos tras gastos, cuota y una reserva orientativa de IRPF.
             </p>
-            <div className="hero-badges" aria-label="Qué cubre esta guía">
-              <span className="hero-badge">1500 euros netos</span>
-              <span className="hero-badge">Cuota e IRPF</span>
-              <span className="hero-badge">Primer objetivo</span>
+            <div className="hero-badges" role="group" aria-label="Supuestos del ejemplo inicial">
+              <span className="hero-badge">Gastos: {formatEuro(leanScenario.monthlyExpenses)}/mes</span>
+              <span className="hero-badge">Cuota: {formatEuro(exampleAssumptions.selfEmployedFee)}/mes</span>
+              <span className="hero-badge">Reserva IRPF: {exampleAssumptions.irpfRate} %</span>
+              <span className="hero-badge">{leanScenario.billableHours} h facturables/mes</span>
             </div>
             <div className="guide-cta">
-              <Link href="/#calculadora" className="primary-button">
-                Ir a la calculadora
+              <Link href={leanExampleUrl} className="primary-button">
+                Ver y ajustar este ejemplo
               </Link>
-              <Link href="/tabla-cuanto-facturar-autonomo#neto-2000" className="primary-button">
-                Ver objetivo de 2000 euros
+              <Link href="#ejemplos-1500" className="text-link">
+                Comparar los dos casos
               </Link>
             </div>
           </div>
 
-          <aside className="feature-card article-summary">
-            <h2>Qué vas a aterrizar aquí</h2>
-            <ul className="article-list">
-              <li>Por qué 1500 euros netos no son 1500 euros facturados.</li>
-              <li>Qué costes pueden comerse el margen si no los separas.</li>
-              <li>Cómo convertir este objetivo en una tarifa por hora mínima.</li>
-              <li>Cuándo tiene sentido subir hacia 2000 euros netos.</li>
-            </ul>
-          </aside>
-        </div>
-      </section>
-
-      <section className="section">
-        <div className="container text-block">
-          <h2>1500 euros netos pueden ser un buen primer suelo, pero hay que calcularlos bien</h2>
-          <p>
-            Para muchos autónomos y freelancers, 1500 euros netos al mes son una primera referencia
-            razonable: permite validar si la actividad empieza a sostenerse sin exigir todavía una
-            facturación muy alta. El problema aparece cuando esa cifra se confunde con lo que hay
-            que facturar.
-          </p>
-          <p>
-            La facturación mensual debe absorber gastos, cuota, impuestos y horas no facturables.
-            Si no haces esa cuenta, puedes creer que estás llegando al objetivo mientras tu margen
-            real sigue siendo demasiado bajo.
-          </p>
-          <div className="disclaimer-box">
-            <strong>Idea clave:</strong> 1500 euros netos pueden ser un objetivo prudente, pero solo
-            funcionan como referencia si los conviertes en facturación, tarifa y presupuestos
-            defendibles.
-          </div>
         </div>
       </section>
 
       <section className="section" aria-labelledby="ejemplos-1500">
         <div className="container">
+          <p className="scenario-note">
+            Actualizado el <time dateTime="2026-10-26">26 de octubre de 2026</time>.
+          </p>
           <span className="eyebrow">Dos situaciones distintas</span>
           <h2 id="ejemplos-1500">El mismo neto puede exigir tarifas diferentes</h2>
           <p>
-            Supongamos una cuota de 320 € al mes y una reserva de IRPF del 15 %. Son importes
-            hipotéticos para comparar el efecto de gastos y horas, no una cuota ni un tipo fiscal
-            aplicables a todo el mundo. El IVA queda fuera de la facturación mostrada.
+            Ambos casos usan una cuota de {formatEuro(exampleAssumptions.selfEmployedFee)} al mes
+            {' '}y una reserva de IRPF del {exampleAssumptions.irpfRate} %. Cambian los gastos y las horas
+            {' '}facturables; el objetivo sigue siendo 1500 euros netos. Son supuestos hipotéticos,
+            no una cuota ni un tipo fiscal aplicables a todo el mundo. El IVA queda fuera de la
+            facturación mostrada.
           </p>
           <div className="scenario-table-scroll" role="region" aria-label="Dos ejemplos para 1.500 euros netos" tabIndex={0}>
             <table className="scenario-table">
@@ -246,6 +221,11 @@ export default function CuantoFacturarAutonomo1500EurosPage() {
               </tbody>
             </table>
           </div>
+          <p className="scenario-note">
+            En el primer caso: {formatEuro(leanResult.billingWithoutVAT)} de facturación menos
+            {' '}{formatEuro(leanScenario.monthlyExpenses)} de gastos, {formatEuro(leanResult.selfEmployedFee)}
+            {' '}de cuota y {formatEuro(leanResult.estimatedIRPF)} de reserva de IRPF = {formatEuro(leanResult.targetNet)}.
+          </p>
           <p className="scenario-note">
             En el segundo caso necesitas facturar {formatEuro(higherCostsResult.billingWithoutVAT - leanResult.billingWithoutVAT)}
             {' '}más al mes, pero vender 20 horas adicionales reduce la tarifa media necesaria.
@@ -327,8 +307,8 @@ export default function CuantoFacturarAutonomo1500EurosPage() {
             alineada con el valor real de tu trabajo.
           </p>
           <div className="guide-cta">
-            <Link href="/#calculadora" className="primary-button">
-              Calcular mi escenario
+            <Link href={leanExampleUrl} className="primary-button">
+              Ajustar el ejemplo de 1500 euros
             </Link>
             <Link href="/tabla-cuanto-facturar-autonomo#neto-2000" className="primary-button">
               Ver objetivo de 2000 euros

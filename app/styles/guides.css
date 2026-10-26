@@ -139,6 +139,18 @@
   backdrop-filter: blur(8px);
 }
 
+.income-target-hero .guide-cta .text-link {
+  align-self: center;
+  color: var(--interior-accent);
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 0.2rem;
+}
+
+#ejemplos-1500 {
+  scroll-margin-top: 7rem;
+}
+
 main > .section {
   padding: 4.25rem 0;
 }
@@ -341,6 +353,28 @@ main > .section .faq-item {
 
   .hero .lead {
     font-size: 1.02rem;
+  }
+
+  .hero.income-target-hero {
+    padding: 2rem 0;
+  }
+
+  .income-target-hero .hero-badges {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.45rem 0.6rem;
+    margin-top: 1rem;
+  }
+
+  .hero.income-target-hero .hero-badge {
+    border: 0;
+    padding: 0;
+    font-size: 0.78rem;
+  }
+
+  .income-target-hero .guide-cta .text-link {
+    width: 100%;
+    text-align: center;
   }
 
   .hero .guide-cta,
