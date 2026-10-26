@@ -16,6 +16,7 @@ describe('sitemap', () => {
       '/tarifa-freelance-por-hora': '2026-10-26',
       '/kit-tarifa-autonomo': '2026-10-26',
       '/tarifa-diaria-freelance': '2026-10-26',
+      '/cuanto-cuesta-ser-autonomo': '2026-10-27',
     });
   });
 

@@ -1,0 +1,30 @@
+.calculator { container-type: inline-size; }
+
+.costField {
+  grid-column: 1 / -1;
+  min-width: 0;
+  margin: 0;
+  border: 0;
+  padding: 0;
+}
+
+.costField legend { margin-bottom: 0.55rem; font-size: 1rem; font-weight: 800; }
+.paymentRow { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.75rem; align-items: start; }
+.paymentRow label > span:first-child { font-size: 0.85rem; font-weight: 500; }
+.paymentRow :is(input, select) { box-sizing: border-box; width: 100%; min-width: 0; min-height: 44px; }
+.paymentRow select { border: 1px solid #809b8c; padding: 0.8rem 0.5rem; background: #fff; color: #173a2c; }
+.feeNote { margin: 1.6rem 0 0; font-size: 0.85rem; line-height: 1.5; }
+.breakdown { margin: 1rem 0; border: 1px solid #ccdcd3; border-radius: 5px; padding: 0.8rem; }
+.breakdown summary { cursor: pointer; font-weight: 700; line-height: 1.5; }
+.tableScroll { max-width: 100%; overflow-x: auto; margin-top: 1rem; }
+.tableScroll table { width: 100%; min-width: 540px; border-collapse: collapse; }
+.tableScroll caption { text-align: left; margin-bottom: 0.7rem; line-height: 1.5; }
+.tableScroll :is(th, td) { border-bottom: 1px solid #ccdcd3; padding: 0.6rem 0.7rem; font-size: 0.9rem; text-align: left; }
+.tableScroll thead { background: #edf6ef; }
+.tableScroll td { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.calculator :is(input, select, summary, .tableScroll):focus-visible { outline: 3px solid #0e6d54; outline-offset: 3px; }
+
+@container (max-width: 360px) {
+  .paymentRow { grid-template-columns: 1fr; }
+  .feeNote { margin: 0; }
+}

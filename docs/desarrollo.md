@@ -48,6 +48,32 @@ Los espacios publicitarios están preparados, pero `lib/ads.ts` exige `NEXT_PUBL
 
 ## Revisión local antes de publicar
 
+### Pagos mensuales, trimestrales y anuales (27 de octubre de 2026)
+
+La calculadora de costes acepta el importe de
+cada pago y su frecuencia. La cuota conserva su importe mensual. El ejemplo
+ficticio combina gestoría trimestral, software y seguro anuales y otros costes
+mensuales: 5760 EUR al año, 480 EUR de media mensual y 6 EUR/h con 80 h/mes.
+La guía usa exactamente los mismos datos y explica la diferencia entre repartir
+un coste para fijar la tarifa y disponer de dinero para un vencimiento próximo.
+
+`lib/recurringCosts.ts` redondea cada pago a céntimos, lo multiplica por 12, 4 o
+1 y suma el coste anual antes de dividir entre 12. No deriva el total anual de
+una media mensual redondeada. El desglose opcional expone cada importe y número
+de pagos; la página y sus tres esquemas se renderizan en el HTML inicial.
+
+El traslado GET existente conserva cuota, horas y separación entre costes
+deducibles/no deducibles, ahora usando las medias mensuales. No se asigna
+deducibilidad a una frecuencia. Se invalida la transferencia si un cambio deja
+el importe deducible por encima del resto de costes. La suma no calcula IVA,
+fechas de cargo, saldo disponible ni imputación fiscal; la guía enlaza a la
+explicación de la AEAT sobre el régimen general del IVA.
+
+La mejora no añade eventos ni almacenamiento, no modifica el motor fiscal ni
+los formularios de captación y se comprueba con pruebas de cálculo, interfaz,
+traslado y revisión móvil. La publicación mantiene los anuncios desactivados y
+el piloto y los seguimientos sin cambios; no solicita otra revisión de AdSense.
+
 ### Comprobar una tarifa diaria (26 de octubre de 2026)
 
 La guía de tarifa diaria pasa del consejo genérico

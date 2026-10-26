@@ -1,16 +1,26 @@
 import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
-import Script from 'next/script';
 import Footer from '@/components/Footer';
 import Header from '@/components/Header';
 import MonthlyCostCalculator from '@/components/MonthlyCostCalculator';
+import { estimateRecurringCosts, recurringCostsExample } from '@/lib/recurringCosts';
+import { formatCurrency, formatNumber } from '@/lib/format';
 import { getSiteUrl, siteConfig } from '@/lib/site';
+import styles from './costGuide.module.css';
 
 const route = '/cuanto-cuesta-ser-autonomo';
 const title = 'Cuánto cuesta ser autónomo cada mes';
 const description =
-  'Suma tu cuota, gestoría, software, seguros y otros gastos para saber cuánto te cuesta mantener tu actividad cada mes y por hora facturable.';
+  'Introduce tus pagos mensuales, trimestrales y anuales para calcular el coste medio de tu actividad por mes y por hora. Revisa el desglose y traslada las medias a tu tarifa.';
+
+const costExample = estimateRecurringCosts(recurringCostsExample);
+const faqItems = [
+  { question: '¿Qué importe pongo si pago una herramienta una vez al año?', answer: 'Escribe el importe de ese pago y elige «Una vez al año». La calculadora lo suma una sola vez al coste anual y divide el total anual entre 12 para obtener una media mensual. No lo vuelvas a añadir en otros gastos.' },
+  { question: '¿La media mensual coincide con lo que sale de mi cuenta cada mes?', answer: 'No necesariamente. Un pago anual de 420 EUR equivale a 35 EUR al mes para planificar la tarifa, pero se paga según su vencimiento. Este cálculo no conoce fechas de cargo, saldos ni ahorro acumulado y no aparta dinero.' },
+  { question: '¿Se traslada la cuota dos veces a la calculadora de tarifa?', answer: 'No. La cuota mensual viaja por separado. El resto se divide entre gastos deducibles y costes no deducibles con el importe que tú indiques. Cambiar la frecuencia no determina que un gasto se pueda deducir.' },
+  { question: '¿Este reparto mensual sirve para presentar impuestos?', answer: 'No. Es una ayuda de planificación para un año completo con pagos constantes. No calcula IVA soportado, deducibilidad ni el periodo de imputación de un gasto. Si has empezado a mitad de año o esperas cambios, revisa esos supuestos por separado.' },
+] as const;
 
 export const metadata: Metadata = {
   title,
@@ -48,6 +58,7 @@ export const metadata: Metadata = {
 };
 
 export default function CuantoCuestaSerAutonomoPage() {
+  if (!costExample.valid) throw new Error('Invalid editorial recurring-cost example');
   const siteUrl = getSiteUrl();
   const pageUrl = new URL(route, siteUrl).toString();
 
@@ -58,7 +69,8 @@ export default function CuantoCuestaSerAutonomoPage() {
     description,
     inLanguage: 'es',
     url: pageUrl,
-    dateModified: '2026-09-22',
+    dateModified: '2026-10-27',
+    accountablePerson: { '@type': 'Person', name: siteConfig.ownerName },
     mainEntity: {
       '@type': 'SoftwareApplication',
       name: 'Calculadora de coste autónomo',
@@ -91,18 +103,24 @@ export default function CuantoCuestaSerAutonomoPage() {
     ],
   };
 
+  const faqSchema = {
+    '@context': 'https://schema.org', '@type': 'FAQPage',
+    mainEntity: faqItems.map((item) => ({ '@type': 'Question', name: item.question, acceptedAnswer: { '@type': 'Answer', text: item.answer } })),
+  };
+
   return (
-    <main id="contenido-principal" className="cost-landing">
-      <Script
+    <main id="contenido-principal" className={`cost-landing ${styles.guide}`}>
+      <script
         id="cuanto-cuesta-ser-autonomo-webpage-schema"
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(webPageSchema) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(webPageSchema).replace(/</g, '\\u003c') }}
       />
-      <Script
+      <script
         id="cuanto-cuesta-ser-autonomo-breadcrumb-schema"
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema).replace(/</g, '\\u003c') }}
       />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema).replace(/</g, '\\u003c') }} />
       <Header />
 
       <section className="cost-hero" aria-labelledby="cost-hero-title">
@@ -119,8 +137,8 @@ export default function CuantoCuestaSerAutonomoPage() {
           <span className="cost-hero-kicker">Calculadora para autónomos</span>
           <h1 id="cost-hero-title">¿Cuánto cuesta ser autónomo?</h1>
           <p>
-            Suma lo que pagas cada mes antes de pensar en tu sueldo. Cuota, herramientas y tiempo
-            entran en la cuenta.
+            Reúne tus pagos mensuales, trimestrales y anuales antes de pensar en tu sueldo.
+            Verás su media mensual y cuánto pesan sobre tus horas facturables.
           </p>
 
           <div className="cost-hero-actions">
@@ -140,8 +158,8 @@ export default function CuantoCuestaSerAutonomoPage() {
             <span className="eyebrow">Primero, el coste de existir</span>
             <h2 id="cost-calculator-heading">Tu actividad tiene un suelo mensual.</h2>
             <p>
-              Ajusta los importes del ejemplo a tus pagos reales. Verás el total mensual, su
-              equivalente anual y cuánto pesa sobre cada hora facturable.
+              El ejemplo combina varias frecuencias de pago. Ajusta importes y frecuencias a tu
+              actividad; no necesitas convertir a mano un recibo anual en mensual.
             </p>
           </div>
 
@@ -156,6 +174,34 @@ export default function CuantoCuestaSerAutonomoPage() {
         </div>
       </section>
 
+      <section className="section" aria-labelledby="ejemplo-costes">
+        <div className="container text-block">
+          <p className="article-meta">Actualizada el <time dateTime="2026-10-27">27 de octubre de 2026</time>. Responsable: {siteConfig.ownerName}.</p>
+          <h2 id="ejemplo-costes">Un pago anual también pesa en tu tarifa mensual</h2>
+          <p>Estos son los datos ficticios con los que empieza la calculadora. No son precios de mercado ni importes deducibles confirmados. Se supone un año completo, sin altas, bajas ni cambios de precio.</p>
+          <div className="scenario-table-scroll" role="region" aria-label="Ejemplo de costes con varias frecuencias" tabIndex={0}>
+            <table className="scenario-table">
+              <caption>Coste de planificación: importe de cada pago × pagos al año.</caption>
+              <thead><tr><th scope="col">Concepto</th><th scope="col">Cada pago</th><th scope="col">Pagos/año</th><th scope="col">Coste anual</th><th scope="col">Media mensual</th></tr></thead>
+              <tbody>{costExample.lines.map((line) => <tr key={line.key}><th scope="row">{line.label}</th><td>{formatCurrency(line.amountPerPayment)}</td><td>{line.paymentsPerYear}</td><td>{formatCurrency(line.annualAmount)}</td><td>{formatCurrency(line.monthlyAmount)}</td></tr>)}</tbody>
+              <tfoot><tr><th scope="row">Total del ejemplo</th><td colSpan={2}>Todas las partidas</td><td>{formatCurrency(costExample.annualTotal)}</td><td>{formatCurrency(costExample.monthlyTotal)}</td></tr></tfoot>
+            </table>
+          </div>
+          <p>La gestoría de 165 EUR cada tres meses suma 660 EUR al año, o 55 EUR al mes. El software de 420 EUR anuales equivale a 35 EUR al mes. Con la cuota y el resto de partidas, {formatCurrency(costExample.annualTotal)} al año ÷ 12 = <strong>{formatCurrency(costExample.monthlyTotal)} de media mensual</strong>.</p>
+          <p>Si facturas 80 horas al mes, esos costes pesan {formatCurrency(costExample.monthlyTotal / 80)}/h. Con 40 horas, pesan {formatCurrency(costExample.monthlyTotal / 40)}/h. Esa cifra todavía no paga tu neto ni tu IRPF. Para estimar las horas, usa la <Link href="/horas-facturables-freelance">guía de horas facturables</Link>.</p>
+          <div className="guide-cta"><a href="#costes-mensuales" className="primary-button">Ajustar pagos y frecuencias</a></div>
+        </div>
+      </section>
+
+      <section className="section alt" aria-labelledby="media-y-vencimientos">
+        <div className="container text-block">
+          <h2 id="media-y-vencimientos">Una media para la tarifa, otra cuenta para los vencimientos</h2>
+          <p>Repartir 420 EUR entre 12 meses da 35 EUR mensuales. Si el recibo vence el mes que viene y no tienes nada apartado, esa media no cubre por sí sola el pago próximo. Anota también la fecha del recibo y el dinero disponible fuera de esta calculadora.</p>
+          <p>El total anual se obtiene de los pagos, antes de redondear la media mensual. Por ejemplo, 100 EUR anuales son {formatNumber(100 / 12, 2)} EUR al mes al mostrar dos decimales; multiplicar esa cifra redondeada por 12 da 99,96 EUR. Conservamos los 100 EUR en el total anual para no perder esos céntimos.</p>
+          <p>Al trasladar los datos a la tarifa, la cuota mensual va por separado. En el ejemplo, los otros {formatCurrency(costExample.monthlyOtherCosts)} mensuales se reparten según el importe deducible que indiques. No añadas la cuota otra vez ni repitas un mismo recibo en dos categorías.</p>
+        </div>
+      </section>
+
       <section className="section cost-explainer" id="que-incluye">
         <div className="container cost-explainer-grid">
           <div>
@@ -163,10 +209,11 @@ export default function CuantoCuestaSerAutonomoPage() {
             <h2>Pagos que sostienen tu actividad</h2>
             <p>
               Incluye tu cuota real y los importes que pagas por gestoría, herramientas, seguros
-              y otros gastos recurrentes. Si pagas algo una vez al año, divide el importe entre
-              doce antes de escribirlo. La cifra por hora reparte esos costes solo entre el tiempo
+              y otros gastos recurrentes. Para cada concepto, escribe el importe de un pago y
+              elige su frecuencia. La cifra por hora reparte la media mensual solo entre el tiempo
               que puedes cobrar a clientes.
             </p>
+            <p>Si hay varios recibos con frecuencias distintas en una categoría, conviértelos primero a una misma frecuencia y suma sus importes. No mezcles, por ejemplo, una licencia anual con una mensual bajo un único selector sin hacer esa conversión.</p>
           </div>
           <div>
             <span className="eyebrow">Fuera del cálculo</span>
@@ -176,10 +223,18 @@ export default function CuantoCuestaSerAutonomoPage() {
               facturar, añade el neto que deseas conservar y estima IRPF, cuota e IVA según tu
               situación. No todos los pagos de actividad son necesariamente deducibles.
             </p>
+            <p>La herramienta tampoco calcula el IVA soportado deducible. La AEAT distingue entre IVA repercutido y soportado deducible al explicar el <a href="https://sede.agenciatributaria.gob.es/Sede/iva/regimenes-tributacion-iva/regimen-general.html">régimen general del IVA</a>. Este reparto de costes no sustituye esa liquidación ni determina cuándo deducir cada gasto.</p>
             <Link href="/#calculadora" className="primary-button">
               Calcular mi facturación
             </Link>
           </div>
+        </div>
+      </section>
+
+      <section className="section alt" aria-labelledby="dudas-costes">
+        <div className="container text-block">
+          <h2 id="dudas-costes">Dudas al repartir tus pagos</h2>
+          <div className="faq-list">{faqItems.map((item) => <article className="faq-item" key={item.question}><h3>{item.question}</h3><p>{item.answer}</p></article>)}</div>
         </div>
       </section>
 
