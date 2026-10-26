@@ -304,6 +304,10 @@ export default function HorasFacturablesFreelancePage() {
             facturables antes de fijar el siguiente precio. Cuatro semanas son una primera
             comprobación, no una muestra que represente todo el año.
           </p>
+          <p>
+            Puedes usar la <Link href="/kit-tarifa-autonomo#registro-horas">ficha y registro de cuatro semanas</Link>:
+            {' '}incluye un bloque diario, un resumen y un ejemplo explicado. Se puede leer y descargar sin correo.
+          </p>
         </div>
       </section>
 

@@ -48,6 +48,23 @@ Los espacios publicitarios están preparados, pero `lib/ads.ts` exige `NEXT_PUBL
 
 ## Revisión local antes de publicar
 
+### Ficha y registro de trabajo (26 de octubre de 2026)
+
+El kit incorpora una ficha de supuestos de tarifa, un registro diario para
+copiar durante cuatro semanas y una revisión posterior de las horas previstas.
+La página lee el mismo archivo público que se descarga en
+`/recursos/kit-tarifa-autonomo.txt`; la vista previa se renderiza sin JavaScript.
+La ruta y los enlaces de acceso existentes se conservan. El archivo se edita
+fuera del sitio; la página no añade campos ni recoge el contenido de las copias.
+
+`lib/workLogExample.ts` contiene cuatro semanas ficticias y comprueba el paso
+de la media semanal a la anualizada con `estimateBillableHours`. No son datos de
+usuarios ni una referencia del sector. La guía de horas enlaza a la ficha en el
+punto donde propone contrastar la estimación con trabajo registrado.
+
+La publicación de esta mejora no cambia formularios de captación, eventos,
+fórmulas, anuncios, piloto o seguimientos ni solicita revisión de AdSense.
+
 ### Interpretar facturación y neto (26 de octubre de 2026)
 
 La siguiente mejora sustituye explicaciones genéricas por una resta verificable

@@ -1,30 +1,39 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import Script from 'next/script';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import Footer from '@/components/Footer';
 import Header from '@/components/Header';
+import { formatNumber } from '@/lib/format';
+import { workLogReview, workLogTotals, workLogWeeks } from '@/lib/workLogExample';
 import { getSiteUrl, siteConfig } from '@/lib/site';
+import styles from './kit.module.css';
 
 const route = '/kit-tarifa-autonomo';
 const title = 'Kit de tarifa para autónomos';
 const description =
-  'Recurso práctico con lista de comprobación, estructura de números y guía rápida para revisar una tarifa de autónomo antes de enviar un presupuesto o subir precios.';
+  'Ficha de tarifa y registro de cuatro semanas para contrastar tus horas facturables. Descarga gratuita en texto, sin registro, con un ejemplo explicado y lista de comprobación.';
 
 const faqItems = [
   {
     question: '¿Qué incluye este kit de tarifa para autónomos?',
     answer:
-      'Incluye una estructura base para revisar tus números, una lista de comprobación de mínimos antes de fijar tarifa y una guía corta para defender mejor el precio ante un cliente.',
+      'Incluye una ficha de supuestos de tarifa, un registro diario y resumen de cuatro semanas, una revisión de las horas previstas y las listas de comprobación y guion de precio.',
   },
   {
-    question: '¿Este kit sustituye la calculadora?',
+    question: '¿Necesito dejar mi correo para descargarlo?',
     answer:
-      'No. La calculadora te da una referencia numérica. El kit te ayuda a revisar si esa referencia está bien aterrizada antes de convertirla en tarifa, presupuesto o cuota mensual.',
+      'No. Puedes leer la ficha completa y descargar el archivo de texto directamente desde esta página, sin cuenta ni correo.',
   },
   {
-    question: '¿Puedo adaptarlo a mi actividad?',
+    question: '¿Cuatro semanas bastan para fijar mi tarifa definitiva?',
     answer:
-      'Sí. Está pensado como una estructura editable para que la adaptes a tus gastos, horas, margen, tipo de cliente y forma de trabajar.',
+      'Son una primera comprobación. Si hubo vacaciones, una entrega excepcional o pocos encargos, amplía el registro. No son una muestra que represente necesariamente todo el año ni una garantía de ventas.',
+  },
+  {
+    question: '¿Se guardan aquí los datos que escriba en la ficha?',
+    answer:
+      'La ficha es un archivo de texto para editar o imprimir. El sitio no recibe el contenido que escribas en tu copia descargada.',
   },
 ] as const;
 
@@ -66,7 +75,8 @@ export const metadata: Metadata = {
 export default function KitTarifaAutonomoPage() {
   const siteUrl = getSiteUrl();
   const pageUrl = new URL(route, siteUrl).toString();
-  const downloadUrl = new URL('/recursos/kit-tarifa-autonomo.txt', siteUrl).toString();
+  const downloadUrl = '/recursos/kit-tarifa-autonomo.txt';
+  const downloadText = readFileSync(join(process.cwd(), 'public', 'recursos', 'kit-tarifa-autonomo.txt'), 'utf8');
 
   const articleSchema = {
     '@context': 'https://schema.org',
@@ -84,7 +94,8 @@ export default function KitTarifaAutonomoPage() {
       name: siteConfig.name,
     },
     datePublished: '2026-04-26',
-    dateModified: '2026-04-26',
+    dateModified: '2026-10-26',
+    accountablePerson: { '@type': 'Person', name: siteConfig.ownerName },
   };
 
   const breadcrumbSchema = {
@@ -120,209 +131,183 @@ export default function KitTarifaAutonomoPage() {
   };
 
   return (
-    <main>
-      <Script
-        id="kit-tarifa-article-schema"
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
-      />
-      <Script
-        id="kit-tarifa-breadcrumb-schema"
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
-      />
-      <Script
-        id="kit-tarifa-faq-schema"
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
-      />
-
+    <main id="contenido-principal" className={styles.kit}>
+      {[
+        ['kit-tarifa-article-schema', articleSchema],
+        ['kit-tarifa-breadcrumb-schema', breadcrumbSchema],
+        ['kit-tarifa-faq-schema', faqSchema],
+      ].map(([id, schema]) => (
+        <script key={String(id)} id={String(id)} type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(schema).replace(/</g, '\\u003c') }} />
+      ))}
       <Header />
-
       <section className="hero">
         <div className="container article-layout">
           <div className="text-block">
-            <span className="eyebrow">Recurso gratuito</span>
+            <span className="eyebrow">Ficha gratuita para usar</span>
             <h1>Kit de tarifa para autónomos</h1>
             <p className="lead">
-              Un recurso corto para convertir el resultado de la calculadora en una tarifa más
-              defendible. Te ayuda a revisar números, mínimos, margen y señales de que quizá estás
-              cobrando por debajo de lo que necesitas.
+              Guarda los supuestos de tu tarifa y registra cuatro semanas de trabajo para
+              contrastar las horas que esperabas facturar. Descarga la ficha y rellena tu copia;
+              puedes usarla sin cuenta ni correo.
             </p>
-            <div className="hero-badges" aria-label="Qué incluye el kit">
-              <span className="hero-badge">Lista de comprobación de mínimos</span>
-              <span className="hero-badge">Estructura de tarifa</span>
-              <span className="hero-badge">Revisión antes de enviar</span>
-            </div>
             <div className="guide-cta">
-              <a href={downloadUrl} className="primary-button" download>
-                Descargar versión en texto
-              </a>
-              <Link href="/#calculadora" className="primary-button">
-                Ir a la calculadora
-              </Link>
+              <a href={downloadUrl} className="primary-button" download>Descargar ficha y registro en texto</a>
+              <Link href="#registro-horas" className={styles.heroLink}>Ver cómo usar el registro</Link>
             </div>
           </div>
-
           <aside className="feature-card article-summary">
             <h2>Qué te llevas</h2>
             <ul className="article-list">
-              <li>Una estructura rápida para revisar tu tarifa mensual y por hora.</li>
-              <li>Una lista de comprobación para detectar si tu precio está demasiado ajustado.</li>
-              <li>Un guion para defender mejor la cifra ante un cliente.</li>
-              <li>Una mini revisión para convertir la cifra en presupuesto, cuota o factura.</li>
-              <li>Una versión descargable para adaptarla a tu actividad.</li>
+              <li>Una ficha para conservar los datos y el resultado de tu cálculo.</li>
+              <li>Un registro diario y resumen de cuatro semanas.</li>
+              <li>Una revisión de horas previstas frente al trabajo registrado.</li>
+              <li>Listas de comprobación y un guion para explicar el precio.</li>
             </ul>
           </aside>
         </div>
       </section>
 
-      <section className="section">
+      <section className="section" aria-labelledby="ficha-tarifa">
         <div className="container text-block">
-          <h2>1. Estructura rápida para revisar tu tarifa</h2>
-          <ol className="article-list article-list-ordered">
-            <li>Neto mensual que quieres conservar.</li>
-            <li>Gastos fijos y variables de tu actividad.</li>
-            <li>Cuota de autónomos o cotización estimada.</li>
-            <li>Reserva de IRPF antes de tocar ese dinero.</li>
-            <li>Horas facturables reales, no todas tus horas de trabajo.</li>
-            <li>Margen mínimo que quieres proteger.</li>
-            <li>IVA separado de tu ingreso real cuando aplique.</li>
-          </ol>
-        </div>
-      </section>
-
-      <section className="section alt">
-        <div className="container text-block">
-          <h2>2. Señales de que tu tarifa está demasiado ajustada</h2>
+          <h2 id="ficha-tarifa">1. Conserva tu punto de partida</h2>
           <p>
-            Antes de enviar un precio, revisa si se cumple alguna de estas señales. No significan
-            que el proyecto sea malo, pero sí qué conviene ajustar alcance, plazos o condiciones.
+            En tu copia de la ficha anota el neto objetivo, gastos deducibles y no deducibles,
+            cuota, modo de IRPF y reserva estimada. Añade las horas facturables, las semanas
+            sin actividad y la facturación sin IVA y tarifa por hora que muestra la calculadora.
           </p>
-          <ol className="article-list article-list-ordered">
-            <li>Solo sale rentable si todo va perfecto y sin cambios.</li>
-            <li>Necesitas facturar casi todas tus horas disponibles para llegar al neto objetivo.</li>
-            <li>No queda margen para reuniones, administración, soporte o imprevistos.</li>
-            <li>El IVA o el IRPF se confunden con dinero disponible.</li>
-            <li>Te cuesta explicar la cifra sin justificarte demasiado.</li>
-            <li>El cliente no tiene claro qué entra, qué no entra y dónde acaba el trabajo.</li>
-          </ol>
-        </div>
-      </section>
-
-      <section className="section">
-        <div className="container text-block">
-          <h2>3. Lista de comprobación antes de aceptar una tarifa</h2>
-          <ol className="article-list article-list-ordered">
-            <li>La tarifa cubre gastos, cuota e impuestos antes de hablar de beneficio.</li>
-            <li>No depende de facturar todas tus horas disponibles.</li>
-            <li>El precio deja margen si el proyecto se alarga un poco.</li>
-            <li>El IVA aparece separado y no se confunde con ingreso disponible.</li>
-            <li>La cifra se puede explicar con calma y sin pedir disculpas.</li>
-            <li>El cliente entiende qué entra, qué no entra y qué se cobraría aparte.</li>
-          </ol>
-        </div>
-      </section>
-
-      <section className="section alt">
-        <div className="container text-block">
-          <h2>4. Guion corto para defender la cifra</h2>
           <p>
-            Cuando presentes una tarifa, intenta unir precio y alcance. No digas solo una cifra:
-            explica qué problema resuelves, qué entregas, qué límites tiene el trabajo y qué
-            siguiente paso necesita el cliente para avanzar.
+            Guarda también la fecha y, si quieres, el enlace al cálculo. Cuando cambies un supuesto,
+            conserva la ficha anterior: así sabrás si la diferencia viene de los costes, de las
+            horas o del objetivo, en lugar de comparar cifras sin contexto.
           </p>
-          <div className="disclaimer-box">
-            <strong>Recuerda:</strong> una tarifa sana no es solo una cifra alta. Es una cifra que
-            cubre tu realidad, deja margen y puede sostenerse sin depender de trabajar más horas de
-            las razonables.
+          <details className={styles.preview}>
+            <summary>Leer la ficha completa antes de descargarla</summary>
+            <div className={styles.previewScroll} role="region" aria-label="Ficha completa en texto" tabIndex={0}>
+              <pre>{downloadText}</pre>
+            </div>
+          </details>
+          <p>La vista previa y la descarga contienen la misma ficha. Puedes editar el archivo con un editor de texto o imprimirlo.</p>
+          <Link href="/#calculadora" className="primary-button">Obtener mi referencia de tarifa</Link>
+        </div>
+      </section>
+
+      <section className="section alt" aria-labelledby="registro-horas">
+        <div className="container text-block">
+          <h2 id="registro-horas">2. Registra qué ocupa tus semanas</h2>
+          <p>
+            Cada día reparte el trabajo entre encargos cobrables, gestión, captación y formación u
+            otras tareas internas. Cuenta cada hora una sola vez. Una reunión incluida en un encargo
+            aceptado no debe aparecer también como gestión.
+          </p>
+          <p>
+            Anota aparte los huecos sin encargo, las ausencias y las revisiones que has asumido sin
+            cobrar. El registro de trabajo no es un registro de cobros: una factura puede pagarse
+            en otro momento. Copia el bloque diario para cada semana y suma las columnas al terminar.
+          </p>
+          <h3>Ejemplo ficticio: cuatro semanas de 40 horas</h3>
+          <p>
+            Las cifras siguientes están inventadas para explicar cómo usar la ficha. No son datos
+            de usuarios, una media del sector ni una recomendación de jornada.
+          </p>
+          <div className="scenario-table-scroll" role="region" aria-label="Ejemplo ficticio de registro de horas" tabIndex={0}>
+            <table className="scenario-table">
+              <caption>Horas trabajadas; cada hora se cuenta en una sola columna.</caption>
+              <thead>
+                <tr>
+                  <th scope="col">Semana</th><th scope="col">Cobrables</th><th scope="col">Gestión</th>
+                  <th scope="col">Captación</th><th scope="col">Formación/otros</th><th scope="col">Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                {workLogWeeks.map((week) => (
+                  <tr key={week.label}>
+                    <th scope="row">{week.label}</th><td>{week.clientWork}</td><td>{week.administration}</td>
+                    <td>{week.sales}</td><td>{week.learning}</td><td>{week.total}</td>
+                  </tr>
+                ))}
+              </tbody>
+              <tfoot>
+                <tr>
+                  <th scope="row">Total registrado</th><td>{workLogTotals.clientWork}</td>
+                  <td>{workLogTotals.administration}</td><td>{workLogTotals.sales}</td>
+                  <td>{workLogTotals.learning}</td><td>{workLogTotals.total}</td>
+                </tr>
+              </tfoot>
+            </table>
           </div>
+          <p>
+            En este caso, {workLogTotals.clientWork} h cobrables entre {workLogWeeks.length} semanas
+            dan <strong>{workLogReview.averageClientHours} h cobrables por semana</strong>.
+            Las otras {workLogTotals.total - workLogTotals.clientWork} h también son trabajo,
+            aunque no generen una factura directa.
+          </p>
         </div>
       </section>
 
-      <section className="section">
+      <section className="section" aria-labelledby="revisar-horas">
         <div className="container text-block">
-          <h2>5. Convierte la tarifa en una decisión concreta</h2>
+          <h2 id="revisar-horas">3. Contrasta las horas antes de cambiar la tarifa</h2>
           <p>
-            Una vez revisada la cifra, decide qué formato necesita: tarifa por hora, precio cerrado,
-            cuota mensual o presupuesto por fases. Si todavía no puedes explicarlo en una frase,
-            normalmente falta concretar alcance.
+            El caso ficticio partía de {workLogReview.before.weeklyBillableHours} h facturables
+            por semana y {workLogReview.weeksOff} semanas sin actividad al año:
+            {' '}{formatNumber(workLogReview.before.monthlyBillableHours, 1)} h/mes de capacidad media.
+            Si esas cuatro semanas de {workLogReview.averageClientHours} h fueran representativas,
+            la misma cuenta daría {workLogReview.averageClientHours} × {workLogReview.after.activeWeeks}
+            {' '}÷ 12 = <strong>{workLogReview.after.monthlyBillableHours} h/mes</strong>.
           </p>
-          <ol className="article-list article-list-ordered">
-            <li>Si el trabajo es recurrente, piensa en cuota mensual con límites claros.</li>
-            <li>Si el trabajo tiene inicio y fin, bájalo a presupuesto cerrado con fases.</li>
-            <li>Si el alcance es incierto, usa bolsa de horas o primera fase de diagnóstico.</li>
-            <li>Si ya vas a facturarlo, prepara también cobros, gastos e impuestos.</li>
-          </ol>
+          <div className={styles.exampleNote}>
+            No copies esas {workLogReview.after.hoursToApply} horas como tu previsión. Son la salida
+            de un ejemplo. Cuatro semanas con una entrega excepcional, vacaciones o pocos encargos
+            pueden no representar tu actividad anual. Amplía el registro y anota qué cambia.
+          </div>
+          <p>
+            Con tus propios datos, revisa el campo de horas de la calculadora. Si prevés vender menos
+            horas que la capacidad estimada, usa la cifra menor. Conserva los otros supuestos si quieres
+            observar solo el efecto de cambiar las horas; guarda después la fecha y el nuevo cálculo.
+          </p>
           <div className="guide-cta">
-            <Link href="/mejores-programas-facturacion-autonomos" className="primary-button">
-              Ver programas de facturación
-            </Link>
+            <Link href="/#calculadora" className="primary-button">Recalcular con mis datos</Link>
+            <Link href="/horas-facturables-freelance" className="text-link">Ver el método de horas y semanas sin actividad</Link>
           </div>
         </div>
       </section>
 
-      <section className="section alt">
-        <div className="container feature-grid" aria-label="Recursos relacionados">
-          <article className="feature-card">
-            <h2>Calculadora principal</h2>
-            <p>
-              Si aún no tienes clara la cifra base, vuelve a la calculadora antes de ajustar nada.
-            </p>
-          </article>
-
-          <article className="feature-card">
-            <h2>Tarifa por hora</h2>
-            <p>
-              Si necesitas bajar tu referencia mensual a horas, revisa la guía de{' '}
-              <Link href="/tarifa-freelance-por-hora">tarifa freelance por hora</Link>.
-            </p>
-          </article>
-
-          <article className="feature-card">
-            <h2>Objetivo de 2.000 euros</h2>
-            <p>
-              Si quieres partir de un objetivo concreto, revisa cuánto facturar para ganar{' '}
-              <Link href="/tabla-cuanto-facturar-autonomo#neto-2000">2.000 euros netos</Link>.
-            </p>
-          </article>
+      <section className="section alt" aria-labelledby="aplicar-revision">
+        <div className="container text-block">
+          <h2 id="aplicar-revision">4. Escribe qué vas a concretar en el siguiente encargo</h2>
+          <p>
+            La ficha termina con una decisión y su motivo: qué dato has cambiado, qué has observado
+            y cuándo lo revisarás. Puedes concretar revisiones incluidas, trabajo adicional,
+            preparación o seguimiento antes de enviar otro presupuesto.
+          </p>
+          <p>
+            Mantiene las listas de comprobación y un guion de precio para adaptar a tu servicio.
+            No es un contrato ni añade un margen comercial automáticamente. Si la duda está en el
+            resultado, consulta el <Link href="/tarifa-freelance-por-hora#ejemplo-tarifa">desglose de facturación y neto</Link>.
+          </p>
+          <p className="scenario-note">
+            Responsable del sitio: <Link href="/aviso-legal">{siteConfig.ownerName}</Link>.
+            {' '}Método: ficha de trabajo propia con ejemplo hipotético, no un estudio de mercado.
+            {' '}Actualizado el <time dateTime="2026-10-26">26 de octubre de 2026</time>.
+          </p>
         </div>
       </section>
 
       <section className="section" aria-labelledby="kit-tarifa-faq-title">
         <div className="container text-block">
           <h2 id="kit-tarifa-faq-title">Preguntas frecuentes sobre el kit</h2>
-
           <div className="faq-list">
             {faqItems.map((item) => (
-              <article className="faq-item" key={item.question}>
-                <h3>{item.question}</h3>
-                <p>{item.answer}</p>
-              </article>
+              <article className="faq-item" key={item.question}><h3>{item.question}</h3><p>{item.answer}</p></article>
             ))}
           </div>
-        </div>
-      </section>
-
-      <section className="section alt">
-        <div className="container text-block">
-          <span className="eyebrow">Siguiente paso</span>
-          <h2>Descarga el kit o vuelve a calcular tu referencia</h2>
-          <p>
-            Si ya tienes una tarifa en mente, descarga la versión en texto y úsala como revisión
-            rápida. Si todavía no tienes una cifra base, vuelve primero a la calculadora.
-          </p>
           <div className="guide-cta">
-            <a href={downloadUrl} className="primary-button" download>
-              Descargar el kit
-            </a>
-            <Link href="/#calculadora" className="primary-button">
-              Probar la calculadora
-            </Link>
+            <a href={downloadUrl} className="primary-button" download>Descargar la ficha completa</a>
+            <Link href="#ficha-tarifa" className="text-link">Volver al punto de partida</Link>
           </div>
         </div>
       </section>
-
       <Footer />
     </main>
   );

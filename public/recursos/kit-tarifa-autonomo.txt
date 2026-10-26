@@ -1,5 +1,104 @@
 KIT DE TARIFA PARA AUTÓNOMOS
 
+FICHA DE TARIFA Y REGISTRO DE CUATRO SEMANAS
+Actualizado: 26 de octubre de 2026
+
+Descarga esta copia y edítala en un editor de texto o imprímela.
+No hace falta enviar un correo para usarla. El sitio no recibe lo que escribas
+en tu copia descargada. Conserva cada revisión para poder comparar tus supuestos.
+
+1. GUARDA TU PUNTO DE PARTIDA
+
+Fecha de la estimación: ____________________
+Periodo o actividad que estás revisando: ____________________
+Neto mensual objetivo (EUR): ____________________
+Gastos deducibles mensuales (EUR): ____________________
+Costes no deducibles mensuales (EUR): ____________________
+Cuota de autónomos usada (EUR/mes): ____________________
+Modo de IRPF y supuesto utilizado: ____________________
+Reserva estimada de IRPF (EUR/mes): ____________________
+Horas facturables previstas al mes: ____________________
+Semanas sin actividad previstas al año: ____________________
+Facturación necesaria SIN IVA (EUR/mes): ____________________
+Tarifa de referencia SIN IVA (EUR/h): ____________________
+Enlace al cálculo guardado, si quieres conservarlo: ____________________
+
+Anota resultados de la calculadora, no tipos fiscales que supongas universales.
+La reserva de IRPF ya está incluida antes del neto; no vuelvas a restarla.
+El IVA se muestra aparte y no es dinero neto disponible.
+
+2. REGISTRA EL TRABAJO SIN CONTAR DOS VECES UNA HORA
+
+Cobrables: trabajo cubierto por un encargo aceptado, también si tiene precio
+cerrado. Incluye reuniones y preparación pactadas dentro de ese trabajo.
+Gestión: administración y organización interna de tu actividad.
+Captación: propuestas, seguimiento comercial y búsqueda de clientes.
+Formación/otros: aprendizaje y otras tareas internas o trabajo que asumes sin cobrar.
+Anota los cambios fuera de alcance en observaciones y acuerda cómo se cobran.
+
+Copia este bloque para cada una de las cuatro semanas. Puedes añadir días.
+
+SEMANA ____  Desde __________ hasta __________
+Fecha | Cobrables | Gestión | Captación | Formación/otros | Total trabajado
+_____ | ________ | _______ | _________ | _______________ | _______________
+_____ | ________ | _______ | _________ | _______________ | _______________
+_____ | ________ | _______ | _________ | _______________ | _______________
+_____ | ________ | _______ | _________ | _______________ | _______________
+_____ | ________ | _______ | _________ | _______________ | _______________
+_____ | ________ | _______ | _________ | _______________ | _______________
+_____ | ________ | _______ | _________ | _______________ | _______________
+TOTAL | ________ | _______ | _________ | _______________ | _______________
+Horas disponibles sin encargo (fuera del total trabajado): _______________
+Ausencias o circunstancias que alteran esta semana: _____________________
+Cambios o revisiones que has asumido sin cobrar: _________________________
+
+3. RESUME LAS CUATRO SEMANAS
+
+Semana | Cobrables | Gestión | Captación | Formación/otros | Total trabajado
+1      | ________ | _______ | _________ | _______________ | _______________
+2      | ________ | _______ | _________ | _______________ | _______________
+3      | ________ | _______ | _________ | _______________ | _______________
+4      | ________ | _______ | _________ | _______________ | _______________
+TOTAL  | ________ | _______ | _________ | _______________ | _______________
+
+Total de horas cobrables de estas semanas: ____________________
+Número de semanas completas registradas: ____________________
+Media cobrable por semana = total / número de semanas: ____________________
+¿Hubo una entrega excepcional, vacaciones o pocos encargos?: ______________
+
+Estas cuatro semanas son una primera comprobación, no representan todo el año.
+Amplía el registro si no reflejan tu actividad habitual. No conviertas los huecos
+sin encargo en horas cobrables ni mezcles este registro con fechas de cobro.
+
+4. CONTRASTA Y REVISA EL DATO DE HORAS
+
+Semanas activas de planificación = 52 - semanas sin actividad: ____________
+Media mensual = media cobrable semanal x semanas activas / 12: ___________
+Usa horas enteras redondeadas hacia abajo en la calculadora: ______________
+
+Esta cuenta usa 52 semanas como aproximación. No es un calendario laboral ni
+garantiza vender esas horas. No vuelvas a descontar vacaciones ya incluidas.
+Si prevés vender menos horas, utiliza la cifra menor y revisa los supuestos.
+
+Ejemplo FICTICIO, no datos de usuarios ni media del sector:
+96 h cobrables en 4 semanas = 24 h/semana.
+Con 6 semanas sin actividad: 24 x (52 - 6) / 12 = 92 h/mes.
+Son solo cifras para explicar la operación: no copies 92 como tu previsión.
+
+Qué dato cambia frente a mi ficha inicial: ____________________
+Qué evidencia del registro me lleva a cambiarlo: ____________________
+Nueva fecha y enlace de cálculo: ____________________
+Nueva facturación sin IVA (EUR/mes): ____________________
+Nueva tarifa de referencia sin IVA (EUR/h): ____________________
+Qué voy a concretar antes del próximo encargo: ____________________
+Fecha en que volveré a revisar mis datos: ____________________
+
+Calculadora: https://www.cuantofacturar.es/#calculadora
+Método de horas: https://www.cuantofacturar.es/horas-facturables-freelance
+Interpretar el neto: https://www.cuantofacturar.es/tarifa-freelance-por-hora
+
+REFERENCIA ADICIONAL: COMPROBACIONES Y GUION DE PRECIO
+
 COMO USAR ESTE KIT
 
 Usalo en este orden:
@@ -10,7 +109,8 @@ Usalo en este orden:
 4. Adapta el guion de precio al cliente.
 5. Convierte la tarifa en presupuesto, cuota o factura.
 
-El objetivo no es subir precios porque si. El objetivo es no aceptar una cifra que solo funciona si todo sale perfecto.
+El objetivo no es subir precios porque si. El objetivo es no aceptar una cifra que solo
+funciona si todo sale perfecto.
 
 
 1. ESTRUCTURA RÁPIDA PARA REVISAR TU TARIFA
@@ -25,7 +125,8 @@ El objetivo no es subir precios porque si. El objetivo es no aceptar una cifra q
 
 Pregunta útil:
 
-Si este proyecto se alarga un 15% o exige más reuniones de las previstas, la tarifa sigue teniendo sentido?
+Si este proyecto se alarga un 15% o exige más reuniones de las previstas, la tarifa
+sigue teniendo sentido?
 
 
 2. SEÑALES DE QUE TU TARIFA ESTA DEMASIADO AJUSTADA
@@ -37,7 +138,8 @@ Si este proyecto se alarga un 15% o exige más reuniones de las previstas, la ta
 - Te cuesta explicar la cifra sin justificarte demasiado.
 - El cliente no tiene claro que entra, que no entra y donde acaba el trabajo.
 
-Si aparecen varias de estas señales, no siempre hace falta rechazar el proyecto. A veces basta con reducir alcance, separar fases o cambiar las condiciones.
+Si aparecen varias de estas señales, no siempre hace falta rechazar el proyecto. A veces
+basta con reducir alcance, separar fases o cambiar las condiciones.
 
 
 3. LISTA DE COMPROBACIÓN ANTES DE ACEPTAR UNA TARIFA
@@ -62,7 +164,10 @@ Cuando presentes una tarifa, intenta unir precio y alcance:
 
 Ejemplo:
 
-"Para este trabajo te propongo una tarifa de X euros. Incluye A, B y C, con una ronda de ajustes y entrega en la fecha acordada. No incluye D ni cambios de alcance, que se presupuestarian aparte. Si te encaja, el siguiente paso es confirmar alcance y fecha de inicio."
+"Para este trabajo te propongo una tarifa de X euros. Incluye A, B y C, con una ronda de
+ajustes y entrega en la fecha acordada. No incluye D ni cambios de alcance, que se
+presupuestarian aparte. Si te encaja, el siguiente paso es confirmar alcance y fecha de
+inicio."
 
 
 5. CONVIERTE LA TARIFA EN UNA DECISION CONCRETA
@@ -74,6 +179,9 @@ Ejemplo:
 
 Siguiente paso natural:
 
-Cuando la tarifa ya tiene sentido, ordena la parte operativa: factura, cobro, gastos, IVA e IRPF. Puedes revisar la guía de programas de facturación para autónomos en cuantofacturar.es/mejores-programas-facturacion-autonomos
+Cuando la tarifa ya tiene sentido, ordena la parte operativa: factura, cobro, gastos,
+IVA e IRPF. Puedes revisar la guía de programas de facturación para autónomos en
+cuantofacturar.es/mejores-programas-facturacion-autonomos
 
-Recuerda: una tarifa sana no es solo una cifra alta. Es una cifra que cubre tu realidad, deja margen y puede sostenerse sin depender de trabajar más horas de las razonables.
+Recuerda: una tarifa sana no es solo una cifra alta. Es una cifra que cubre tu realidad,
+deja margen y puede sostenerse sin depender de trabajar más horas de las razonables.

@@ -1,0 +1,53 @@
+.kit h2[id] {
+  scroll-margin-top: 7rem;
+}
+
+.kit :global(.hero) .heroLink {
+  align-self: center;
+  color: #d8ffe2;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.preview {
+  margin: 1.5rem 0;
+  border: 1px solid #ccdcd3;
+  border-radius: 8px;
+  padding: 1rem;
+  background: #f5f9f6;
+}
+
+.preview summary {
+  cursor: pointer;
+  font-weight: 800;
+  line-height: 1.5;
+}
+
+.previewScroll {
+  max-height: 32rem;
+  margin-top: 1rem;
+  overflow: auto;
+}
+
+.previewScroll:focus-visible {
+  outline: 3px solid #0e6d54;
+  outline-offset: 3px;
+}
+
+.preview pre {
+  width: max-content;
+  min-width: 100%;
+  margin: 0;
+  font-family: var(--type-mono);
+  font-size: 0.85rem;
+  line-height: 1.6;
+  white-space: pre;
+}
+
+.exampleNote {
+  border-left: 3px solid #0e6d54;
+  padding: 0.8rem 1rem;
+  background: #edf6ef;
+  line-height: 1.65;
+}
