@@ -19,7 +19,7 @@ describe('the usable tariff worksheet', () => {
     await user.click(screen.getByText('Leer la ficha completa antes de descargarla'));
     const preview = screen.getByRole('region', { name: 'Ficha completa en texto' });
     const resource = readFileSync(join(process.cwd(), 'public/recursos/kit-tarifa-autonomo.txt'), 'utf8');
-    expect(preview.querySelector('pre')?.textContent).toBe(resource.replace(/\r\n/g, '\n'));
+    expect(preview.querySelector('pre')?.textContent?.replace(/\r\n/g, '\n')).toBe(resource.replace(/\r\n/g, '\n'));
     expect(preview).toHaveAttribute('tabindex', '0');
     expect(resource).toContain('Neto mensual objetivo (EUR): ____________________');
     expect(resource).toContain('Horas disponibles sin encargo (fuera del total trabajado)');

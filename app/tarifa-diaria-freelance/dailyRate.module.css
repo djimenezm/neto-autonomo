@@ -1,0 +1,16 @@
+.guide h2[id] { scroll-margin-top: 7rem; }
+
+.guide :global(.hero) .heroLink {
+  align-self: center;
+  color: #d8ffe2;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.proposal {
+  margin: 1.5rem 0;
+  border-left: 3px solid #0e6d54;
+  padding: 0.8rem 1.25rem;
+  background: #fff;
+}

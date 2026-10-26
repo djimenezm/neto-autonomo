@@ -1,6 +1,5 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import Script from 'next/script';
 import Footer from '@/components/Footer';
 import Header from '@/components/Header';
 import BillingBreakdown from '@/components/BillingBreakdown';
@@ -133,20 +132,20 @@ export default function TarifaFreelancePorHoraPage() {
 
   return (
     <main id="contenido-principal">
-      <Script
+      <script
         id="tarifa-freelance-por-hora-article-schema"
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema).replace(/</g, '\\u003c') }}
       />
-      <Script
+      <script
         id="tarifa-freelance-por-hora-breadcrumb-schema"
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema).replace(/</g, '\\u003c') }}
       />
-      <Script
+      <script
         id="tarifa-freelance-por-hora-faq-schema"
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema).replace(/</g, '\\u003c') }}
       />
 
       <Header />
@@ -361,8 +360,8 @@ export default function TarifaFreelancePorHoraPage() {
             <Link href="/cuanto-facturar-autonomo" className="primary-button">
               Leer guía sobre cuánto facturar
             </Link>
-            <Link href="/tarifa-diaria-freelance" className="primary-button">
-              Ver tarifa diaria freelance
+            <Link href="/tarifa-diaria-freelance#comprobar-jornada" className="primary-button">
+              Comprobar el precio de una jornada
             </Link>
             <Link href="/cuota-autonomos-2026" className="primary-button">
               Leer guía sobre cuota 2026

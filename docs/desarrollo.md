@@ -48,6 +48,32 @@ Los espacios publicitarios están preparados, pero `lib/ads.ts` exige `NEXT_PUBL
 
 ## Revisión local antes de publicar
 
+### Comprobar una tarifa diaria (26 de octubre de 2026)
+
+La guía de tarifa diaria pasa del consejo genérico
+a un servicio definido, con seis horas de sesión, una y media de preparación y
+media de cierre. `lib/dayRateExample.ts` usa el motor mensual y su tarifa mostrada
+de 37,16 EUR/h: ocho horas requieren 297,28 EUR sin IVA; cobrar 222,96 EUR deja
+27,87 EUR por cada hora dedicada. Son supuestos ficticios, no precios de mercado.
+
+`DayRatePlanner.tsx` recibe únicamente los números del ejemplo y empieza vacío.
+`lib/dayRate.ts` suma tiempo específico del cliente y compara un precio opcional
+con esa referencia. Admite cero explícito en preparación/cierre, valida entradas
+y redondea dinero a céntimos. Editar un campo elimina el resultado anterior. No
+envía los datos ni genera eventos de conversión, no usa almacenamiento y no
+altera la calculadora fiscal. La guía explica cómo evitar duplicar preparación
+o tiempos generales; añade un borrador de alcance y enlaza al registro del kit.
+La guía por hora enlaza directamente al comprobador y usa JSON-LD nativo para
+no arrastrar sus esquemas a la página siguiente durante la navegación.
+
+La página conserva el ejemplo y los datos estructurados en el HTML inicial; solo
+el comprobador necesita JavaScript. Se revisan cálculo, entradas inválidas,
+teclado, vista móvil y navegación. La prueba previa del kit normaliza los finales
+de línea en ambos textos para comparar el mismo recurso en Windows y Linux.
+
+La publicación mantiene anuncios desactivados, captación, piloto y seguimientos
+sin cambios; no solicita otra revisión de AdSense.
+
 ### Ficha y registro de trabajo (26 de octubre de 2026)
 
 El kit incorpora una ficha de supuestos de tarifa, un registro diario para
