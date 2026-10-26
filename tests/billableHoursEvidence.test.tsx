@@ -45,6 +45,6 @@ describe('billable hours evidence', () => {
     expect(screen.getByRole('main')).toHaveAttribute('id', 'contenido-principal');
     expect(screen.getByRole('region', { name: 'Ejemplos de agendas mensuales' })).toHaveAttribute('tabindex', '0');
     expect(screen.getByRole('link', { name: 'Diego Antonio Jiménez Moreno' })).toHaveAttribute('href', '/aviso-legal');
-    expect(screen.getByText('17 de octubre de 2026')).toHaveAttribute('datetime', '2026-10-17');
+    expect(screen.getByText('26 de octubre de 2026')).toHaveAttribute('datetime', '2026-10-26');
   });
 });

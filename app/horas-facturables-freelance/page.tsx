@@ -4,15 +4,27 @@ import Footer from '@/components/Footer';
 import Header from '@/components/Header';
 import LeadMagnetForm from '@/components/LeadMagnetForm';
 import { availableMonthlyHours, billableHoursExamples, monthlyBillingExample } from '@/lib/billableHoursExamples';
-import { formatCurrency } from '@/lib/format';
+import { estimateBillableHours, exampleHoursPlan } from '@/lib/billableHoursPlan';
+import { formatCurrency, formatNumber } from '@/lib/format';
 import { getSiteUrl, siteConfig } from '@/lib/site';
 
 const route = '/horas-facturables-freelance';
 const title = 'Horas facturables freelance: cuántas puedes vender al mes';
 const description =
-  'Guía práctica para calcular horas facturables freelance al mes y evitar tarifas demasiado bajas al estimar facturación, precio por hora y presupuestos.';
+  'Estima tus horas facturables con tu jornada, gestión y semanas sin actividad. Incluye una cuenta anual paso a paso y una ayuda para aplicarla a tu tarifa.';
+
+const annualExample = (() => {
+  const result = estimateBillableHours(exampleHoursPlan);
+  if (!result.valid) throw new Error('El ejemplo de agenda anual debe ser válido.');
+  return result;
+})();
 
 const pageFaqItems = [
+  {
+    question: '¿Cómo incluyo las vacaciones en mis horas facturables?',
+    answer:
+      'Resta de 52 semanas las semanas sin actividad. Multiplica las semanas activas por las horas facturables de una semana de trabajo y divide entre 12 meses. Es una media anual de capacidad; si prevés vender menos horas, usa esa cifra menor.',
+  },
   {
     question: '¿Cuántas horas facturables tiene un freelance al mes?',
     answer:
@@ -86,7 +98,7 @@ export default function HorasFacturablesFreelancePage() {
     },
     accountablePerson: { '@type': 'Person', name: siteConfig.ownerName },
     datePublished: '2026-04-27',
-    dateModified: '2026-10-17',
+    dateModified: '2026-10-26',
   };
 
   const breadcrumbSchema = {
@@ -158,7 +170,7 @@ export default function HorasFacturablesFreelancePage() {
             </div>
             <div className="guide-cta">
               <Link href="/#calculadora" className="primary-button">
-                Calcular mi tarifa
+                Estimar mis horas en la calculadora
               </Link>
               <Link href="/tarifa-freelance-por-hora" className="primary-button">
                 Ver tarifa por hora
@@ -232,24 +244,23 @@ export default function HorasFacturablesFreelancePage() {
           <div className="text-block">
             <h2>Cómo estimar tus horas facturables mensuales</h2>
             <ol className="article-list article-list-ordered">
-              <li>Calcula tus horas de trabajo disponibles al mes.</li>
-              <li>Resta administración, ventas, propuestas y seguimiento.</li>
-              <li>Resta reuniones no cobradas y tiempos de coordinación.</li>
-              <li>Reserva margen para imprevistos, formación y descanso.</li>
-              <li>Usa el resultado como base para calcular tu tarifa por hora.</li>
-              <li>Revisa el dato cada trimestre según tu agenda real.</li>
+              <li>Multiplica tus días de trabajo por las horas de cada día: esa es tu jornada semanal.</li>
+              <li>Resta las horas semanales de gestión, captación, formación y reserva para huecos.</li>
+              <li>Resta de 52 semanas las semanas sin actividad por vacaciones, festivos y otras ausencias.</li>
+              <li>Multiplica las horas facturables semanales por las semanas activas y divide entre 12 meses.</li>
+              <li>Si prevés contratar menos horas que esa capacidad, usa la cifra menor para tu tarifa.</li>
             </ol>
             <p>
-              Si partes de 20 días de 8 horas, dispones de {availableMonthlyHours} horas antes de
-              descontar otras tareas. Es solo una hipótesis: usa tus días reales, vacaciones,
-              festivos y jornada. Una reunión incluida en un proyecto ya puede estar dentro de
-              sus horas facturables; no la restes también como gestión.
+              Usamos 52 semanas como aproximación de planificación, no un calendario laboral.
+              Convierte festivos y días sueltos en fracciones de tu semana habitual. Una reunión
+              incluida en un proyecto ya puede estar dentro de sus horas facturables; no la restes
+              también como gestión.
             </p>
           </div>
 
           <aside className="feature-card article-summary">
             <h2>La fórmula de tu agenda</h2>
-            <p>Disponibilidad − gestión − captación − formación − reserva = horas facturables.</p>
+            <p>(52 − semanas sin actividad) × (horas de trabajo semanales − horas no facturables semanales) ÷ 12.</p>
             <ul className="article-list">
               <li>Clasifica cada hora una sola vez.</li>
               <li>Contrasta la estimación con tu registro de varias semanas.</li>
@@ -259,13 +270,51 @@ export default function HorasFacturablesFreelancePage() {
         </div>
       </section>
 
+      <section className="section alt" aria-labelledby="agenda-anual-title">
+        <div className="container text-block">
+          <h2 id="agenda-anual-title">Un mes de trabajo no representa todo el año</h2>
+          <p>
+            Ejemplo hipotético: {exampleHoursPlan.daysPerWeek} días × {exampleHoursPlan.hoursPerDay} h
+            {' '}= {annualExample.weeklyWorkHours} h de trabajo por semana. Tras restar
+            {' '}{exampleHoursPlan.nonBillableHoursPerWeek} h de gestión, captación y otras tareas,
+            quedan {annualExample.weeklyBillableHours} h facturables por semana activa.
+          </p>
+          <p>
+            Con {exampleHoursPlan.weeksOff} semanas sin actividad:
+            {' '}({52} − {exampleHoursPlan.weeksOff}) × {annualExample.weeklyBillableHours}
+            {' '}= {formatNumber(annualExample.annualBillableHours)} h al año. Al repartirlas entre
+            {' '}12 meses, la capacidad media es <strong>{formatNumber(annualExample.monthlyBillableHours, 1)} h/mes</strong>.
+            {' '}La ayuda de la calculadora aplica {annualExample.hoursToApply} h, redondeando hacia abajo.
+          </p>
+          <div className="disclaimer-box">
+            Esta media permite planificar un objetivo durante los 12 meses, también cuando no
+            trabajas. No garantiza vender esas horas ni tener ingresos cada mes. Si tienes temporadas
+            sin clientes, reduce tu previsión y planifica aparte cuándo cobrarás.
+          </div>
+          <p>
+            En la <Link href="/#calculadora">calculadora de tarifa</Link>, abre «Estimar mis horas
+            con mi agenda» junto al campo de horas. Puedes aplicar tu estimación sin perder el resto
+            de tus datos.
+          </p>
+          <h3>Contrasta la estimación con cuatro semanas de trabajo</h3>
+          <p>
+            Anota cada día las horas dedicadas a encargos cobrables y, por separado, a gestión,
+            captación, formación y huecos. Compara esa semana real con la que has previsto. Si las
+            tareas internas ocupan más o no consigues vender toda la capacidad, baja tus horas
+            facturables antes de fijar el siguiente precio. Cuatro semanas son una primera
+            comprobación, no una muestra que represente todo el año.
+          </p>
+        </div>
+      </section>
+
       <section className="section alt" aria-labelledby="agendas-title">
         <div className="container text-block">
           <h2 id="agendas-title">Tres agendas, no una media del sector</h2>
           <p>
             Estos casos son inventados para mostrar la resta. No proceden de una encuesta ni
             describen la productividad esperable de un profesional. Todas las cifras de la tabla
-            son horas mensuales; sustituye cada partida por tus propios datos.
+            son horas de un mes activo de 20 días, no medias anuales que incluyan vacaciones;
+            sustituye cada partida por tus propios datos.
           </p>
           <div className="scenario-table-scroll" role="region" aria-label="Ejemplos de agendas mensuales" tabIndex={0}>
             <table className="scenario-table">
@@ -360,7 +409,7 @@ export default function HorasFacturablesFreelancePage() {
           <p className="scenario-note">
             Responsable del sitio: <Link href="/aviso-legal">{siteConfig.ownerName}</Link>.
             {' '}Método: ejemplos aritméticos propios con supuestos explícitos, no un estudio
-            de mercado. Actualizada el <time dateTime="2026-10-17">17 de octubre de 2026</time>.
+            de mercado. Actualizada el <time dateTime="2026-10-26">26 de octubre de 2026</time>.
           </p>
           <div className="faq-list">
             {pageFaqItems.map((item) => (

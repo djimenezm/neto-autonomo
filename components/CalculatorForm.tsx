@@ -3,6 +3,7 @@
 import type { ClipboardEvent } from 'react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import ResultCard from '@/components/ResultCard';
+import BillableHoursPlanner from '@/components/BillableHoursPlanner';
 import {
   AUTONOMOUS_COMMUNITY_LABELS,
   type AutonomousCommunity,
@@ -97,6 +98,7 @@ export default function CalculatorForm({
     values.monthlyNonDeductibleExpenses,
   );
   const [billableHours, setBillableHours] = useState(values.billableHours);
+  const [appliedHours, setAppliedHours] = useState<number | null>(null);
   const [irpfMode, setIrpfMode] = useState<IrpfMode>(values.irpfMode);
   const [autonomousCommunity, setAutonomousCommunity] = useState<AutonomousCommunity>(
     values.autonomousCommunity,
@@ -128,7 +130,7 @@ export default function CalculatorForm({
 
   useEffect(() => {
     if (invalidSubmissionCount > 0) {
-      formRef.current?.querySelector<HTMLInputElement>('[aria-invalid="true"]')?.focus();
+      formRef.current?.querySelector<HTMLInputElement>('[name][aria-invalid="true"]')?.focus();
     }
   }, [invalidSubmissionCount]);
 
@@ -362,25 +364,47 @@ export default function CalculatorForm({
         </label>
 
         <label>
-          <span>Horas facturables al mes</span>
+          <span id="billable-hours-label">Horas facturables al mes</span>
           <input
             name="billableHours"
             type="number"
             min="1"
             step="1"
             value={billableHours}
-            onChange={(event) => setBillableHours(event.target.value)}
-            onPaste={(event) => handleNumericPaste(event, 'billableHours', setBillableHours)}
+            onChange={(event) => {
+              setBillableHours(event.target.value);
+              setAppliedHours(null);
+            }}
+            onPaste={(event) => {
+              handleNumericPaste(event, 'billableHours', setBillableHours);
+              setAppliedHours(null);
+            }}
             onBlur={(event) => setBillableHours(normalizeFieldValue('billableHours', event.target.value))}
             aria-invalid={showHoursError}
-            aria-describedby={showHoursError ? 'billable-hours-error' : undefined}
+            aria-labelledby="billable-hours-label"
+            aria-describedby={`billable-hours-hint${showHoursError ? ' billable-hours-error' : ''}`}
           />
+          <small className="field-hint" id="billable-hours-hint">
+            Horas que prevés cobrar, no toda tu jornada. Si aún no lo sabes, estima tu agenda debajo.
+          </small>
           {showHoursError && validationErrors.billableHours && (
             <small className="field-error" id="billable-hours-error" role="alert">
               {validationErrors.billableHours}
             </small>
           )}
         </label>
+        <BillableHoursPlanner onApply={(hours) => {
+          setBillableHours(String(hours));
+          setAppliedHours(hours);
+          setSubmitted(false);
+          setShareUrl('');
+          formRef.current?.querySelector<HTMLInputElement>('[name="billableHours"]')?.focus();
+        }} />
+        {appliedHours !== null && !submitted ? (
+          <p className="form-note" role="status">
+            Aplicadas {appliedHours} h/mes. Tus otros datos se mantienen; calcula de nuevo tu tarifa.
+          </p>
+        ) : null}
 
         <label>
           <span>Cómo quieres estimar el IRPF</span>

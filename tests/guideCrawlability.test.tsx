@@ -20,7 +20,7 @@ describe('billable hours guide crawlability', () => {
     const url = new URL('/horas-facturables-freelance', getSiteUrl()).toString();
     expect(schemas[0].mainEntityOfPage).toBe(url);
     expect(schemas[1].itemListElement.at(-1).item).toBe(url);
-    expect(schemas[2].mainEntity).toHaveLength(3);
+    expect(schemas[2].mainEntity).toHaveLength(4);
     expect(document.querySelectorAll('h1')).toHaveLength(1);
     expect(metadata.alternates?.canonical).toBe('/horas-facturables-freelance');
   });

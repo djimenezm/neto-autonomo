@@ -48,6 +48,27 @@ Los espacios publicitarios están preparados, pero `lib/ads.ts` exige `NEXT_PUBL
 
 ## Revisión local antes de publicar
 
+### Ayuda para estimar horas (26 de octubre de 2026)
+
+La revisión de páginas detectó que la calculadora partía de 80 h/mes sin ayudar
+a obtener ese dato. La guía de 1.500 euros ya tenía una respuesta numérica y
+enlaces a sus ejemplos; la mejora priorizada ahora es la calidad de este dato
+de entrada, que afecta a todas las tarifas.
+
+`components/BillableHoursPlanner.tsx` añade una ayuda opcional junto al campo de
+horas. `lib/billableHoursPlan.ts` resta el trabajo no facturable de la jornada
+semanal y las semanas sin actividad de un año de planificación de 52 semanas;
+reparte el resultado entre 12 meses y redondea hacia abajo al aplicarlo. Es
+capacidad, no una previsión de ventas. Los campos empiezan vacíos y el ejemplo
+se identifica como hipotético. Las entradas de la ayuda no se envían con el GET
+principal ni generan conversiones; aplicar conserva los otros datos y exige
+volver a calcular para renovar el resultado y su enlace compartible.
+
+La guía de horas explica la misma operación y cómo contrastarla con un registro
+de trabajo. Las fechas editoriales de portada y guía reflejan este cambio real.
+Esta mejora prepara contenido útil para una revisión; no acredita por sí sola
+que el sitio completo cumpla los criterios de AdSense ni solicita una revisión.
+
 ### Evidencia editorial y titularidad
 
 `lib/site.ts` identifica al responsable real del sitio y alimenta el pie, el aviso

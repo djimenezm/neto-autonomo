@@ -21,9 +21,9 @@ const routes = [
 
 // Only substantive content updates belong here; deployments do not change these dates.
 const lastContentUpdates: Record<string, string> = {
-  '/': '2026-10-02',
+  '/': '2026-10-26',
   '/mejores-programas-facturacion-autonomos': '2026-10-02',
-  '/horas-facturables-freelance': '2026-10-17',
+  '/horas-facturables-freelance': '2026-10-26',
   '/cuanto-facturar-autonomo-1500-euros': '2026-10-26',
 };
 
