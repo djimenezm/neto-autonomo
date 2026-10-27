@@ -5,6 +5,8 @@ import { AUTONOMOUS_COMMUNITY_LABELS, type CalculationResult } from '@/lib/calcu
 import { formatCurrency, formatNumber } from '@/lib/format';
 import BillingBreakdown from '@/components/BillingBreakdown';
 import MonthlyProjectPlanner from '@/components/MonthlyProjectPlanner';
+import MonthlyScenarioComparator from '@/components/MonthlyScenarioComparator';
+import { inputFromResult } from '@/lib/monthlyScenarios';
 import projectPlannerStyles from './MonthlyProjectPlanner.module.css';
 import breakdownStyles from './BillingBreakdown.module.css';
 
@@ -193,6 +195,12 @@ const ResultCard = forwardRef<HTMLElement, ResultCardProps>(function ResultCard(
         <summary>Comprobar cuántos encargos necesito y si caben</summary>
         <MonthlyProjectPlanner monthlyBilling={result.billingWithoutVAT} billableHours={hoursBillable} />
         <a href="/cuanto-facturar-autonomo-3000-euros#ejemplo-encargos">Ver un ejemplo de encargos y capacidad mensual</a>
+      </details>
+
+      <details className={breakdownStyles.disclosure}>
+        <summary>Comparar cambios en mis gastos y horas</summary>
+        <MonthlyScenarioComparator reference={inputFromResult(result, hoursBillable, hasIVA)} />
+        <a href="/tabla-cuanto-facturar-autonomo#comparar-escenarios">Ver un ejemplo de comparación de escenarios</a>
       </details>
 
       {shareUrl && channelShareUrls && (

@@ -30,6 +30,7 @@ const lastContentUpdates: Record<string, string> = {
   '/tarifa-diaria-freelance': '2026-10-26',
   '/cuanto-cuesta-ser-autonomo': '2026-10-27',
   '/cuanto-facturar-autonomo-3000-euros': '2026-10-27',
+  '/tabla-cuanto-facturar-autonomo': '2026-10-27',
 };
 
 export default function sitemap(): MetadataRoute.Sitemap {

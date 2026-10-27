@@ -48,6 +48,36 @@ Los espacios publicitarios están preparados, pero `lib/ads.ts` exige `NEXT_PUBL
 
 ## Revisión local antes de publicar
 
+### Comparar cambios en gastos y horas (27 de octubre de 2026)
+
+El resultado ofrece «Comparar cambios en mis
+gastos y horas» con dos campos vacíos: total alternativo de gastos deducibles y
+horas facturables mensuales. Conserva el neto, costes no deducibles, comunidad,
+IVA y criterios de cuota e IRPF del cálculo de partida. `lib/monthlyScenarios.ts`
+reutiliza el motor existente, sin modificar sus reglas fiscales.
+
+La comparación muestra ambas facturaciones y tarifas, con la diferencia en EUR
+al mes y por hora. El enlace a la alternativa usa la misma construcción de URL
+que la calculadora y los importes redondeados que se muestran. Cambiar un campo
+retira la comparación y su enlace; un nuevo cálculo principal reinicia la ayuda.
+Los campos no tienen `name`, no se incorporan al GET principal ni al resumen
+compartido, no generan eventos y solo se guardan en el estado de React.
+
+La tabla de objetivos añade cuatro escenarios de 2000 EUR netos: partida,
+menos horas, más gastos y ambos cambios. Con 300 EUR de gastos, cuota manual de
+320 EUR y reserva manual del 15 %, se necesitan 2972,94 EUR sin IVA: 37,16 EUR/h
+con 80 h y 49,55 EUR/h con 60 h. Subir los gastos a 450 EUR y bajar a 60 h lleva
+a 3122,94 EUR y 52,05 EUR/h. Son supuestos ficticios. La tabla y las FAQ se
+renderizan en el HTML inicial; se conservan las anclas de los cuatro objetivos
+y la captación. Se enlaza a la AEAT para comprobar la deducibilidad de gastos.
+
+Validación: 281 pruebas en 47 archivos, lint y compilación correctos. Se cubren
+entradas inválidas, decimales, escenarios con menos costes, modos fiscales,
+enlace reproducible, reinicio y conservación del resultado compartido. Revisión
+de navegador en la tabla y el resultado, incluido móvil de 390 y 320 píxeles.
+La publicación mantiene los anuncios desactivados, el piloto y los seguimientos
+intactos, sin solicitar revisión de AdSense.
+
 ### Encargos necesarios y capacidad mensual (27 de octubre de 2026)
 
 El resultado principal incorpora una ayuda

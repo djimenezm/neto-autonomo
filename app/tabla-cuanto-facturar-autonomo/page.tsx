@@ -3,13 +3,16 @@ import Link from 'next/link';
 import Footer from '@/components/Footer';
 import Header from '@/components/Header';
 import LeadMagnetForm from '@/components/LeadMagnetForm';
+import MonthlyScenarioComparator from '@/components/MonthlyScenarioComparator';
+import { monthlyScenarioExamples, monthlyScenarioInput } from '@/lib/monthlyScenarioExample';
 import { calculateExample, exampleAssumptions, formatEuro, getExampleUrl } from '@/lib/scenarioExamples';
 import { getSiteUrl, siteConfig } from '@/lib/site';
+import styles from './scenarios.module.css';
 
 const route = '/tabla-cuanto-facturar-autonomo';
 const title = 'Tabla orientativa para saber cuánto facturar como autónomo';
 const description =
-  'Tabla práctica para comparar objetivos netos de 1500, 2000, 2500 y 3000 euros y entender cómo convertirlos en facturación mensual, tarifa por hora y precios defendibles.';
+  'Compara objetivos netos de 1500 a 3000 euros y comprueba cómo cambian la facturación y la tarifa al variar tus gastos y horas. Incluye un ejemplo y un comparador.';
 
 const netGoals = [1500, 2000, 2500, 3000] as const;
 
@@ -27,7 +30,12 @@ const pageFaqItems = [
   {
     question: '¿Cómo uso esta tabla si cobro por proyecto?',
     answer:
-      'Úsala como referencia mensual. Divide la facturación objetivo entre los proyectos que puedes entregar y comprueba que cada presupuesto cubre también el trabajo no facturable.',
+      'Úsala como referencia mensual y comprueba cuántos encargos completos alcanzan ese importe y si sus horas caben en el mes. La guía de 3000 euros incluye esa cuenta. No basta con dividir entre proyectos si no puedes entregarlos.',
+  },
+  {
+    question: '¿Bajar mis horas facturables reduce lo que necesito facturar?',
+    answer:
+      'Si conservas el mismo neto y costes, no. En este ejemplo se siguen necesitando 2972,94 EUR sin IVA al mes: pasar de 80 a 60 horas eleva la tarifa de 37,16 a 49,55 EUR/h. El comparador permite cambiar por separado gastos y horas.',
   },
 ] as const;
 
@@ -86,7 +94,8 @@ export default function TablaCuantoFacturarAutonomoPage() {
       name: siteConfig.name,
     },
     datePublished: '2026-04-26',
-    dateModified: '2026-09-22',
+    dateModified: '2026-10-27',
+    accountablePerson: { '@type': 'Person', name: siteConfig.ownerName },
   };
 
   const breadcrumbSchema = {
@@ -122,7 +131,7 @@ export default function TablaCuantoFacturarAutonomoPage() {
   };
 
   return (
-    <main>
+    <main id="contenido-principal" className={styles.guide}>
       <script
         id="tabla-cuanto-facturar-article-schema"
         type="application/ld+json"
@@ -162,6 +171,7 @@ export default function TablaCuantoFacturarAutonomoPage() {
               <Link href="/tarifa-freelance-por-hora" className="primary-button">
                 Ver tarifa por hora
               </Link>
+              <a href="#comparar-escenarios" className="link-button">Comparar cambios en gastos y horas</a>
             </div>
           </div>
 
@@ -222,6 +232,62 @@ export default function TablaCuantoFacturarAutonomoPage() {
             <Link href="/cuanto-facturar-autonomo-1500-euros" className="primary-button">Caso de 1.500 €</Link>
             <Link href="/cuanto-facturar-autonomo-3000-euros" className="primary-button">Caso de 3.000 €</Link>
           </div>
+        </div>
+      </section>
+
+      <section className="section alt" aria-labelledby="comparar-escenarios">
+        <div className="container text-block">
+          <p className="scenario-note">Actualizada el 27 de octubre de 2026. Responsable: {siteConfig.ownerName}.</p>
+          <h2 id="comparar-escenarios">Mismo neto, más gastos o menos horas: qué cambia</h2>
+          <p>
+            Conservamos el objetivo ficticio de 2000 EUR netos, la cuota manual de 320 EUR y la
+            reserva manual del 15 %. Primero cambiamos una sola variable; después combinamos ambas.
+            Son supuestos del ejemplo, no importes fiscales universales.
+          </p>
+          <div className="scenario-table-scroll" role="region" aria-label="Efecto de gastos y horas con el mismo neto" tabIndex={0}>
+            <table className="scenario-table">
+              <caption>Cuatro escenarios para 2000 EUR netos al mes. Todos los importes de facturación y tarifa se muestran sin IVA.</caption>
+              <thead><tr><th scope="col">Escenario</th><th scope="col">Gastos deducibles/mes</th><th scope="col">Horas/mes</th><th scope="col">Facturación/mes</th><th scope="col">Tarifa/h</th></tr></thead>
+              <tbody>
+                {monthlyScenarioExamples.map((scenario) => (
+                  <tr key={scenario.label}>
+                    <th scope="row">{scenario.label}</th>
+                    <td>{formatEuro(scenario.monthlyExpenses)}</td><td>{scenario.billableHours} h</td>
+                    <td>{formatEuro(scenario.proposed.billingWithoutVAT)}</td><td>{formatEuro(scenario.proposed.hourlyRate)}/h</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <p>
+            Al pasar de 80 a 60 horas, la facturación mensual no baja: sigue en {formatEuro(monthlyScenarioExamples[0].current.billingWithoutVAT)}.
+            {' '}La tarifa sube de {formatEuro(monthlyScenarioExamples[0].current.hourlyRate)} a {formatEuro(monthlyScenarioExamples[1].proposed.hourlyRate)}/h.
+            {' '}Si además los gastos deducibles pasan de 300 a 450 EUR, hacen falta {formatEuro(monthlyScenarioExamples[3].proposed.billingWithoutVAT)} al mes
+            {' '}y {formatEuro(monthlyScenarioExamples[3].proposed.hourlyRate)}/h. El objetivo neto permanece en 2000 EUR.
+          </p>
+          <p>
+            Aumentar un coste no es un ahorro. Este ejemplo solo muestra cuánto tendrías que facturar
+            para conservar el mismo neto según el motor de la calculadora. Comprueba qué gastos
+            cumplen los <a href="https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-ayuda-presentacion/irpf-2025/7-cumplimentacion-irpf/7_4-rendimientos-actividades-economicas/7_4_2-regimen-estimacion-directa/7_4_2_3-gastos-fiscalmente-deducibles.html">requisitos de deducibilidad de la AEAT</a>;
+            {' '}tener un pago no basta para clasificarlo como deducible.
+          </p>
+          <p>
+            Revisa el total mensual en la <Link href="/cuanto-cuesta-ser-autonomo#cost-calculator-heading">calculadora de costes</Link>
+            {' '}y contrasta tus horas con el <Link href="/kit-tarifa-autonomo#registro-horas">registro de cuatro semanas</Link>.
+            {' '}Para comprobar entregas completas, usa el <Link href="/cuanto-facturar-autonomo-3000-euros#plan-encargos">comprobador de encargos y capacidad mensual</Link>.
+          </p>
+        </div>
+      </section>
+
+      <section className="section" aria-labelledby="comparador-mensual">
+        <div className="container text-block">
+          <h2 id="comparador-mensual">Prueba otros gastos y horas sobre este ejemplo</h2>
+          <p>
+            La partida es el escenario ficticio de 2000 EUR de esta página. Introduce 450 EUR de gastos
+            y 60 horas para reproducir la última fila. Para comparar con tus propios impuestos y cuota,
+            {' '}<Link href={getExampleUrl(2000)}>ajusta primero tu cálculo</Link> y abre «Comparar cambios en mis gastos y horas» en el resultado.
+          </p>
+          <MonthlyScenarioComparator reference={monthlyScenarioInput} />
         </div>
       </section>
 

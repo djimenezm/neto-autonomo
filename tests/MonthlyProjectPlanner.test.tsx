@@ -59,7 +59,7 @@ describe('monthly project capacity planner', () => {
     const group = screen.getByRole('group', { name: 'El encargo que quieres repetir' });
     expect(within(group).getAllByRole('textbox')).toHaveLength(2);
     await user.click(screen.getByRole('button', { name: 'Probar un encargo ficticio' }));
-    expect(screen.getByRole('status')).toHaveTextContent('4200,00');
+    expect(within(group.parentElement!).getByRole('status')).toHaveTextContent('4200,00');
     expect((screen.getByRole('textbox', { name: 'Resumen detallado para compartir' }) as HTMLTextAreaElement).value).toBe(before);
     expect(screen.getByRole('heading', { name: 'Tu referencia mensual para presupuestar' })).toBeVisible();
     expect(window.va).not.toHaveBeenCalled();
