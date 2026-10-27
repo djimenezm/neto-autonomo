@@ -20,7 +20,7 @@ describe('understanding the calculator result', () => {
     expect(within(region).getByText('Neto objetivo tras estas partidas').nextElementSibling).toHaveTextContent('= 2000,00');
     expect(within(region).getByText('Reserva estimada de IRPF').nextElementSibling).toHaveTextContent('− 352,94');
     expect(within(region).getByText(/de IVA =/)).toHaveTextContent('3597,26');
-    expect(within(region).getByText(/no es tu neto/)).toBeVisible();
+    expect(within(region).getByText(/Esa suma no es tu neto\./)).toBeVisible();
     expect(window.va).toHaveBeenCalledTimes(callsBeforeOpening);
     expect(screen.getByRole('link', { name: 'Ver un ejemplo completo de tarifa por hora' })).toHaveAttribute('href', '/tarifa-freelance-por-hora#ejemplo-tarifa');
   });

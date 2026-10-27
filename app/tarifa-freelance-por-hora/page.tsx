@@ -3,13 +3,16 @@ import Link from 'next/link';
 import Footer from '@/components/Footer';
 import Header from '@/components/Header';
 import BillingBreakdown from '@/components/BillingBreakdown';
+import WithholdingPreview from '@/components/WithholdingPreview';
+import { withholdingExample, withholdingExampleRows, withholdingSource } from '@/lib/withholdingPreview';
 import { calculateExample, exampleAssumptions, formatEuro, getExampleUrl } from '@/lib/scenarioExamples';
 import { getSiteUrl, siteConfig } from '@/lib/site';
+import styles from './withholdingGuide.module.css';
 
 const route = '/tarifa-freelance-por-hora';
 const title = 'Tarifa freelance por hora: cómo calcularla bien';
 const description =
-  'Calcula tu tarifa freelance por hora con un ejemplo desglosado: de la facturación al neto, gastos, cuota, reserva de IRPF e IVA separado. Ajusta los mismos datos en la calculadora.';
+  'Calcula tu tarifa freelance por hora y distingue base, IVA, retención e importe a cobrar. Incluye el desglose hasta el neto, un ejemplo y una ayuda para comprobar el cobro.';
 
 const targetNet = 2000;
 const example = calculateExample(targetNet);
@@ -17,6 +20,11 @@ const fewerHours = exampleAssumptions.billableHours / 2;
 const fewerHoursExample = calculateExample(targetNet, { billableHours: fewerHours });
 
 const pageFaqItems = [
+  {
+    question: '¿La retención de una factura es la reserva de IRPF de la calculadora?',
+    answer:
+      'No. La retención es un pago a cuenta que detrae el pagador cuando corresponde. La reserva de IRPF es una estimación del modelo sobre el beneficio. El comprobador calcula base más IVA menos la retención que indiques; no vuelve a restarla del neto ni determina tu impuesto final.',
+  },
   {
     question: '¿La tarifa por hora es lo que gano limpio?',
     answer:
@@ -94,7 +102,7 @@ export default function TarifaFreelancePorHoraPage() {
       name: siteConfig.name,
     },
     datePublished: '2026-04-22',
-    dateModified: '2026-10-26',
+    dateModified: '2026-10-27',
     accountablePerson: { '@type': 'Person', name: siteConfig.ownerName },
   };
 
@@ -131,7 +139,7 @@ export default function TarifaFreelancePorHoraPage() {
   };
 
   return (
-    <main id="contenido-principal">
+    <main id="contenido-principal" className={styles.guide}>
       <script
         id="tarifa-freelance-por-hora-article-schema"
         type="application/ld+json"
@@ -170,6 +178,7 @@ export default function TarifaFreelancePorHoraPage() {
               <Link href={getExampleUrl(targetNet)} className="primary-button">
                 Ajustar este ejemplo a mis datos
               </Link>
+              <a href="#ejemplo-cobro" className="link-button">Comprobar base, IVA y retención</a>
             </div>
           </div>
 
@@ -210,7 +219,7 @@ export default function TarifaFreelancePorHoraPage() {
           <p className="scenario-note">
             Método: simulación aritmética con el mismo motor de la calculadora, no una encuesta de
             precios. Responsable del sitio: <Link href="/aviso-legal">{siteConfig.ownerName}</Link>.
-            {' '}Actualizada el <time dateTime="2026-10-26">26 de octubre de 2026</time>.
+            {' '}Actualizada el <time dateTime="2026-10-27">27 de octubre de 2026</time>.
           </p>
         </div>
       </section>
@@ -231,9 +240,50 @@ export default function TarifaFreelancePorHoraPage() {
           </p>
           <p>
             La reserva de IRPF del ejemplo se estima sobre el beneficio del modelo, no sobre el total
-            con IVA. Tampoco calcula una retención en factura ni descuenta pagos a cuenta ya
+            con IVA. Esa reserva no es una retención en factura ni descuenta pagos a cuenta ya
             realizados: sirve para planificar el objetivo, no para rellenar una declaración.
+            La ayuda siguiente muestra por separado cómo una retención cambiaría el importe a cobrar.
           </p>
+        </div>
+      </section>
+
+      <section className="section" aria-labelledby="ejemplo-cobro">
+        <div className="container text-block">
+          <h2 id="ejemplo-cobro">Base, IVA, retención e importe a cobrar</h2>
+          <p>
+            Una cosa es la base sin IVA de tu trabajo y otra lo que abonaría el cliente. Supongamos
+            una base ficticia de {formatEuro(withholdingExample.baseAmount)} y {formatEuro(withholdingExample.vatAmount)} de IVA.
+            {' '}Comparamos esa misma base sin retención y con una retención ficticia del 15 %.
+            No son tipos que la herramienta haya determinado para tu actividad.
+          </p>
+          <div className="scenario-table-scroll" role="region" aria-label="Ejemplo de base, IVA, retención y cobro" tabIndex={0}>
+            <table className="scenario-table">
+              <caption>Misma base e IVA; cambia únicamente el supuesto de retención.</caption>
+              <thead><tr><th scope="col">Supuesto</th><th scope="col">Base sin IVA</th><th scope="col">IVA añadido</th><th scope="col">Retención sobre base</th><th scope="col">Importe a cobrar</th></tr></thead>
+              <tbody>{withholdingExampleRows.map((row) => (
+                <tr key={row.rateUsed}>
+                  <th scope="row">Retención del {row.rateUsed} %</th>
+                  <td>{formatEuro(row.baseCents / 100)}</td><td>+ {formatEuro(row.vatCents / 100)}</td>
+                  <td>− {formatEuro(row.withholdingCents / 100)}</td><td>{formatEuro(row.receivableCents / 100)}</td>
+                </tr>
+              ))}</tbody>
+            </table>
+          </div>
+          <p>
+            Con el 15 % del ejemplo, {formatEuro(withholdingExample.baseAmount)} + {formatEuro(withholdingExample.vatAmount)}
+            {' '}− {formatEuro(withholdingExampleRows[1].withholdingCents / 100)} = {formatEuro(withholdingExampleRows[1].receivableCents / 100)}.
+            {' '}La base sigue siendo {formatEuro(withholdingExample.baseAmount)}: la retención no es una rebaja del servicio.
+            {' '}La AEAT explica que las <a href={withholdingSource}>retenciones son anticipos del impuesto</a>
+            {' '}y que dependen de la renta y del pagador. Comprueba si se aplica y qué porcentaje corresponde a tu caso.
+          </p>
+          <p>
+            El cobro incluye IVA y todavía debe sostener costes y obligaciones: no es dinero neto
+            disponible. La retención no se vuelve a restar del neto objetivo de la calculadora.
+            No calculamos aquí una declaración, una devolución ni un importe de IVA a ingresar.
+          </p>
+          <h3 id="comprobar-cobro">Comprueba una retención sobre el ejemplo</h3>
+          <p>Para usar tu referencia mensual, abre «Ver cómo se reparte la facturación» y después «Comprobar el cobro si hay retención» en el resultado de la calculadora.</p>
+          <WithholdingPreview {...withholdingExample} context="example" />
         </div>
       </section>
 

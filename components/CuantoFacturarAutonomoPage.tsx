@@ -43,7 +43,7 @@ export default function CuantoFacturarAutonomoPage() {
       name: siteConfig.name,
     },
     datePublished: '2026-04-22',
-    dateModified: '2026-04-22',
+    dateModified: '2026-10-27',
   };
 
   const breadcrumbSchema = {
@@ -102,10 +102,10 @@ export default function CuantoFacturarAutonomoPage() {
             <span className="eyebrow">Guía práctica</span>
             <h1>Cuánto facturar como autónomo en España sin quedarte corto</h1>
             <p className="lead">
-              Si te preguntas cuánto tienes que facturar para que tu trabajo sea rentable, la clave
-              no está en inventarte un precio por intuición. Tienes que partir del neto que quieres
-              conservar y sumar todo lo que se queda por el camino: gastos, cuota, IRPF, IVA y las
-              horas reales que puedes vender.
+              Parte del neto que quieres conservar y cubre gastos, cuota y reserva de IRPF para
+              obtener una facturación objetivo sin IVA. Después distingue esa base del importe
+              que abonaría el cliente: el IVA y las retenciones, cuando correspondan, cambian
+              la cuenta del cobro. Tus horas facturables permiten convertir la base en tarifa.
             </p>
             <div className="hero-badges" aria-label="Qué cubre esta guía">
               <span className="hero-badge">Neto objetivo</span>
@@ -143,6 +143,12 @@ export default function CuantoFacturarAutonomoPage() {
             Esa cifra no depende solo de lo que quieres ganar. También cambia según tus gastos
             deducibles, tu cuota de autónomos, el IRPF que reserves, si tu actividad lleva IVA y el
             número de horas facturables que seas capaz de sostener sin saturarte.
+          </p>
+          <p>
+            No confundas facturación, cobro y neto. Una base de 1000 EUR con 210 EUR de IVA y
+            una retención hipotética de 150 EUR daría un cobro de 1060 EUR; ni ese cobro ni los
+            1000 EUR de base son por sí solos el neto. Puedes revisar la cuenta en el
+            {' '}<a href="/tarifa-freelance-por-hora#ejemplo-cobro">ejemplo y comprobador de base, IVA y retención</a>.
           </p>
           <div className="disclaimer-box">
             <strong>Idea clave:</strong> si quieres ganar 1.500 euros netos, normalmente tendrás que

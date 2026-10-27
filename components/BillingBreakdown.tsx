@@ -1,6 +1,7 @@
 import type { CalculationResult } from '@/lib/calculator';
 import { getBillingBreakdown } from '@/lib/billingBreakdown';
 import { formatCurrency } from '@/lib/format';
+import WithholdingPreview from '@/components/WithholdingPreview';
 import styles from './BillingBreakdown.module.css';
 
 type Props = {
@@ -8,9 +9,10 @@ type Props = {
   hasIVA: boolean;
   headingId: string;
   headingLevel?: 'h3' | 'h4';
+  showWithholdingPreview?: boolean;
 };
 
-export default function BillingBreakdown({ result, hasIVA, headingId, headingLevel: Heading = 'h3' }: Props) {
+export default function BillingBreakdown({ result, hasIVA, headingId, headingLevel: Heading = 'h3', showWithholdingPreview = false }: Props) {
   const breakdown = getBillingBreakdown(result);
 
   return (
@@ -53,12 +55,19 @@ export default function BillingBreakdown({ result, hasIVA, headingId, headingLev
               {' '}Esa suma no es tu neto.
             </p>
             <p>
-              No calcula las retenciones en factura ni el IVA soportado deducible. No es el importe
-              de una liquidación de impuestos ni una previsión de cobros.
+              La suma anterior no descuenta retenciones. El IVA soportado deducible y la liquidación
+              de impuestos se revisan aparte; esa suma tampoco es una previsión de cobros.
             </p>
           </>
         ) : <p>Esta simulación no añade IVA. El reparto anterior utiliza únicamente la facturación sin IVA.</p>}
       </div>
+      {showWithholdingPreview ? (
+        <details className={styles.disclosure}>
+          <summary>Comprobar el cobro si hay retención</summary>
+          <WithholdingPreview baseAmount={breakdown.billingCents / 100} vatAmount={hasIVA ? breakdown.vatCents / 100 : 0} context="monthly" />
+          <a href="/tarifa-freelance-por-hora#ejemplo-cobro">Ver el ejemplo de base, IVA y retención</a>
+        </details>
+      ) : null}
     </section>
   );
 }

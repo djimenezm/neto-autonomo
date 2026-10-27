@@ -48,6 +48,41 @@ Los espacios publicitarios están preparados, pero `lib/ads.ts` exige `NEXT_PUBL
 
 ## Revisión local antes de publicar
 
+### Base, IVA, retención e importe a cobrar (27 de octubre de 2026)
+
+Dentro de «Ver cómo se reparte la facturación»
+se añade «Comprobar el cobro si hay retención». Usa la base sin IVA y el IVA del
+resultado, sin recalcular ni sustituir sus importes. El porcentaje empieza vacío,
+es independiente de la reserva de IRPF y no tiene `name`; no entra en el GET ni
+en el resumen compartido. No crea eventos, peticiones ni almacenamiento.
+
+`lib/withholdingPreview.ts` calcula base + IVA − retención aplicada sobre la
+base sin IVA. Opera con céntimos y centésimas de porcentaje, comprueba enteros
+seguros y acepta el supuesto sin retención. Redondea y muestra el porcentaje
+utilizado. Una edición retira el resultado; cambiar la base o el IVA principal
+reinicia también el campo. El botón del 15 % se identifica como caso ficticio,
+sin determinar sujeción ni tipo legal aplicable.
+
+La referencia principal es mensual: se explicita el supuesto de una misma
+retención sobre toda esa base, sin mezclar clientes con tipos distintos. No
+recalcula el neto, no descuenta otra vez la reserva de IRPF y no liquida impuestos
+ni acredita la emisión o el cobro de una factura.
+
+La guía por hora añade una cuenta completa con 1000 EUR de base y 210 EUR de IVA:
+sin retención, 1210 EUR a cobrar; con el 15 % ficticio, 150 EUR retenidos y
+1060 EUR a cobrar. Incluye tabla y FAQ en el HTML inicial y una ayuda interactiva
+con la misma base. Se enlaza la [explicación de la AEAT sobre retenciones y pagos a cuenta](https://sede.agenciatributaria.gob.es/Sede/irpf/retenciones-ingresos-cuenta-pagos-fraccionados/retenciones-ingresos-cuenta.html).
+La guía general aclara facturación, cobro y neto, y enlaza al ejemplo; conserva
+su ruta sin JavaScript de cliente. Se mantienen la captación y las fechas de
+las demás guías. No se cambian las reglas de cuota, IVA ni estimación de IRPF.
+
+Validación: 319 pruebas en 51 archivos, lint y compilación correctos. Se cubren
+retención cero, referencia sin IVA, redondeos de medio céntimo, porcentajes
+inválidos, importes inseguros, reinicio y conservación del resumen y eventos.
+Se revisa el flujo en navegador, con y sin IVA y en móvil. La publicación mantiene
+los anuncios desactivados, el piloto y los seguimientos intactos, sin solicitar
+revisión de AdSense.
+
 ### Cuota reducida con MEI y prórroga anual (27 de octubre de 2026)
 
 Se corrigen dos referencias que podían sesgar

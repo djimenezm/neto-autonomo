@@ -191,6 +191,7 @@ const ResultCard = forwardRef<HTMLElement, ResultCardProps>(function ResultCard(
           hasIVA={hasIVA}
           headingId="result-billing-breakdown-title"
           headingLevel="h4"
+          showWithholdingPreview
         />
         <a href="/tarifa-freelance-por-hora#ejemplo-tarifa">Ver un ejemplo completo de tarifa por hora</a>
       </details>
