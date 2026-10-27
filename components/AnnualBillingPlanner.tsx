@@ -77,6 +77,7 @@ function PlanEditor({ monthlyBilling }: { monthlyBilling: number }) {
         ) : null}
       </div>
       <p className={styles.note}>Es un reparto de facturación, no un calendario de cobros ni una reserva de caja. No añade IVA ni aplica retenciones ni recalcula impuestos o cambios de cuota durante el año. Si tus costes o tu situación cambian entre meses, revisa los periodos por separado. No cambia el resultado principal ni su enlace compartido.</p>
+      <p>Para revisar el saldo de los próximos meses, prepara un <a href="/cuanto-cuesta-ser-autonomo#plan-caja" className={styles.cashLink}>plan de caja con cobros y pagos</a>.</p>
     </div>
   );
 }

@@ -4,6 +4,8 @@ import Link from 'next/link';
 import Footer from '@/components/Footer';
 import Header from '@/components/Header';
 import MonthlyCostCalculator from '@/components/MonthlyCostCalculator';
+import CashFlowPlanner from '@/components/CashFlowPlanner';
+import { cashPlanExampleResult, delayedCashPlanExampleResult, cashPlanSource } from '@/lib/cashPlan';
 import { estimateRecurringCosts, recurringCostsExample } from '@/lib/recurringCosts';
 import { formatCurrency, formatNumber } from '@/lib/format';
 import { getSiteUrl, siteConfig } from '@/lib/site';
@@ -12,14 +14,15 @@ import styles from './costGuide.module.css';
 const route = '/cuanto-cuesta-ser-autonomo';
 const title = 'Cuánto cuesta ser autónomo cada mes';
 const description =
-  'Introduce tus pagos mensuales, trimestrales y anuales para calcular el coste medio de tu actividad por mes y por hora. Revisa el desglose y traslada las medias a tu tarifa.';
+  'Calcula tu coste medio con pagos mensuales, trimestrales y anuales. Añade un plan de caja de tres meses para contrastar cobros, pagos y saldos de cierre.';
 
 const costExample = estimateRecurringCosts(recurringCostsExample);
 const faqItems = [
   { question: '¿Qué importe pongo si pago una herramienta una vez al año?', answer: 'Escribe el importe de ese pago y elige «Una vez al año». La calculadora lo suma una sola vez al coste anual y divide el total anual entre 12 para obtener una media mensual. No lo vuelvas a añadir en otros gastos.' },
-  { question: '¿La media mensual coincide con lo que sale de mi cuenta cada mes?', answer: 'No necesariamente. Un pago anual de 420 EUR equivale a 35 EUR al mes para planificar la tarifa, pero se paga según su vencimiento. Este cálculo no conoce fechas de cargo, saldos ni ahorro acumulado y no aparta dinero.' },
+  { question: '¿La media mensual coincide con lo que sale de mi cuenta cada mes?', answer: 'No necesariamente. Un pago anual de 420 EUR equivale a 35 EUR al mes para planificar la tarifa, pero se paga según su vencimiento. La calculadora de costes no conoce los cargos ni aparta dinero. El plan de caja de esta página compara por separado los cobros y pagos que introduzcas para tres meses.' },
   { question: '¿Se traslada la cuota dos veces a la calculadora de tarifa?', answer: 'No. La cuota mensual viaja por separado. El resto se divide entre gastos deducibles y costes no deducibles con el importe que tú indiques. Cambiar la frecuencia no determina que un gasto se pueda deducir.' },
   { question: '¿Este reparto mensual sirve para presentar impuestos?', answer: 'No. Es una ayuda de planificación para un año completo con pagos constantes. No calcula IVA soportado, deducibilidad ni el periodo de imputación de un gasto. Si has empezado a mitad de año o esperas cambios, revisa esos supuestos por separado.' },
+  { question: '¿Un cierre positivo garantiza que podré pagar todo el mes?', answer: 'No. El plan suma los cobros y resta los pagos de cada mes, pero no conoce su orden dentro de ese mes. Puedes tener un déficit antes de cobrar aunque el cierre sea positivo. El aporte adicional mostrado solo evita saldos negativos al inicio y en los cierres calculados; no garantiza cada vencimiento ni es un fondo de emergencia recomendado.' },
 ] as const;
 
 export const metadata: Metadata = {
@@ -59,6 +62,9 @@ export const metadata: Metadata = {
 
 export default function CuantoCuestaSerAutonomoPage() {
   if (!costExample.valid) throw new Error('Invalid editorial recurring-cost example');
+  const cashExample = cashPlanExampleResult;
+  const delayedCash = delayedCashPlanExampleResult;
+  if (!cashExample.valid || !delayedCash.valid) throw new Error('Invalid editorial cash-plan example');
   const siteUrl = getSiteUrl();
   const pageUrl = new URL(route, siteUrl).toString();
 
@@ -199,6 +205,59 @@ export default function CuantoCuestaSerAutonomoPage() {
           <p>Repartir 420 EUR entre 12 meses da 35 EUR mensuales. Si el recibo vence el mes que viene y no tienes nada apartado, esa media no cubre por sí sola el pago próximo. Anota también la fecha del recibo y el dinero disponible fuera de esta calculadora.</p>
           <p>El total anual se obtiene de los pagos, antes de redondear la media mensual. Por ejemplo, 100 EUR anuales son {formatNumber(100 / 12, 2)} EUR al mes al mostrar dos decimales; multiplicar esa cifra redondeada por 12 da 99,96 EUR. Conservamos los 100 EUR en el total anual para no perder esos céntimos.</p>
           <p>Al trasladar los datos a la tarifa, la cuota mensual va por separado. En el ejemplo, los otros {formatCurrency(costExample.monthlyOtherCosts)} mensuales se reparten según el importe deducible que indiques. No añadas la cuota otra vez ni repitas un mismo recibo en dos categorías.</p>
+          <p>Para observar cómo se mueve el saldo, prepara el <Link href="#plan-caja">plan de cobros y pagos de tres meses</Link>. Introduce el pago anual en el mes en que saldrá de la cuenta, sin repartirlo de nuevo entre doce.</p>
+        </div>
+      </section>
+
+      <section className="section" aria-labelledby="plan-caja">
+        <div className="container text-block">
+          <h2 id="plan-caja">Plan de caja de tres meses: cobros, pagos y saldos</h2>
+          <p>
+            La tarifa y el neto estimado no indican cuándo llegará el dinero a la cuenta. Para este
+            plan, escribe el saldo al empezar y los cobros y pagos previstos de cada mes.
+            El saldo al cierre pasa a ser el saldo inicial del siguiente: saldo inicial + cobros − pagos.
+          </p>
+          <h3>Un cierre final positivo puede ocultar un déficit anterior</h3>
+          <p>
+            Este ejemplo es ficticio, sin datos bancarios ni cuotas o impuestos calculados.
+            Partimos de {formatCurrency(cashExample.initialBalance)} y situamos un cobro de
+            {' '}{formatCurrency(cashExample.months[1].receipts)} en el segundo mes, aunque el trabajo
+            pudiera haberse facturado antes. Los pagos son supuestos completos de cada mes.
+          </p>
+          <div className="scenario-table-scroll" role="region" aria-label="Ejemplo ficticio de caja de tres meses" tabIndex={0}>
+            <table className="scenario-table">
+              <caption>Movimientos de cuenta hipotéticos, no bases de factura ni beneficio neto.</caption>
+              <thead><tr><th scope="col">Mes</th><th scope="col">Saldo inicial</th><th scope="col">Cobros</th><th scope="col">Pagos</th><th scope="col">Saldo al cierre</th></tr></thead>
+              <tbody>{cashExample.months.map((month, index) => <tr key={index}><th scope="row">Mes {index + 1}</th><td>{formatCurrency(month.openingBalance)}</td><td>{formatCurrency(month.receipts)}</td><td>{formatCurrency(month.payments)}</td><td>{formatCurrency(month.closingBalance)}</td></tr>)}</tbody>
+            </table>
+          </div>
+          <p>
+            El tercer mes cierra con {formatCurrency(cashExample.finalBalance)}, pero el primero
+            había cerrado con {formatCurrency(cashExample.months[0].closingBalance)}. Añadir
+            {' '}{formatCurrency(cashExample.additionalAtCheckpoints)} al saldo inicial evitaría negativos
+            en el inicio y en esos cierres. No comprueba si hace falta más dinero antes de un cobro dentro del mes.
+          </p>
+          <p>
+            Si el cobro del segundo mes se retrasa al tercero, el saldo final seguiría siendo
+            {' '}{formatCurrency(delayedCash.finalBalance)}, pero el mínimo entre los puntos calculados
+            bajaría a {formatCurrency(delayedCash.minimumBalance)}. Cambiar el momento del cobro
+            puede cambiar el déficit aunque no cambie lo cobrado en total.
+          </p>
+          <h3>Comprueba tus tres meses</h3>
+          <p>
+            Introduce lo que entrará o saldrá de la cuenta: los cobros deben reflejar el IVA y las
+            retenciones cuando correspondan. Incluye en pagos la actividad, cuota, impuestos y
+            retiradas personales. Un recibo anual cuenta entero en su mes de pago. Un dinero
+            reservado que siga en la cuenta forma parte del saldo; no vuelvas a restarlo como pago
+            hasta que salga de ella.
+          </p>
+          <CashFlowPlanner />
+          <p>
+            Revisa después las fechas concretas y los pagos posteriores al tercer mes. El{' '}
+            <a href={cashPlanSource}>Banco de España explica los desfases de liquidez entre cobros y pagos</a>
+            {' '}en negocios de autónomos. La tabla y el plan son una simulación propia; no calculan
+            financiación, impuestos ni un colchón universal.
+          </p>
         </div>
       </section>
 

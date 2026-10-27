@@ -48,6 +48,55 @@ Los espacios publicitarios están preparados, pero `lib/ads.ts` exige `NEXT_PUBL
 
 ## Revisión local antes de publicar
 
+### Plan de caja de tres meses (27 de octubre de 2026)
+
+La página de costes añade un plan de caja independiente del reparto medio de
+gastos. `CashFlowPlanner.tsx` pide siete importes: saldo inicial de la cuenta,
+y cobros y pagos de tres meses consecutivos. Empiezan vacíos, admiten cero
+explícito y no tienen `name`; el saldo inicial también admite valores negativos.
+Los cobros son entradas en cuenta, con IVA y retenciones ya reflejados cuando
+proceda. Los pagos incluyen actividad, cuota, impuestos y retiradas personales.
+Los recibos anuales se anotan completos en su mes, no por su media mensual.
+
+`lib/cashPlan.ts` lleva cada cierre al inicio del mes siguiente, en céntimos,
+tras normalizar cada importe. Redondea simétricamente los saldos negativos,
+evita el cero negativo y rechaza entradas, saldos intermedios o sumas inseguras.
+Muestra saldo final, mínimo entre inicio y cierres, primer punto negativo y el
+aporte adicional que eliminaría negativos en esos puntos. No conoce el orden
+de movimientos dentro del mes: ese aporte puede no cubrir un vencimiento que
+preceda al cobro. Un cierre positivo no acredita liquidez diaria, beneficio o
+dinero libre para gastar y puede incluir reservas para obligaciones posteriores.
+
+El ejemplo ficticio empieza en 1000 EUR. Los cobros son 0, 3600 y 1800 EUR;
+los pagos, 1800, 1800 y 2100 EUR. Cierra en -800, 1000 y 700 EUR, con mínimo
+-800 y aporte de 800 EUR para los puntos observados. Retrasar el cobro del
+segundo al tercer mes mantiene los 700 EUR finales pero baja el mínimo a
+-2600 EUR. Las cifras se derivan del mismo modelo. La tabla, el método, el
+límite temporal y las cinco FAQ se incluyen en el HTML inicial. La guía enlaza
+al [Banco de España sobre desfases de cobros y pagos de autónomos](https://clientebancario.bde.es/pcb/es/blog/autonomo--puedes-adelantar-el-cobro-de-tus-facturas.html)
+como contexto; no recomienda productos de financiación ni un colchón universal.
+
+La planificación anual enlaza directamente a `/cuanto-cuesta-ser-autonomo#plan-caja`.
+No importa datos de la calculadora fiscal, no cambia su resumen, GET, captación
+o eventos y no crea almacenamiento, peticiones ni conexión bancaria. Una edición
+retira el plan anterior; Enter comprueba los datos y enfoca el primer campo
+inválido. Se conserva intacta la calculadora previa de frecuencias de pago.
+
+Validación: 470 pruebas en 63 archivos, lint y compilación correctos. Se cubren
+saldo final positivo con déficit previo, cobro retrasado, saldo inicial negativo,
+ceros, decimales y redondeos simétricos, límite de tres meses y aritmética
+insegura. En navegador se revisan errores y foco, edición, Enter, vista de
+320 y 390 px y tabla desplazable sin desborde de página. El enlace desde la
+planificación anual está subrayado, tiene foco visible y permite llegar al plan
+con los siete campos vacíos, sin modificar el resumen principal. Tras ajustar
+su presentación se repiten sus cinco pruebas, lint y compilación. El HTML
+inicial contiene el ejemplo y cinco FAQ coherentes con el esquema; sin errores
+de consola ni anuncios en las vistas revisadas.
+
+La publicación autorizada incluye el plan de caja, la guía de costes actualizada
+y el enlace desde la planificación anual. Mantiene los anuncios desactivados,
+no toca el piloto ni los seguimientos y no solicita otra revisión de AdSense.
+
 ### Neto a partir de otra facturación (27 de octubre de 2026)
 
 El desglose del resultado añade «Estimar qué neto dejaría otra facturación».

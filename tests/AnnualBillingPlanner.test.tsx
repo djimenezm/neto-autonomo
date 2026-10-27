@@ -62,5 +62,6 @@ describe('annual billing planner', () => {
     expect(screen.getByRole('spinbutton', { name: 'Horas facturables al mes' })).toHaveValue(70);
     expect(window.va).not.toHaveBeenCalled();
     expect(window.gtag).not.toHaveBeenCalled();
+    expect(screen.getByRole('link', { name: 'plan de caja con cobros y pagos' })).toHaveAttribute('href', '/cuanto-cuesta-ser-autonomo#plan-caja');
   });
 });
