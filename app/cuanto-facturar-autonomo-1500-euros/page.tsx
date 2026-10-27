@@ -1,20 +1,21 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import Script from 'next/script';
 import Footer from '@/components/Footer';
 import Header from '@/components/Header';
 import LeadMagnetForm from '@/components/LeadMagnetForm';
+import AnnualBillingPlanner from '@/components/AnnualBillingPlanner';
+import { annualBaselineScenario as leanScenario, annualBaselineResult as leanResult, annualBillingExamples } from '@/lib/annualBillingExample';
+import { formatNumber } from '@/lib/format';
 import { calculateExample, exampleAssumptions, formatEuro, getExampleUrl } from '@/lib/scenarioExamples';
 import { getSiteUrl, siteConfig } from '@/lib/site';
+import styles from './annualGuide.module.css';
 
 const route = '/cuanto-facturar-autonomo-1500-euros';
 const title = 'Cuánto facturar como autónomo para ganar 1500 euros netos';
 const description =
-  'Calcula cuánto facturar para conservar 1500 euros netos. Compara dos ejemplos con gastos, cuota y reserva de IRPF, y ajusta sus cifras en la calculadora gratis.';
+  'Calcula cuánto facturar para conservar 1500 euros netos. Compara costes y horas, reparte el objetivo anual entre meses activos y comprueba los meses sin facturación.';
 
-const leanScenario = { monthlyExpenses: 150, billableHours: 70 };
 const higherCostsScenario = { monthlyExpenses: 500, billableHours: 90 };
-const leanResult = calculateExample(1500, leanScenario);
 const higherCostsResult = calculateExample(1500, higherCostsScenario);
 const leanExampleUrl = getExampleUrl(1500, leanScenario);
 
@@ -33,6 +34,11 @@ const pageFaqItems = [
     question: '¿Tiene sentido fijar 1500 euros netos como primer objetivo?',
     answer:
       'Puede tener sentido si estás empezando, validando una actividad o reduciendo riesgo, pero conviene convertirlo en facturación mensual y tarifa por hora para no trabajar por debajo de tu suelo.',
+  },
+  {
+    question: '¿Qué ocurre si solo facturo diez meses al año?',
+    answer:
+      `Si mantienes el mismo neto y costes durante doce meses, la necesidad anual del ejemplo ligero es ${formatEuro(annualBillingExamples[0].annualTarget)} sin IVA. Repartida entre diez meses activos son ${formatEuro(annualBillingExamples[1].billingPerActiveMonth)} por mes, redondeados al alza. Introduce las horas de cada mes activo, no una media que ya reste las vacaciones.`,
   },
 ] as const;
 
@@ -91,7 +97,7 @@ export default function CuantoFacturarAutonomo1500EurosPage() {
       name: siteConfig.name,
     },
     datePublished: '2026-04-26',
-    dateModified: '2026-10-26',
+    dateModified: '2026-10-27',
   };
 
   const breadcrumbSchema = {
@@ -127,21 +133,21 @@ export default function CuantoFacturarAutonomo1500EurosPage() {
   };
 
   return (
-    <main id="contenido-principal">
-      <Script
+    <main id="contenido-principal" className={styles.guide}>
+      <script
         id="cuanto-facturar-1500-article-schema"
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema).replace(/</g, '\\u003c') }}
       />
-      <Script
+      <script
         id="cuanto-facturar-1500-breadcrumb-schema"
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema).replace(/</g, '\\u003c') }}
       />
-      <Script
+      <script
         id="cuanto-facturar-1500-faq-schema"
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema).replace(/</g, '\\u003c') }}
       />
 
       <Header />
@@ -168,6 +174,7 @@ export default function CuantoFacturarAutonomo1500EurosPage() {
               <Link href="#ejemplos-1500" className="text-link">
                 Comparar los dos casos
               </Link>
+              <a href="#meses-sin-facturar" className="text-link">Planificar meses sin facturar</a>
             </div>
           </div>
 
@@ -177,7 +184,7 @@ export default function CuantoFacturarAutonomo1500EurosPage() {
       <section className="section" aria-labelledby="ejemplos-1500">
         <div className="container">
           <p className="scenario-note">
-            Actualizado el <time dateTime="2026-10-26">26 de octubre de 2026</time>.
+            Actualizado el <time dateTime="2026-10-27">27 de octubre de 2026</time>.
           </p>
           <span className="eyebrow">Dos situaciones distintas</span>
           <h2 id="ejemplos-1500">El mismo neto puede exigir tarifas diferentes</h2>
@@ -230,6 +237,51 @@ export default function CuantoFacturarAutonomo1500EurosPage() {
             En el segundo caso necesitas facturar {formatEuro(higherCostsResult.billingWithoutVAT - leanResult.billingWithoutVAT)}
             {' '}más al mes, pero vender 20 horas adicionales reduce la tarifa media necesaria.
             La dificultad real es comprobar si esas horas adicionales se pueden vender de forma estable.
+          </p>
+        </div>
+      </section>
+
+      <section className="section alt" aria-labelledby="meses-sin-facturar">
+        <div className="container text-block">
+          <h2 id="meses-sin-facturar">Si no facturas todos los meses, reparte el año completo</h2>
+          <p>
+            Partimos del caso ligero: {formatEuro(leanResult.billingWithoutVAT)} al mes sin IVA.
+            {' '}Mantenemos 1500 EUR netos, {formatEuro(leanScenario.monthlyExpenses)} de gastos,
+            {' '}{formatEuro(exampleAssumptions.selfEmployedFee)} de cuota y la misma reserva manual del {exampleAssumptions.irpfRate} % durante doce meses,
+            también si no hay facturación. La necesidad anual de este reparto es
+            {' '}{formatEuro(leanResult.billingWithoutVAT)} × 12 = <strong>{formatEuro(annualBillingExamples[0].annualTarget)} sin IVA</strong>.
+          </p>
+          <div className="scenario-table-scroll" role="region" aria-label="Facturación anual repartida entre meses activos" tabIndex={0}>
+            <table className="scenario-table">
+              <caption>Casos ficticios con el mismo objetivo anual. Los importes mensuales y por hora se redondean al alza a céntimos.</caption>
+              <thead><tr><th scope="col">Calendario</th><th scope="col">Meses activos</th><th scope="col">Horas/mes activo</th><th scope="col">Horas/año</th><th scope="col">Facturación/mes activo sin IVA</th><th scope="col">Referencia/h sin IVA</th></tr></thead>
+              <tbody>{annualBillingExamples.map((plan) => (
+                <tr key={plan.label}>
+                  <th scope="row">{plan.label}</th><td>{plan.activeMonths}</td>
+                  <td>{formatNumber(plan.hoursPerActiveMonth)} h</td><td>{formatNumber(plan.annualHours)} h</td>
+                  <td>{formatEuro(plan.billingPerActiveMonth)}</td><td>{formatEuro(plan.hourlyRate)}/h</td>
+                </tr>
+              ))}</tbody>
+            </table>
+          </div>
+          <p>
+            Diez meses de 70 horas suman 700 h/año: hay menos horas para sostener la misma necesidad anual.
+            {' '}Diez meses de 84 horas suman 840 h/año, igual que doce de 70. Si realmente puedes dedicar
+            esas 84 horas a encargos, mantienes las horas anuales: la referencia por hora coincide en esas dos filas.
+            El redondeo al alza puede diferir un céntimo del redondeo habitual de la calculadora mensual.
+          </p>
+          <p>
+            Si ya obtuviste una media mensual de una <Link href="/horas-facturables-freelance#agenda-anual-title">agenda anual con semanas de descanso</Link>,
+            no la multipliques otra vez por los meses activos para descontar vacaciones de nuevo.
+            Primero recupera las horas anuales y repártelas entre los meses en que trabajarás.
+          </p>
+          <h3 id="comprobar-plan-anual">Comprueba tus meses activos sobre este ejemplo</h3>
+          <p>Esta ayuda usa la facturación del caso ligero. Para usar tus propios costes y neto, ajusta el cálculo y abre «Planificar los meses sin facturación» en tu resultado.</p>
+          <AnnualBillingPlanner monthlyBilling={leanResult.billingWithoutVAT} />
+          <p>
+            El reparto no fija fechas de cobro ni reserva dinero para los meses sin facturar.
+            Revisa por separado los vencimientos y cambios de gastos: la <a href="https://www.finanzasparatodos.es/como-elaborar-un-presupuesto">guía de presupuestos de Finanzas para Todos</a>
+            {' '}explica cómo anotar ingresos, gastos y fechas de pago. Si cambian cuota o costes entre periodos, este supuesto de doce meses iguales deja de representar tu caso.
           </p>
         </div>
       </section>

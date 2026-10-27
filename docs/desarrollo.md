@@ -48,6 +48,43 @@ Los espacios publicitarios están preparados, pero `lib/ads.ts` exige `NEXT_PUBL
 
 ## Revisión local antes de publicar
 
+### Plan anual y meses sin facturación (27 de octubre de 2026)
+
+El resultado incorpora «Planificar los meses
+sin facturación». La ayuda parte de la facturación mensual sin IVA publicada
+por el cálculo y conserva doce meses del mismo neto y costes. Pide meses
+completos con facturación (1–12) y horas facturables por mes activo. Ambos campos
+empiezan vacíos, no tienen `name`, no se añaden al GET ni al resumen compartido
+y no generan eventos, peticiones ni almacenamiento.
+
+`lib/annualBillingPlan.ts` multiplica la referencia mensual en céntimos por 12
+y la reparte entre los meses activos. Redondea al alza el importe de cada mes y
+la referencia por hora para no quedar corto al céntimo. Muestra el pequeño
+exceso anual del redondeo. Las horas anuales se calculan desde los meses activos
+y sus horas reales; no se recortan otra vez las horas del formulario principal.
+Una edición retira el plan y un cambio de referencia reinicia los campos.
+
+La guía de 1500 EUR conserva sus dos casos iniciales y añade tres calendarios
+del caso ligero (150 EUR de gastos, cuota manual 320 EUR y reserva manual 15 %).
+La referencia de 2234,71 EUR/mes supone 26816,52 EUR/año. Con diez meses activos
+se necesitan 2681,66 EUR por mes: con 70 h por mes son 700 h/año y 38,31 EUR/h;
+con 84 h son 840 h/año y 31,93 EUR/h, igual que doce meses de 70 h con este
+redondeo al alza. La diferencia de un céntimo frente al redondeo habitual del
+resultado mensual se explica. Los ejemplos se derivan del mismo motor existente.
+
+El modelo no es un calendario de cobros ni una reserva de caja y no recalcula
+impuestos o cuotas que cambien durante el año. Se explicita el supuesto de
+costes constantes incluso sin facturación. Se enlaza a la agenda anual para
+evitar descontar vacaciones dos veces, y a la guía educativa de presupuestos de
+Finanzas para Todos. La tabla y las cuatro FAQ quedan en el HTML inicial con
+JSON-LD nativo; se conserva exactamente el formulario de captación existente.
+
+Validación: 347 pruebas en 54 archivos, lint y compilación correctos. Se cubren
+meses inválidos, horas por mes activo, redondeos, importes inseguros, conservación
+de horas anuales, reinicio y resumen/eventos intactos. Revisado en navegador y
+móvil. La publicación mantiene los anuncios desactivados, el piloto y los
+seguimientos intactos, sin solicitar revisión de AdSense.
+
 ### Base, IVA, retención e importe a cobrar (27 de octubre de 2026)
 
 Dentro de «Ver cómo se reparte la facturación»

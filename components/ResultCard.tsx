@@ -6,6 +6,7 @@ import { formatCurrency, formatNumber } from '@/lib/format';
 import BillingBreakdown from '@/components/BillingBreakdown';
 import MonthlyProjectPlanner from '@/components/MonthlyProjectPlanner';
 import MonthlyScenarioComparator from '@/components/MonthlyScenarioComparator';
+import AnnualBillingPlanner from '@/components/AnnualBillingPlanner';
 import ReducedFeeNotice from '@/components/ReducedFeeNotice';
 import { reducedFeeSources } from '@/lib/reducedFee2026';
 import { inputFromResult } from '@/lib/monthlyScenarios';
@@ -206,6 +207,12 @@ const ResultCard = forwardRef<HTMLElement, ResultCardProps>(function ResultCard(
         <summary>Comparar cambios en mis gastos y horas</summary>
         <MonthlyScenarioComparator reference={inputFromResult(result, hoursBillable, hasIVA)} />
         <a href="/tabla-cuanto-facturar-autonomo#comparar-escenarios">Ver un ejemplo de comparación de escenarios</a>
+      </details>
+
+      <details className={breakdownStyles.disclosure}>
+        <summary>Planificar los meses sin facturación</summary>
+        <AnnualBillingPlanner monthlyBilling={result.billingWithoutVAT} />
+        <a href="/cuanto-facturar-autonomo-1500-euros#meses-sin-facturar">Ver el ejemplo de meses activos y horas anuales</a>
       </details>
 
       {shareUrl && channelShareUrls && (

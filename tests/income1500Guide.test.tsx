@@ -36,7 +36,7 @@ describe('1500 euro income guide', () => {
 
   it('keeps the table, initial answer and detailed balance on the same assumptions', () => {
     render(<Guide />);
-    const table = screen.getByRole('table');
+    const table = within(screen.getByRole('region', { name: 'Dos ejemplos para 1.500 euros netos' })).getByRole('table');
     for (const scenario of scenarios) {
       const result = calculateExample(1500, scenario);
       const row = within(table).getByRole('rowheader', { name: scenario.name }).closest('tr')!;
@@ -98,9 +98,9 @@ describe('1500 euro income guide', () => {
   it('preserves the canonical and reports the substantive editorial date accurately', () => {
     const { container } = render(<Guide />);
     expect(metadata.alternates?.canonical).toBe('/cuanto-facturar-autonomo-1500-euros');
-    expect(screen.getByText('26 de octubre de 2026')).toHaveAttribute('datetime', '2026-10-26');
+    expect(screen.getByText('27 de octubre de 2026')).toHaveAttribute('datetime', '2026-10-27');
     const article = JSON.parse(container.querySelector('#cuanto-facturar-1500-article-schema')!.textContent!);
-    expect(article.dateModified).toBe('2026-10-26');
+    expect(article.dateModified).toBe('2026-10-27');
     expect(article.datePublished).toBe('2026-04-26');
   });
 });
