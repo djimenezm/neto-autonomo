@@ -1,0 +1,33 @@
+.planner { container-type: inline-size; color: #173a2c; overflow-wrap: anywhere; }
+.disclosure.disclosure { border: 0; border-top: 1px solid #cbded4; border-radius: 0; padding: 1rem 0; }
+.planner p, .planner li { font-size: 0.94rem; line-height: 1.65; }
+.reference { border-left: 3px solid #0e6d54; padding: 0.8rem; background: #edf6ef; }
+.group { min-width: 0; border: 1px solid #b9cdc0; border-radius: 6px; margin: 1.3rem 0; padding: 1rem; }
+.group legend { font-weight: 800; padding: 0 0.3rem; }
+.fields { display: grid; align-items: start; gap: 1.1rem; min-width: 0; margin: 0.4rem 0 1rem; }
+.fields label { display: grid; gap: 0.5rem; min-width: 0; font-weight: 700; }
+.fields input { box-sizing: border-box; width: 100%; min-width: 0; min-height: 44px; border: 1px solid #809b8c; border-radius: 5px; padding: 0.75rem; background: #fff; color: #173a2c; }
+.fields small { font-size: 0.85rem; line-height: 1.5; font-weight: 400; }
+.fields input[aria-invalid='true'] { border-color: #a02727; }
+.actions { display: flex; align-items: center; flex-wrap: wrap; gap: 0.7rem; }
+.planner button { min-height: 44px; max-width: 100%; }
+.planner button:disabled { opacity: 0.6; cursor: not-allowed; }
+.planner :is(input, button):focus-visible { outline: 3px solid #0e6d54; outline-offset: 3px; }
+.changeMessage:empty { display: none; }
+.changeMessage { margin-bottom: 0.8rem; }
+.result { margin-top: 1.3rem; border-top: 2px solid #0e6d54; padding-top: 0.7rem; }
+.result dl > div { display: grid; gap: 0.4rem; border-bottom: 1px solid #ccdcd3; padding: 0.8rem 0; }
+.result dd { margin: 0; font-weight: 800; font-variant-numeric: tabular-nums; }
+.fits, .shortfall { border-left: 3px solid #0e6d54; padding: 0.8rem; background: #edf6ef; }
+.shortfall { border-color: #9b6513; background: #fff4df; }
+.note { color: #52605b; }
+@container (min-width: 500px) {
+  .result dl > div { grid-template-columns: minmax(0, 1fr) auto; gap: 1rem; }
+  .result dd { text-align: right; }
+}
+@container (min-width: 650px) {
+  .fields { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 480px) {
+  .group { padding: 0.5rem; }
+}

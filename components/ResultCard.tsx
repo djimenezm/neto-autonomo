@@ -5,6 +5,7 @@ import { AUTONOMOUS_COMMUNITY_LABELS, type CalculationResult } from '@/lib/calcu
 import { formatCurrency, formatNumber } from '@/lib/format';
 import BillingBreakdown from '@/components/BillingBreakdown';
 import MonthlyProjectPlanner from '@/components/MonthlyProjectPlanner';
+import MonthlyPortfolioPlanner from '@/components/MonthlyPortfolioPlanner';
 import MonthlyScenarioComparator from '@/components/MonthlyScenarioComparator';
 import AnnualBillingPlanner from '@/components/AnnualBillingPlanner';
 import ReducedFeeNotice from '@/components/ReducedFeeNotice';
@@ -12,6 +13,7 @@ import { reducedFeeSources } from '@/lib/reducedFee2026';
 import { inputFromResult } from '@/lib/monthlyScenarios';
 import projectPlannerStyles from './MonthlyProjectPlanner.module.css';
 import breakdownStyles from './BillingBreakdown.module.css';
+import portfolioStyles from './MonthlyPortfolioPlanner.module.css';
 
 type ResultCardProps = {
   result: CalculationResult;
@@ -201,6 +203,11 @@ const ResultCard = forwardRef<HTMLElement, ResultCardProps>(function ResultCard(
         <summary>Comprobar cuántos encargos necesito y si caben</summary>
         <MonthlyProjectPlanner monthlyBilling={result.billingWithoutVAT} billableHours={hoursBillable} />
         <a href="/cuanto-facturar-autonomo-3000-euros#ejemplo-encargos">Ver un ejemplo de encargos y capacidad mensual</a>
+        <details className={`${breakdownStyles.disclosure} ${portfolioStyles.disclosure}`}>
+          <summary>Combinar encargos de distintos precios y horas</summary>
+          <MonthlyPortfolioPlanner monthlyBilling={result.billingWithoutVAT} billableHours={hoursBillable} />
+          <a href="/cuanto-facturar-autonomo-3000-euros#combinar-encargos">Ver el ejemplo de servicios combinados</a>
+        </details>
       </details>
 
       <details className={breakdownStyles.disclosure}>

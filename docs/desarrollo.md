@@ -48,6 +48,53 @@ Los espacios publicitarios están preparados, pero `lib/ads.ts` exige `NEXT_PUBL
 
 ## Revisión local antes de publicar
 
+### Combinar servicios distintos en un mes (27 de octubre de 2026)
+
+El comprobador anterior suponía encargos iguales. El resultado añade ahora
+«Combinar encargos de distintos precios y horas» dentro de esa misma ayuda,
+con hasta ocho grupos: cantidad entera, precio sin IVA de un servicio y horas
+de uno. Empieza con un grupo vacío y permite añadir y quitar grupos, conservando
+los demás datos y llevando el foco a los campos correspondientes. No añade
+otra ayuda al primer nivel del resultado ni modifica el comprobador anterior.
+
+`lib/projectPortfolio.ts` suma cantidad por precio y cantidad por horas de cada
+grupo. Normaliza precio y tiempo a dos decimales antes de multiplicar; usa
+céntimos y centésimas de hora, valida enteros seguros en productos y sumas,
+acepta precio cero explícito para trabajo gratuito y compara por separado el
+objetivo de facturación y la capacidad. No optimiza cantidades ni transforma
+una diferencia de facturación en beneficio neto. Tampoco recalcula impuestos,
+comprueba ventas/cobros o coordina fechas de entrega y costes extraordinarios.
+
+`MonthlyPortfolioPlanner.tsx` usa únicamente la referencia mensual y las horas
+del resultado. Los campos no tienen `name`, no entran en el GET ni el resumen
+compartido y no crean eventos, peticiones o almacenamiento. Una edición, alta
+o baja de grupo retira la comparación anterior. Cambiar la referencia mensual
+o las horas del cálculo principal reinicia los grupos. Los nombres de clientes
+no son necesarios y no se piden.
+
+La guía de 3000 EUR conserva sus casos anteriores y añade la misma combinación:
+tres cuotas ficticias de 800 EUR y 12 h, más un proyecto de 1800 EUR y 32 h.
+Suman 4200 EUR y 68 h; frente al ejemplo de 4149,41 EUR y 80 h quedan 50,59 EUR
+de facturación y 12 h de capacidad. Si el proyecto ocupa 50 h, el plan pasa a
+86 h y faltan 6. Con solo dos cuotas y el proyecto inicial suma 3400 EUR y 56 h:
+cabe por tiempo pero faltan 749,41 EUR para la facturación objetivo. Los importes
+y casos se derivan del mismo modelo, con referencia del motor fiscal existente.
+La tabla, el método y las cinco FAQ permanecen en el HTML inicial.
+
+Validación: 404 pruebas en 58 archivos, lint y compilación correctos. Se cubren
+las cuatro combinaciones de cobertura/capacidad, decimales, precio cero,
+cantidades inválidas, productos y sumas inseguros, límite de grupos, foco,
+eliminación, reinicio y conservación del resumen y los eventos. Verificado en
+navegador el acceso desde el resultado, el ejemplo, la edición y pantallas de
+320 y 390 px sin desborde. La ayuda anidada reduce sus bordes y relleno en móvil
+para conservar espacio de lectura. La guía responde 200 con tabla y cinco FAQ
+en sus esquemas nativos, sin errores de consola ni anuncios en las vistas revisadas.
+
+La publicación autorizada incluye el plan de servicios combinados, la guía de
+3000 EUR actualizada y el acceso desde el resultado. Mantiene los anuncios
+desactivados, no toca el piloto ni los seguimientos y no solicita otra revisión
+de AdSense.
+
 ### Revisar precio y horas de un encargo terminado (27 de octubre de 2026)
 
 El kit añade una revisión posterior al trabajo, distinta del presupuesto y la

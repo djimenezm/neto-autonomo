@@ -4,15 +4,17 @@ import Footer from '@/components/Footer';
 import Header from '@/components/Header';
 import LeadMagnetForm from '@/components/LeadMagnetForm';
 import MonthlyProjectPlanner from '@/components/MonthlyProjectPlanner';
+import MonthlyPortfolioPlanner from '@/components/MonthlyPortfolioPlanner';
 import { calculateExample, exampleAssumptions, formatEuro, getExampleUrl } from '@/lib/scenarioExamples';
 import { projectCapacityExample, projectCapacityResult, projectMonthlyExample, slowerProjectResult } from '@/lib/projectCapacityExample';
+import { portfolioExampleResult, portfolioOverloadResult, portfolioShortfallResult } from '@/lib/projectPortfolioExample';
 import { getSiteUrl, siteConfig } from '@/lib/site';
 import styles from './capacityGuide.module.css';
 
 const route = '/cuanto-facturar-autonomo-3000-euros';
 const title = 'Cuánto facturar como autónomo para ganar 3000 euros netos';
 const description =
-  'Ejemplo para conservar 3000 euros netos: facturación desglosada en encargos, horas necesarias y capacidad mensual. Comprueba si el precio y el trabajo previsto encajan.';
+  'Ejemplo para conservar 3000 euros netos: combina cuotas mensuales y proyectos de distintos precios y horas. Comprueba la facturación prevista y si cabe en tu mes.';
 
 const hourScenarios = [60, 80, 120] as const;
 const eightyHourResult = projectMonthlyExample;
@@ -35,7 +37,11 @@ const pageFaqItems = [
   },
   {
     question: '¿El comprobador garantiza que alcanzaré 3000 euros netos?',
-    answer: 'No. Compara precio y tiempo de encargos iguales con una referencia de facturación ya calculada. No comprueba ventas, cobros, fechas ni todos tus impuestos. El resultado depende de que los costes y las horas reflejen tu actividad; los números de la guía son ficticios.',
+    answer: 'No. Compara encargos iguales o una combinación de servicios con una referencia de facturación ya calculada. No comprueba ventas, cobros, fechas ni todos tus impuestos. La diferencia de facturación no es beneficio neto y los números de la guía son ficticios.',
+  },
+  {
+    question: '¿Cómo combino cuotas mensuales y proyectos puntuales?',
+    answer: 'Crea un grupo por cada tipo de servicio con igual precio y tiempo. Multiplica su cantidad por el precio sin IVA y por las horas de uno; después suma los grupos. Una cuota recurrente cuenta con su importe y sus horas de ese mes. Comprueba por separado si cubres la facturación objetivo y si cabes en las horas disponibles.',
   },
 ] as const;
 
@@ -77,7 +83,10 @@ export const metadata: Metadata = {
 export default function CuantoFacturarAutonomo3000EurosPage() {
   const regular = projectCapacityResult;
   const slower = slowerProjectResult;
-  if (!regular.valid || !slower.valid) throw new Error('Invalid editorial project-capacity example');
+  const portfolio = portfolioExampleResult;
+  const overloadedPortfolio = portfolioOverloadResult;
+  const shortPortfolio = portfolioShortfallResult;
+  if (!regular.valid || !slower.valid || !portfolio.valid || !overloadedPortfolio.valid || !shortPortfolio.valid) throw new Error('Invalid editorial project-capacity example');
   const siteUrl = getSiteUrl();
   const pageUrl = new URL(route, siteUrl).toString();
 
@@ -185,6 +194,7 @@ export default function CuantoFacturarAutonomo3000EurosPage() {
               <li>La facturación necesaria con los supuestos del ejemplo.</li>
               <li>Cuántos encargos completos permiten alcanzarla.</li>
               <li>Qué ocurre si cada encargo exige más horas.</li>
+              <li>Cómo combinar cuotas y proyectos con precios distintos.</li>
               <li>Cómo contrastarlo con tu trabajo registrado.</li>
             </ul>
           </aside>
@@ -271,6 +281,52 @@ export default function CuantoFacturarAutonomo3000EurosPage() {
           <h2 id="plan-encargos">Comprueba tu precio y tus horas por encargo</h2>
           <p>Aquí usamos la referencia del ejemplo. Para obtener la tuya, <Link href={getExampleUrl(3000)}>ajusta los datos en la calculadora</Link> y abre «Comprobar cuántos encargos necesito y si caben» en tu resultado.</p>
           <MonthlyProjectPlanner monthlyBilling={eightyHourResult.billingWithoutVAT} billableHours={exampleAssumptions.billableHours} />
+          <p>Si tus servicios tienen precios y duraciones diferentes, usa la <Link href="#combinar-encargos">combinación de servicios del mismo mes</Link>.</p>
+        </div>
+      </section>
+
+      <section className="section" aria-labelledby="combinar-encargos">
+        <div className="container text-block">
+          <h2 id="combinar-encargos">Combina cuotas mensuales y proyectos puntuales</h2>
+          <p>
+            No todos los encargos tienen que ser iguales. Agrupa solo los que comparten precio y
+            tiempo; multiplica la cantidad de cada grupo por el precio sin IVA y por las horas de
+            un servicio. Suma después la facturación y el trabajo de todos los grupos.
+          </p>
+          <h3>Ejemplo ficticio: tres cuotas y un proyecto</h3>
+          <p>
+            Conservamos la referencia de {formatEuro(portfolio.monthlyBilling)} sin IVA y
+            {' '}{portfolio.billableHours} h al mes del ejemplo anterior. Los servicios y precios
+            de esta tabla son inventados, no una recomendación de mercado ni contratos reales.
+          </p>
+          <div className="scenario-table-scroll" role="region" aria-label="Ejemplo ficticio de servicios combinados" tabIndex={0}>
+            <table className="scenario-table">
+              <caption>Solo facturación y trabajo previstos para el mismo mes.</caption>
+              <thead><tr><th scope="col">Servicio</th><th scope="col">Cantidad</th><th scope="col">Precio de uno sin IVA</th><th scope="col">Horas de uno</th><th scope="col">Facturación del grupo</th><th scope="col">Horas del grupo</th></tr></thead>
+              <tbody>{portfolio.groups.map((group, index) => <tr key={index}><th scope="row">{index === 0 ? 'Cuotas mensuales' : 'Proyecto puntual'}</th><td>{group.quantity}</td><td>{formatEuro(group.pricePerProject)}</td><td>{group.hoursPerProject} h</td><td>{formatEuro(group.billing)}</td><td>{group.hours} h</td></tr>)}</tbody>
+              <tfoot><tr><th scope="row" colSpan={4}>Total del mes</th><td>{formatEuro(portfolio.plannedBilling)}</td><td>{portfolio.plannedHours} h</td></tr></tfoot>
+            </table>
+          </div>
+          <p>
+            La combinación suma <strong>{formatEuro(portfolio.plannedBilling)} sin IVA y {portfolio.plannedHours} h</strong>:
+            supera el objetivo en {formatEuro(portfolio.billingDifference)} y quedan {portfolio.remainingHours} h
+            de capacidad. Esa diferencia es facturación, no beneficio neto; no recalculamos impuestos.
+          </p>
+          <p>
+            Si el proyecto pasa de {portfolio.groups[1].hoursPerProject} a {overloadedPortfolio.groups[1].hoursPerProject} h,
+            el plan ocupa {overloadedPortfolio.plannedHours} h: faltan {-overloadedPortfolio.remainingHours} h de
+            capacidad aunque se mantengan los {formatEuro(overloadedPortfolio.plannedBilling)}.
+            Con solo dos cuotas y el proyecto inicial, serían {formatEuro(shortPortfolio.plannedBilling)} y
+            {' '}{shortPortfolio.plannedHours} h: caben por tiempo, pero faltan {formatEuro(-shortPortfolio.billingDifference)}
+            {' '}para la facturación objetivo.
+          </p>
+          <MonthlyPortfolioPlanner monthlyBilling={eightyHourResult.billingWithoutVAT} billableHours={exampleAssumptions.billableHours} />
+          <p>
+            Una cuota recurrente se registra con su precio y trabajo de este mes. Para proyectos que
+            abarquen varios meses, revisa el reparto de trabajo y facturación antes de incluirlos:
+            no copies el precio completo en todos los meses. Revisa también las fechas de entrega
+            y los costes extraordinarios de cada servicio que no estén en tu cálculo de partida.
+          </p>
         </div>
       </section>
 
