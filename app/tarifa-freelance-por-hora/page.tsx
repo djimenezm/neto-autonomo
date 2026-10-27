@@ -4,6 +4,9 @@ import Footer from '@/components/Footer';
 import Header from '@/components/Header';
 import BillingBreakdown from '@/components/BillingBreakdown';
 import WithholdingPreview from '@/components/WithholdingPreview';
+import MonthlyNetPreview from '@/components/MonthlyNetPreview';
+import { monthlyNetExampleReference, monthlyNetExampleRows } from '@/lib/monthlyNetExample';
+import { netPreviewSources } from '@/lib/monthlyNet';
 import { withholdingExample, withholdingExampleRows, withholdingSource } from '@/lib/withholdingPreview';
 import { calculateExample, exampleAssumptions, formatEuro, getExampleUrl } from '@/lib/scenarioExamples';
 import { getSiteUrl, siteConfig } from '@/lib/site';
@@ -12,7 +15,7 @@ import styles from './withholdingGuide.module.css';
 const route = '/tarifa-freelance-por-hora';
 const title = 'Tarifa freelance por hora: cómo calcularla bien';
 const description =
-  'Calcula tu tarifa freelance por hora y distingue base, IVA, retención e importe a cobrar. Incluye el desglose hasta el neto, un ejemplo y una ayuda para comprobar el cobro.';
+  'Calcula tu tarifa freelance por hora y estima qué neto dejaría otra facturación con los mismos costes y cuota. Incluye ejemplos y la diferencia entre base, IVA, retención y cobro.';
 
 const targetNet = 2000;
 const example = calculateExample(targetNet);
@@ -20,6 +23,11 @@ const fewerHours = exampleAssumptions.billableHours / 2;
 const fewerHoursExample = calculateExample(targetNet, { billableHours: fewerHours });
 
 const pageFaqItems = [
+  {
+    question: '¿Puedo estimar el neto a partir de lo que voy a facturar?',
+    answer:
+      'Sí. La ayuda parte de una facturación mensual sin IVA, mantiene los gastos y la cuota de tu cálculo y vuelve a estimar la reserva de IRPF con el mismo criterio. Proyecta doce meses iguales. No recalcula la cotización ni verifica reducciones, otras rentas o pagos a cuenta; no es una declaración ni un calendario de cobros.',
+  },
   {
     question: '¿La retención de una factura es la reserva de IRPF de la calculadora?',
     answer:
@@ -85,6 +93,10 @@ export const metadata: Metadata = {
 export default function TarifaFreelancePorHoraPage() {
   const siteUrl = getSiteUrl();
   const pageUrl = new URL(route, siteUrl).toString();
+  const netExamples = monthlyNetExampleRows.map((row) => {
+    if (!row.valid) throw new Error('Invalid editorial monthly-net example');
+    return row;
+  });
 
   const articleSchema = {
     '@context': 'https://schema.org',
@@ -220,6 +232,51 @@ export default function TarifaFreelancePorHoraPage() {
             Método: simulación aritmética con el mismo motor de la calculadora, no una encuesta de
             precios. Responsable del sitio: <Link href="/aviso-legal">{siteConfig.ownerName}</Link>.
             {' '}Actualizada el <time dateTime="2026-10-27">27 de octubre de 2026</time>.
+          </p>
+        </div>
+      </section>
+
+      <section className="section" aria-labelledby="neto-segun-facturacion">
+        <div className="container text-block">
+          <h2 id="neto-segun-facturacion">Qué neto dejaría facturar menos o más</h2>
+          <p>
+            La calculadora parte de un neto deseado para buscar una facturación objetivo. Esta
+            comprobación recorre la cuenta desde una facturación prevista: resta los mismos gastos
+            deducibles y cuota, estima de nuevo la reserva de IRPF y descuenta los costes no deducibles.
+            La cuota se mantiene como supuesto, aunque antes la hayas obtenido en modo automático.
+          </p>
+          <h3>Ejemplo ficticio: se mantiene el coste, cambia lo facturado</h3>
+          <p>
+            Conservamos {formatEuro(monthlyNetExampleReference.monthlyExpenses)} de gastos deducibles,
+            {' '}{formatEuro(monthlyNetExampleReference.selfEmployedFee)} de cuota manual y
+            {' '}{formatEuro(monthlyNetExampleReference.monthlyNonDeductibleExpenses)} de costes no deducibles.
+            La reserva manual del {monthlyNetExampleReference.irpfRate} % se aplica al beneficio positivo
+            del modelo; no es una retención ni un tipo que corresponda a todas las personas.
+          </p>
+          <div className="scenario-table-scroll" role="region" aria-label="Ejemplo de neto según facturación con costes constantes" tabIndex={0}>
+            <table className="scenario-table">
+              <caption>Tres escenarios alternativos; cada uno supone doce meses iguales y los mismos costes y cuota.</caption>
+              <thead><tr><th scope="col">Facturación sin IVA</th><th scope="col">Tras gastos y cuota</th><th scope="col">Reserva de IRPF</th><th scope="col">Neto orientativo</th></tr></thead>
+              <tbody>{netExamples.map((row) => <tr key={row.monthlyBilling}><th scope="row">{formatEuro(row.monthlyBilling)}</th><td>{formatEuro(row.preTaxProfit)}</td><td>− {formatEuro(row.estimatedIRPF)}</td><td>{formatEuro(row.estimatedNet)}</td></tr>)}</tbody>
+            </table>
+          </div>
+          <p>
+            Con {formatEuro(netExamples[0].monthlyBilling)} sin IVA: restamos
+            {' '}{formatEuro(netExamples[0].monthlyExpenses)} de gastos y {formatEuro(netExamples[0].selfEmployedFee)}
+            {' '}de cuota y quedan {formatEuro(netExamples[0].preTaxProfit)} antes de la reserva.
+            El {monthlyNetExampleReference.irpfRate} % son {formatEuro(netExamples[0].estimatedIRPF)} y quedan
+            {' '}<strong>{formatEuro(netExamples[0].estimatedNet)}</strong>. Son {formatEuro(-netExamples[0].netDifference)}
+            {' '}menos que el objetivo de {formatEuro(netExamples[0].targetNet)}. El IVA no entra en esta resta
+            y la retención no se descuenta otra vez. Con {formatEuro(netExamples[2].monthlyBilling)} y estos
+            mismos supuestos, el neto del modelo sería {formatEuro(netExamples[2].estimatedNet)}.
+          </p>
+          <p>Para probar tus costes, abre «Ver cómo se reparte la facturación» y después «Estimar qué neto dejaría otra facturación» en tu resultado. Aquí se mantienen los supuestos ficticios de la tabla.</p>
+          <MonthlyNetPreview reference={monthlyNetExampleReference} />
+          <p>
+            La AEAT explica el <a href={netPreviewSources.incomeAndExpenses}>cálculo del rendimiento a partir de ingresos y gastos deducibles</a>.
+            Esta simulación no aplica todas las reducciones ni sustituye la fiscalidad de tu actividad.
+            La Seguridad Social explica la <a href={netPreviewSources.contributionReview}>regularización de cuotas según los rendimientos anuales</a>:
+            conservar una cuota en esta comparación no confirma que sea la que te corresponda al final.
           </p>
         </div>
       </section>

@@ -4,6 +4,7 @@ import { forwardRef, useMemo, useState } from 'react';
 import { AUTONOMOUS_COMMUNITY_LABELS, type CalculationResult } from '@/lib/calculator';
 import { formatCurrency, formatNumber } from '@/lib/format';
 import BillingBreakdown from '@/components/BillingBreakdown';
+import MonthlyNetPreview from '@/components/MonthlyNetPreview';
 import MonthlyProjectPlanner from '@/components/MonthlyProjectPlanner';
 import MonthlyPortfolioPlanner from '@/components/MonthlyPortfolioPlanner';
 import MonthlyScenarioComparator from '@/components/MonthlyScenarioComparator';
@@ -11,9 +12,11 @@ import AnnualBillingPlanner from '@/components/AnnualBillingPlanner';
 import ReducedFeeNotice from '@/components/ReducedFeeNotice';
 import { reducedFeeSources } from '@/lib/reducedFee2026';
 import { inputFromResult } from '@/lib/monthlyScenarios';
+import { netReferenceFromResult } from '@/lib/monthlyNet';
 import projectPlannerStyles from './MonthlyProjectPlanner.module.css';
 import breakdownStyles from './BillingBreakdown.module.css';
 import portfolioStyles from './MonthlyPortfolioPlanner.module.css';
+import netPreviewStyles from './MonthlyNetPreview.module.css';
 
 type ResultCardProps = {
   result: CalculationResult;
@@ -196,6 +199,11 @@ const ResultCard = forwardRef<HTMLElement, ResultCardProps>(function ResultCard(
           headingLevel="h4"
           showWithholdingPreview
         />
+        <details className={`${breakdownStyles.disclosure} ${netPreviewStyles.disclosure}`}>
+          <summary>Estimar qué neto dejaría otra facturación</summary>
+          <MonthlyNetPreview reference={netReferenceFromResult(result)} />
+          <a href="/tarifa-freelance-por-hora#neto-segun-facturacion">Ver el ejemplo de neto según facturación</a>
+        </details>
         <a href="/tarifa-freelance-por-hora#ejemplo-tarifa">Ver un ejemplo completo de tarifa por hora</a>
       </details>
 

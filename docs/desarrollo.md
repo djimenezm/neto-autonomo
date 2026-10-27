@@ -48,6 +48,53 @@ Los espacios publicitarios están preparados, pero `lib/ads.ts` exige `NEXT_PUBL
 
 ## Revisión local antes de publicar
 
+### Neto a partir de otra facturación (27 de octubre de 2026)
+
+El desglose del resultado añade «Estimar qué neto dejaría otra facturación».
+La ayuda pide una facturación mensual sin IVA y conserva los gastos deducibles,
+costes no deducibles, cuota y criterio de IRPF de ese resultado. Solo cambia
+lo facturado y vuelve a estimar la reserva sobre el beneficio positivo. Se
+explicitan doce meses iguales y una cuota fija, incluso si el cálculo previo
+la estimó automáticamente o usó una reducción. No comprueba el derecho a esa
+reducción ni recalcula cotizaciones, regularizaciones o la declaración real.
+
+`lib/monthlyNet.ts` usa céntimos para las partidas y la conciliación del neto.
+El modo manual aplica el mismo porcentaje al beneficio positivo; el progresivo
+reutiliza `calculateSimplifiedAnnualIRPF`, que se exporta desde el motor sin
+alterar su implementación, tablas o reglas. El modelo admite facturación cero,
+no genera una reserva negativa ante pérdidas y muestra el déficit si las
+partidas superan lo facturado. Redondea y muestra la facturación utilizada;
+los importes o productos inseguros se rechazan. Reproducir un objetivo con
+partidas ya redondeadas puede dar un céntimo de diferencia y se explica.
+
+`MonthlyNetPreview.tsx` empieza vacío y no añade `name` ni formulario, peticiones,
+almacenamiento o eventos. Editar retira el resultado previo y un cambio en los
+supuestos del cálculo principal reinicia la ayuda. No cambia ese resultado ni
+su resumen o enlace compartible. IVA, retenciones, otras rentas, circunstancias
+personales, reducciones y pagos a cuenta quedan fuera de esta proyección.
+
+La guía por hora conserva los ejemplos anteriores y añade tres casos con
+gastos de 300 EUR, cuota manual de 320 EUR, costes no deducibles cero y reserva
+manual del 15 %: 2500 EUR sin IVA dejan 1598 EUR; 2972,94 EUR reproducen 2000 EUR;
+3500 EUR dejan 2448 EUR. La tabla y sus seis FAQ quedan en el HTML inicial.
+Se enlazan el [método de ingresos y gastos de la AEAT](https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/folleto-actividades-economicas/3-impuesto-sobre-renta-personas-fisicas/3_4-estimacion-directa-normal/3_4_1-calculo-rendimiento-neto.html)
+y la [explicación de la Seguridad Social sobre regularización de cuotas](https://www.seg-social.es/wps/portal/wss/internet/HerramientasWeb/a0f05310-9c20-45ba-9dd2-47c9e88f34c1?changeLanguage=es).
+Son referencias para interpretar los límites, no una validación oficial del modelo.
+
+Validación: 440 pruebas en 61 archivos, lint y compilación correctos. Se cubren
+modos manual y progresivo, las cinco referencias autonómicas y cuotas manual,
+automática y reducida, comprobando que los resultados de partida se reproducen
+con un máximo de un céntimo de diferencia. También se revisan costes no
+deducibles, facturación cero, déficits, redondeos y cifras inseguras. En navegador
+se verifican errores y foco, edición, decimales y Enter, contexto progresivo con
+cuota mantenida, resumen intacto y navegación a la guía. Sin desborde a 320 y
+390 px, sin errores de consola ni anuncios en las vistas revisadas. El HTML
+inicial contiene la tabla y los esquemas Article/Breadcrumb/FAQ con seis preguntas.
+
+La publicación autorizada incluye la estimación de neto, la guía por hora
+actualizada y el acceso desde el resultado. Mantiene los anuncios desactivados,
+no toca el piloto ni los seguimientos y no solicita otra revisión de AdSense.
+
 ### Combinar servicios distintos en un mes (27 de octubre de 2026)
 
 El comprobador anterior suponía encargos iguales. El resultado añade ahora

@@ -200,7 +200,7 @@ function calculateProgressiveQuota(taxableBase: number, brackets: { upTo: number
   return quota;
 }
 
-function calculateSimplifiedAnnualIRPF(preTaxProfitAnnual: number, autonomousCommunity: AutonomousCommunity) {
+export function calculateSimplifiedAnnualIRPF(preTaxProfitAnnual: number, autonomousCommunity: AutonomousCommunity) {
   const regionalConfig = REGIONAL_IRPF_CONFIG[autonomousCommunity];
   const stateTaxableBase = Math.max(0, preTaxProfitAnnual - STATE_PERSONAL_ALLOWANCE_2026);
   const regionalTaxableBase = Math.max(0, preTaxProfitAnnual - regionalConfig.personalAllowance);
