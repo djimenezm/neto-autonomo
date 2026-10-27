@@ -1,1 +1,3 @@
 .guide :is(h2, h3)[id] { scroll-margin-top: 7rem; }
+.costLink { display: inline-block; max-width: 100%; text-decoration: underline; text-underline-offset: 3px; }
+.costLink:focus-visible { outline: 3px solid #0e6d54; outline-offset: 3px; }

@@ -11,12 +11,13 @@ const fields = [
   { key: 'sessionHours', label: 'Horas de jornada con el cliente', hint: 'La sesión o el bloque de trabajo que estás ofreciendo, hasta 24 horas.' },
   { key: 'preparationHours', label: 'Horas de preparación de este servicio', hint: 'Trabajo específico para este cliente fuera de la jornada. Usa 0 si ya está incluido.' },
   { key: 'followUpHours', label: 'Horas de cierre y seguimiento', hint: 'Documentación o revisión posterior fuera de la jornada. Usa 0 si ya está incluido.' },
+  { key: 'serviceCosts', label: 'Costes específicos que debe cubrir el precio (EUR)', hint: 'Solo costes de este servicio que aún no estén cubiertos por tu referencia por hora. Usa 0 si no hay. No se calcula su deducibilidad ni el IVA recuperable.' },
   { key: 'proposedPrice', label: 'Precio que estás valorando sin IVA (EUR, opcional)', hint: 'Déjalo vacío si solo quieres obtener la referencia para la jornada.' },
 ] as const;
 type Values = Record<keyof DayRateInput, string>;
-const emptyValues: Values = { hourlyRate: '', sessionHours: '', preparationHours: '', followUpHours: '', proposedPrice: '' };
+const emptyValues: Values = { hourlyRate: '', sessionHours: '', preparationHours: '', followUpHours: '', serviceCosts: '', proposedPrice: '' };
 
-export default function DayRatePlanner({ example }: { example: DayRateInput }) {
+export default function DayRatePlanner({ example, costExample }: { example: DayRateInput; costExample?: DayRateInput }) {
   const id = useId();
   const inputsRef = useRef<Partial<Record<keyof Values, HTMLInputElement | null>>>({});
   const [values, setValues] = useState<Values>(emptyValues);
@@ -29,18 +30,39 @@ export default function DayRatePlanner({ example }: { example: DayRateInput }) {
       sessionHours: parseSpanishNumber(nextValues.sessionHours),
       preparationHours: parseSpanishNumber(nextValues.preparationHours),
       followUpHours: parseSpanishNumber(nextValues.followUpHours),
+      serviceCosts: parseSpanishNumber(nextValues.serviceCosts),
       proposedPrice: nextValues.proposedPrice.trim() ? parseSpanishNumber(nextValues.proposedPrice) : undefined,
     });
     setEstimate(result);
+    if (result.valid) setValues({
+      hourlyRate: formatNumber(result.hourlyRate),
+      sessionHours: formatNumber(result.sessionHours),
+      preparationHours: formatNumber(result.preparationHours),
+      followUpHours: formatNumber(result.followUpHours),
+      serviceCosts: formatNumber(result.serviceCosts),
+      proposedPrice: result.proposedPrice === null ? '' : formatNumber(result.proposedPrice),
+    });
     if (!result.valid) {
       const firstInvalid = fields.find(({ key }) => result.errors[key]);
       if (firstInvalid) inputsRef.current[firstInvalid.key]?.focus();
     }
   }
 
+  function loadExample(input: DayRateInput) {
+    setIsExample(true);
+    calculate({
+      hourlyRate: formatNumber(input.hourlyRate),
+      sessionHours: formatNumber(input.sessionHours),
+      preparationHours: formatNumber(input.preparationHours),
+      followUpHours: formatNumber(input.followUpHours),
+      serviceCosts: formatNumber(input.serviceCosts ?? 0),
+      proposedPrice: input.proposedPrice === undefined ? '' : formatNumber(input.proposedPrice),
+    });
+  }
+
   return (
     <div className={styles.planner}>
-      <p id={`${id}-intro`}>Suma todo el tiempo específico del servicio, aunque parte ocurra otro día. Los datos se usan en esta página y no se guardan al salir.</p>
+      <p id={`${id}-intro`}>Suma todo el tiempo específico del servicio, aunque parte ocurra otro día, y los costes adicionales que deba cubrir su precio. No repitas los gastos habituales ya incluidos en tu tarifa. Los datos se usan en esta página y no se guardan al salir.</p>
       <noscript><p>El comprobador necesita JavaScript. El ejemplo y la fórmula de arriba permiten hacer la cuenta sin él.</p></noscript>
       <form noValidate aria-label="Comprobar una tarifa diaria" aria-describedby={`${id}-intro`} onSubmit={(event) => { event.preventDefault(); calculate(); }}>
         <div className={styles.fields}>
@@ -71,21 +93,11 @@ export default function DayRatePlanner({ example }: { example: DayRateInput }) {
         </div>
         <div className={styles.actions}>
           <button className="primary-button" type="submit">Comprobar jornada</button>
-          <button type="button" className="link-button" onClick={() => {
-            const nextValues: Values = {
-              hourlyRate: String(example.hourlyRate),
-              sessionHours: String(example.sessionHours),
-              preparationHours: String(example.preparationHours),
-              followUpHours: String(example.followUpHours),
-              proposedPrice: example.proposedPrice === undefined ? '' : String(example.proposedPrice),
-            };
-            setValues(nextValues);
-            setIsExample(true);
-            calculate(nextValues);
-          }}>Cargar el ejemplo de la guía</button>
+          <button type="button" className="link-button" onClick={() => loadExample(example)}>Cargar el ejemplo de la guía</button>
+          {costExample ? <button type="button" className="link-button" onClick={() => loadExample(costExample)}>Probar el ejemplo con costes</button> : null}
         </div>
       </form>
-      <div role="status" aria-live="polite" aria-atomic="true">
+      <div role="status" aria-label="Comprobación de jornada y costes" aria-live="polite" aria-atomic="true">
         {estimate && !estimate.valid ? <p>Revisa los campos indicados antes de comprobar la jornada.</p> : null}
         {estimate?.valid ? (
           <div className={styles.result}>
@@ -94,24 +106,29 @@ export default function DayRatePlanner({ example }: { example: DayRateInput }) {
             <dl>
               <div><dt>Tiempo total del servicio</dt><dd>{formatNumber(estimate.totalHours)} h</dd></div>
               <div><dt>Precio según tu referencia por hora</dt><dd>{formatCurrency(estimate.referencePrice)} sin IVA</dd></div>
+              <div><dt>Costes específicos a cubrir una sola vez</dt><dd>{formatCurrency(estimate.serviceCosts)}</dd></div>
+              <div><dt>Referencia total: horas y costes</dt><dd>{formatCurrency(estimate.totalReferencePrice)} sin IVA</dd></div>
               {estimate.proposedPrice !== null ? (
                 <>
                   <div><dt>Precio que estás valorando</dt><dd>{formatCurrency(estimate.proposedPrice)} sin IVA</dd></div>
-                  <div><dt>Ingreso por cada hora dedicada</dt><dd>{formatCurrency(estimate.effectiveHourlyRate!)} / h sin IVA</dd></div>
+                  <div><dt>Precio menos los costes específicos</dt><dd>{formatCurrency(estimate.availableForTime!)}</dd></div>
+                  <div><dt>Por hora tras esos costes</dt><dd>{formatCurrency(estimate.availableHourlyRate!)} / h</dd></div>
                 </>
               ) : null}
             </dl>
-            <p>{formatNumber(parseSpanishNumber(values.sessionHours))} h de jornada + {formatNumber(parseSpanishNumber(values.preparationHours))} h de preparación + {formatNumber(parseSpanishNumber(values.followUpHours))} h de cierre = {formatNumber(estimate.totalHours)} h × {formatCurrency(estimate.hourlyRate)}/h.</p>
+            <p>({formatNumber(estimate.sessionHours)} h de jornada + {formatNumber(estimate.preparationHours)} h de preparación + {formatNumber(estimate.followUpHours)} h de cierre) × {formatCurrency(estimate.hourlyRate)}/h = {formatCurrency(estimate.referencePrice)}. Al sumar {formatCurrency(estimate.serviceCosts)} de costes específicos, la referencia total es {formatCurrency(estimate.totalReferencePrice)} sin IVA.</p>
+            {estimate.proposedPrice !== null ? <p>{formatCurrency(estimate.proposedPrice)} de precio − {formatCurrency(estimate.serviceCosts)} de costes = {formatCurrency(estimate.availableForTime!)}; entre {formatNumber(estimate.totalHours)} h quedan {formatCurrency(estimate.availableHourlyRate!)} por hora para cubrir tu referencia. Todavía incluye los gastos habituales, cuota y reserva fiscal contemplados en ella; no es sueldo neto.</p> : null}
             {estimate.priceDifference !== null ? (
-              <p className={styles.comparison}>
+              <p className={`${styles.comparison}${estimate.priceDifference < 0 ? ` ${styles.shortfall}` : ''}`}>
                 {estimate.priceDifference < 0
-                  ? `Faltan ${formatCurrency(-estimate.priceDifference)} para alcanzar tu referencia.`
+                  ? `Faltan ${formatCurrency(-estimate.priceDifference)} para alcanzar tu referencia total de horas y costes.`
                   : estimate.priceDifference > 0
-                    ? `Supera tu referencia en ${formatCurrency(estimate.priceDifference)}.`
-                    : 'El precio coincide con tu referencia para estas horas.'}
+                    ? `Supera tu referencia en ${formatCurrency(estimate.priceDifference)} tras cubrir esos costes específicos.`
+                    : 'El precio coincide con tu referencia total para estas horas y costes.'}
               </p>
             ) : null}
-            <p>La comparación depende de tu estimación. No calcula beneficio neto, impuestos, gastos extraordinarios ni un recargo por reservar agenda.</p>
+            {estimate.availableForTime !== null && estimate.availableForTime < 0 ? <p className={styles.shortfall}>El precio ni siquiera cubre los costes específicos: faltan {formatCurrency(-estimate.availableForTime)} antes de remunerar tus horas.</p> : null}
+            <p>Redondeamos importes y horas a dos decimales antes de calcular. La comparación depende de tu estimación. No calcula beneficio neto, impuestos, deducibilidad, cobros ni un recargo por reservar agenda. El total es una referencia aritmética; no determina el precio que debes acordar.</p>
           </div>
         ) : null}
       </div>

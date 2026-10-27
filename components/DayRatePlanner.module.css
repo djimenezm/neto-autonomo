@@ -66,6 +66,7 @@
 .result dl > div { display: grid; gap: 0.4rem; border-bottom: 1px solid #ccdcd3; padding: 0.85rem 0; }
 .result dd { margin: 0; font-weight: 800; font-variant-numeric: tabular-nums; }
 .comparison { border-left: 3px solid #0e6d54; padding: 0.8rem; background: #edf6ef; font-weight: 700; }
+.shortfall { border-left: 3px solid #9b6513; padding: 0.8rem; background: #fff4df; }
 
 @container (min-width: 560px) {
   .fields { grid-template-columns: repeat(2, minmax(0, 1fr)); }

@@ -474,6 +474,7 @@ export default function TarifaFreelancePorHoraPage() {
               Leer guía sobre cuota 2026
             </Link>
           </div>
+          <p>Si un servicio exige un gasto adicional que tu tarifa aún no cubre, revisa el <Link href="/tarifa-diaria-freelance#costes-jornada" className={styles.costLink}>ejemplo de jornada con costes específicos</Link> antes de comparar el precio por hora.</p>
         </div>
       </section>
 

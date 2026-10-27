@@ -10,3 +10,10 @@ export const dayRateExample = {
   proposedPrice: Math.round(dayRateMonthlyExample.hourlyRate * 6 * 100) / 100,
 } satisfies DayRateInput;
 export const dayRateExampleResult = estimateDayRate(dayRateExample);
+
+export const dayRateCostExample = {
+  ...dayRateExample,
+  serviceCosts: 90,
+  proposedPrice: 350,
+} satisfies DayRateInput;
+export const dayRateCostExampleResult = estimateDayRate(dayRateCostExample);

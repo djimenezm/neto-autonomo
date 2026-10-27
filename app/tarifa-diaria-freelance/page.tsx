@@ -3,19 +3,27 @@ import Link from 'next/link';
 import Footer from '@/components/Footer';
 import Header from '@/components/Header';
 import DayRatePlanner from '@/components/DayRatePlanner';
-import { dayRateExample, dayRateExampleResult, dayRateMonthlyExample } from '@/lib/dayRateExample';
+import { dayRateCostExample, dayRateCostExampleResult, dayRateExample, dayRateExampleResult, dayRateMonthlyExample } from '@/lib/dayRateExample';
 import { exampleAssumptions, formatEuro, getExampleUrl } from '@/lib/scenarioExamples';
 import { getSiteUrl, siteConfig } from '@/lib/site';
 import styles from './dailyRate.module.css';
 
 const route = '/tarifa-diaria-freelance';
 const title = 'Tarifa diaria freelance: calcula la jornada completa';
-const description = 'Comprueba cuánto cobrar por una jornada freelance sumando sesión, preparación y cierre. Ejemplo reproducible, comparación de precios y propuesta con alcance definido.';
+const description = 'Comprueba una jornada freelance con preparación, cierre y costes específicos. Compara el precio con las horas y los gastos sin duplicar los costes habituales.';
 
 const pageFaqItems = [
   {
     question: '¿Cómo calculo mi tarifa diaria freelance?',
-    answer: 'Multiplica tu referencia por hora sin IVA por todo el tiempo específico del servicio: jornada con el cliente, preparación y cierre. Cuenta cada hora una sola vez. Después revisa el alcance, los gastos extraordinarios y las condiciones que esa cuenta no incluye.',
+    answer: 'Multiplica tu referencia por hora sin IVA por todo el tiempo específico del servicio: jornada con el cliente, preparación y cierre. Añade solo los costes específicos que aún no cubra esa referencia. Cuenta cada hora y cada coste una sola vez; después revisa el alcance y las condiciones.',
+  },
+  {
+    question: '¿Qué costes específicos tengo que sumar a la jornada?',
+    answer: 'Solo los importes que deba cubrir ese servicio y que no estén ya incluidos en tu referencia por hora, por ejemplo un alquiler puntual de equipo. Usa cero si no hay. Si ya repartiste el mismo gasto entre tus costes mensuales, no lo vuelvas a sumar. El comprobador no decide su deducibilidad ni calcula el IVA recuperable.',
+  },
+  {
+    question: '¿El precio menos esos costes es mi sueldo neto?',
+    answer: 'No. Ese importe aún debe cubrir los gastos habituales, la cuota y la reserva fiscal contemplados en tu referencia por hora. En el ejemplo, 350 EUR de precio menos 90 EUR de costes específicos dejan 260 EUR para ocho horas, o 32,50 EUR/h; no son 260 EUR de sueldo neto.',
   },
   {
     question: '¿Tengo que multiplicar siempre por ocho horas?',
@@ -46,7 +54,8 @@ export default function TarifaDiariaFreelancePage() {
   const siteUrl = getSiteUrl();
   const pageUrl = new URL(route, siteUrl).toString();
   const result = dayRateExampleResult;
-  if (!result.valid) throw new Error('Invalid editorial day-rate example');
+  const costResult = dayRateCostExampleResult;
+  if (!result.valid || !costResult.valid) throw new Error('Invalid editorial day-rate example');
   const schemas = [
     {
       '@context': 'https://schema.org', '@type': 'Article', headline: title, description,
@@ -54,7 +63,7 @@ export default function TarifaDiariaFreelancePage() {
       author: { '@type': 'Organization', name: siteConfig.name },
       publisher: { '@type': 'Organization', name: siteConfig.name },
       accountablePerson: { '@type': 'Person', name: siteConfig.ownerName },
-      datePublished: '2026-04-27', dateModified: '2026-10-26',
+      datePublished: '2026-04-27', dateModified: '2026-10-27',
     },
     {
       '@context': 'https://schema.org', '@type': 'BreadcrumbList',
@@ -102,7 +111,7 @@ export default function TarifaDiariaFreelancePage() {
 
       <section className="section" aria-labelledby="ejemplo-jornada">
         <div className="container text-block">
-          <p className="article-meta">Actualizada el <time dateTime="2026-10-26">26 de octubre de 2026</time>. Responsable del contenido: {siteConfig.ownerName}.</p>
+          <p className="article-meta">Actualizada el <time dateTime="2026-10-27">27 de octubre de 2026</time>. Responsable del contenido: {siteConfig.ownerName}.</p>
           <h2 id="ejemplo-jornada">Una sesión de 6 horas, un servicio de 8</h2>
           <p>
             Usamos el mismo supuesto que en la <Link href="/tarifa-freelance-por-hora#ejemplo-tarifa">guía de tarifa por hora</Link>:
@@ -131,17 +140,47 @@ export default function TarifaDiariaFreelancePage() {
             {' '}horas de trabajo dejan {formatEuro(result.effectiveHourlyRate!)}/h, antes de gastos e impuestos.
             {' '}Faltan {formatEuro(-result.priceDifference!)} para alcanzar la referencia del ejemplo.
           </p>
-          <p>Esta cuenta no añade IVA, retenciones ni otros gastos del encargo. Tampoco convierte el precio en beneficio neto.</p>
+          <p>Este primer caso supone cero costes específicos adicionales. No añade IVA ni retenciones, ni convierte el precio en beneficio neto. El siguiente ejemplo añade un coste que solo corresponde a ese servicio.</p>
           <div className="guide-cta"><Link href={getExampleUrl(2000)} className="primary-button">Reproducir la base mensual en la calculadora</Link></div>
         </div>
       </section>
 
-      <section className="section alt" aria-labelledby="comprobar-jornada">
+      <section className="section alt" aria-labelledby="costes-jornada">
+        <div className="container text-block">
+          <h2 id="costes-jornada">Un precio de 350 € puede quedarse corto con 90 € de costes</h2>
+          <p>Seguimos con las mismas {costResult.totalHours} horas y {formatEuro(costResult.hourlyRate)}/h. Añadimos un alquiler puntual de equipo de {formatEuro(costResult.serviceCosts)} que debe cubrir este servicio y que no estaba en los gastos mensuales de la referencia. Todos los datos están inventados; no son precios de mercado ni gastos deducibles confirmados.</p>
+          <div className="scenario-table-scroll" role="region" aria-label="Ejemplo de jornada con costes específicos" tabIndex={0}>
+            <table className="scenario-table">
+              <caption>Ejemplo ficticio. Precio y referencia sin IVA; el coste es el importe que se quiere cubrir, sin cálculo fiscal.</caption>
+              <thead><tr><th scope="col">Concepto</th><th scope="col">Cuenta</th><th scope="col">Resultado</th></tr></thead>
+              <tbody>
+                <tr><th scope="row">Tiempo a tu referencia</th><td>{costResult.totalHours} h × {formatEuro(costResult.hourlyRate)}/h</td><td>{formatEuro(costResult.referencePrice)}</td></tr>
+                <tr><th scope="row">Coste específico adicional</th><td>Alquiler puntual no incluido antes</td><td>{formatEuro(costResult.serviceCosts)}</td></tr>
+                <tr><th scope="row">Referencia total de horas y costes</th><td>{formatEuro(costResult.referencePrice)} + {formatEuro(costResult.serviceCosts)}</td><td><strong>{formatEuro(costResult.totalReferencePrice)}</strong></td></tr>
+                <tr><th scope="row">Precio que se está valorando</th><td>Supuesto ficticio</td><td>{formatEuro(costResult.proposedPrice!)}</td></tr>
+                <tr><th scope="row">Precio menos ese coste</th><td>{formatEuro(costResult.proposedPrice!)} − {formatEuro(costResult.serviceCosts)}</td><td>{formatEuro(costResult.availableForTime!)}</td></tr>
+                <tr><th scope="row">Por hora tras ese coste</th><td>{formatEuro(costResult.availableForTime!)} ÷ {costResult.totalHours} h</td><td>{formatEuro(costResult.availableHourlyRate!)}/h</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>Mirar solo {formatEuro(costResult.proposedPrice!)} ÷ {costResult.totalHours} h da {formatEuro(costResult.effectiveHourlyRate!)}/h y parece superar los {formatEuro(costResult.hourlyRate)}/h. Tras cubrir el alquiler quedan {formatEuro(costResult.availableHourlyRate!)}/h. Faltan <strong>{formatEuro(-costResult.priceDifference!)}</strong> para la referencia total de {formatEuro(costResult.totalReferencePrice)} sin IVA.</p>
+          <h3>Cómo elegir el coste sin contarlo dos veces</h3>
+          <ul className="article-list">
+            <li>Separa lo habitual de lo específico. La gestoría, la cuota o una licencia ya repartida entre tus gastos mensuales siguen cubiertas por la referencia por hora.</li>
+            <li>Escribe solo el coste adicional que debe cubrir tu precio. Si el cliente contrata y paga el alquiler directamente, no lo sumes a tu precio ni lo restes después.</li>
+            <li>Comprueba el tratamiento del IVA antes de elegir ese importe. La <a href="https://sede.agenciatributaria.gob.es/Sede/iva/que-iva-soportado-puedo-deducir.html">AEAT explica los requisitos de deducción del IVA soportado</a>; esta herramienta no determina qué parte puedes recuperar.</li>
+          </ul>
+          <p>Los {formatEuro(costResult.availableForTime!)} restantes aún deben cubrir tus gastos habituales, cuota y reserva fiscal: no son sueldo neto. Este plan tampoco comprueba cuándo se cobra o paga; para eso puedes usar el <Link href="/cuanto-cuesta-ser-autonomo#plan-caja">plan de caja de tres meses</Link>.</p>
+          <Link href="#comprobar-jornada" className="text-link">Probar esta jornada con costes</Link>
+        </div>
+      </section>
+
+      <section className="section" aria-labelledby="comprobar-jornada">
         <div className="container text-block">
           <span className="eyebrow">Tus horas y tu precio</span>
           <h2 id="comprobar-jornada">Comprueba una jornada antes de ofrecerla</h2>
-          <p>Introduce una referencia por hora que incluya tus costes habituales. Si aún no la tienes, <Link href="/#calculadora">calcúlala con tu objetivo mensual</Link>. Puedes contrastar también un precio que ya estés valorando.</p>
-          <DayRatePlanner example={dayRateExample} />
+          <p>Introduce una referencia por hora que incluya tus costes habituales. Si aún no la tienes, <Link href="/#calculadora">calcúlala con tu objetivo mensual</Link>. Indica cero si no hay costes específicos adicionales. El precio a comparar es opcional.</p>
+          <DayRatePlanner example={dayRateExample} costExample={dayRateCostExample} />
         </div>
       </section>
 
@@ -161,7 +200,7 @@ export default function TarifaDiariaFreelancePage() {
       <section className="section alt" aria-labelledby="alcance-jornada">
         <div className="container text-block">
           <h2 id="alcance-jornada">Un precio necesita un alcance que puedas cumplir</h2>
-          <p>Este borrador corresponde solo al ejemplo de {formatEuro(result.referencePrice)}. Sustituye duración, entregable y condiciones antes de usarlo:</p>
+          <p>Este borrador corresponde solo al primer ejemplo de {formatEuro(result.referencePrice)}, sin costes específicos adicionales. Si necesitas el alquiler del segundo caso, inclúyelo expresamente al revisar el precio y el alcance. Sustituye duración, entregable y condiciones antes de usarlo:</p>
           <blockquote className={styles.proposal}>
             <p>El servicio cuesta {formatEuro(result.referencePrice)} sin IVA e incluye hasta 6 horas de sesión, 1,5 horas de preparación previa y 0,5 horas para redactar y enviar un resumen de cierre. El entregable es ese resumen de los acuerdos y próximos pasos.</p>
             <p>No incluye nuevas sesiones, ejecución de los próximos pasos, soporte continuado ni desplazamientos. Cualquier ampliación se valora y acuerda antes de realizarla.</p>

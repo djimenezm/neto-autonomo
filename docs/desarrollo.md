@@ -48,6 +48,58 @@ Los espacios publicitarios están preparados, pero `lib/ads.ts` exige `NEXT_PUBL
 
 ## Revisión local antes de publicar
 
+### Costes específicos de una jornada (27 de octubre de 2026)
+
+Se amplía el comprobador diario existente para resolver una limitación de la
+comparación entre precio y horas: un servicio puede superar la tarifa por hora
+y quedar por debajo al pagar un coste que esa tarifa no cubría. No se añade otro
+comprobador al resultado principal. La guía por hora enlaza al nuevo ejemplo en
+`/tarifa-diaria-freelance#costes-jornada`; el acceso anterior al comprobador se conserva.
+
+`DayRatePlanner.tsx` añade un campo vacío de costes específicos, con cero
+explícito si no hay. Se suman una sola vez al importe de las horas; el precio
+opcional se compara con esa referencia total. Se muestra también el precio
+menos dichos costes y el importe por hora que queda para cubrir la referencia
+habitual. No son sueldo neto ni margen: aún deben cubrir los gastos habituales,
+cuota y reserva fiscal incorporados en la tarifa. Un precio inferior al coste
+produce importes negativos y un aviso específico. La guía explica cómo evitar
+duplicar gastos ya repartidos entre los costes mensuales, o importes que el
+cliente contrata y paga directamente. Enlaza a la AEAT sobre requisitos de
+deducción del IVA soportado, sin calcular ni presumir deducibilidad o IVA recuperable.
+
+El primer ejemplo de 297,28 EUR se conserva con costes cero. El nuevo usa sus
+mismas ocho horas a 37,16 EUR/h, más 90 EUR ficticios de alquiler no contemplado
+en los gastos habituales. La referencia total es 387,28 EUR. Un precio de
+350 EUR parece dar 43,75 EUR/h, pero tras esos costes quedan 260 EUR y 32,50 EUR/h;
+faltan 37,28 EUR para la referencia total. El modelo alimenta tabla y comprobador.
+Se aclara que el borrador anterior de alcance corresponde al caso sin costes.
+El método, ambos ejemplos y las seis FAQ coincidentes con JSON-LD se incluyen
+en el HTML inicial; la fecha editorial y el sitemap recogen el cambio real.
+
+`lib/dayRate.ts` normaliza dinero y horas a centésimas antes de operar y devuelve
+esos valores a los campos. Trabaja con productos enteros seguros, valida costes
+no negativos y sumas, y redondea simétricamente el importe negativo por hora sin
+cero negativo. El modelo admite omitir el coste como cero para conservar sus
+llamadas existentes; la interfaz exige escribirlo. Editar retira el resultado
+y la marca de ejemplo; Enter vuelve a calcular y enfoca el primer error.
+Los seis campos siguen sin `name`; no se añaden peticiones, almacenamiento,
+eventos ni datos a enlaces compartidos. La calculadora fiscal, captación,
+reparto de gastos mensuales y resumen principal permanecen intactos.
+
+Validación: 487 pruebas en 63 archivos, lint y compilación correctos. Se cubren
+costes cero, precio opcional, igualdad, déficit por costes, precio inferior al
+desembolso, decimales, redondeo y cantidades inseguras. En navegador se revisan
+errores y foco, Enter, edición, ejemplo, navegación desde la guía por hora y
+pantallas de 390 y 320 px sin desborde de página. Las tablas tienen desplazamiento
+propio y foco por teclado. El nuevo enlace tiene una caja pulsable completa y
+foco visible; tras ajustar ese estilo se repiten las 11 pruebas de las guías
+afectadas, lint y compilación. No aparecen errores en la consola revisada.
+
+La publicación autorizada el 28 de octubre incluye el comprobador, la guía
+actualizada y el enlace desde la guía por hora. Mantiene los anuncios
+desactivados, no toca el piloto ni los seguimientos y no solicita otra revisión
+de AdSense. La fecha editorial conserva la del cambio de contenido, el día 27.
+
 ### Plan de caja de tres meses (27 de octubre de 2026)
 
 La página de costes añade un plan de caja independiente del reparto medio de
