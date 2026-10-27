@@ -48,6 +48,62 @@ Los espacios publicitarios están preparados, pero `lib/ads.ts` exige `NEXT_PUBL
 
 ## Revisión local antes de publicar
 
+### Vencimientos de caja por fecha (28 de octubre de 2026)
+
+La siguiente mejora cubre el límite que el plan de tres meses ya advertía:
+un cierre positivo puede ocultar un pago que llega antes del cobro. La guía de
+costes añade `/cuanto-cuesta-ser-autonomo#vencimientos-caja`, con un comprobador
+independiente y un enlace directo desde el plan mensual. No se trasladan datos
+automáticamente entre ambos ni se alteran los cálculos o campos anteriores.
+
+`lib/cashDates.ts` valida fechas de calendario completas, incluidos años
+bisiestos, y de uno a veinte movimientos con tipo cobro/pago e importe no
+negativo. Normaliza cada importe a céntimos, agrupa por fecha y ordena sin
+mutar las filas introducidas. En una misma fecha resta todos los pagos antes
+de sumar cualquier cobro. Este supuesto prudente puede producir un déficit
+aunque el día termine positivo; no se presenta como el orden bancario real.
+Se rechazan totales y saldos intermedios que pierdan precisión. Se muestra el
+saldo final, el mínimo incluido el saldo inicial, el primer punto negativo y
+el aporte inicial adicional que compensaría ese déficit bajo el mismo supuesto.
+
+El ejemplo ficticio empieza con 1000 EUR antes del 5 de noviembre de 2026.
+Paga 1800 EUR ese día, cobra 2400 EUR el 20 y paga 900 EUR el 25. Termina con
+700 EUR, pero el mínimo es -800 EUR y el aporte inicial calculado es 800 EUR.
+Adelantar el cobro al día 1 mantiene los 700 EUR finales y elimina el déficit.
+Situarlo el día 5 conserva el mínimo de -800 EUR porque se calculan los pagos
+primero. Tabla editorial y comprobador usan el mismo modelo. La guía explica
+el método, su alcance y la diferencia entre el supuesto y las fechas de abono
+reales. Su HTML inicial contiene el ejemplo y seis FAQ iguales al JSON-LD;
+fecha editorial y sitemap pasan al día 28 por el cambio de contenido.
+
+`CashDatePlanner.tsx` empieza con saldo y tres filas vacíos, sin nombres ni
+formulario. Admite añadir y eliminar movimientos; mantiene el foco en una fila
+disponible y exige completar cada fila o eliminarla. Editar fecha, tipo, importe,
+saldo o filas retira el resultado y la marca de ejemplo. Enter en un campo
+comprueba de nuevo. Los errores se describen por separado de las etiquetas,
+que mantienen su nombre accesible al validar. El primer error recibe el foco.
+Se usan movimientos de cuenta, contando cada salida una sola vez; no se
+recalculan impuestos, comisiones, intereses, reservas ni movimientos recurrentes.
+Un saldo positivo puede incluir dinero reservado para obligaciones posteriores.
+No se añaden peticiones, conexión bancaria, almacenamiento, eventos ni datos
+a enlaces compartidos. La calculadora fiscal, costes recurrentes, captación,
+resumen principal y seguimiento permanecen intactos.
+
+Validación: 526 pruebas en 65 archivos, lint y compilación correctos. Se cubren
+orden de fechas, agrupación y pagos primero, adelanto del cobro, saldo inicial
+negativo, ceros, normalización, bisiestos, entradas inválidas, límites de filas,
+inmutabilidad y aritmética insegura. El navegador local verifica navegación
+desde el plan mensual, errores y foco, edición real de fechas con teclado,
+retiro de resultados, Enter, alta y eliminación de filas y ejemplo. Las vistas
+de 390 y 320 px no desbordan la página; la tabla tiene desplazamiento propio
+y foco por teclado. No aparecen errores en la consola revisada. Las capturas
+locales muestran el ejemplo sin datos de una cuenta real.
+
+La publicación autorizada incluye el comprobador de vencimientos por fecha,
+la guía actualizada y el enlace desde el plan de tres meses. Mantiene los
+anuncios desactivados, no toca el piloto ni los seguimientos y no solicita
+otra revisión de AdSense.
+
 ### Costes específicos de una jornada (27 de octubre de 2026)
 
 Se amplía el comprobador diario existente para resolver una limitación de la

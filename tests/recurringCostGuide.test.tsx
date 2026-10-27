@@ -19,8 +19,8 @@ describe('recurring-cost guide', () => {
     const document = new DOMParser().parseFromString(renderToStaticMarkup(<Guide />), 'text/html');
     const schemas = [...document.querySelectorAll('script[type="application/ld+json"]')].map((script) => JSON.parse(script.textContent!));
     expect(schemas.map((schema) => schema['@type'])).toEqual(['WebPage', 'BreadcrumbList', 'FAQPage']);
-    expect(schemas[0].dateModified).toBe('2026-10-27');
-    expect(schemas[2].mainEntity).toHaveLength(5);
+    expect(schemas[0].dateModified).toBe('2026-10-28');
+    expect(schemas[2].mainEntity).toHaveLength(6);
     for (const question of schemas[2].mainEntity) {
       expect(document.body.textContent).toContain(question.name);
       expect(document.body.textContent).toContain(question.acceptedAnswer.text);
@@ -29,6 +29,24 @@ describe('recurring-cost guide', () => {
     expect(document.querySelector('input[type="email"]')).toBeNull();
     expect(metadata.alternates?.canonical).toBe('/cuanto-cuesta-ser-autonomo');
     expect(document.querySelectorAll('h1')).toHaveLength(1);
+  });
+
+  it('renders a dated example and a direct route from the monthly plan without collecting account details', () => {
+    const document = new DOMParser().parseFromString(renderToStaticMarkup(<Guide />), 'text/html');
+    const section = document.querySelector('section[aria-labelledby="vencimientos-caja"]')!;
+    const table = section.querySelector('table')!;
+    expect(table.textContent).toContain('05/11/2026');
+    expect(table.textContent).toContain('-800,00');
+    expect(table.textContent).toContain('1600,00');
+    expect(table.textContent).toContain('700,00');
+    expect(section.textContent).toContain('todos los pagos antes de cualquier cobro');
+    expect(section.textContent).toContain('saldo mínimo real podría ser mayor');
+    expect(section.querySelectorAll('input')).toHaveLength(7);
+    expect(section.querySelectorAll('select')).toHaveLength(3);
+    expect(section.querySelector('form')).toBeNull();
+    expect(section.querySelectorAll('[name]')).toHaveLength(0);
+    expect(document.querySelector('a[href="#vencimientos-caja"]')?.textContent).toBe('Revisar cobros y pagos por fecha');
+    expect(document.querySelector('time')?.getAttribute('datetime')).toBe('2026-10-28');
   });
 
   it('keeps the cash-flow method, earlier deficit and receipt-delay case in initial HTML', () => {

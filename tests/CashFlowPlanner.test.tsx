@@ -15,6 +15,7 @@ describe('cash flow planner', () => {
     expect(screen.getAllByRole('textbox')).toHaveLength(7);
     for (const input of screen.getAllByRole('textbox')) { expect(input).toHaveValue(''); expect(input).not.toHaveAttribute('name'); }
     expect(document.querySelector('form')).toBeNull();
+    expect(screen.getByRole('link', { name: 'Revisar cobros y pagos por fecha' })).toHaveAttribute('href', '#vencimientos-caja');
     await user.click(screen.getByRole('button', { name: 'Comprobar plan de caja' }));
     expect(screen.getByRole('textbox', { name: label })).toHaveFocus();
     expect(screen.getByRole('textbox', { name: label })).toHaveAttribute('aria-invalid', 'true');

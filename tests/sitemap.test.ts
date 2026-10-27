@@ -17,7 +17,7 @@ describe('sitemap', () => {
       '/cuanto-facturar-autonomo': '2026-10-27',
       '/kit-tarifa-autonomo': '2026-10-27',
       '/tarifa-diaria-freelance': '2026-10-27',
-      '/cuanto-cuesta-ser-autonomo': '2026-10-27',
+      '/cuanto-cuesta-ser-autonomo': '2026-10-28',
       '/cuanto-facturar-autonomo-3000-euros': '2026-10-27',
       '/tabla-cuanto-facturar-autonomo': '2026-10-27',
       '/cuota-autonomos-2026': '2026-10-27',

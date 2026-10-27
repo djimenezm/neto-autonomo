@@ -100,6 +100,7 @@ export default function CashFlowPlanner() {
         ) : null}
       </div>
       <p className={styles.note}>Un saldo positivo puede incluir dinero reservado para impuestos u obligaciones posteriores a estos tres meses; no es dinero libre para gastar. No calculamos impuestos, facturación necesaria, intereses ni comisiones. No se supone que los cobros previstos estén confirmados. Los datos solo se usan en esta página, sin guardarlos ni enviarlos.</p>
+      <p><a href="#vencimientos-caja" className={styles.datesLink}>Revisar cobros y pagos por fecha</a></p>
     </div>
   );
 }

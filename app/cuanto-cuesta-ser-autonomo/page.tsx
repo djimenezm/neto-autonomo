@@ -5,6 +5,8 @@ import Footer from '@/components/Footer';
 import Header from '@/components/Header';
 import MonthlyCostCalculator from '@/components/MonthlyCostCalculator';
 import CashFlowPlanner from '@/components/CashFlowPlanner';
+import CashDatePlanner from '@/components/CashDatePlanner';
+import { cashDatesExampleResult, formatCashDate } from '@/lib/cashDates';
 import { cashPlanExampleResult, delayedCashPlanExampleResult, cashPlanSource } from '@/lib/cashPlan';
 import { estimateRecurringCosts, recurringCostsExample } from '@/lib/recurringCosts';
 import { formatCurrency, formatNumber } from '@/lib/format';
@@ -14,7 +16,7 @@ import styles from './costGuide.module.css';
 const route = '/cuanto-cuesta-ser-autonomo';
 const title = 'Cuánto cuesta ser autónomo cada mes';
 const description =
-  'Calcula tu coste medio con pagos mensuales, trimestrales y anuales. Añade un plan de caja de tres meses para contrastar cobros, pagos y saldos de cierre.';
+  'Calcula costes mensuales y planifica tu caja. Compara tres meses y revisa cobros y pagos por fecha para detectar déficits antes de un cierre positivo.';
 
 const costExample = estimateRecurringCosts(recurringCostsExample);
 const faqItems = [
@@ -23,6 +25,7 @@ const faqItems = [
   { question: '¿Se traslada la cuota dos veces a la calculadora de tarifa?', answer: 'No. La cuota mensual viaja por separado. El resto se divide entre gastos deducibles y costes no deducibles con el importe que tú indiques. Cambiar la frecuencia no determina que un gasto se pueda deducir.' },
   { question: '¿Este reparto mensual sirve para presentar impuestos?', answer: 'No. Es una ayuda de planificación para un año completo con pagos constantes. No calcula IVA soportado, deducibilidad ni el periodo de imputación de un gasto. Si has empezado a mitad de año o esperas cambios, revisa esos supuestos por separado.' },
   { question: '¿Un cierre positivo garantiza que podré pagar todo el mes?', answer: 'No. El plan suma los cobros y resta los pagos de cada mes, pero no conoce su orden dentro de ese mes. Puedes tener un déficit antes de cobrar aunque el cierre sea positivo. El aporte adicional mostrado solo evita saldos negativos al inicio y en los cierres calculados; no garantiza cada vencimiento ni es un fondo de emergencia recomendado.' },
+  { question: '¿Cómo compruebo el orden de los cobros y pagos por fecha?', answer: 'Introduce el saldo anterior al primer movimiento y las fechas, tipos e importes de los movimientos previstos. Se agrupan por fecha y se ordenan cronológicamente. En una misma fecha se suponen todos los pagos antes de cualquier cobro. Es un supuesto prudente, no el orden bancario real; revisa las fechas de abono, los movimientos omitidos y los cobros que puedan retrasarse.' },
 ] as const;
 
 export const metadata: Metadata = {
@@ -64,7 +67,8 @@ export default function CuantoCuestaSerAutonomoPage() {
   if (!costExample.valid) throw new Error('Invalid editorial recurring-cost example');
   const cashExample = cashPlanExampleResult;
   const delayedCash = delayedCashPlanExampleResult;
-  if (!cashExample.valid || !delayedCash.valid) throw new Error('Invalid editorial cash-plan example');
+  const datedCash = cashDatesExampleResult;
+  if (!cashExample.valid || !delayedCash.valid || !datedCash.valid) throw new Error('Invalid editorial cash-plan example');
   const siteUrl = getSiteUrl();
   const pageUrl = new URL(route, siteUrl).toString();
 
@@ -75,7 +79,7 @@ export default function CuantoCuestaSerAutonomoPage() {
     description,
     inLanguage: 'es',
     url: pageUrl,
-    dateModified: '2026-10-27',
+    dateModified: '2026-10-28',
     accountablePerson: { '@type': 'Person', name: siteConfig.ownerName },
     mainEntity: {
       '@type': 'SoftwareApplication',
@@ -182,7 +186,7 @@ export default function CuantoCuestaSerAutonomoPage() {
 
       <section className="section" aria-labelledby="ejemplo-costes">
         <div className="container text-block">
-          <p className="article-meta">Actualizada el <time dateTime="2026-10-27">27 de octubre de 2026</time>. Responsable: {siteConfig.ownerName}.</p>
+          <p className="article-meta">Actualizada el <time dateTime="2026-10-28">28 de octubre de 2026</time>. Responsable: {siteConfig.ownerName}.</p>
           <h2 id="ejemplo-costes">Un pago anual también pesa en tu tarifa mensual</h2>
           <p>Estos son los datos ficticios con los que empieza la calculadora. No son precios de mercado ni importes deducibles confirmados. Se supone un año completo, sin altas, bajas ni cambios de precio.</p>
           <div className="scenario-table-scroll" role="region" aria-label="Ejemplo de costes con varias frecuencias" tabIndex={0}>
@@ -258,6 +262,26 @@ export default function CuantoCuestaSerAutonomoPage() {
             {' '}en negocios de autónomos. La tabla y el plan son una simulación propia; no calculan
             financiación, impuestos ni un colchón universal.
           </p>
+        </div>
+      </section>
+
+      <section className="section alt" aria-labelledby="vencimientos-caja">
+        <div className="container text-block">
+          <h2 id="vencimientos-caja">Comprueba si el pago llega antes que el cobro</h2>
+          <p>El plan mensual sirve para ver cierres. Para revisar el trayecto hasta ese cierre, anota las fechas de los movimientos previstos. Aquí el saldo pasa de una fecha a la siguiente; si no anotas un movimiento, no se incluye.</p>
+          <h3>Ejemplo ficticio: acabar con 700 € y necesitar saldo antes</h3>
+          <p>Empezamos con {formatCurrency(datedCash.initialBalance)} antes del 5 de noviembre de 2026. Pagamos {formatCurrency(datedCash.days[0].payments)} el día 5, cobramos {formatCurrency(datedCash.days[1].receipts)} el 20 y pagamos {formatCurrency(datedCash.days[2].payments)} el 25. Son movimientos de cuenta inventados, sin impuestos ni comisiones calculados.</p>
+          <div className="scenario-table-scroll" role="region" aria-label="Ejemplo ficticio de vencimientos por fecha" tabIndex={0}>
+            <table className="scenario-table">
+              <caption>Se restan los pagos de cada fecha antes de sumar sus cobros.</caption>
+              <thead><tr><th scope="col">Fecha</th><th scope="col">Pagos</th><th scope="col">Cobros</th><th scope="col">Mínimo supuesto</th><th scope="col">Saldo al terminar</th></tr></thead>
+              <tbody>{datedCash.days.map((day) => <tr key={day.date}><th scope="row">{formatCashDate(day.date)}</th><td>{formatCurrency(day.payments)}</td><td>{formatCurrency(day.receipts)}</td><td>{formatCurrency(day.minimumBalance)}</td><td>{formatCurrency(day.closingBalance)}</td></tr>)}</tbody>
+            </table>
+          </div>
+          <p>Los cobros suman {formatCurrency(datedCash.totalReceipts)} y los pagos {formatCurrency(datedCash.totalPayments)}. El saldo final es {formatCurrency(datedCash.finalBalance)}, pero el mínimo es {formatCurrency(datedCash.minimumBalance)} el {formatCashDate(datedCash.firstNegativePoint!)}. Con {formatCurrency(datedCash.additionalInitialBalance)} adicionales al empezar, el mínimo de este supuesto sería cero. No basta con mirar el saldo final.</p>
+          <p><strong>Si hay cobros y pagos el mismo día, se calculan los pagos primero.</strong> Aunque el día termine en positivo, puede haber un déficit en ese orden. Si el cobro llega antes, el saldo mínimo real podría ser mayor. Este supuesto no confirma las horas ni fechas de ejecución del banco.</p>
+          <h3>Revisa tus movimientos previstos</h3>
+          <CashDatePlanner />
         </div>
       </section>
 

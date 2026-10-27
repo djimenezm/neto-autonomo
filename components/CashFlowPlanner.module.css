@@ -21,6 +21,8 @@
 .result dd { margin: 0; font-weight: 800; font-variant-numeric: tabular-nums; }
 .shortfall { border-left: 3px solid #9b6513; padding: 0.8rem; background: #fff4df; }
 .note { color: #52605b; }
+.datesLink { display: inline-block; max-width: 100%; color: #0e6d54; font-weight: 700; text-decoration: underline; text-underline-offset: 3px; }
+.datesLink:focus-visible { outline: 3px solid #0e6d54; outline-offset: 3px; }
 @container (min-width: 550px) {
   .fields { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .result dl > div { grid-template-columns: minmax(0, 1fr) auto; gap: 1rem; }
