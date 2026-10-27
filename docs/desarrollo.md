@@ -48,6 +48,34 @@ Los espacios publicitarios están preparados, pero `lib/ads.ts` exige `NEXT_PUBL
 
 ## Revisión local antes de publicar
 
+### Encargos necesarios y capacidad mensual (27 de octubre de 2026)
+
+El resultado principal incorpora una ayuda
+opcional para comparar el precio y tiempo de un encargo repetible con la
+facturación mensual y las horas del propio cálculo. Los dos campos empiezan
+vacíos y no se añaden al GET ni al resumen compartido. La ayuda no altera el
+resultado fiscal ni genera eventos ni guarda datos fuera del estado de React.
+
+`lib/projectCapacity.ts` redondea importes a céntimos y tiempos a centésimas de
+hora. Redondea hacia arriba el número de encargos completos necesarios para la
+facturación y hacia abajo los que caben por horas. Muestra ambas cuentas, su
+diferencia y la facturación de la capacidad disponible. Cambiar un campo borra
+el plan anterior; una referencia mensual nueva se refleja al comprobar la ayuda.
+
+La guía de 3000 EUR usa el motor existente y el mismo ejemplo: 4149,41 EUR sin
+IVA y 80 h/mes; dos encargos ficticios de 2100 EUR y 40 h requieren 80 h y suman
+4200 EUR. Con 60 h por encargo, los dos exigen 120 h; solo cabe uno y faltan
+2049,41 EUR de facturación. La guía y sus datos estructurados se renderizan en
+el HTML inicial y enlazan al escenario exacto de la calculadora, al registro y
+a la ayuda de jornada. El formulario de captación se conserva.
+
+Los ejemplos suponen encargos iguales, completos y facturados en el mismo mes;
+no acreditan ventas, cobros o disponibilidad en fechas concretas ni calculan
+un nuevo neto. El exceso sobre la facturación objetivo no se presenta como
+beneficio. Se comprueban límites de capacidad, decimales, entradas inválidas,
+integración con el resultado y lectura móvil. La publicación mantiene los anuncios
+desactivados, el piloto y los seguimientos intactos, sin solicitar revisión de AdSense.
+
 ### Coherencia entre resultado y enlace compartido (27 de octubre de 2026)
 
 Se reprodujo un caso en que, tras calcular

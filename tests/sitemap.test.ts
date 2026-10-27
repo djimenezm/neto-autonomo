@@ -9,7 +9,7 @@ describe('sitemap', () => {
     );
 
     expect(updatedRoutes).toEqual({
-      '/': '2026-10-26',
+      '/': '2026-10-27',
       '/mejores-programas-facturacion-autonomos': '2026-10-02',
       '/horas-facturables-freelance': '2026-10-26',
       '/cuanto-facturar-autonomo-1500-euros': '2026-10-26',
@@ -17,6 +17,7 @@ describe('sitemap', () => {
       '/kit-tarifa-autonomo': '2026-10-26',
       '/tarifa-diaria-freelance': '2026-10-26',
       '/cuanto-cuesta-ser-autonomo': '2026-10-27',
+      '/cuanto-facturar-autonomo-3000-euros': '2026-10-27',
     });
   });
 

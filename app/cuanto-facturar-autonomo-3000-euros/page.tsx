@@ -1,19 +1,21 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import Script from 'next/script';
 import Footer from '@/components/Footer';
 import Header from '@/components/Header';
 import LeadMagnetForm from '@/components/LeadMagnetForm';
-import { calculateExample, formatEuro, getExampleUrl } from '@/lib/scenarioExamples';
+import MonthlyProjectPlanner from '@/components/MonthlyProjectPlanner';
+import { calculateExample, exampleAssumptions, formatEuro, getExampleUrl } from '@/lib/scenarioExamples';
+import { projectCapacityExample, projectCapacityResult, projectMonthlyExample, slowerProjectResult } from '@/lib/projectCapacityExample';
 import { getSiteUrl, siteConfig } from '@/lib/site';
+import styles from './capacityGuide.module.css';
 
 const route = '/cuanto-facturar-autonomo-3000-euros';
 const title = 'Cuánto facturar como autónomo para ganar 3000 euros netos';
 const description =
-  'Guía práctica para estimar cuánto facturar como autónomo o freelance en España si quieres llegar a 3000 euros netos al mes teniendo en cuenta cuota, IRPF, IVA, gastos y horas facturables.';
+  'Ejemplo para conservar 3000 euros netos: facturación desglosada en encargos, horas necesarias y capacidad mensual. Comprueba si el precio y el trabajo previsto encajan.';
 
 const hourScenarios = [60, 80, 120] as const;
-const eightyHourResult = calculateExample(3000);
+const eightyHourResult = projectMonthlyExample;
 
 const pageFaqItems = [
   {
@@ -29,7 +31,11 @@ const pageFaqItems = [
   {
     question: '¿Qué ocurre si un proyecto consume más horas de las previstas?',
     answer:
-      'Tu tarifa efectiva baja. Registra las horas reales de cada encargo y revisa precio, alcance o número de revisiones antes de repetir un presupuesto similar.',
+      'Con el ejemplo de esta guía, dos encargos de 2100 EUR requieren 80 horas si cada uno ocupa 40. Si cada uno pasa a 60 horas, necesitarías 120 horas. Con un límite mensual de 80 solo cabe un encargo completo y su facturación de 2100 EUR no alcanza el objetivo del ejemplo.',
+  },
+  {
+    question: '¿El comprobador garantiza que alcanzaré 3000 euros netos?',
+    answer: 'No. Compara precio y tiempo de encargos iguales con una referencia de facturación ya calculada. No comprueba ventas, cobros, fechas ni todos tus impuestos. El resultado depende de que los costes y las horas reflejen tu actividad; los números de la guía son ficticios.',
   },
 ] as const;
 
@@ -69,6 +75,9 @@ export const metadata: Metadata = {
 };
 
 export default function CuantoFacturarAutonomo3000EurosPage() {
+  const regular = projectCapacityResult;
+  const slower = slowerProjectResult;
+  if (!regular.valid || !slower.valid) throw new Error('Invalid editorial project-capacity example');
   const siteUrl = getSiteUrl();
   const pageUrl = new URL(route, siteUrl).toString();
 
@@ -88,7 +97,8 @@ export default function CuantoFacturarAutonomo3000EurosPage() {
       name: siteConfig.name,
     },
     datePublished: '2026-04-26',
-    dateModified: '2026-09-22',
+    dateModified: '2026-10-27',
+    accountablePerson: { '@type': 'Person', name: siteConfig.ownerName },
   };
 
   const breadcrumbSchema = {
@@ -124,21 +134,21 @@ export default function CuantoFacturarAutonomo3000EurosPage() {
   };
 
   return (
-    <main>
-      <Script
+    <main id="contenido-principal" className={styles.guide}>
+      <script
         id="cuanto-facturar-3000-article-schema"
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema).replace(/</g, '\\u003c') }}
       />
-      <Script
+      <script
         id="cuanto-facturar-3000-breadcrumb-schema"
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema).replace(/</g, '\\u003c') }}
       />
-      <Script
+      <script
         id="cuanto-facturar-3000-faq-schema"
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema).replace(/</g, '\\u003c') }}
       />
 
       <Header />
@@ -149,21 +159,22 @@ export default function CuantoFacturarAutonomo3000EurosPage() {
             <span className="eyebrow">Guía práctica</span>
             <h1>Cuánto facturar como autónomo para ganar 3000 euros netos</h1>
             <p className="lead">
-              Llegar a 3000 euros netos al mes como autónomo no significa facturar 3000 euros. La
-              cifra qué necesitas emitir suele ser mayor porque antes debes cubrir gastos, cuota,
-              IRPF, tiempo no facturable y separar el IVA cuando corresponda.
+              Con los supuestos ficticios de esta guía, conservar 3000 euros netos requiere
+              {' '}<strong>{formatEuro(eightyHourResult.billingWithoutVAT)} al mes sin IVA</strong>:
+              {' '}{formatEuro(eightyHourResult.hourlyRate)}/h con 80 horas facturables. El siguiente
+              paso es comprobar cuántos encargos cubren ese importe y si caben en tu mes.
             </p>
             <div className="hero-badges" aria-label="Qué cubre esta guía">
               <span className="hero-badge">3000 euros netos</span>
               <span className="hero-badge">Tarifa por hora</span>
-              <span className="hero-badge">Margen real</span>
+              <span className="hero-badge">Capacidad mensual</span>
             </div>
             <div className="guide-cta">
-              <Link href="/#calculadora" className="primary-button">
-                Ir a la calculadora
+              <Link href={getExampleUrl(3000)} className="primary-button">
+                Ajustar este ejemplo a mis datos
               </Link>
-              <Link href="/tabla-cuanto-facturar-autonomo#neto-2000" className="primary-button">
-                Ver objetivo de 2000 euros
+              <Link href="#plan-encargos" className="primary-button">
+                Comprobar encargos y horas
               </Link>
             </div>
           </div>
@@ -171,29 +182,44 @@ export default function CuantoFacturarAutonomo3000EurosPage() {
           <aside className="feature-card article-summary">
             <h2>Qué vas a aterrizar aquí</h2>
             <ul className="article-list">
-              <li>Por qué el objetivo neto no coincide con lo que facturas.</li>
-              <li>Qué variables empujan la facturación necesaria hacia arriba.</li>
-              <li>Cómo convertir 3000 euros netos en tarifa por hora o presupuesto.</li>
-              <li>Que revisar antes de subir precios o aceptar nuevos clientes.</li>
+              <li>La facturación necesaria con los supuestos del ejemplo.</li>
+              <li>Cuántos encargos completos permiten alcanzarla.</li>
+              <li>Qué ocurre si cada encargo exige más horas.</li>
+              <li>Cómo contrastarlo con tu trabajo registrado.</li>
             </ul>
           </aside>
         </div>
       </section>
 
-      <section className="section">
+      <section className="section" aria-labelledby="ejemplo-encargos">
         <div className="container text-block">
-          <h2>El reto es sostener la capacidad que promete tu tarifa</h2>
+          <p className="article-meta">Actualizada el <time dateTime="2026-10-27">27 de octubre de 2026</time>. Responsable: {siteConfig.ownerName}.</p>
+          <h2 id="ejemplo-encargos">Dos encargos pueden cubrir el importe y superar tu capacidad</h2>
           <p>
-            Con los supuestos de esta página, conservar 3.000 € netos exige facturar{' '}
-            {formatEuro(eightyHourResult.billingWithoutVAT)} al mes sin IVA. Si puedes vender 80
-            horas, la referencia es {formatEuro(eightyHourResult.hourlyRate)}/h. Pero una agenda de
-            80 horas disponibles no equivale necesariamente a 80 horas cobradas.
+            Partimos de {formatEuro(exampleAssumptions.monthlyExpenses)} de gastos deducibles,
+            {' '}cuota manual de {formatEuro(exampleAssumptions.selfEmployedFee)}, reserva manual
+            {' '}de IRPF del {exampleAssumptions.irpfRate}% y {exampleAssumptions.billableHours} horas
+            {' '}mensuales dedicadas a encargos. Son supuestos inventados, no cuotas ni tipos universales.
+            {' '}El motor de la calculadora obtiene {formatEuro(eightyHourResult.billingWithoutVAT)}
+            {' '}sin IVA para el objetivo de 3000 euros netos.
           </p>
           <p>
-            Antes de subir el objetivo, mira tus últimos proyectos: horas presupuestadas, horas
-            reales, revisiones no cobradas y tiempo invertido en captar al siguiente cliente.
-            La diferencia entre esas cifras decide si el precio puede sostenerse mes tras mes.
+            Ahora suponemos encargos iguales de {formatEuro(projectCapacityExample.pricePerProject)} sin IVA.
+            {' '}Uno no alcanza esa facturación; hacen falta {regular.requiredProjects} completos:
+            {' '}{regular.requiredProjects} × {formatEuro(projectCapacityExample.pricePerProject)} =
+            {' '}{formatEuro(regular.plannedBilling)}. Los {formatEuro(regular.billingDifference)}
+            {' '}por encima del objetivo son facturación adicional, no beneficio neto calculado.
           </p>
+          <div className="scenario-table-scroll" role="region" aria-label="Encargos necesarios y capacidad de 80 horas" tabIndex={0}>
+            <table className="scenario-table">
+              <caption>Mismo precio y objetivo; cambia el tiempo completo de cada encargo.</caption>
+              <thead><tr><th scope="col">Horas por encargo</th><th scope="col">Encargos necesarios</th><th scope="col">Horas necesarias</th><th scope="col">Encargos que caben</th><th scope="col">Facturación que cabe sin IVA</th></tr></thead>
+              <tbody>{[regular, slower].map((plan) => <tr key={plan.hoursPerProject}><th scope="row">{plan.hoursPerProject} h</th><td>{plan.requiredProjects}</td><td>{plan.plannedHours} h</td><td>{plan.maxProjects}</td><td>{formatEuro(plan.capacityBilling)}</td></tr>)}</tbody>
+            </table>
+          </div>
+          <p>Con 40 horas por encargo, dos ocupan las {regular.plannedHours} horas: caben sin holgura. Si cada uno consume 60 horas, los dos requieren {slower.plannedHours} horas, {Math.abs(slower.remainingHours)} más de las disponibles. Solo cabe un encargo completo de {formatEuro(slower.capacityBilling)} y faltan {formatEuro(-slower.capacityDifference)} para la facturación objetivo.</p>
+          <p>Cuenta preparación, reuniones, ejecución, revisiones y cierre dentro de las horas de cada encargo. La captación y gestión general ya deben reducir tu capacidad mensual. No vuelvas a sumar o restar la misma hora.</p>
+          <p>El cálculo supone encargos completos y facturados en el mismo mes. No comprueba fechas, ventas ni cobros. Para proyectos repartidos entre varios meses hace falta otro calendario de trabajo y facturación.</p>
         </div>
       </section>
 
@@ -240,48 +266,28 @@ export default function CuantoFacturarAutonomo3000EurosPage() {
         </div>
       </section>
 
-      <section className="section alt">
-        <div className="container article-layout">
-          <div className="text-block">
-            <h2>Comprueba si tus proyectos cubren el mes</h2>
-            <ol className="article-list article-list-ordered">
-              <li>Cuenta solo las horas que has cobrado durante los tres últimos meses.</li>
-              <li>Divide la facturación mensual objetivo entre los proyectos que puedes entregar sin solaparlos.</li>
-              <li>Compara horas previstas y reales; añade margen para cambios y revisiones.</li>
-              <li>Vuelve a calcular si cambian tus gastos, tu cuota o tu reserva fiscal.</li>
-            </ol>
-            <p>
-              Por ejemplo, con dos proyectos de 40 horas al mes, cada presupuesto tendría que
-              rondar {formatEuro(eightyHourResult.billingWithoutVAT / 2)} sin IVA bajo estos
-              supuestos. Si uno requiere 60 horas, el otro no cabe en el mismo mes sin aumentar
-              capacidad o ajustar el plan.
-            </p>
-          </div>
-
-          <aside className="feature-card article-summary">
-            <h2>Cuando el cálculo deja de encajar</h2>
-            <ul className="article-list">
-              <li>Las revisiones convierten 40 horas previstas en 55 reales.</li>
-              <li>La captación te deja menos horas vendibles de las calculadas.</li>
-              <li>Necesitas un volumen de proyectos que no puedes entregar con calidad.</li>
-            </ul>
-          </aside>
+      <section className="section alt" aria-labelledby="plan-encargos">
+        <div className="container text-block">
+          <h2 id="plan-encargos">Comprueba tu precio y tus horas por encargo</h2>
+          <p>Aquí usamos la referencia del ejemplo. Para obtener la tuya, <Link href={getExampleUrl(3000)}>ajusta los datos en la calculadora</Link> y abre «Comprobar cuántos encargos necesito y si caben» en tu resultado.</p>
+          <MonthlyProjectPlanner monthlyBilling={eightyHourResult.billingWithoutVAT} billableHours={exampleAssumptions.billableHours} />
         </div>
       </section>
 
       <section className="section alt">
         <div className="container text-block">
-          <h2>Cómo usar este objetivo para presupuestar mejor</h2>
+          <h2>Qué revisar cuando el plan no encaja</h2>
           <p>
-            Un objetivo de 3000 euros netos puede servirte como filtro comercial. Si una propuesta,
-            una tarifa por hora o una mensualidad no te acercan a esa referencia, necesitas ajustar
-            precio, alcance o tipo de cliente antes de comprometerte.
+            Contrasta las horas estimadas con el <Link href="/kit-tarifa-autonomo#registro-horas">registro de cuatro semanas</Link>.
+            {' '}Una revisión adicional puede cambiar cuántos encargos caben, aunque no cambie su precio.
+            {' '}Si el servicio tiene fases que continúan otro mes, reparte también su facturación en ese periodo.
           </p>
           <p>
-            También puedes usarlo para comparar escenarios: más horas facturables, menos gastos,
-            tickets de proyecto más altos, servicios recurrentes o una mezcla más equilibrada entre
-            clientes pequeños y clientes de mayor margen.
+            Revisa qué entregable puedes comprometer, cuánto trabajo exige y qué precio estás valorando.
+            {' '}Para una jornada concreta, el <Link href="/tarifa-diaria-freelance#comprobar-jornada">comprobador de tarifa diaria</Link>
+            {' '}ayuda a contar preparación y cierre. Este límite de horas no reserva fechas ni convierte una estimación en encargos vendidos.
           </p>
+          <p>Comparamos importes sin IVA y no recalculamos el neto del volumen de encargos. La <a href="https://sede.agenciatributaria.gob.es/Sede/iva/regimenes-tributacion-iva/regimen-general.html">explicación del régimen general del IVA de la AEAT</a> distingue IVA repercutido y soportado deducible; esta ayuda no calcula esa liquidación.</p>
           <div className="guide-cta">
             <Link href="/#calculadora" className="primary-button">
               Calcular mi escenario
