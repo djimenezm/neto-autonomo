@@ -365,7 +365,7 @@ describe('CalculatorForm', () => {
     await user.click(screen.getByRole('button', { name: /calcular/i }));
 
     expect(screen.getByText(/hemos aplicado la tarifa reducida inicial/i)).toBeInTheDocument();
-    expect(screen.getByText(/base mínima del tramo 1 de la tabla general/i)).toBeInTheDocument();
+    expect(screen.getByText(/al mes, incluido el MEI, usando el total publicado/i)).toHaveTextContent('88,64');
   });
 
   it('tracks the conversion only once per visit even if the user recalculates', async () => {
@@ -401,7 +401,9 @@ describe('CalculatorForm', () => {
     await user.click(screen.getByRole('button', { name: /calcular/i }));
 
     expect(screen.getByText(/hemos aplicado la prórroga estimada de la tarifa reducida/i)).toBeInTheDocument();
-    expect(screen.getByText(/así que esa prórroga podría no corresponderte/i)).toBeInTheDocument();
+    const note = screen.getByRole('note', { name: 'Revisión de la prórroga de cuota reducida' });
+    expect(note).toHaveTextContent('La estimación no queda por debajo del SMI anual');
+    expect(note).toHaveTextContent('17.094,00');
   });
 
   it('asks for correction when manual IRPF reaches 100', async () => {

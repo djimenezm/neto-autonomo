@@ -1,3 +1,5 @@
+import { ANNUAL_SMI_2026, MONTHLY_SMI_2026, REDUCED_FEE_2026, isBelowAnnualSMI } from '@/lib/reducedFee2026';
+
 export type SelfEmployedFeeMode = 'auto' | 'reduced' | 'manual';
 export type ReducedFeePeriod = 'initial' | 'extended';
 export type IrpfMode = 'progressive' | 'manual';
@@ -43,12 +45,14 @@ export type CalculationResult = {
   regionalPersonalAllowance: number;
   preTaxProfit: number;
   estimatedNetReturnsForContributions: number;
+  annualEstimatedNetReturnsForContributions: number;
   estimatedContributionBase: number;
   estimatedSelfEmployedFee: number;
   reducedContributionBase: number;
   reducedSelfEmployedFee: number;
   reducedFeeExtensionEligible: boolean;
   referenceSMI: number;
+  referenceAnnualSMI: number;
   usedCustomSelfEmployedFee: boolean;
   estimatedIRPF: number;
   estimatedVAT: number;
@@ -66,9 +70,8 @@ function safeNumber(value: number, fallback = 0) {
 
 const GENERAL_EXPENSE_REDUCTION = 0.07;
 const SELF_EMPLOYED_CONTRIBUTION_RATE = 0.315;
-const REDUCED_SELF_EMPLOYED_FEE = 80;
+const REDUCED_SELF_EMPLOYED_FEE = REDUCED_FEE_2026;
 const REDUCED_SELF_EMPLOYED_BASE = 950.98;
-const SMI_2026 = 1221;
 const STATE_PERSONAL_ALLOWANCE_2026 = 5550;
 
 const STATE_IRPF_BRACKETS_2026 = [
@@ -287,7 +290,8 @@ export function calculateFreelanceBilling({
   const { contributionBase, fee: estimatedSelfEmployedFee } = estimateSelfEmployedContribution(
     estimatedNetReturnsForContributions,
   );
-  const reducedFeeExtensionEligible = estimatedNetReturnsForContributions <= SMI_2026;
+  const annualEstimatedNetReturnsForContributions = annualPreTaxProfit * (1 - GENERAL_EXPENSE_REDUCTION);
+  const reducedFeeExtensionEligible = isBelowAnnualSMI(annualEstimatedNetReturnsForContributions);
   let appliedFeeMode: SelfEmployedFeeMode = 'auto';
   let appliedSelfEmployedFee = estimatedSelfEmployedFee;
 
@@ -324,12 +328,14 @@ export function calculateFreelanceBilling({
     regionalPersonalAllowance: roundToTwo(REGIONAL_IRPF_CONFIG[autonomousCommunity].personalAllowance),
     preTaxProfit: roundToTwo(preTaxProfit),
     estimatedNetReturnsForContributions: roundToTwo(estimatedNetReturnsForContributions),
+    annualEstimatedNetReturnsForContributions: roundToTwo(annualEstimatedNetReturnsForContributions),
     estimatedContributionBase: roundToTwo(contributionBase),
     estimatedSelfEmployedFee: roundToTwo(estimatedSelfEmployedFee),
     reducedContributionBase: roundToTwo(REDUCED_SELF_EMPLOYED_BASE),
     reducedSelfEmployedFee: roundToTwo(REDUCED_SELF_EMPLOYED_FEE),
     reducedFeeExtensionEligible,
-    referenceSMI: roundToTwo(SMI_2026),
+    referenceSMI: MONTHLY_SMI_2026,
+    referenceAnnualSMI: ANNUAL_SMI_2026,
     usedCustomSelfEmployedFee,
     estimatedIRPF: roundToTwo(estimatedIRPF),
     estimatedVAT: roundToTwo(estimatedVAT),

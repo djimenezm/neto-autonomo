@@ -1,0 +1,4 @@
+.notice { margin: 1.25rem 0; border-left: 4px solid #946115; border-radius: 4px; padding: 1rem; background: #fff4df; color: #493815; overflow-wrap: anywhere; }
+.notice p { font-size: 0.95rem; line-height: 1.65; margin: 0.65rem 0; }
+.notice a { color: #59400d; text-decoration: underline; text-underline-offset: 3px; }
+.notice a:focus-visible { outline: 3px solid #59400d; outline-offset: 3px; }

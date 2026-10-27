@@ -50,8 +50,8 @@ describe('calculateFreelanceBilling', () => {
     expect(result.irpfMode).toBe('progressive');
     expect(result.selfEmployedFeeMode).toBe('reduced');
     expect(result.reducedFeePeriod).toBe('initial');
-    expect(result.selfEmployedFee).toBe(80);
-    expect(result.reducedSelfEmployedFee).toBe(80);
+    expect(result.selfEmployedFee).toBe(88.64);
+    expect(result.reducedSelfEmployedFee).toBe(88.64);
     expect(result.estimatedSelfEmployedFee).toBeGreaterThan(result.selfEmployedFee);
     expect(result.billingWithoutVAT).toBeCloseTo(
       result.preTaxProfit + result.monthlyExpenses + result.selfEmployedFee,
@@ -72,7 +72,7 @@ describe('calculateFreelanceBilling', () => {
       reducedFeePeriod: 'extended',
     });
 
-    expect(result.selfEmployedFee).toBe(80);
+    expect(result.selfEmployedFee).toBe(88.64);
     expect(result.reducedFeePeriod).toBe('extended');
     expect(result.reducedFeeExtensionEligible).toBe(false);
     expect(result.referenceSMI).toBe(1221);
@@ -213,7 +213,7 @@ describe('calculateFreelanceBilling', () => {
         estimatedContributionBase: 653.59,
         estimatedSelfEmployedFee: 205.88,
         reducedContributionBase: 950.98,
-        reducedSelfEmployedFee: 80,
+        reducedSelfEmployedFee: 88.64,
         reducedFeeExtensionEligible: true,
         referenceSMI: 1221,
         personalAllowance: 5550,

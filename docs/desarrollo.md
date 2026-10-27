@@ -48,6 +48,44 @@ Los espacios publicitarios están preparados, pero `lib/ads.ts` exige `NEXT_PUBL
 
 ## Revisión local antes de publicar
 
+### Cuota reducida con MEI y prórroga anual (27 de octubre de 2026)
+
+Se corrigen dos referencias que podían sesgar
+la decisión de precio: la cuota reducida usada era 80 EUR sin MEI y el aviso de
+prórroga comparaba rendimientos mensuales con 1221 EUR. Ahora se usa el total de
+88,64 EUR publicado por Importass y se comparan los rendimientos estimados
+anuales con los 17094 EUR de SMI anual de 2026, con límite estrictamente inferior.
+El anual se obtiene antes del redondeo mensual para no acumular céntimos.
+
+Fuentes verificadas: [Importass, guía de trabajo autónomo](https://portal.seg-social.gob.es/wps/portal/importass/importass/Colectivos/trabajo%2Bautonomo/guia),
+[artículo 38 ter de la Ley 20/2007](https://www.boe.es/buscar/act.php?id=BOE-A-2007-13409#a3-5)
+y [Real Decreto 126/2026](https://www.boe.es/eli/es/rd/2026/02/18/126).
+Se toma el total publicado de 88,64 EUR como referencia explícita. No se deriva
+un desglose de MEI desde la base de 950,98 EUR: esa operación daría 88,56 EUR,
+distinto del total publicado por Importass. La interfaz identifica la fuente y
+remite a la cuota manual si el recibo completo difiere; no se altera ese importe
+manual ni la cuota ordinaria por tramos.
+
+El aviso de prórroga aparece antes de la cuadrícula del resultado. Expone ambos
+importes en EUR/año y no acredita el derecho a la reducción. Un caso que no
+cumple el límite mantiene explícito el supuesto reducido seleccionado y enlaza
+al mismo cálculo con cuota automática ordinaria. La comprobación anualiza doce
+meses iguales; si el periodo abarca dos años, hay que revisar cada ejercicio.
+No comprueba altas, requisitos personales, fechas, solicitudes ni rendimientos
+reales. La guía y sus cinco FAQ se incluyen en el HTML inicial con las fuentes.
+
+Los casos ficticios de 1200 y 1400 EUR netos usan gastos de 200 EUR, 80 h/mes y
+reserva manual del 15 %. Producen 15755,29 y 18381,18 EUR/año de rendimientos
+estimados, respectivamente. Sus enlaces abren el modo reducido y la prórroga
+exactos. El resumen compartido recibe el nuevo importe desde el mismo motor;
+su construcción, enlaces de seguimiento y eventos permanecen intactos.
+
+Validación: 295 pruebas en 48 archivos, lint y compilación correctos. Se cubren
+el límite anual al céntimo, la igualdad, la cuota con MEI, el recibo manual,
+los ejemplos, el aviso inicial y el enlace a cuota ordinaria. Se revisa el flujo
+en navegador y móvil. La publicación mantiene los anuncios desactivados, el
+piloto y los seguimientos intactos, sin solicitar revisión de AdSense.
+
 ### Comparar cambios en gastos y horas (27 de octubre de 2026)
 
 El resultado ofrece «Comparar cambios en mis

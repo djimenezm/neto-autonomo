@@ -6,6 +6,8 @@ import { formatCurrency, formatNumber } from '@/lib/format';
 import BillingBreakdown from '@/components/BillingBreakdown';
 import MonthlyProjectPlanner from '@/components/MonthlyProjectPlanner';
 import MonthlyScenarioComparator from '@/components/MonthlyScenarioComparator';
+import ReducedFeeNotice from '@/components/ReducedFeeNotice';
+import { reducedFeeSources } from '@/lib/reducedFee2026';
 import { inputFromResult } from '@/lib/monthlyScenarios';
 import projectPlannerStyles from './MonthlyProjectPlanner.module.css';
 import breakdownStyles from './BillingBreakdown.module.css';
@@ -140,6 +142,8 @@ const ResultCard = forwardRef<HTMLElement, ResultCardProps>(function ResultCard(
         al mes sin IVA y una referencia de <strong>{formatCurrency(result.hourlyRate)}/h</strong>.
         Piensa en esta cifra como un suelo orientativo para no quedarte corto al poner precio.
       </p>
+
+      <ReducedFeeNotice result={result} billableHours={hoursBillable} hasIVA={hasIVA} />
 
       <div className="result-grid">
         <div className="result-item">
@@ -373,33 +377,12 @@ const ResultCard = forwardRef<HTMLElement, ResultCardProps>(function ResultCard(
             {result.reducedFeePeriod === 'extended'
               ? 'la prórroga estimada de la tarifa reducida'
               : 'la tarifa reducida inicial'}{' '}
-            de <strong>{formatCurrency(result.reducedSelfEmployedFee)}</strong> al mes. Durante este
-            escenario tomamos como referencia la base mínima del tramo 1 de la tabla general, que
-            en 2026 es <strong>{formatCurrency(result.reducedContributionBase)}</strong>. Si no
+            de <strong>{formatCurrency(result.reducedSelfEmployedFee)}</strong> al mes, incluido el
+            MEI, usando el total publicado en la <a href={reducedFeeSources.importass}>guía de Importass</a>.
+            {' '}Si tu recibo completo es distinto, utiliza la cuota manual. Si no
             aplicases esa tarifa reducida, la cuota orientativa por tramo para tus rendimientos
             sería <strong>{formatCurrency(result.estimatedSelfEmployedFee)}</strong> sobre una base
             de <strong>{formatCurrency(result.estimatedContributionBase)}</strong>.
-            {result.reducedFeePeriod === 'extended' ? (
-              result.reducedFeeExtensionEligible ? (
-                <>
-                  {' '}
-                  En esta simulación, los rendimientos netos de referencia quedan en{' '}
-                  <strong>{formatCurrency(result.estimatedNetReturnsForContributions)}</strong> al
-                  mes, por debajo del SMI 2026 de{' '}
-                  <strong>{formatCurrency(result.referenceSMI)}</strong>, así que la prórroga podría
-                  encajar.
-                </>
-              ) : (
-                <>
-                  {' '}
-                  Ojo: en esta simulación, los rendimientos netos de referencia quedan en{' '}
-                  <strong>{formatCurrency(result.estimatedNetReturnsForContributions)}</strong> al
-                  mes, por encima del SMI 2026 de{' '}
-                  <strong>{formatCurrency(result.referenceSMI)}</strong>, así que esa prórroga podría
-                  no corresponderte.
-                </>
-              )
-            ) : null}
           </>
         ) : (
           <>

@@ -23,6 +23,8 @@ import {
   validateForm,
 } from '@/lib/calculatorForm';
 import { parseSpanishNumber as parseNumericValue } from '@/lib/spanishNumber';
+import { ANNUAL_SMI_2026, REDUCED_FEE_2026 } from '@/lib/reducedFee2026';
+import { formatCurrency } from '@/lib/format';
 import { siteConfig } from '@/lib/site';
 
 export type { CalculatorFormValues } from '@/lib/calculatorForm';
@@ -504,7 +506,7 @@ export default function CalculatorForm({
             {selfEmployedFeeMode === 'auto' &&
               'Estimamos una cuota mínima orientativa según el tramo de rendimientos netos mensuales de 2026.'}
             {selfEmployedFeeMode === 'reduced' &&
-              'Aplicamos una tarifa reducida de 80 EUR al mes y distinguimos entre el tramo inicial y su posible prórroga.'}
+              `Usamos ${formatCurrency(REDUCED_FEE_2026)} al mes, con MEI incluido, según el total publicado por Importass. Si tu recibo es distinto, indica la cuota manual.`}
             {selfEmployedFeeMode === 'manual' &&
               'Usaremos exactamente la cuota que indiques para la simulación.'}
           </small>
@@ -522,7 +524,7 @@ export default function CalculatorForm({
               <option value="extended">Prórroga 12 meses si sigues por debajo del SMI</option>
             </select>
             <small className="field-hint">
-              Usamos como referencia el SMI de 2026, fijado en 1.221 EUR al mes.
+              Comparamos rendimientos anuales estimados con el SMI de 2026: {formatCurrency(ANNUAL_SMI_2026)} al año. No es el neto que deseas conservar ni tu facturación.
             </small>
           </label>
         )}
