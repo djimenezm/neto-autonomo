@@ -48,6 +48,47 @@ Los espacios publicitarios están preparados, pero `lib/ads.ts` exige `NEXT_PUBL
 
 ## Revisión local antes de publicar
 
+### Revisar precio y horas de un encargo terminado (27 de octubre de 2026)
+
+El kit añade una revisión posterior al trabajo, distinta del presupuesto y la
+capacidad mensual. `ProjectReview.tsx` pide referencia por hora, precio final
+pactado sin IVA, horas previstas y horas registradas. Empieza vacío y admite
+precio cero explícito para trabajo gratuito. Los cuatro campos carecen de
+`name`; el comprobador no crea formularios, eventos, peticiones ni almacenamiento.
+Una edición retira las cifras anteriores. Enter comprueba los datos y los
+errores llevan el foco al primer campo inválido.
+
+`lib/projectReview.ts` compara el ingreso por hora previsto y real, la desviación
+de tiempo, las horas que cubre el precio a la referencia y la diferencia entre
+el precio y el importe de las horas reales a esa referencia. Usa céntimos y
+centésimas de hora, valida productos seguros y normaliza los campos a la misma
+precisión del cálculo. El ingreso por hora se redondea a céntimos; el importe
+de referencia, al alza; las horas cubiertas por el precio, hacia abajo.
+
+El ejemplo ficticio usa 40 EUR/h, 400 EUR de precio final, 8 horas previstas y
+12 reales: pasa de 50 a 33,33 EUR/h; son 4 horas más. El precio cubre 10 horas
+a esa referencia; para 12 serían 480 EUR, una diferencia de -80 EUR. No es
+beneficio neto ni acredita cobro, no evalúa costes extraordinarios fuera de la
+referencia y no modifica acuerdos existentes. Se incluyen todas las horas del
+cliente una vez, sin duplicar tiempos generales ya cubiertos por la referencia.
+
+El ejemplo, sus límites y las cinco FAQ quedan en el HTML inicial. La descarga
+conserva su URL y los bloques anteriores, y añade la ficha de revisión del
+encargo; la vista previa sigue leyendo exactamente ese archivo. El resultado
+principal incorpora solo un enlace a `/kit-tarifa-autonomo#revision-encargo`,
+sin atributos de conversión ni cambios en el resumen o los eventos existentes.
+
+Validación: 369 pruebas en 56 archivos, lint y compilación correctos. Revisados
+en navegador los campos vacíos, errores y foco, ejemplo, edición, decimales y
+Enter, navegación desde el resultado y pantallas de 320 y 390 px sin desborde.
+La página y descarga responden 200, el recurso coincide exactamente con el
+archivo y los esquemas Article/Breadcrumb/FAQ reflejan las cinco FAQ visibles.
+Sin errores de consola ni scripts o unidades de anuncios en las vistas revisadas.
+
+La publicación autorizada incluye el comprobador, la ficha actualizada y el
+enlace desde el resultado. Mantiene los anuncios desactivados, no toca el
+piloto ni los seguimientos y no solicita otra revisión de AdSense.
+
 ### Plan anual y meses sin facturación (27 de octubre de 2026)
 
 El resultado incorpora «Planificar los meses

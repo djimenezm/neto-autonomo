@@ -411,6 +411,7 @@ const ResultCard = forwardRef<HTMLElement, ResultCardProps>(function ResultCard(
           hora, mensualidad o presupuesto cerrado. Si luego quieres cerrar una cifra definitiva para
           un cliente importante, contrástala con tu asesor fiscal o gestoría.
         </p>
+        <a href="/kit-tarifa-autonomo#revision-encargo" className="text-link">Revisar un encargo con mis horas reales</a>
       </div>
     </section>
   );

@@ -4,7 +4,9 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import Footer from '@/components/Footer';
 import Header from '@/components/Header';
-import { formatNumber } from '@/lib/format';
+import ProjectReview from '@/components/ProjectReview';
+import { formatCurrency, formatNumber } from '@/lib/format';
+import { projectReviewExample, reviewProject } from '@/lib/projectReview';
 import { workLogReview, workLogTotals, workLogWeeks } from '@/lib/workLogExample';
 import { getSiteUrl, siteConfig } from '@/lib/site';
 import styles from './kit.module.css';
@@ -12,13 +14,13 @@ import styles from './kit.module.css';
 const route = '/kit-tarifa-autonomo';
 const title = 'Kit de tarifa para autónomos';
 const description =
-  'Ficha de tarifa y registro de cuatro semanas para contrastar tus horas facturables. Descarga gratuita en texto, sin registro, con un ejemplo explicado y lista de comprobación.';
+  'Ficha de tarifa, registro de cuatro semanas y comprobador de encargos terminados. Compara precio y horas reales, con ejemplos y descarga gratuita sin registro.';
 
 const faqItems = [
   {
     question: '¿Qué incluye este kit de tarifa para autónomos?',
     answer:
-      'Incluye una ficha de supuestos de tarifa, un registro diario y resumen de cuatro semanas, una revisión de las horas previstas y las listas de comprobación y guion de precio.',
+      'Incluye una ficha de supuestos de tarifa, un registro diario y resumen de cuatro semanas, una revisión de las horas previstas, un comprobador de precio y tiempo de encargos terminados y las listas de comprobación y guion de precio.',
   },
   {
     question: '¿Necesito dejar mi correo para descargarlo?',
@@ -31,9 +33,14 @@ const faqItems = [
       'Son una primera comprobación. Si hubo vacaciones, una entrega excepcional o pocos encargos, amplía el registro. No son una muestra que represente necesariamente todo el año ni una garantía de ventas.',
   },
   {
-    question: '¿Se guardan aquí los datos que escriba en la ficha?',
+    question: '¿Se guardan aquí los datos de la ficha o del comprobador?',
     answer:
-      'La ficha es un archivo de texto para editar o imprimir. El sitio no recibe el contenido que escribas en tu copia descargada.',
+      'El sitio no recibe lo que escribas en tu copia descargada. Los valores del comprobador solo se mantienen en la memoria de la página mientras la uses: no se envían, no se guardan ni se añaden al enlace.',
+  },
+  {
+    question: '¿El ingreso por hora de un encargo es beneficio neto?',
+    answer:
+      'No. Es el precio final pactado sin IVA dividido entre las horas dedicadas. No descuenta gastos, cuota ni impuestos, ni acredita que hayas cobrado. Compáralo con tu referencia por hora y revisa aparte los costes extraordinarios que no estén incluidos en ella.',
   },
 ] as const;
 
@@ -77,6 +84,7 @@ export default function KitTarifaAutonomoPage() {
   const pageUrl = new URL(route, siteUrl).toString();
   const downloadUrl = '/recursos/kit-tarifa-autonomo.txt';
   const downloadText = readFileSync(join(process.cwd(), 'public', 'recursos', 'kit-tarifa-autonomo.txt'), 'utf8');
+  const example = reviewProject(projectReviewExample);
 
   const articleSchema = {
     '@context': 'https://schema.org',
@@ -94,7 +102,7 @@ export default function KitTarifaAutonomoPage() {
       name: siteConfig.name,
     },
     datePublished: '2026-04-26',
-    dateModified: '2026-10-26',
+    dateModified: '2026-10-27',
     accountablePerson: { '@type': 'Person', name: siteConfig.ownerName },
   };
 
@@ -148,8 +156,8 @@ export default function KitTarifaAutonomoPage() {
             <h1>Kit de tarifa para autónomos</h1>
             <p className="lead">
               Guarda los supuestos de tu tarifa y registra cuatro semanas de trabajo para
-              contrastar las horas que esperabas facturar. Descarga la ficha y rellena tu copia;
-              puedes usarla sin cuenta ni correo.
+              contrastar las horas que esperabas facturar. Revisa también cuánto ingreso por hora
+              deja un encargo terminado. Puedes usar el comprobador y descargar la ficha sin cuenta ni correo.
             </p>
             <div className="guide-cta">
               <a href={downloadUrl} className="primary-button" download>Descargar ficha y registro en texto</a>
@@ -162,6 +170,7 @@ export default function KitTarifaAutonomoPage() {
               <li>Una ficha para conservar los datos y el resultado de tu cálculo.</li>
               <li>Un registro diario y resumen de cuatro semanas.</li>
               <li>Una revisión de horas previstas frente al trabajo registrado.</li>
+              <li>Un comprobador de precio y horas reales por encargo.</li>
               <li>Listas de comprobación y un guion para explicar el precio.</li>
             </ul>
           </aside>
@@ -273,9 +282,61 @@ export default function KitTarifaAutonomoPage() {
         </div>
       </section>
 
-      <section className="section alt" aria-labelledby="aplicar-revision">
+      <section className="section alt" aria-labelledby="revision-encargo">
         <div className="container text-block">
-          <h2 id="aplicar-revision">4. Escribe qué vas a concretar en el siguiente encargo</h2>
+          <h2 id="revision-encargo">4. Revisa un encargo terminado: precio y horas reales</h2>
+          <p>
+            Conservar una tarifa de referencia no basta si un encargo termina llevando más tiempo.
+            Anota el precio final pactado sin IVA, las horas previstas al presupuestar y las horas
+            reales de preparación, reuniones, ejecución, revisiones y cierre. Incluye el tiempo
+            específico del cliente aunque no lo hayas cobrado aparte, contando cada hora una vez.
+          </p>
+          <h3>Ejemplo ficticio: el mismo precio, cuatro horas más</h3>
+          {example.valid ? (
+            <>
+              <p>
+                Imagina una referencia propia de {formatCurrency(example.hourlyReference)}/h y
+                un precio cerrado de {formatCurrency(example.finalPrice)} sin IVA. Se previeron
+                {' '}{formatNumber(example.plannedHours)} h y se registraron {formatNumber(example.actualHours)} h.
+                Son cifras inventadas para explicar la cuenta, no una tarifa de mercado.
+              </p>
+              <div className="scenario-table-scroll" role="region" aria-label="Ejemplo ficticio de revisión de encargo" tabIndex={0}>
+                <table className="scenario-table">
+                  <caption>Un precio de 400 € sin IVA antes y después de registrar el tiempo.</caption>
+                  <thead><tr><th scope="col">Dato</th><th scope="col">Al presupuestar</th><th scope="col">Al terminar</th></tr></thead>
+                  <tbody>
+                    <tr><th scope="row">Tiempo dedicado</th><td>{formatNumber(example.plannedHours)} h</td><td>{formatNumber(example.actualHours)} h</td></tr>
+                    <tr><th scope="row">Precio ÷ horas</th><td>{formatCurrency(example.plannedHourlyRevenue)}/h</td><td>{formatCurrency(example.actualHourlyRevenue)}/h</td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <p>
+                El encargo ocupó {formatNumber(example.hoursDifference)} h más de lo previsto.
+                A {formatCurrency(example.hourlyReference)}/h, el precio cubría {formatNumber(example.hoursAtReference)} h.
+                Para {formatNumber(example.actualHours)} h, esa referencia da {formatCurrency(example.actualReferencePrice)}:
+                {' '}el precio pactado queda {formatCurrency(-example.priceDifference)} por debajo.
+                Eso ayuda a revisar el próximo presupuesto; no modifica el acuerdo ya cerrado.
+              </p>
+            </>
+          ) : null}
+          <div className={styles.exampleNote}>
+            Precio dividido entre horas es ingreso por hora dedicada, antes de gastos, cuota e
+            impuestos. No es beneficio neto ni confirma el cobro de la factura. Los costes
+            extraordinarios del encargo que no estén en tu referencia se revisan aparte.
+          </div>
+          <ProjectReview />
+          <p>
+            Guarda la revisión en la ficha descargable. Anota la causa concreta de las horas
+            adicionales, como dos reuniones no previstas o una ronda extra de cambios. Decide
+            qué estimación, alcance o revisiones incluidas vas a concretar en el siguiente presupuesto.
+            Si terminaste antes, registra también qué ayudó: una sola entrega no representa todos tus encargos.
+          </p>
+        </div>
+      </section>
+
+      <section className="section" aria-labelledby="aplicar-revision">
+        <div className="container text-block">
+          <h2 id="aplicar-revision">5. Escribe qué vas a concretar en el siguiente encargo</h2>
           <p>
             La ficha termina con una decisión y su motivo: qué dato has cambiado, qué has observado
             y cuándo lo revisarás. Puedes concretar revisiones incluidas, trabajo adicional,
@@ -289,12 +350,12 @@ export default function KitTarifaAutonomoPage() {
           <p className="scenario-note">
             Responsable del sitio: <Link href="/aviso-legal">{siteConfig.ownerName}</Link>.
             {' '}Método: ficha de trabajo propia con ejemplo hipotético, no un estudio de mercado.
-            {' '}Actualizado el <time dateTime="2026-10-26">26 de octubre de 2026</time>.
+            {' '}Actualizado el <time dateTime="2026-10-27">27 de octubre de 2026</time>.
           </p>
         </div>
       </section>
 
-      <section className="section" aria-labelledby="kit-tarifa-faq-title">
+      <section className="section alt" aria-labelledby="kit-tarifa-faq-title">
         <div className="container text-block">
           <h2 id="kit-tarifa-faq-title">Preguntas frecuentes sobre el kit</h2>
           <div className="faq-list">

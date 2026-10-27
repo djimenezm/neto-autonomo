@@ -25,11 +25,14 @@ describe('the usable tariff worksheet', () => {
     expect(resource).toContain('Horas disponibles sin encargo (fuera del total trabajado)');
     expect(resource).toContain('Qué evidencia del registro me lleva a cambiarlo');
     expect(resource).toContain('96 h cobrables en 4 semanas = 24 h/semana.');
+    expect(resource).toContain('5. REVISA UN ENCARGO TERMINADO');
+    expect(resource).toContain('Horas reales registradas: ____________________');
+    expect(resource).toContain('33,33 EUR/h');
   });
 
   it('renders the complete worked log and distinguishes fictional numbers from observations', () => {
     render(<Kit />);
-    const table = screen.getByRole('table');
+    const table = within(screen.getByRole('region', { name: 'Ejemplo ficticio de registro de horas' })).getByRole('table');
     const row = within(table).getByRole('rowheader', { name: 'Total registrado' }).closest('tr')!;
     expect(within(row).getAllByRole('cell').map((cell) => cell.textContent)).toEqual(['96', '34', '21', '9', '160']);
     expect(screen.getByText(/Las cifras siguientes están inventadas/)).toBeVisible();
@@ -43,11 +46,22 @@ describe('the usable tariff worksheet', () => {
     const document = new DOMParser().parseFromString(renderToStaticMarkup(<Kit />), 'text/html');
     const schemas = [...document.querySelectorAll('script[type="application/ld+json"]')].map((script) => JSON.parse(script.textContent!));
     expect(schemas.map((schema) => schema['@type'])).toEqual(['Article', 'BreadcrumbList', 'FAQPage']);
-    expect(schemas[0].dateModified).toBe('2026-10-26');
+    expect(schemas[0].dateModified).toBe('2026-10-27');
     expect(schemas[0].mainEntityOfPage).toBe('https://www.cuantofacturar.es/kit-tarifa-autonomo');
-    expect(schemas[2].mainEntity).toHaveLength(4);
+    expect(schemas[2].mainEntity).toHaveLength(5);
     expect(document.querySelector('pre')?.textContent).toContain('RESUME LAS CUATRO SEMANAS');
     expect(document.querySelectorAll('form')).toHaveLength(0);
+    const reviewSection = document.querySelector('section[aria-labelledby="revision-encargo"]');
+    expect(reviewSection?.textContent).toContain('33,33');
+    expect(reviewSection?.textContent).toContain('80,00');
+    expect(reviewSection?.querySelectorAll('table')).toHaveLength(1);
+    expect(reviewSection?.querySelectorAll('input')).toHaveLength(4);
+    expect(reviewSection?.querySelectorAll('input[name]')).toHaveLength(0);
+    expect(document.querySelector('time')?.getAttribute('datetime')).toBe('2026-10-27');
+    for (const question of schemas[2].mainEntity) {
+      expect(document.body.textContent).toContain(question.name);
+      expect(document.body.textContent).toContain(question.acceptedAnswer.text);
+    }
     expect(metadata.alternates?.canonical).toBe('/kit-tarifa-autonomo');
   });
 

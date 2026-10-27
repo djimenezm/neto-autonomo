@@ -1,7 +1,7 @@
 KIT DE TARIFA PARA AUTÓNOMOS
 
 FICHA DE TARIFA Y REGISTRO DE CUATRO SEMANAS
-Actualizado: 26 de octubre de 2026
+Actualizado: 27 de octubre de 2026
 
 Descarga esta copia y edítala en un editor de texto o imprímela.
 No hace falta enviar un correo para usarla. El sitio no recibe lo que escribas
@@ -96,6 +96,49 @@ Fecha en que volveré a revisar mis datos: ____________________
 Calculadora: https://www.cuantofacturar.es/#calculadora
 Método de horas: https://www.cuantofacturar.es/horas-facturables-freelance
 Interpretar el neto: https://www.cuantofacturar.es/tarifa-freelance-por-hora
+
+5. REVISA UN ENCARGO TERMINADO
+
+Encargo o referencia interna (en tu copia): ____________________
+Fecha de esta revisión: ____________________
+Tu referencia por hora SIN IVA (EUR/h): ____________________
+Precio final pactado SIN IVA, incluidos cambios acordados (EUR): _________
+Horas previstas al preparar el presupuesto: ____________________
+Horas reales registradas: ____________________
+
+Incluye preparación, reuniones, ejecución, revisiones y cierre específicos
+del cliente, también las horas sin precio adicional. Cuenta cada hora una vez.
+No añadas de nuevo tiempos generales del negocio ya cubiertos por tu referencia.
+Usa horas decimales: 1,5 significa una hora y media. Un precio cero es válido
+si el trabajo fue gratuito; no lo confundas con una factura aún sin cobrar.
+
+Ingreso/hora previsto = precio final / horas previstas: _________________
+Ingreso/hora real = precio final / horas reales: ________________________
+Diferencia de horas = reales - previstas: ______________________________
+Horas que cubre el precio = precio final / referencia por hora: _________
+Importe a tu referencia = horas reales x referencia por hora: ___________
+Diferencia de precio = pactado - importe a tu referencia: _______________
+
+El comprobador usa dinero y horas con dos decimales. Redondea el ingreso/hora
+a céntimos; el importe a tu referencia, al céntimo superior; y las horas que
+cubre el precio, hacia abajo a centésimas.
+
+Ejemplo FICTICIO, no tarifa recomendada ni media de un sector:
+Referencia 40 EUR/h; precio final 400 EUR; previstas 8 h; reales 12 h.
+Previsto: 400 / 8 = 50 EUR/h. Real: 400 / 12 = 33,33 EUR/h.
+Son 4 h más de lo previsto. El precio cubría 10 h a 40 EUR/h.
+Para 12 h, la referencia da 480 EUR; el precio queda 80 EUR por debajo.
+
+Ingreso por hora NO es beneficio neto: no descuenta gastos, cuota ni impuestos.
+No acredita el cobro ni evalúa costes extraordinarios fuera de tu referencia.
+La comparación sirve para revisar el próximo presupuesto, no cambia el acuerdo.
+
+Qué explica la diferencia (reuniones, revisiones, estimación...): __________
+Qué funcionó y conviene mantener: _______________________________________
+Qué concretaré en el próximo alcance o presupuesto: _____________________
+Cuándo contrastaré esta decisión con otros encargos: ____________________
+
+Comprobador: https://www.cuantofacturar.es/kit-tarifa-autonomo#revision-encargo
 
 REFERENCIA ADICIONAL: COMPROBACIONES Y GUION DE PRECIO
 
