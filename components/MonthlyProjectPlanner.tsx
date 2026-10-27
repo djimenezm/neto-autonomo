@@ -107,6 +107,7 @@ export default function MonthlyProjectPlanner({ monthlyBilling, billableHours }:
         ) : null}
       </div>
       <p className={styles.note}>Esto no acredita ventas, cobros ni fechas de entrega. Las horas deben cubrir todo el trabajo de cada encargo; la gestión general ya debe estar descontada de tu capacidad mensual. No calcula un nuevo neto ni cambia tus datos de la calculadora.</p>
+      <p>Si estás negociando el precio, puedes <a href="/tarifa-freelance-por-hora#descuento-tarifa" className={styles.guideLink}>comprobar una rebaja de tarifa y las horas necesarias</a>.</p>
     </div>
   );
 }

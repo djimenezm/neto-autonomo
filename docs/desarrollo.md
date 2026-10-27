@@ -48,6 +48,44 @@ Los espacios publicitarios están preparados, pero `lib/ads.ts` exige `NEXT_PUBL
 
 ## Revisión local antes de publicar
 
+### Rebaja de tarifa y capacidad mensual (28 de octubre de 2026)
+
+La guía por hora incorpora un comprobador para negociar una rebaja manteniendo
+el mismo servicio y alcance. Muestra nueva tarifa, facturación con las mismas
+horas, pérdida de facturación, horas necesarias para recuperar el valor inicial
+y holgura o falta de capacidad. Se accede desde la ayuda existente de encargos
+del resultado y desde la cabecera de la guía, sin añadir otro desplegable al
+resultado principal. La tabla y el método están disponibles en el HTML inicial;
+la nueva FAQ coincide con JSON-LD y la fecha editorial de guía y sitemap es el 28.
+
+`lib/rateDiscount.ts` trabaja con céntimos, centésimas de porcentaje y centésimas
+de hora, comprobando operaciones enteras seguras. Redondea primero el precio
+negociado a céntimos y usa ese precio en todas las cuentas. Las horas de
+recuperación se redondean al alza para cubrir tarifa original × tiempo antes
+del redondeo de factura. Esto evita que una tarifa sin rebaja parezca requerir
+menos horas en los importes pequeños. Una tarifa que redondee a cero no produce
+horas infinitas: informa de que no se puede recuperar el importe a esa tarifa.
+
+El ejemplo es ficticio: 40 EUR/h × 80 h = 3200 EUR sin IVA. Con un 10 % de
+rebaja se cobran 36 EUR/h y se facturan 2880 EUR por las mismas horas: 320 EUR
+menos. Recuperar el valor requiere 88,89 h (3200,04 EUR), 8,89 h adicionales.
+Con 80 h de capacidad faltan 8,89 h; con 100 h quedan 11,11 h. La capacidad
+incluye las horas de partida y descuenta gestión, preparación no facturada,
+descansos y otros servicios; no representa horas libres adicionales ni ventas.
+
+Los cuatro campos empiezan vacíos, admiten decimales españoles y no tienen
+`name`, formulario, almacenamiento, eventos de medición ni peticiones. Editar
+borra el resultado anterior; el botón ficticio identifica sus supuestos.
+La comparación no estima neto, costes adicionales, impuestos ni cobros; enlaza
+a la ayuda de neto existente para interpretar otra facturación. No altera el
+resultado principal, sus fórmulas ni el enlace compartido.
+
+Validación previa a la publicación: 588 pruebas en 70 archivos, lint y compilación de producción;
+flujo real desde el resultado, errores y foco, recálculo con Enter, ejemplo,
+capacidad suficiente y tarifa cero. Se revisa en escritorio y móvil de 390 y
+320 px. La publicación de esta mejora no activa anuncios. El piloto y los
+seguimientos no se modifican y no se solicita revisión de AdSense.
+
 ### Guardar y recuperar un plan de caja (28 de octubre de 2026)
 
 El comprobador por fechas permite introducir veinte movimientos, pero el estado

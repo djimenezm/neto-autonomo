@@ -18,6 +18,8 @@
 .shortfall p { margin: 0; }
 .shortfall p + p { margin-top: 0.6rem; }
 .note { color: #52605b; }
+.guideLink { display: inline-block; max-width: 100%; text-decoration: underline; text-underline-offset: 3px; }
+.guideLink:focus-visible { outline: 3px solid #0e6d54; outline-offset: 3px; }
 
 @container (min-width: 500px) {
   .fields { grid-template-columns: repeat(2, minmax(0, 1fr)); }

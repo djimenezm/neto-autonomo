@@ -5,6 +5,9 @@ import Header from '@/components/Header';
 import BillingBreakdown from '@/components/BillingBreakdown';
 import WithholdingPreview from '@/components/WithholdingPreview';
 import MonthlyNetPreview from '@/components/MonthlyNetPreview';
+import RateDiscountPlanner from '@/components/RateDiscountPlanner';
+import { rateDiscountGuideExamples } from '@/lib/rateDiscount';
+import { formatNumber } from '@/lib/format';
 import { monthlyNetExampleReference, monthlyNetExampleRows } from '@/lib/monthlyNetExample';
 import { netPreviewSources } from '@/lib/monthlyNet';
 import { withholdingExample, withholdingExampleRows, withholdingSource } from '@/lib/withholdingPreview';
@@ -15,7 +18,7 @@ import styles from './withholdingGuide.module.css';
 const route = '/tarifa-freelance-por-hora';
 const title = 'Tarifa freelance por hora: cómo calcularla bien';
 const description =
-  'Calcula tu tarifa freelance por hora y estima qué neto dejaría otra facturación con los mismos costes y cuota. Incluye ejemplos y la diferencia entre base, IVA, retención y cobro.';
+  'Calcula tu tarifa freelance por hora, comprueba una rebaja y las horas necesarias, y estima qué neto dejaría otra facturación. Con ejemplos de base, IVA, retención y cobro.';
 
 const targetNet = 2000;
 const example = calculateExample(targetNet);
@@ -23,6 +26,11 @@ const fewerHours = exampleAssumptions.billableHours / 2;
 const fewerHoursExample = calculateExample(targetNet, { billableHours: fewerHours });
 
 const pageFaqItems = [
+  {
+    question: '¿Una rebaja del 10 % se compensa con un 10 % más de horas?',
+    answer:
+      'No. En el ejemplo ficticio, 40 EUR/h por 80 horas son 3200 EUR sin IVA. Rebajar a 36 EUR/h deja 2880 EUR con las mismas horas. Para cubrir el valor de partida hacen falta 88,89 horas, redondeadas al alza: 8,89 más. Con una capacidad de 80 horas no cabe. Esto compara facturación, no neto, y no garantiza vender las horas adicionales.',
+  },
   {
     question: '¿Puedo estimar el neto a partir de lo que voy a facturar?',
     answer:
@@ -97,6 +105,10 @@ export default function TarifaFreelancePorHoraPage() {
     if (!row.valid) throw new Error('Invalid editorial monthly-net example');
     return row;
   });
+  const discountExamples = rateDiscountGuideExamples.map((row) => {
+    if (!row.valid || row.requiredHours === null) throw new Error('Invalid editorial rate-discount example');
+    return row;
+  });
 
   const articleSchema = {
     '@context': 'https://schema.org',
@@ -114,7 +126,7 @@ export default function TarifaFreelancePorHoraPage() {
       name: siteConfig.name,
     },
     datePublished: '2026-04-22',
-    dateModified: '2026-10-27',
+    dateModified: '2026-10-28',
     accountablePerson: { '@type': 'Person', name: siteConfig.ownerName },
   };
 
@@ -191,6 +203,7 @@ export default function TarifaFreelancePorHoraPage() {
                 Ajustar este ejemplo a mis datos
               </Link>
               <a href="#ejemplo-cobro" className="link-button">Comprobar base, IVA y retención</a>
+              <a href="#descuento-tarifa" className="link-button">Comprobar una rebaja de tarifa</a>
             </div>
           </div>
 
@@ -231,7 +244,53 @@ export default function TarifaFreelancePorHoraPage() {
           <p className="scenario-note">
             Método: simulación aritmética con el mismo motor de la calculadora, no una encuesta de
             precios. Responsable del sitio: <Link href="/aviso-legal">{siteConfig.ownerName}</Link>.
-            {' '}Actualizada el <time dateTime="2026-10-27">27 de octubre de 2026</time>.
+            {' '}Actualizada el <time dateTime="2026-10-28">28 de octubre de 2026</time>.
+          </p>
+        </div>
+      </section>
+
+      <section className="section alt" aria-labelledby="descuento-tarifa">
+        <div className="container text-block">
+          <h2 id="descuento-tarifa">Antes de rebajar tu tarifa, comprueba las horas que necesitarías</h2>
+          <p>
+            Si mantienes el alcance y cobras menos por hora, facturar lo mismo exige vender más horas.
+            El límite no es solo encontrar clientes: esas horas deben caber en tu agenda. La capacidad
+            de esta comparación es el total que puedes facturar en estos servicios durante el mes,
+            incluidas las horas de partida. Descuenta antes la gestión, la preparación no facturada,
+            los descansos y el tiempo reservado a otros servicios.
+          </p>
+          <h3>Ejemplo ficticio: 40 EUR/h, 80 horas facturadas y 80 horas de capacidad</h3>
+          <p>Partimos de 3200 EUR sin IVA. Las tres filas son alternativas sobre esos mismos servicios; no son precios de mercado ni recomendaciones de descuento.</p>
+          <div className="scenario-table-scroll" role="region" aria-label="Ejemplo de rebajas de tarifa y horas necesarias" tabIndex={0}>
+            <table className="scenario-table">
+              <caption>Misma clase de servicio y alcance. Capacidad total de 80 h al mes; no se suman las filas.</caption>
+              <thead><tr><th scope="col">Rebaja</th><th scope="col">Nueva tarifa sin IVA</th><th scope="col">Facturación con 80 h sin IVA</th><th scope="col">Horas para recuperar el valor de partida</th></tr></thead>
+              <tbody>{discountExamples.map((row) => (
+                <tr key={row.discountPercent}><th scope="row">{formatNumber(row.discountPercent)} %</th><td>{formatEuro(row.reducedHourlyRate)}/h</td><td>{formatEuro(row.sameHoursBilling)}</td><td>{formatNumber(row.requiredHours!)} h</td></tr>
+              ))}</tbody>
+            </table>
+          </div>
+          <p>
+            Al rebajar un 10 %, la tarifa pasa de 40 a 36 EUR/h. Con 80 h facturas 2880 EUR:
+            {' '}<strong>320 EUR menos sin IVA</strong>. Para recuperar el valor de partida:
+            {' '}3200 ÷ 36 = 88,888… h, que redondeamos al alza a <strong>88,89 h</strong>.
+            Son 8,89 h adicionales, aproximadamente un 11,11 % más de tiempo. Con 80 h disponibles
+            no cabe; con 100 h cabría por horas, pero aún tendrías que venderlas.
+          </p>
+          <RateDiscountPlanner />
+          <p>
+            Método: tarifa nueva = tarifa de partida × (1 − rebaja ÷ 100), redondeada a céntimos.
+            Usamos esa tarifa redondeada en todas las cuentas. Las horas necesarias se redondean
+            al alza a centésimas para cubrir tarifa original × horas de partida antes de redondear
+            la facturación. Los importes se muestran a céntimos; el resultado puede superar en unos
+            céntimos el importe de partida. Una tarifa que quede en cero no permite recuperarlo.
+          </p>
+          <p>
+            Si la rebaja afecta solo a un cliente o servicio, compara sus horas y su capacidad por separado.
+            Si reduces entregables, cambia también el alcance y revisa el presupuesto completo.
+            Esta cuenta no incorpora costes adicionales de trabajar más. Una caída de facturación
+            del 10 % no implica una caída del neto del 10 %: puedes contrastar el importe con la
+            {' '}<a href="#neto-segun-facturacion" className={styles.costLink}>estimación de neto según facturación</a>.
           </p>
         </div>
       </section>

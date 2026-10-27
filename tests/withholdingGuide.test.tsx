@@ -19,8 +19,8 @@ describe('worked withholding explanation', () => {
     expect(doc.body.textContent).toContain('1060,00');
     expect(doc.body.textContent).toContain('no se vuelve a restar del neto objetivo');
     const schemas = [...doc.querySelectorAll('script[type="application/ld+json"]')].map((script) => JSON.parse(script.textContent!));
-    expect(schemas[0].dateModified).toBe('2026-10-27');
-    expect(schemas[2].mainEntity).toHaveLength(6);
+    expect(schemas[0].dateModified).toBe('2026-10-28');
+    expect(schemas[2].mainEntity).toHaveLength(7);
   });
 
   it('links from the general guide without adding an interactive control to that script-free route', () => {

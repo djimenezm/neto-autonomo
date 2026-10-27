@@ -25,6 +25,6 @@ describe('the worked hourly-rate guide', () => {
     expect(metadata.alternates?.canonical).toBe('/tarifa-freelance-por-hora');
     render(<Guide />);
     expect(screen.getByRole('link', { name: 'régimen general del IVA de la AEAT' })).toHaveAttribute('href', 'https://sede.agenciatributaria.gob.es/Sede/iva/regimenes-tributacion-iva/regimen-general.html');
-    expect(screen.getByText('27 de octubre de 2026')).toHaveAttribute('datetime', '2026-10-27');
+    expect(screen.getByText('28 de octubre de 2026')).toHaveAttribute('datetime', '2026-10-28');
   });
 });
