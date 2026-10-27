@@ -17,6 +17,7 @@ import {
   DEFAULT_FORM_VALUES,
   type CalculatorFormValues,
   type FieldName,
+  getCalculationKey,
   getNormalizedPastedValue,
   normalizeFieldValue,
   validateForm,
@@ -119,6 +120,7 @@ export default function CalculatorForm({
     initialShareUrl || (initiallySubmitted && typeof window !== 'undefined' ? window.location.href : ''),
   );
   const resultRegionRef = useRef<HTMLElement | null>(null);
+  const lastFocusedSubmission = useRef(0);
   const hasTrackedCostImport = useRef(false);
 
   useEffect(() => {
@@ -166,6 +168,16 @@ export default function CalculatorForm({
     Boolean(validationErrors.billableHours) &&
     (submitted || (billableHours.trim() !== '' && Number.isFinite(parsedHours) && parsedHours <= 0));
 
+  const calculationKey = getCalculationKey({
+    targetNet, monthlyExpenses, monthlyNonDeductibleExpenses, billableHours,
+    irpfMode, irpfRate, autonomousCommunity, hasIVA, selfEmployedFeeMode,
+    selfEmployedFee, reducedFeePeriod,
+  });
+  const [calculatedKey, setCalculatedKey] = useState<string | null>(() =>
+    initiallySubmitted ? calculationKey : null,
+  );
+  const resultIsCurrent = calculatedKey === calculationKey;
+
   const result = useMemo(() => {
     return calculateFreelanceBilling({
       targetNet: parseNumericValue(targetNet),
@@ -204,7 +216,8 @@ export default function CalculatorForm({
     (node: HTMLElement | null) => {
       resultRegionRef.current = node;
 
-      if (node && validSubmissionCount > 0) {
+      if (node && validSubmissionCount > lastFocusedSubmission.current) {
+        lastFocusedSubmission.current = validSubmissionCount;
         window.requestAnimationFrame(() => node.focus({ preventScroll: false }));
       }
     },
@@ -240,30 +253,37 @@ export default function CalculatorForm({
           }
 
           if (!hasValidationErrors) {
-            const nextShareUrl = buildCalculatorUrl(
-              {
-                targetNet: normalizeFieldValue('targetNet', targetNet),
-                monthlyExpenses: normalizeFieldValue('monthlyExpenses', monthlyExpenses),
-                monthlyNonDeductibleExpenses: normalizeFieldValue(
-                  'monthlyNonDeductibleExpenses',
-                  monthlyNonDeductibleExpenses,
-                ),
-                billableHours: normalizeFieldValue('billableHours', billableHours),
-                irpfMode,
-                autonomousCommunity,
-                irpfRate: normalizeFieldValue('irpfRate', irpfRate),
-                hasIVA,
-                selfEmployedFeeMode,
-                reducedFeePeriod,
-                selfEmployedFee: normalizeFieldValue('selfEmployedFee', selfEmployedFee),
-              },
-              window.location.href,
-            );
+            const nextValues: CalculatorFormValues = {
+              targetNet: normalizeFieldValue('targetNet', targetNet),
+              monthlyExpenses: normalizeFieldValue('monthlyExpenses', monthlyExpenses),
+              monthlyNonDeductibleExpenses: normalizeFieldValue(
+                'monthlyNonDeductibleExpenses',
+                monthlyNonDeductibleExpenses,
+              ),
+              billableHours: normalizeFieldValue('billableHours', billableHours),
+              irpfMode,
+              autonomousCommunity,
+              irpfRate: normalizeFieldValue('irpfRate', irpfRate),
+              hasIVA,
+              selfEmployedFeeMode,
+              reducedFeePeriod,
+              selfEmployedFee: normalizeFieldValue('selfEmployedFee', selfEmployedFee),
+            };
+            const nextShareUrl = buildCalculatorUrl(nextValues, window.location.href);
+            // The result must use exactly the values encoded in its link, including
+            // normalization when Enter submits a field without first blurring it.
+            setTargetNet(nextValues.targetNet);
+            setMonthlyExpenses(nextValues.monthlyExpenses);
+            setMonthlyNonDeductibleExpenses(nextValues.monthlyNonDeductibleExpenses);
+            setBillableHours(nextValues.billableHours);
+            setIrpfRate(nextValues.irpfRate);
+            setSelfEmployedFee(nextValues.selfEmployedFee);
+            setCalculatedKey(getCalculationKey(nextValues));
 
             if (updateUrlOnSubmit) {
               window.history.replaceState(null, '', nextShareUrl);
-              setShareUrl(nextShareUrl);
             }
+            if (updateUrlOnSubmit || shareUrl) setShareUrl(nextShareUrl);
 
             setValidSubmissionCount((currentCount) => currentCount + 1);
           }
@@ -565,6 +585,13 @@ export default function CalculatorForm({
         </button>
         <p className="form-note">Puedes probar varios escenarios sin registrarte.</p>
 
+        {submitted && !hasValidationErrors && !resultIsCurrent ? (
+          <p className="form-note calculator-import-note" role="status">
+            Hay cambios sin calcular. Pulsa «Calcular mi tarifa orientativa» para actualizar
+            el resultado y el enlace para compartir.
+          </p>
+        ) : null}
+
         {submitted && hasValidationErrors && (
           <p className="form-message" role="alert">
             Revisa los campos marcados antes de calcular.
@@ -589,14 +616,16 @@ export default function CalculatorForm({
               }}
             />
           )}
-          <ResultCard
-            ref={setResultRegionRef}
-            result={result}
-            hoursBillable={parsedHours}
-            hasIVA={hasIVA}
-            enableCopy={enableResultCopy}
-            shareUrl={shareUrl}
-          />
+          {resultIsCurrent ? (
+            <ResultCard
+              ref={setResultRegionRef}
+              result={result}
+              hoursBillable={parsedHours}
+              hasIVA={hasIVA}
+              enableCopy={enableResultCopy}
+              shareUrl={shareUrl}
+            />
+          ) : null}
         </>
       )}
     </div>

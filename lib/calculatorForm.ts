@@ -44,6 +44,24 @@ export const DEFAULT_FORM_VALUES: CalculatorFormValues = {
   selfEmployedFee: '0',
 };
 
+// Compare the inputs that affect the displayed calculation, independently of
+// numeric formatting and values hidden by the current modes. Stored in memory only.
+export function getCalculationKey(values: CalculatorFormValues) {
+  return JSON.stringify({
+    targetNet: parseSpanishNumber(values.targetNet),
+    monthlyExpenses: parseSpanishNumber(values.monthlyExpenses),
+    monthlyNonDeductibleExpenses: parseSpanishNumber(values.monthlyNonDeductibleExpenses),
+    billableHours: parseSpanishNumber(values.billableHours),
+    irpfMode: values.irpfMode,
+    irpfRate: values.irpfMode === 'manual' ? parseSpanishNumber(values.irpfRate) : null,
+    autonomousCommunity: values.autonomousCommunity,
+    hasIVA: values.hasIVA,
+    selfEmployedFeeMode: values.selfEmployedFeeMode,
+    selfEmployedFee: values.selfEmployedFeeMode === 'manual' ? parseSpanishNumber(values.selfEmployedFee) : null,
+    reducedFeePeriod: values.selfEmployedFeeMode === 'reduced' ? values.reducedFeePeriod : null,
+  });
+}
+
 function formatNormalizedNumber(value: number, maximumFractionDigits = 2) {
   return value.toLocaleString('en-US', {
     useGrouping: false,

@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   buildCalculatorUrl,
   DEFAULT_FORM_VALUES,
+  getCalculationKey,
   getNormalizedPastedValue,
   normalizeFieldValue,
   validateForm,
@@ -17,6 +18,13 @@ const numericValues = {
 };
 
 describe('calculator form values', () => {
+  it('compares active values without treating numeric formatting or inactive fields as a new calculation', () => {
+    const original = getCalculationKey(DEFAULT_FORM_VALUES);
+    expect(getCalculationKey({ ...DEFAULT_FORM_VALUES, targetNet: '1500.00', irpfRate: '80', selfEmployedFee: '999', reducedFeePeriod: 'extended' })).toBe(original);
+    expect(getCalculationKey({ ...DEFAULT_FORM_VALUES, autonomousCommunity: 'madrid' })).not.toBe(original);
+    expect(getCalculationKey({ ...DEFAULT_FORM_VALUES, irpfMode: 'manual' })).not.toBe(original);
+    expect(getCalculationKey({ ...DEFAULT_FORM_VALUES, selfEmployedFeeMode: 'manual', selfEmployedFee: '320' })).not.toBe(original);
+  });
   it('validates only the inputs used by the selected modes', () => {
     expect(validateForm(numericValues, 'progressive', 'auto')).toEqual({});
     expect(validateForm({ ...numericValues, irpfRate: 'invalid' }, 'progressive', 'auto')).toEqual({});

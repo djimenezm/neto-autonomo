@@ -48,6 +48,31 @@ Los espacios publicitarios están preparados, pero `lib/ads.ts` exige `NEXT_PUBL
 
 ## Revisión local antes de publicar
 
+### Coherencia entre resultado y enlace compartido (27 de octubre de 2026)
+
+Se reprodujo un caso en que, tras calcular
+2000 EUR netos y editar el objetivo a 2500 EUR, el resumen mostraba el objetivo
+nuevo pero su enlace seguía abriendo el cálculo de 2000 EUR.
+
+`getCalculationKey` compara los valores activos del formulario con los del
+último cálculo válido. Al editar un dato relevante se retiran el resultado y
+sus opciones de compartir/copiar hasta recalcular; se muestra un aviso de cambios
+pendientes. Un formato numérico equivalente conserva el resultado. Si se vuelve
+a los valores ya calculados, el resultado se recupera sin mover el foco del campo.
+Las entradas de la ayuda de agenda solo afectan al resultado al aplicarlas.
+
+Al enviar, los campos y el enlace adoptan los mismos valores normalizados. Esto
+también cubre Enter sin salir del campo, cuando un porcentaje o importe debe
+redondearse. Los enlaces GET siguen reproduciendo los cálculos en el servidor;
+las calculadoras embebidas conservan su dirección y renuevan un enlace existente
+si lo tenían. La comparación vive en memoria y no crea eventos ni almacenamiento.
+
+Se comprueban ediciones numéricas, modos, IVA, pegado, Enter, errores de entrada,
+reversión de cambios y foco, reproducción del enlace y presentación móvil. El
+motor fiscal y los bloques de seguimiento se conservan. La publicación mantiene
+los anuncios desactivados, el piloto y los seguimientos intactos y no solicita
+otra revisión de AdSense. No se cambian fechas editoriales por esta reparación.
+
 ### Pagos mensuales, trimestrales y anuales (27 de octubre de 2026)
 
 La calculadora de costes acepta el importe de
