@@ -48,6 +48,54 @@ Los espacios publicitarios están preparados, pero `lib/ads.ts` exige `NEXT_PUBL
 
 ## Revisión local antes de publicar
 
+### Guardar y recuperar un plan de caja (28 de octubre de 2026)
+
+El comprobador por fechas permite introducir veinte movimientos, pero el estado
+se perdía al salir de la página. Se añade «Guardar este plan en un archivo»
+cuando existe un resultado válido y «Abrir un plan guardado» junto al inicio
+del editor. No se guarda automáticamente, no hay cuenta, almacenamiento del
+navegador ni peticiones con el contenido del plan. La guía de costes explica
+el proceso en `#guardar-plan-caja`, mantiene la fecha del cambio real del día 28
+y añade una séptima FAQ igual en el texto visible y en JSON-LD.
+
+`lib/cashDatesFile.ts` exporta solo entradas normalizadas: saldo inicial,
+movimientos en el orden introducido y marca de ejemplo ficticio. El archivo
+`plan-caja-fechas.json` identifica formato, versión 1 y el supuesto de pagos
+antes de cobros de la misma fecha. No almacena saldos calculados. Al abrir,
+comprueba tamaño UTF-8 (máximo 64 KB), formato, versión, tipos, número de filas,
+fechas e importes mediante el modelo existente. Copia únicamente los campos
+esperados, ignora resultados guardados o campos ajenos y calcula otra vez con
+las entradas válidas. Se conserva la marca de ejemplo y no se cambia el motor
+de vencimientos, los redondeos ni su regla para fechas coincidentes.
+
+`CashDatePlanner.tsx` lee el archivo con FileReader en el navegador. Solo
+sustituye el saldo y las filas después de validarlo; un error de lectura,
+formato, tamaño o datos conserva el plan actual. El selector se vacía para
+permitir abrir de nuevo el mismo archivo. Una lectura pendiente no puede
+sobrescribir una edición o comprobación posterior. Guardar crea un Blob local,
+inicia la descarga y libera su URL; los avisos de apertura y descarga se muestran
+junto a sus respectivos controles, con regiones de estado independientes.
+Editar retira resultado y opción de guardar hasta volver a comprobar. Se
+explica que el archivo contiene fechas e importes y que solo corresponde al
+comprobador por fechas, no a los costes o al plan de tres meses. Los controles
+siguen sin `name` ni formulario; no se añaden eventos ni datos a enlaces.
+
+Validación: 557 pruebas en 67 archivos, lint y compilación correctos. Se cubren
+ida y vuelta del formato, marca ficticia, ceros, orden y fechas coincidentes,
+rechazo de formato/versión/tipos/fechas/importes/tamaño inválidos, ignorar
+resultados falsificados, descarga, reapertura, cambios pendientes, errores de
+lectura/descarga y una lectura tardía frente a una edición nueva. En navegador
+se descarga el ejemplo ficticio real, se recarga la página (vuelve vacía) y se
+abre ese mismo archivo: se recuperan tres movimientos y los saldos 700 EUR
+finales, -800 EUR de mínimo y 800 EUR de aporte inicial. Un archivo de prueba
+incompatible conserva esos valores. Se comprueba la reapertura del mismo
+archivo y la presentación de 390 y 320 px sin desborde de página; sin errores
+en la consola consultada. Las capturas y archivos de prueba usan datos ficticios.
+
+La publicación autorizada incluye guardar y recuperar el plan de caja por
+fechas y la guía actualizada. Mantiene los anuncios desactivados, no toca el
+piloto ni los seguimientos y no solicita otra revisión de AdSense.
+
 ### Vencimientos de caja por fecha (28 de octubre de 2026)
 
 La siguiente mejora cubre el límite que el plan de tres meses ya advertía:

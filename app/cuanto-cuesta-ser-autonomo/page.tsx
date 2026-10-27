@@ -16,7 +16,7 @@ import styles from './costGuide.module.css';
 const route = '/cuanto-cuesta-ser-autonomo';
 const title = 'Cuánto cuesta ser autónomo cada mes';
 const description =
-  'Calcula costes mensuales y planifica tu caja. Compara tres meses y revisa cobros y pagos por fecha para detectar déficits antes de un cierre positivo.';
+  'Calcula costes mensuales y planifica cobros y pagos por fecha. Detecta déficits intermedios y guarda el plan en un archivo para volver a revisarlo.';
 
 const costExample = estimateRecurringCosts(recurringCostsExample);
 const faqItems = [
@@ -26,6 +26,7 @@ const faqItems = [
   { question: '¿Este reparto mensual sirve para presentar impuestos?', answer: 'No. Es una ayuda de planificación para un año completo con pagos constantes. No calcula IVA soportado, deducibilidad ni el periodo de imputación de un gasto. Si has empezado a mitad de año o esperas cambios, revisa esos supuestos por separado.' },
   { question: '¿Un cierre positivo garantiza que podré pagar todo el mes?', answer: 'No. El plan suma los cobros y resta los pagos de cada mes, pero no conoce su orden dentro de ese mes. Puedes tener un déficit antes de cobrar aunque el cierre sea positivo. El aporte adicional mostrado solo evita saldos negativos al inicio y en los cierres calculados; no garantiza cada vencimiento ni es un fondo de emergencia recomendado.' },
   { question: '¿Cómo compruebo el orden de los cobros y pagos por fecha?', answer: 'Introduce el saldo anterior al primer movimiento y las fechas, tipos e importes de los movimientos previstos. Se agrupan por fecha y se ordenan cronológicamente. En una misma fecha se suponen todos los pagos antes de cualquier cobro. Es un supuesto prudente, no el orden bancario real; revisa las fechas de abono, los movimientos omitidos y los cobros que puedan retrasarse.' },
+  { question: '¿Puedo guardar el plan de caja y abrirlo otro día?', answer: 'Sí. Comprueba los vencimientos y usa «Guardar este plan en un archivo». La copia contiene el saldo y los movimientos introducidos. Otro día puedes elegirla en «Abrir un plan guardado»: si es válida, sustituye los datos actuales y calcula los saldos de nuevo. El archivo se lee en el navegador, sin enviarlo al servidor. El plan no se guarda automáticamente al salir.' },
 ] as const;
 
 export const metadata: Metadata = {
@@ -282,6 +283,13 @@ export default function CuantoCuestaSerAutonomoPage() {
           <p><strong>Si hay cobros y pagos el mismo día, se calculan los pagos primero.</strong> Aunque el día termine en positivo, puede haber un déficit en ese orden. Si el cobro llega antes, el saldo mínimo real podría ser mayor. Este supuesto no confirma las horas ni fechas de ejecución del banco.</p>
           <h3>Revisa tus movimientos previstos</h3>
           <CashDatePlanner />
+          <h3 id="guardar-plan-caja">Conserva el plan para revisarlo otro día</h3>
+          <ol className="article-list article-list-ordered">
+            <li>Completa el saldo y los movimientos y pulsa «Comprobar vencimientos». Después usa «Guardar este plan en un archivo» junto al resultado.</li>
+            <li>Conserva el archivo .json descargado. Incluye los importes y las fechas que escribiste; la marca de ejemplo ficticio se conserva si guardaste el ejemplo.</li>
+            <li>Al volver, elígelo en «Abrir un plan guardado». Un archivo válido sustituye los datos que tengas en ese comprobador; los saldos se calculan otra vez con los movimientos guardados. Si el archivo no es válido, el plan actual se mantiene.</li>
+          </ol>
+          <p>El archivo es para este comprobador de vencimientos por fecha: no incluye el reparto de costes ni el plan de tres meses. La página no guarda una copia por su cuenta ni envía el contenido al servidor. Si cambias fechas o importes después de abrirlo, comprueba de nuevo y guarda otra copia para conservar los cambios.</p>
         </div>
       </section>
 

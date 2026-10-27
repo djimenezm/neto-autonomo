@@ -1,2 +1,2 @@
-.guide h2[id] { scroll-margin-top: 7rem; }
+.guide :is(h2, h3)[id] { scroll-margin-top: 7rem; }
 .guide :global(.cost-explainer) a:not(:global(.primary-button)) { color: #0e6d54; text-decoration: underline; text-underline-offset: 3px; }

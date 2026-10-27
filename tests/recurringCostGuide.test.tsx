@@ -20,7 +20,7 @@ describe('recurring-cost guide', () => {
     const schemas = [...document.querySelectorAll('script[type="application/ld+json"]')].map((script) => JSON.parse(script.textContent!));
     expect(schemas.map((schema) => schema['@type'])).toEqual(['WebPage', 'BreadcrumbList', 'FAQPage']);
     expect(schemas[0].dateModified).toBe('2026-10-28');
-    expect(schemas[2].mainEntity).toHaveLength(6);
+    expect(schemas[2].mainEntity).toHaveLength(7);
     for (const question of schemas[2].mainEntity) {
       expect(document.body.textContent).toContain(question.name);
       expect(document.body.textContent).toContain(question.acceptedAnswer.text);
@@ -41,7 +41,10 @@ describe('recurring-cost guide', () => {
     expect(table.textContent).toContain('700,00');
     expect(section.textContent).toContain('todos los pagos antes de cualquier cobro');
     expect(section.textContent).toContain('saldo mínimo real podría ser mayor');
-    expect(section.querySelectorAll('input')).toHaveLength(7);
+    expect(section.querySelectorAll('input:not([type="file"])')).toHaveLength(7);
+    expect(section.querySelector('input[type="file"]')?.getAttribute('accept')).toBe('.json,application/json');
+    expect(section.querySelector('#guardar-plan-caja')?.textContent).toBe('Conserva el plan para revisarlo otro día');
+    expect(section.textContent).toContain('Si el archivo no es válido, el plan actual se mantiene');
     expect(section.querySelectorAll('select')).toHaveLength(3);
     expect(section.querySelector('form')).toBeNull();
     expect(section.querySelectorAll('[name]')).toHaveLength(0);
