@@ -48,6 +48,40 @@ Los espacios publicitarios están preparados, pero `lib/ads.ts` exige `NEXT_PUBL
 
 ## Revisión local antes de publicar
 
+### Elegir una ayuda según la decisión (28 de octubre de 2026)
+
+Tras incorporar las ayudas de tarifa, encargos, factura y caja, el siguiente
+problema es encontrarlas. La guía general añade `#elegir-herramienta`, un
+selector con ocho dudas agrupadas en cuatro etapas. Cada tarjeta indica qué
+datos preparar, qué permite comprobar y el límite que afecta a esa decisión.
+Los atajos por etapa y los enlaces a herramientas son anclas y enlaces HTML
+normales; no hay selección mediante JavaScript, formulario ni datos que enviar.
+
+`lib/toolChooser.ts` concentra el contenido tipado. `ToolChooser.tsx` lo
+presenta con títulos h2/h3/h4 y tarjetas de dos columnas al caber, una en móvil.
+Los enlaces están subrayados, tienen foco visible y un mínimo táctil de 44 px.
+Se accede desde el menú «Herramientas», la introducción de la guía y la portada
+junto a la explicación del método. La calculadora conserva su acción principal.
+No se crea otra ruta: la guía existente amplía su contenido, FAQ y metadatos,
+con fecha editorial real del 28 de octubre y el mismo cambio en el sitemap.
+
+Se diferencian las ayudas que admiten datos propios de las referencias ficticias
+de 1500 y 3000 EUR netos de sus guías. En esos casos se explica cómo llegar a la
+ayuda dentro del resultado personal. El ejemplo de factura mantiene base e IVA
+ficticios y solo deja variar la retención; se describe así antes de abrirlo.
+El selector aclara que sus enlaces no trasladan los datos del cálculo. No cambia
+la función existente que permite aplicar los costes al formulario principal.
+
+Validación previa a la publicación: 591 pruebas en 71 archivos, lint y compilación correctos.
+Las pruebas comprueban cada ancla contra el HTML de su página real, IDs únicos,
+FAQ visible igual al JSON-LD y accesos desde portada, menú e introducción.
+La guía mantiene `unstable_runtimeJS: false`. Se revisa el recorrido hasta
+rebajas y caja, navegación por teclado y presentación de 390 y 320 px.
+Los motores, formularios, resumen compartido, publicidad y seguimiento no
+cambian. La publicación autorizada incluye el selector, la guía y sus accesos
+desde menú y portada. No se toca el piloto o los seguimientos automáticos,
+ni se solicita otra revisión de AdSense.
+
 ### Rebaja de tarifa y capacidad mensual (28 de octubre de 2026)
 
 La guía por hora incorpora un comprobador para negociar una rebaja manteniendo

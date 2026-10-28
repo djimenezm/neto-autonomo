@@ -14,7 +14,7 @@ describe('sitemap', () => {
       '/horas-facturables-freelance': '2026-10-26',
       '/cuanto-facturar-autonomo-1500-euros': '2026-10-27',
       '/tarifa-freelance-por-hora': '2026-10-28',
-      '/cuanto-facturar-autonomo': '2026-10-27',
+      '/cuanto-facturar-autonomo': '2026-10-28',
       '/kit-tarifa-autonomo': '2026-10-27',
       '/tarifa-diaria-freelance': '2026-10-27',
       '/cuanto-cuesta-ser-autonomo': '2026-10-28',

@@ -1,0 +1,23 @@
+.chooser { color: #173a2c; overflow-wrap: anywhere; }
+.intro { max-width: 780px; }
+.chooser h2, .chooser h3 { scroll-margin-top: 8rem; }
+.intro p { line-height: 1.75; }
+.stages { display: flex; flex-wrap: wrap; gap: 0.6rem 1.2rem; padding: 0; margin: 1.25rem 0 2rem; list-style: none; }
+.chooser a { display: inline-block; box-sizing: border-box; max-width: 100%; color: #0e6d54; font-weight: 700; text-decoration: underline; text-underline-offset: 3px; }
+.stages a { min-height: 44px; padding-block: 0.6rem; }
+.chooser a:hover { color: #173a2c; }
+.chooser a:focus-visible { outline: 3px solid #0e6d54; outline-offset: 3px; }
+.group + .group { margin-top: 2.5rem; }
+.group h3 { margin: 0 0 1rem; font-size: 1.4rem; line-height: 1.25; }
+.cards { display: grid; gap: 1rem; }
+.card { display: flex; flex-direction: column; min-width: 0; padding: 1.25rem; border: 1px solid #c5d8cd; border-top: 3px solid #0e6d54; border-radius: 8px; background: #fff; }
+.card h4 { margin: 0 0 0.8rem; color: #07110e; font-size: 1.18rem; line-height: 1.35; }
+.card p { margin: 0 0 0.85rem; line-height: 1.65; }
+.card .limit { color: #52605b; font-size: 0.92rem; }
+.action { align-self: flex-start; margin-top: auto; min-height: 44px; padding-block: 0.6rem; }
+.related { padding: 0; margin: 0.4rem 0 0; list-style: none; }
+.related li + li { margin-top: 0.4rem; }
+.related a { min-height: 44px; padding-block: 0.55rem; font-size: 0.92rem; line-height: 1.5; }
+@media (min-width: 760px) {
+  .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}

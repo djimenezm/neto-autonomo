@@ -1,11 +1,17 @@
 import { getSiteUrl, siteConfig } from '@/lib/site';
+import ToolChooser from '@/components/ToolChooser';
 
 export const route = '/cuanto-facturar-autonomo';
 export const title = 'Cuánto facturar como autónomo en España';
 export const description =
-  'Guía práctica para calcular cuánto facturar como autónomo o freelance en España sin quedarte corto al presupuestar. Entiende neto, cuota, IRPF, IVA y tarifa por hora antes de usar la calculadora.';
+  'Calcula cuánto facturar como autónomo y elige la ayuda para tu duda: tarifa, jornadas, rebajas, servicios combinados, meses sin facturar, facturas, caja o encargos terminados.';
 
 export const pageFaqItems = [
+  {
+    question: '¿Qué ayuda uso después de calcular mi tarifa?',
+    answer:
+      'Elige según la decisión: comprobar una jornada o una rebaja antes de aceptar, combinar servicios y meses activos para planificar, distinguir base y cobro de una factura, ordenar cobros y pagos por fecha o revisar las horas de un encargo terminado. El selector indica los datos necesarios y los límites de cada ayuda. Sus enlaces abren cada ayuda sin trasladar los datos de tu cálculo.',
+  },
   {
     question: '¿Cuánto tengo que facturar para ganar 1.500 euros netos?',
     answer:
@@ -43,7 +49,7 @@ export default function CuantoFacturarAutonomoPage() {
       name: siteConfig.name,
     },
     datePublished: '2026-04-22',
-    dateModified: '2026-10-27',
+    dateModified: '2026-10-28',
   };
 
   const breadcrumbSchema = {
@@ -116,6 +122,7 @@ export default function CuantoFacturarAutonomoPage() {
               <a href="/#calculadora" className="primary-button">
                 Ir a la calculadora
               </a>
+              <a href="#elegir-herramienta" className="link-button">Elegir una ayuda para mi duda</a>
             </div>
           </div>
 
@@ -126,10 +133,13 @@ export default function CuantoFacturarAutonomoPage() {
               <li>Qué variables debes tener en cuenta antes de poner precio.</li>
               <li>Cómo convertir tu objetivo de neto mensual en una cifra de facturación.</li>
               <li>Cómo pasar esa cifra a una tarifa por hora o a un presupuesto por proyecto.</li>
+              <li>Qué ayuda usar según la decisión que necesitas tomar.</li>
             </ul>
           </aside>
         </div>
       </section>
+
+      <ToolChooser />
 
       <section className="section">
         <div className="container text-block">
@@ -155,6 +165,7 @@ export default function CuantoFacturarAutonomoPage() {
             facturar bastante más de 1.500. La diferencia es justo lo que esta guía y la calculadora
             te ayudan a aterrizar.
           </div>
+          <p className="scenario-note">Actualizada el <time dateTime="2026-10-28">28 de octubre de 2026</time>.</p>
         </div>
       </section>
 

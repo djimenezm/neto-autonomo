@@ -11,7 +11,7 @@ export default function Header() {
         </a>
 
         <nav className="nav" aria-label="Navegación principal">
-          <a href="/#como-funciona">Qué obtienes</a>
+          <a href="/cuanto-facturar-autonomo#elegir-herramienta">Herramientas</a>
           <a href="/cuanto-facturar-autonomo">Guía</a>
           <a className="nav-secondary" href="/tabla-cuanto-facturar-autonomo">Tabla</a>
           <a className="nav-cta" href="/#calculadora">Calcular ahora <span aria-hidden="true">↗</span></a>
