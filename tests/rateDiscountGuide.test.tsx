@@ -26,7 +26,7 @@ describe('worked tariff-discount guide', () => {
     const doc = new DOMParser().parseFromString(renderToStaticMarkup(<Guide />), 'text/html');
     const schemas = [...doc.querySelectorAll('script[type="application/ld+json"]')].map((node) => JSON.parse(node.textContent!));
     expect(schemas[0].dateModified).toBe('2026-10-28');
-    expect(schemas[2].mainEntity).toHaveLength(7);
+    expect(schemas[2].mainEntity).toHaveLength(8);
     for (const faq of schemas[2].mainEntity) {
       expect(doc.body.textContent).toContain(faq.name);
       expect(doc.body.textContent).toContain(faq.acceptedAnswer.text);

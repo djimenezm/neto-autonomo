@@ -3,7 +3,8 @@ import Link from 'next/link';
 import Footer from '@/components/Footer';
 import Header from '@/components/Header';
 import BillingBreakdown from '@/components/BillingBreakdown';
-import WithholdingPreview from '@/components/WithholdingPreview';
+import InvoiceCheck from '@/components/InvoiceCheck';
+import { checkInvoice, invoiceVatSource } from '@/lib/invoiceCheck';
 import MonthlyNetPreview from '@/components/MonthlyNetPreview';
 import RateDiscountPlanner from '@/components/RateDiscountPlanner';
 import { rateDiscountGuideExamples } from '@/lib/rateDiscount';
@@ -18,14 +19,24 @@ import styles from './withholdingGuide.module.css';
 const route = '/tarifa-freelance-por-hora';
 const title = 'Tarifa freelance por hora: cómo calcularla bien';
 const description =
-  'Calcula tu tarifa freelance por hora, comprueba una rebaja y las horas necesarias, y estima qué neto dejaría otra facturación. Con ejemplos de base, IVA, retención y cobro.';
+  'Calcula tu tarifa freelance por hora, comprueba rebajas y el neto previsto, y desglosa una factura con tu base, IVA y retención. Con ejemplos paso a paso.';
 
 const targetNet = 2000;
 const example = calculateExample(targetNet);
 const fewerHours = exampleAssumptions.billableHours / 2;
 const fewerHoursExample = calculateExample(targetNet, { billableHours: fewerHours });
+const invoiceGuideExample = (() => {
+  const result = checkInvoice({ baseAmount: 2000, vatRate: 10, withholdingRate: 7 });
+  if (!result.valid) throw new Error('Invalid editorial invoice example');
+  return result;
+})();
 
 const pageFaqItems = [
+  {
+    question: '¿Puedo comprobar una factura con mi base y mis porcentajes?',
+    answer:
+      'Sí. Introduce una base sin IVA y los porcentajes de IVA y retención que hayas comprobado para tu caso. Escribe 0 si no se añaden o detraen importes en ese supuesto. Se calculan por separado sobre la misma base y se redondean a céntimos: base más IVA menos retención es el importe a cobrar. La ayuda no determina tipos, no emite facturas ni calcula neto o liquidaciones. Compara una sola base con un único porcentaje de cada clase.',
+  },
   {
     question: '¿Una rebaja del 10 % se compensa con un 10 % más de horas?',
     answer:
@@ -397,9 +408,28 @@ export default function TarifaFreelancePorHoraPage() {
             disponible. La retención no se vuelve a restar del neto objetivo de la calculadora.
             No calculamos aquí una declaración, una devolución ni un importe de IVA a ingresar.
           </p>
-          <h3 id="comprobar-cobro">Comprueba una retención sobre el ejemplo</h3>
-          <p>Para usar tu referencia mensual, abre «Ver cómo se reparte la facturación» y después «Comprobar el cobro si hay retención» en el resultado de la calculadora.</p>
-          <WithholdingPreview {...withholdingExample} context="example" />
+          <div id="comprobar-factura" className={styles.invoiceCheck}>
+            <h3 id="comprobar-cobro">Comprueba una factura con tu base y tus porcentajes</h3>
+            <p>Prepara la base sin IVA, antes de retención, y los porcentajes que correspondan a tu caso. Los tres campos empiezan vacíos; el ejemplo anterior no se aplica automáticamente a tus datos.</p>
+            <InvoiceCheck />
+            <p>
+              Otro supuesto ficticio: {formatEuro(invoiceGuideExample.baseAmount)} de base con
+              {' '}{formatNumber(invoiceGuideExample.vatRate)} % de IVA y
+              {' '}{formatNumber(invoiceGuideExample.withholdingRate)} % de retención.
+              {' '}{formatEuro(invoiceGuideExample.baseAmount)} + {formatEuro(invoiceGuideExample.vatAmount)}
+              {' '}− {formatEuro(invoiceGuideExample.withholdingAmount)} = <strong>{formatEuro(invoiceGuideExample.receivableAmount)} a cobrar</strong>.
+              {' '}Los porcentajes de ambos ejemplos son datos elegidos para explicar la operación;
+              no indican qué corresponde a tu actividad.
+            </p>
+            <p>
+              Método: normalizamos base y porcentajes a dos decimales. Calculamos IVA y retención
+              sobre la misma base normalizada y redondeamos cada importe por separado a céntimos
+              antes de sumar y restar. No calculamos por líneas ni combinamos distintas bases o tipos.
+              La AEAT explica qué revisar para <a href={invoiceVatSource}>calcular el IVA repercutido</a>:
+              base, tipos y casos en que no se repercute. Esta comprobación solo aplica los porcentajes que escribas.
+            </p>
+            <p>Si lo que quieres contrastar es toda tu referencia mensual, abre «Ver cómo se reparte la facturación» y después «Comprobar el cobro si hay retención» en el resultado de la calculadora. Esa ayuda conserva la base y el IVA del resultado mensual.</p>
+          </div>
         </div>
       </section>
 

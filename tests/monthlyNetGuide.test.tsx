@@ -21,7 +21,7 @@ describe('monthly net explanation', () => {
     const doc = new DOMParser().parseFromString(renderToStaticMarkup(<Guide />), 'text/html');
     const schemas = [...doc.querySelectorAll('script[type="application/ld+json"]')].map((node) => JSON.parse(node.textContent!));
     expect(schemas.map((schema) => schema['@type'])).toEqual(['Article', 'BreadcrumbList', 'FAQPage']);
-    expect(schemas[2].mainEntity).toHaveLength(7);
+    expect(schemas[2].mainEntity).toHaveLength(8);
     for (const item of schemas[2].mainEntity) {
       expect(doc.body.textContent).toContain(item.name);
       expect(doc.body.textContent).toContain(item.acceptedAnswer.text);

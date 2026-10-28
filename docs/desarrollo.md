@@ -48,6 +48,46 @@ Los espacios publicitarios están preparados, pero `lib/ads.ts` exige `NEXT_PUBL
 
 ## Revisión local antes de publicar
 
+### Comprobar una factura con datos propios (28 de octubre de 2026)
+
+La ayuda de factura de la guía por hora solo dejaba variar la retención sobre
+una base y un IVA fijos. `InvoiceCheck.tsx` sustituye ese editor de la guía por
+tres campos vacíos: base sin IVA, porcentaje de IVA y porcentaje de retención.
+El selector enlaza directamente a `#comprobar-factura` y describe los tres datos
+editables. Se conservan la tabla ficticia, `#ejemplo-cobro` y `#comprobar-cobro`.
+La ayuda mensual del resultado sigue usando su base e IVA, sin modificaciones.
+
+`lib/invoiceCheck.ts` normaliza la base y ambos porcentajes a dos decimales,
+calcula el IVA en céntimos y reutiliza `previewWithholding` para la retención y
+el cobro. Ambos importes se calculan sobre la misma base normalizada y se
+redondean por separado antes de sumar y restar. Se valida base positiva,
+porcentajes entre cero y cien y una escala entera segura, también con tipos cero.
+No se toman porcentajes de la reserva fiscal ni se eligen tipos aplicables.
+
+El ejemplo del botón usa base 1000 EUR, IVA ficticio del 21 % y retención
+ficticia del 15 %: 1000 + 210 − 150 = 1060 EUR a cobrar. La guía incluye otro
+caso derivado del mismo modelo: 2000 EUR, 10 % y 7 % producen 2060 EUR.
+Son supuestos aritméticos, no recomendaciones fiscales. Se explica el método,
+la diferencia entre cobro y neto y el alcance de una sola base compartida por
+ambos porcentajes. La explicación enlaza a la AEAT sobre IVA repercutido y
+retenciones. No emite documentos ni incorpora pagos parciales, suplidos,
+varias bases o tipos, fiscalidad definitiva o una liquidación de IVA.
+
+Validación: 621 pruebas en 74 archivos, lint y compilación correctos. Se cubren
+ceros explícitos, retención del 100 %, medias de céntimo, precisión extrema,
+normalización estable, errores con foco y Enter, retirada del resultado al
+editar y ausencia de eventos. Los ejemplos y ocho FAQ coinciden con el HTML
+y JSON-LD. La fecha editorial sigue siendo el 28, día de este cambio real.
+En navegador se comprueban acceso desde el selector, campos vacíos, error,
+ejemplo, otro supuesto, ceros y decimales españoles. Escritorio y 390/320 px
+sin desbordamiento de página; no hay errores en la consola revisada.
+
+La publicación autorizada incluye el comprobador, la guía y su acceso desde
+el selector. No se activan anuncios, no se toca el piloto o los seguimientos
+y no se solicita otra revisión de AdSense. Los campos no tienen
+`name` ni formulario, no se envían, no se guardan ni se añaden al resumen o
+enlace principal. El modelo y el componente de retención mensual no cambian.
+
 ### Elegir una ayuda según la decisión (28 de octubre de 2026)
 
 Tras incorporar las ayudas de tarifa, encargos, factura y caja, el siguiente

@@ -103,11 +103,11 @@ export const toolChooserGroups: readonly ToolChooserGroup[] = [
     cards: [
       {
         id: 'base-iva-retencion',
-        title: 'Quiero entender base, IVA y retención',
-        prepare: 'Tu duda sobre base, IVA, retención e importe a cobrar.',
-        shows: 'Sigue un ejemplo de factura y prueba cómo cambia el cobro al variar la retención.',
-        limit: 'Solo cambia la retención: la base y el IVA son ficticios. No determina tus tipos aplicables ni tu impuesto final.',
-        link: { href: '/tarifa-freelance-por-hora#ejemplo-cobro', label: 'Entender el ejemplo de base, IVA y retención' },
+        title: 'Quiero comprobar base, IVA y retención',
+        prepare: 'La base sin IVA de una factura y los porcentajes de IVA y retención que hayas comprobado para tu caso.',
+        shows: 'Introduce tus tres datos y comprueba base, IVA, retención e importe a cobrar por separado.',
+        limit: 'Compara una sola base. No determina tipos aplicables, no emite facturas ni calcula beneficio neto o liquidaciones.',
+        link: { href: '/tarifa-freelance-por-hora#comprobar-factura', label: 'Comprobar una factura con mis datos' },
         relatedLinks: [],
       },
       {
