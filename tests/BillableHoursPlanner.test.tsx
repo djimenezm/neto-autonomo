@@ -1,6 +1,7 @@
 import { fireEvent, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import CalculatorForm from '@/components/CalculatorForm';
+import { formatCurrency } from '@/lib/format';
 
 async function openPlanner() {
   const user = userEvent.setup();
@@ -67,6 +68,28 @@ describe('billable-hours helper in the main calculator', () => {
     expect(screen.queryByRole('heading', { name: 'Tu referencia mensual para presupuestar' })).not.toBeInTheDocument();
     expect(window.va).not.toHaveBeenCalled();
     expect(window.location.search).toBe('');
+  });
+
+  it('applies all 42 exact monthly hours from a decimal agenda to the result and shared link', async () => {
+    render(<CalculatorForm initialValues={{ irpfMode: 'manual', irpfRate: '15', selfEmployedFeeMode: 'manual', selfEmployedFee: '320' }} />);
+    const user = await openPlanner();
+    await user.type(screen.getByRole('textbox', { name: 'Días de trabajo por semana' }), '4');
+    await user.type(screen.getByRole('textbox', { name: 'Horas de trabajo por día' }), '4');
+    await user.type(screen.getByRole('textbox', { name: 'Horas no facturables por semana' }), '4,8');
+    await user.type(screen.getByRole('textbox', { name: 'Semanas sin actividad al año' }), '7{Enter}');
+
+    expect(screen.getByText(/Capacidad media:/)).toHaveTextContent('42 h/mes');
+    await user.click(screen.getByRole('button', { name: 'Usar 42 horas al mes' }));
+    expect(screen.getByRole('spinbutton', { name: 'Horas facturables al mes' })).toHaveValue(42);
+    expect(window.va).not.toHaveBeenCalled();
+    expect(window.gtag).not.toHaveBeenCalled();
+    expect(window.location.search).toBe('');
+
+    await user.click(screen.getByRole('button', { name: 'Calcular mi tarifa orientativa' }));
+    expect(new URLSearchParams(window.location.search).get('billableHours')).toBe('42');
+    const summary = (screen.getByLabelText('Resumen detallado para compartir') as HTMLTextAreaElement).value;
+    expect(summary).toContain('Horas facturables usadas: 42 al mes');
+    expect(summary).toContain(`Tarifa media orientativa: ${formatCurrency(54.4)}/h`);
   });
 
   it('clears stale capacity after edits and does not apply zero-capacity plans', async () => {

@@ -48,6 +48,39 @@ Los espacios publicitarios están preparados, pero `lib/ads.ts` exige `NEXT_PUBL
 
 ## Revisión local antes de publicar
 
+### Horas completas de una agenda con decimales (30 de octubre de 2026)
+
+Publicación autorizada el 30 de octubre de 2026: corrección de las horas
+de agenda y aclaración del redondeo, con anuncios, piloto y seguimientos
+intactos. La ayuda de agenda podía
+mostrar 42 h/mes pero proponer aplicar 41: las operaciones binarias dejaban
+la media en `41.99999999999999` antes de descartar la fracción. También se
+reproducían pérdidas de una hora con medias exactas de 84 y 123 horas.
+
+`lib/billableHoursPlan.ts` opera con enteros de escala decimal a partir de
+la representación de los números recibidos. La comparación entre jornada
+y horas no facturables y la división que decide las horas completas son
+exactas. Las cantidades de salida siguen siendo números serializables;
+los enteros BigInt permanecen dentro del cálculo. Se conserva la precisión
+admitida por las entradas y la regla de descartar fracciones al aplicar
+capacidad. Una media realmente inferior a 42 sigue aplicando 41.
+
+La ayuda aclara que la media visible está redondeada a un decimal y que
+se usa la cuenta completa para obtener las horas que se aplican.
+Con 4 días de 4 horas, 4,8 horas no facturables por semana y 7 semanas sin
+actividad, la cuenta es 45 × 11,2 = 504 h/año; entre 12, son 42 h/mes.
+La comparación exacta también acepta una agenda cuya jornada se dedica
+por completo a trabajo no facturable: 3 × 0,3 − 0,9 deja capacidad cero.
+
+Validación técnica: 647 pruebas en 74 archivos, lint y compilación correctos.
+Las regresiones reproducían ocho fallos antes del arreglo y comprueban
+límites a ambos lados de un entero, exponentes, capacidad cero y el recorrido
+desde agenda decimal hasta horas aplicadas, tarifa y enlace compartido.
+En navegador local se comprueban las 42 horas propuestas y aplicadas,
+la actualización explícita de la tarifa y la conservación de cifras al
+recargar el enlace; sin errores en la consola revisada.
+Anuncios, captación, piloto, configuración y seguimientos conservan su estado.
+
 ### Entrada de importes y supuesto de IVA (30 de octubre de 2026)
 
 Publicación autorizada el 30 de octubre de 2026: corrección del pegado y

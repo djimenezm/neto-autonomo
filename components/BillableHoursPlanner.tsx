@@ -123,7 +123,11 @@ export default function BillableHoursPlanner({ onApply }: { onApply: (hours: num
             </p>
             {estimate.hoursToApply >= 1 ? (
               <>
-                <p>Usaremos {estimate.hoursToApply} h/mes, redondeando hacia abajo para no inflar la capacidad.</p>
+                <p>
+                  Usaremos {estimate.hoursToApply} h/mes, redondeando hacia abajo para no inflar
+                  la capacidad. La media de arriba se muestra redondeada a un decimal; para
+                  aplicarla usamos la cuenta completa y descartamos la fracción de hora.
+                </p>
                 <button
                   type="button"
                   className="primary-button"
