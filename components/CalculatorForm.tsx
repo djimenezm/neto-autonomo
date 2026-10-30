@@ -20,9 +20,9 @@ import {
   getCalculationKey,
   getNormalizedPastedValue,
   normalizeFieldValue,
+  parseFormNumber as parseNumericValue,
   validateForm,
 } from '@/lib/calculatorForm';
-import { parseSpanishNumber as parseNumericValue } from '@/lib/spanishNumber';
 import { ANNUAL_SMI_2026, REDUCED_FEE_2026 } from '@/lib/reducedFee2026';
 import { formatCurrency } from '@/lib/format';
 import { siteConfig } from '@/lib/site';
@@ -558,8 +558,8 @@ export default function CalculatorForm({
           </label>
         )}
 
-        <fieldset className="radio-group">
-          <legend>¿Tu actividad suele incluir IVA?</legend>
+        <fieldset className="radio-group" aria-describedby="calculator-vat-help">
+          <legend>¿Quieres simular IVA al 21 %?</legend>
           <label>
             <input
               type="radio"
@@ -580,6 +580,10 @@ export default function CalculatorForm({
             />
             No
           </label>
+          <p className="form-note" id="calculator-vat-help">
+            Solo se simula el 21 % o sin IVA. Comprueba el tipo aplicable a tu actividad.
+            El IVA va aparte del neto.
+          </p>
         </fieldset>
 
         <button type="submit" className="primary-button">

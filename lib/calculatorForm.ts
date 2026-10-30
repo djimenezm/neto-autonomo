@@ -44,20 +44,31 @@ export const DEFAULT_FORM_VALUES: CalculatorFormValues = {
   selfEmployedFee: '0',
 };
 
+// Number inputs and shared URLs use a decimal point, without thousands grouping.
+// Clipboard text is parsed separately as Spanish notation before entering this state.
+export function parseFormNumber(value: string) {
+  if (/^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:e[+-]?\d+)?$/i.test(value.trim())) {
+    const parsedValue = Number(value);
+    return Number.isFinite(parsedValue) ? parsedValue : Number.NaN;
+  }
+
+  return parseSpanishNumber(value);
+}
+
 // Compare the inputs that affect the displayed calculation, independently of
 // numeric formatting and values hidden by the current modes. Stored in memory only.
 export function getCalculationKey(values: CalculatorFormValues) {
   return JSON.stringify({
-    targetNet: parseSpanishNumber(values.targetNet),
-    monthlyExpenses: parseSpanishNumber(values.monthlyExpenses),
-    monthlyNonDeductibleExpenses: parseSpanishNumber(values.monthlyNonDeductibleExpenses),
-    billableHours: parseSpanishNumber(values.billableHours),
+    targetNet: parseFormNumber(values.targetNet),
+    monthlyExpenses: parseFormNumber(values.monthlyExpenses),
+    monthlyNonDeductibleExpenses: parseFormNumber(values.monthlyNonDeductibleExpenses),
+    billableHours: parseFormNumber(values.billableHours),
     irpfMode: values.irpfMode,
-    irpfRate: values.irpfMode === 'manual' ? parseSpanishNumber(values.irpfRate) : null,
+    irpfRate: values.irpfMode === 'manual' ? parseFormNumber(values.irpfRate) : null,
     autonomousCommunity: values.autonomousCommunity,
     hasIVA: values.hasIVA,
     selfEmployedFeeMode: values.selfEmployedFeeMode,
-    selfEmployedFee: values.selfEmployedFeeMode === 'manual' ? parseSpanishNumber(values.selfEmployedFee) : null,
+    selfEmployedFee: values.selfEmployedFeeMode === 'manual' ? parseFormNumber(values.selfEmployedFee) : null,
     reducedFeePeriod: values.selfEmployedFeeMode === 'reduced' ? values.reducedFeePeriod : null,
   });
 }
@@ -70,7 +81,7 @@ function formatNormalizedNumber(value: number, maximumFractionDigits = 2) {
 }
 
 export function normalizeFieldValue(field: FieldName, value: string) {
-  const parsedValue = parseSpanishNumber(value);
+  const parsedValue = parseFormNumber(value);
 
   if (!Number.isFinite(parsedValue) || getFieldError(field, value)) {
     return value.trim() === '' ? '' : value;
@@ -117,7 +128,7 @@ export function buildCalculatorUrl(values: CalculatorFormValues, currentUrl: str
 }
 
 function getFieldError(field: FieldName, value: string) {
-  const parsedValue = parseSpanishNumber(value);
+  const parsedValue = parseFormNumber(value);
 
   if (value.trim() === '') {
     switch (field) {
@@ -202,7 +213,7 @@ export function validateForm(
     const error = getFieldError(field, values[field]);
 
     if (field === 'selfEmployedFee' && selfEmployedFeeMode === 'manual' && !error) {
-      const parsedValue = parseSpanishNumber(values[field]);
+      const parsedValue = parseFormNumber(values[field]);
 
       if (parsedValue <= 0) {
         nextErrors[field] = 'La cuota manual debe ser mayor que 0.';

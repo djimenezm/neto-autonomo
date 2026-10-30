@@ -84,7 +84,7 @@ const ResultCard = forwardRef<HTMLElement, ResultCardProps>(function ResultCard(
         `Tarifa media orientativa: ${formatCurrency(result.hourlyRate)}/h`,
         `Horas facturables usadas: ${hoursBillable} al mes`,
         hasIVA
-          ? `IVA a repercutir aparte: ${formatCurrency(result.estimatedVAT)}`
+          ? `IVA simulado al 21 % (aparte del neto): ${formatCurrency(result.estimatedVAT)}`
           : 'IVA: no incluido en esta simulación',
         `Reserva estimada de IRPF: ${formatCurrency(result.estimatedIRPF)} al mes`,
         `Cuota de autónomos aplicada: ${formatCurrency(result.selfEmployedFee)} al mes`,
@@ -158,7 +158,7 @@ const ResultCard = forwardRef<HTMLElement, ResultCardProps>(function ResultCard(
         </div>
 
         <div className="result-item">
-          <span>IVA a repercutir aparte</span>
+          <span>{hasIVA ? 'IVA simulado al 21 %' : 'IVA no incluido'}</span>
           <strong>{formatCurrency(result.estimatedVAT)}</strong>
         </div>
 
@@ -333,8 +333,9 @@ const ResultCard = forwardRef<HTMLElement, ResultCardProps>(function ResultCard(
         {hasIVA ? (
           <>
             {' '}
-            El IVA se mantiene aparte, así que en tus facturas tendrías que añadir aproximadamente{' '}
-            <strong>{formatCurrency(result.estimatedVAT)}</strong> de IVA.
+            Esta simulación aplica un IVA del 21 % y lo mantiene aparte del neto:{' '}
+            <strong>{formatCurrency(result.estimatedVAT)}</strong> de IVA. Comprueba el tipo
+            aplicable a tu actividad antes de facturar.
           </>
         ) : (
           <> En esta simulación no se añade IVA.</>

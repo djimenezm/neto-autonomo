@@ -48,6 +48,65 @@ Los espacios publicitarios están preparados, pero `lib/ads.ts` exige `NEXT_PUBL
 
 ## Revisión local antes de publicar
 
+### Entrada de importes y supuesto de IVA (30 de octubre de 2026)
+
+Publicación autorizada el 30 de octubre de 2026: corrección del pegado y
+aclaración del IVA al 21 %, con anuncios, piloto y seguimientos intactos.
+El pegado de `15,005 €`
+podía terminar como `15005`: tras interpretar la coma decimal se volvía a
+interpretar el punto de `15.005` como separador de miles. `parseFormNumber`
+lee el estado de los campos numéricos y las URL con punto decimal. El
+portapapeles conserva su lectura española, incluidos `1.005` como mil cinco
+y `1.005,50 €` como mil cinco con cincuenta. Se mantienen los negativos y
+las horas fraccionarias visibles para corregirlos, también después de perder
+el foco. La validación, el cálculo y la comparación de resultados usan la
+misma interpretación del estado.
+
+El formulario declara que solo simula IVA al 21 % o sin IVA. El resultado y
+el resumen compartible identifican ese supuesto y lo separan del neto. No
+cambian los tipos ni las reglas del motor fiscal.
+
+Validación: 634 pruebas en 74 archivos, lint y compilación correctos.
+Las nuevas regresiones reproducían seis fallos antes del arreglo y cubren
+los seis campos numéricos, los datos inválidos y la coincidencia entre
+importe pegado, resultado y URL. En el navegador local se verifican pegado,
+pérdida de foco, cálculo, recuperación al recargar y bloqueo de horas
+fraccionarias, sin errores en la consola revisada. Se revisa también la
+presentación de la ayuda de IVA y del resultado. Anuncios, captación,
+piloto, configuración y seguimientos conservan su estado.
+
+### Guion de prueba con autónomos
+
+Preparado para 3–5 participantes, con sesiones manuales de unos 20 minutos.
+Todavía no se han realizado sesiones ni hay resultados de usuarios reales.
+Las pruebas técnicas y los ejemplos ficticios no sustituyen esta validación.
+Conviene incluir personas que presupuesten por horas y por encargo, con
+experiencia distinta y al menos una sesión desde móvil.
+
+Tras explicar el propósito y obtener su consentimiento, pedir que piensen
+en voz alta. Usar datos aproximados o anonimizados de su actividad, sin
+copiar facturas, identificadores ni información de clientes. Antes de guardar
+un enlace, comprobar que sus importes pueden conservarse en la URL.
+
+| Tarea que se plantea al participante | Qué observar sin anticipar la respuesta |
+| --- | --- |
+| Desde la portada, obtener una referencia para un mes de trabajo propio. | Si sustituye los valores iniciales; qué entiende por horas facturables, facturación sin IVA, reserva de IRPF y neto; qué tipo de IVA cree que usa la herramienta. |
+| Revisar un encargo, jornada o factura que haya tenido y elegir una ayuda desde el menú. | Si encuentra una ayuda adecuada sin indicarle su nombre; dónde se atasca; qué decisión tomaría y qué necesita contrastar fuera de la herramienta. |
+| Guardar su escenario y abrirlo de nuevo, sin enviarlo a otra persona. | Si puede recuperar los datos y explicar qué representan las cifras; si comprende qué contiene el enlace y descubre discrepancias. |
+
+Por tarea, anotar tiempo aproximado, resultado sin ayuda/con ayuda/no
+completado, intervención necesaria y una frase anónima que explique la duda.
+Registrar con códigos P01–P05 y dispositivo, sin nombres ni importes propios.
+Preguntar al final qué cambiaría su próxima decisión de precio; evitar pedir
+solo una valoración general de si le gusta la web.
+
+Una confusión que cambie una decisión de precio o haga tomar IVA por neto
+se prioriza antes de ampliar funciones. Si el mismo obstáculo aparece en
+dos participantes, preparar un cambio pequeño y repetir la tarea. Con este
+tamaño de muestra se describen observaciones, no porcentajes de conversión.
+La convocatoria y las sesiones siguen pendientes; este guion no crea envíos,
+formularios ni seguimiento automático.
+
 ### Comprobar una factura con datos propios (28 de octubre de 2026)
 
 La ayuda de factura de la guía por hora solo dejaba variar la retención sobre

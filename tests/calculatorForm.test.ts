@@ -5,6 +5,8 @@ import {
   getCalculationKey,
   getNormalizedPastedValue,
   normalizeFieldValue,
+  parseFormNumber,
+  type FieldName,
   validateForm,
 } from '@/lib/calculatorForm';
 
@@ -42,6 +44,37 @@ describe('calculator form values', () => {
     expect(getNormalizedPastedValue('monthlyExpenses', 'no es un número')).toBeNull();
     expect(validateForm({ ...numericValues, billableHours: '1,5' }, 'progressive', 'auto'))
       .toHaveProperty('billableHours');
+  });
+
+  it.each<[FieldName, string, string]>([
+    ['targetNet', '1,005 €', '1.01'],
+    ['monthlyExpenses', '15,005', '15.01'],
+    ['monthlyNonDeductibleExpenses', '0,005', '0.01'],
+    ['selfEmployedFee', '320,005 EUR', '320.01'],
+    ['irpfRate', '15,005 %', '15'],
+    ['billableHours', '80,005', '80.005'],
+  ])('preserves the decimal magnitude when pasting %s = %s', (field, pasted, expected) => {
+    expect(getNormalizedPastedValue(field, pasted)).toBe(expected);
+  });
+
+  it.each<[FieldName, string, string | null]>([
+    ['monthlyExpenses', '-1,005 €', '-1.005'],
+    ['billableHours', '1,5 h', null],
+    ['billableHours', '1,5', '1.5'],
+    ['irpfRate', '100,005 %', '100.005'],
+  ])('keeps invalid numeric pastes available for validation: %s = %s', (field, pasted, expected) => {
+    expect(getNormalizedPastedValue(field, pasted)).toBe(expected);
+  });
+
+  it('treats native decimal points as decimals while keeping Spanish clipboard grouping', () => {
+    expect(parseFormNumber('1.005')).toBe(1.005);
+    expect(normalizeFieldValue('monthlyExpenses', '1.005')).toBe('1.01');
+    expect(getNormalizedPastedValue('monthlyExpenses', '1.005')).toBe('1005');
+    expect(getNormalizedPastedValue('monthlyExpenses', '1.005,50 €')).toBe('1005.5');
+    expect(parseFormNumber('')).toBeNaN();
+    expect(parseFormNumber('1e309')).toBeNaN();
+    expect(validateForm({ ...numericValues, billableHours: '80.005' }, 'progressive', 'auto'))
+      .toHaveProperty('billableHours', 'Las horas facturables deben ser un número entero.');
   });
 
   it('creates a shareable URL without retaining unrelated parameters', () => {

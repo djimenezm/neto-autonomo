@@ -2,6 +2,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import CalculatorForm from '@/components/CalculatorForm';
+import { formatCurrency } from '@/lib/format';
 
 describe('CalculatorForm', () => {
   beforeEach(() => {
@@ -160,6 +161,9 @@ describe('CalculatorForm', () => {
     expect(screen.getAllByText(/facturación objetivo sin iva/i).length).toBeGreaterThan(0);
     expect(screen.getByText(/beneficio antes de irpf/i)).toBeInTheDocument();
     expect(screen.getByText(/esta simulación sitúa tu objetivo en/i)).toBeInTheDocument();
+    expect(screen.getByRole('group', { name: '¿Quieres simular IVA al 21 %?' }))
+      .toHaveAccessibleDescription(/Solo se simula el 21 % o sin IVA/);
+    expect(screen.getByText(/esta simulación aplica un IVA del 21 %/i)).toBeInTheDocument();
     expect(screen.getByText(/revisa esta tarifa antes de enviarla/i)).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /quiero el kit/i })).toHaveAttribute(
       'href',
@@ -285,6 +289,7 @@ describe('CalculatorForm', () => {
 
     expect(writeText).toHaveBeenCalledWith(expect.stringContaining('Facturación objetivo sin IVA'));
     expect(writeText).toHaveBeenCalledWith(expect.stringContaining('Tarifa media orientativa'));
+    expect(writeText).toHaveBeenCalledWith(expect.stringContaining('IVA simulado al 21 % (aparte del neto)'));
     expect(screen.getByText('Resumen copiado.')).toBeInTheDocument();
   });
 
@@ -332,6 +337,35 @@ describe('CalculatorForm', () => {
     await user.paste('2.500,50 €');
 
     expect(targetInput).toHaveValue(2500.5);
+  });
+
+  it('uses a pasted three-decimal amount consistently in the field, calculation and shared link', async () => {
+    const user = userEvent.setup();
+    render(<CalculatorForm initialValues={{ irpfMode: 'manual', irpfRate: '15', selfEmployedFeeMode: 'manual', selfEmployedFee: '320' }} />);
+    const expenses = screen.getByRole('spinbutton', { name: /gastos mensuales deducibles/i });
+    await user.click(expenses);
+    await user.paste('15,005 €');
+    await user.keyboard('{Enter}');
+
+    expect(expenses).toHaveValue(15.01);
+    expect(new URL(window.location.href).searchParams.get('monthlyExpenses')).toBe('15.01');
+    expect((screen.getByLabelText(/resumen detallado para compartir/i) as HTMLTextAreaElement).value)
+      .toContain(`Facturación objetivo sin IVA: ${formatCurrency(2099.72)}`);
+  });
+
+  it('keeps pasted fractional hours invalid after blur instead of turning them into thousands', async () => {
+    const user = userEvent.setup();
+    render(<CalculatorForm />);
+    const hours = screen.getByRole('spinbutton', { name: /horas facturables al mes/i });
+    await user.click(hours);
+    await user.paste('80,005');
+    await user.tab();
+    await user.click(screen.getByRole('button', { name: /calcular mi tarifa/i }));
+
+    expect(hours).toHaveValue(80.005);
+    expect(screen.getByText('Las horas facturables deben ser un número entero.')).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: /tu referencia mensual para presupuestar/i }))
+      .not.toBeInTheDocument();
   });
 
   it('uses the selected autonomous community in the progressive IRPF explanation', async () => {
