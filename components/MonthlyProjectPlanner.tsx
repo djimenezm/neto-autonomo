@@ -1,6 +1,7 @@
 'use client';
 
 import { useId, useRef, useState } from 'react';
+import NumericTextInput from '@/components/NumericTextInput';
 import { estimateProjectCapacity, exampleProject } from '@/lib/projectCapacity';
 import { formatCurrency, formatNumber } from '@/lib/format';
 import { parseSpanishNumber } from '@/lib/spanishNumber';
@@ -56,11 +57,11 @@ export default function MonthlyProjectPlanner({ monthlyBilling, billableHours }:
           return (
             <label key={key}>
               <span id={`${id}-${key}-label`}>{label}</span>
-              <input
+              <NumericTextInput
                 ref={(node) => { inputsRef.current[key] = node; }}
-                type="text" inputMode="decimal" value={values[key]}
-                onChange={(event) => {
-                  setValues({ ...values, [key]: event.target.value });
+                inputMode="decimal" value={values[key]}
+                onValueChange={(nextValue) => {
+                  setValues({ ...values, [key]: nextValue });
                   setCheckedValues(null);
                   setIsExample(false);
                 }}

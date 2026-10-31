@@ -56,6 +56,37 @@ describe('editable single invoice check', () => {
     expect(result()).toHaveTextContent('= 1,07');
   });
 
+  it.each(['1,,50', '12.34,56', '100 € 200'])('keeps malformed base %s for correction without calculating a receipt', async (value) => {
+    render(<InvoiceCheck />);
+    await example();
+    const base = screen.getByRole('textbox', { name: labels[0] });
+    fireEvent.change(base, { target: { value } });
+    expect(result()).toBeEmptyDOMElement();
+    await calculate();
+    expect(base).toHaveValue(value);
+    expect(base).toHaveAttribute('aria-invalid', 'true');
+    expect(base).toHaveFocus();
+    expect(within(result()).queryByText('Importe a cobrar con estos datos')).not.toBeInTheDocument();
+    fireEvent.change(base, { target: { value: '1000,00' } });
+    await calculate();
+    expect(result()).toHaveTextContent('= 1060,00');
+    expect(window.va).not.toHaveBeenCalled();
+    expect(window.gtag).not.toHaveBeenCalled();
+  });
+
+  it('rejects two copied integer cells before the browser can join their lines', async () => {
+    const user = userEvent.setup();
+    render(<InvoiceCheck />);
+    await example();
+    const base = screen.getByRole('textbox', { name: labels[0] });
+    await user.clear(base);
+    await user.paste('100\n200');
+    await calculate();
+    expect(base).toHaveAttribute('aria-invalid', 'true');
+    expect(base).toHaveFocus();
+    expect(within(result()).queryByText('Importe a cobrar con estos datos')).not.toBeInTheDocument();
+  });
+
   it('allows explicit zero taxes and a zero receipt with full withholding, with no infinite values', async () => {
     render(<InvoiceCheck />);
     await example();

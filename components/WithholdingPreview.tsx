@@ -1,6 +1,7 @@
 'use client';
 
 import { useId, useRef, useState } from 'react';
+import NumericTextInput from '@/components/NumericTextInput';
 import { previewWithholding } from '@/lib/withholdingPreview';
 import { formatCurrency, formatNumber } from '@/lib/format';
 import { parseSpanishNumber } from '@/lib/spanishNumber';
@@ -36,8 +37,8 @@ function PreviewEditor({ baseAmount, vatAmount, context }: Props) {
       <noscript><p>La ayuda interactiva necesita JavaScript. Puedes consultar el <a href="/tarifa-freelance-por-hora#ejemplo-cobro">ejemplo de base, IVA, retención e importe a cobrar</a>.</p></noscript>
       <label className={styles.field}>
         <span id={`${id}-label`}>Retención que quieres comprobar (%)</span>
-        <input ref={input} type="text" inputMode="decimal" value={rate}
-          onChange={(event) => { setRate(event.target.value); setChecked(null); }}
+        <NumericTextInput ref={input} inputMode="decimal" value={rate}
+          onValueChange={(nextValue) => { setRate(nextValue); setChecked(null); }}
           onKeyDown={(event) => { if (event.key === 'Enter') { event.preventDefault(); check(); } }}
           aria-labelledby={`${id}-label`} aria-describedby={`${id}-hint ${id}-reference${fieldError ? ` ${id}-error` : ''}`}
           aria-invalid={Boolean(fieldError)} />

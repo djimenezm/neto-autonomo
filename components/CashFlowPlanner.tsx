@@ -1,6 +1,7 @@
 'use client';
 
 import { useId, useRef, useState } from 'react';
+import NumericTextInput from '@/components/NumericTextInput';
 import { CASH_PLAN_MONTHS, cashPlanExample, planCash, type CashMonthInput } from '@/lib/cashPlan';
 import { formatCurrency, formatNumber } from '@/lib/format';
 import { parseSpanishNumber } from '@/lib/spanishNumber';
@@ -41,8 +42,8 @@ export default function CashFlowPlanner() {
       <div onKeyDown={(event) => { if (event.key === 'Enter' && event.target instanceof HTMLInputElement) { event.preventDefault(); check(); } }}>
         <label className={styles.initial}>
           <span id={`${id}-initial-label`}>Saldo inicial de la cuenta (EUR)</span>
-          <input ref={(node) => { refs.current.initialBalance = node; }} type="text" inputMode="decimal" value={values.initialBalance}
-            onChange={(event) => edit({ ...values, initialBalance: event.target.value })}
+          <NumericTextInput ref={(node) => { refs.current.initialBalance = node; }} inputMode="decimal" value={values.initialBalance}
+            onValueChange={(nextValue) => edit({ ...values, initialBalance: nextValue })}
             aria-labelledby={`${id}-initial-label`} aria-describedby={`${id}-initial-hint${initialError ? ` ${id}-initial-error` : ''}`} aria-invalid={Boolean(initialError)} />
           <small id={`${id}-initial-hint`}>Saldo al empezar el Mes 1, incluido el dinero reservado para pagos que vas a anotar. Puede ser cero o negativo.</small>
           {initialError ? <small className="field-error" id={`${id}-initial-error`}>{initialError}</small> : null}
@@ -57,8 +58,8 @@ export default function CashFlowPlanner() {
                 return (
                   <label key={key}>
                     <span id={`${fieldId}-label`}>{label} del mes {index + 1} (EUR)</span>
-                    <input ref={(node) => { refs.current[`${index}-${key}`] = node; }} type="text" inputMode="decimal" value={month[key]}
-                      onChange={(event) => edit({ ...values, months: values.months.map((item, monthIndex) => monthIndex === index ? { ...item, [key]: event.target.value } : item) })}
+                    <NumericTextInput ref={(node) => { refs.current[`${index}-${key}`] = node; }} inputMode="decimal" value={month[key]}
+                      onValueChange={(nextValue) => edit({ ...values, months: values.months.map((item, monthIndex) => monthIndex === index ? { ...item, [key]: nextValue } : item) })}
                       aria-labelledby={`${fieldId}-label`} aria-describedby={`${fieldId}-hint${error ? ` ${fieldId}-error` : ''}`} aria-invalid={Boolean(error)} />
                     <small id={`${fieldId}-hint`}>{hint}</small>
                     {error ? <small className="field-error" id={`${fieldId}-error`}>{error}</small> : null}

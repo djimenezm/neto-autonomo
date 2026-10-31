@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import NumericTextInput from '@/components/NumericTextInput';
 import { formatCurrency as formatEuro } from '@/lib/format';
 import { parseSpanishNumber } from '@/lib/spanishNumber';
 import { estimateRecurringCosts, expenseFields, paymentPeriods, recurringCostsExample, type PaymentPeriod, type ExpenseKey } from '@/lib/recurringCosts';
@@ -85,12 +86,11 @@ export default function MonthlyCostCalculator() {
                 <label htmlFor={`monthly-cost-${key}`}>
                   <span>Importe de cada pago</span>
                   <span className="monthly-cost-input-wrap">
-                    <input
+                    <NumericTextInput
                       id={`monthly-cost-${key}`}
-                      type="text"
                       inputMode="decimal"
                       value={values[key]}
-                      onChange={(event) => updateValue(key, event.target.value)}
+                      onValueChange={(nextValue) => updateValue(key, nextValue)}
                       aria-invalid={invalid}
                       aria-labelledby={`monthly-cost-${key}-label`}
                       aria-describedby={invalid ? 'monthly-cost-error' : undefined}
@@ -118,12 +118,11 @@ export default function MonthlyCostCalculator() {
         <label htmlFor="monthly-cost-hours">
           <span>Horas facturables al mes</span>
           <span className="monthly-cost-input-wrap">
-            <input
+            <NumericTextInput
               id="monthly-cost-hours"
-              type="text"
               inputMode="numeric"
               value={values.hours}
-              onChange={(event) => updateValue('hours', event.target.value)}
+              onValueChange={(nextValue) => updateValue('hours', nextValue)}
               aria-invalid={invalidHours}
               aria-describedby={invalidHours ? 'monthly-cost-error' : undefined}
             />
@@ -186,12 +185,11 @@ export default function MonthlyCostCalculator() {
             <label htmlFor="deductible-expenses">
               <span>Gastos deducibles, sin incluir la cuota</span>
               <span className="monthly-cost-input-wrap">
-                <input
+                <NumericTextInput
                   id="deductible-expenses"
-                  type="text"
                   inputMode="decimal"
                   value={deductibleExpenses}
-                  onChange={(event) => setDeductibleExpenses(event.target.value)}
+                  onValueChange={setDeductibleExpenses}
                   aria-invalid={transferAttempted && !validDeductibleAmount}
                   aria-describedby="deductible-expenses-hint"
                 />

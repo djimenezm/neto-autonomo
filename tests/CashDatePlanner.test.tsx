@@ -42,6 +42,22 @@ describe('cash date planner', () => {
     expect(window.va).not.toHaveBeenCalled(); expect(window.gtag).not.toHaveBeenCalled();
   });
 
+  it.each(['100\n200', '100\t200'])('rejects multiple copied balances %j and withdraws the old cash result', async (pasted) => {
+    const user = userEvent.setup();
+    render(<Planner />);
+    await example();
+    const initial = screen.getByLabelText('Saldo antes del primer movimiento (EUR)');
+    await user.clear(initial);
+    await user.paste(pasted);
+    expect(status()).toBeEmptyDOMElement();
+    await check();
+    expect(initial).toHaveAttribute('aria-invalid', 'true');
+    expect(initial).toHaveFocus();
+    expect(within(status()).queryByText('Saldo tras la última fecha')).not.toBeInTheDocument();
+    expect(window.va).not.toHaveBeenCalled();
+    expect(window.gtag).not.toHaveBeenCalled();
+  });
+
   it('clears edited results and groups a same-date receipt after its payments even when its closing is positive', async () => {
     render(<Planner />); await example();
     fireEvent.change(field('Fecha', 2), { target: { value: '2026-11-05' } });

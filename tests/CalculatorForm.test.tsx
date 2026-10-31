@@ -339,6 +339,47 @@ describe('CalculatorForm', () => {
     expect(targetInput).toHaveValue(2500.5);
   });
 
+  it('explains an invalid paste immediately before the first calculation', async () => {
+    const user = userEvent.setup();
+    render(<CalculatorForm />);
+    const expenses = screen.getByRole('spinbutton', { name: /gastos mensuales deducibles/i });
+    await user.click(expenses);
+    await user.paste('100\n200');
+    expect(expenses).toHaveValue(null);
+    expect(expenses).toHaveAttribute('aria-invalid', 'true');
+    expect(expenses).toHaveAccessibleDescription(/Pega un solo número/);
+    expect(screen.getByRole('alert')).toHaveTextContent('El formato del dato pegado no es válido.');
+    expect(window.va).not.toHaveBeenCalled();
+    expect(window.gtag).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    ['Gastos mensuales deducibles (EUR)', '1,,50', '250'],
+    ['Horas facturables al mes', '100\t200', '40'],
+    ['IRPF manual (%)', '15%5', '15.5'],
+  ])('blocks a malformed paste in %s until corrected and calculated again', async (label, pasted, correction) => {
+    const user = userEvent.setup();
+    render(<CalculatorForm initiallySubmitted initialValues={{ irpfMode: 'manual', selfEmployedFeeMode: 'manual', selfEmployedFee: '320' }} />);
+    const previousUrl = window.location.href;
+    const input = screen.getByRole('spinbutton', { name: label });
+    await user.click(input);
+    await user.paste(pasted);
+    expect(input).toHaveValue(null);
+    expect(input).toHaveAttribute('aria-invalid', 'true');
+    expect(screen.queryByRole('heading', { name: /tu referencia mensual para presupuestar/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: 'WhatsApp' })).not.toBeInTheDocument();
+    await user.keyboard('{Enter}');
+    expect(window.location.href).toBe(previousUrl);
+    expect(window.va).not.toHaveBeenCalled();
+    expect(window.gtag).not.toHaveBeenCalled();
+
+    await user.type(input, correction);
+    expect(input).toHaveAttribute('aria-invalid', 'false');
+    expect(screen.queryByText(/El formato del dato pegado/)).not.toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: /calcular mi tarifa/i }));
+    expect(screen.getByRole('heading', { name: /tu referencia mensual para presupuestar/i })).toBeVisible();
+  });
+
   it('uses a pasted three-decimal amount consistently in the field, calculation and shared link', async () => {
     const user = userEvent.setup();
     render(<CalculatorForm initialValues={{ irpfMode: 'manual', irpfRate: '15', selfEmployedFeeMode: 'manual', selfEmployedFee: '320' }} />);

@@ -1,6 +1,7 @@
 'use client';
 
 import { useId, useRef, useState } from 'react';
+import NumericTextInput from '@/components/NumericTextInput';
 import { cashDatesExample, checkCashDates, formatCashDate, MAX_CASH_MOVEMENTS, type CashMovementInput } from '@/lib/cashDates';
 import { CASH_DATES_FILENAME, decodeCashDatesFile, encodeCashDatesFile, MAX_CASH_DATES_FILE_BYTES } from '@/lib/cashDatesFile';
 import { formatCurrency, formatNumber } from '@/lib/format';
@@ -130,8 +131,8 @@ export default function CashDatePlanner() {
       </div>
       <label className={styles.initial}>
         <span id={`${id}-initial-label`}>Saldo antes del primer movimiento (EUR)</span>
-        <input ref={(node) => setControl('initialBalance', node)} type="text" inputMode="decimal" value={values.initialBalance}
-          onChange={(event) => { setValues({ ...values, initialBalance: event.target.value }); clearResult(); }}
+        <NumericTextInput ref={(node) => setControl('initialBalance', node)} inputMode="decimal" value={values.initialBalance}
+          onValueChange={(nextValue) => { setValues({ ...values, initialBalance: nextValue }); clearResult(); }}
           aria-labelledby={`${id}-initial-label`} aria-invalid={Boolean(estimate && !estimate.valid && estimate.errors.initialBalance)}
           aria-describedby={`${id}-initial-hint${estimate && !estimate.valid && estimate.errors.initialBalance ? ` ${id}-initial-error` : ''}`} />
         <small id={`${id}-initial-hint`}>El saldo al empezar, antes de la fecha más antigua que introduzcas. Puede ser cero o negativo.</small>
@@ -160,10 +161,15 @@ export default function CashDatePlanner() {
                     }}>
                       <option value="">Elige cobro o pago</option><option value="receipt">Cobro</option><option value="payment">Pago</option>
                     </select>
-                  ) : (
-                    <input {...common} ref={(node) => setControl(`${row.id}-${key}`, node)} type={key === 'date' ? 'date' : 'text'} inputMode={key === 'amount' ? 'decimal' : undefined}
-                      value={row[key]} onChange={(event) => {
+                  ) : key === 'date' ? (
+                    <input {...common} ref={(node) => setControl(`${row.id}-${key}`, node)} type="date"
+                      value={row.date} onChange={(event) => {
                         setValues({ ...values, rows: values.rows.map((item) => item.id === row.id ? { ...item, [key]: event.target.value } : item) }); clearResult();
+                      }} />
+                  ) : (
+                    <NumericTextInput {...common} ref={(node) => setControl(`${row.id}-${key}`, node)} inputMode="decimal"
+                      value={row.amount} onValueChange={(nextValue) => {
+                        setValues({ ...values, rows: values.rows.map((item) => item.id === row.id ? { ...item, [key]: nextValue } : item) }); clearResult();
                       }} />
                   )}
                   {error ? <small className="field-error" id={`${controlId}-error`}>{error}</small> : null}

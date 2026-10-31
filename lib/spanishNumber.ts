@@ -1,68 +1,65 @@
-const CURRENCY_CODES = /\b(?:CHF|EUR|GBP|USD)\b/gi;
-const CURRENCY_SYMBOLS = /[€$£¥%]/g;
-const SPACING_CHARACTERS = /[\s\u00a0\u2007\u200b-\u200d\u202f\u2060\ufeff]/g;
+const PREFIX_UNIT = /^(?:\b(?:CHF|EUR|GBP|USD)\b|[€$£¥%]) */i;
+const SUFFIX_UNIT = / *(?:\b(?:CHF|EUR|GBP|USD)\b|[€$£¥%])$/i;
+const GROUPED_INTEGER = {
+  '.': /^\d{1,3}(?:\.\d{3})+$/,
+  ',': /^\d{1,3}(?:,\d{3})+$/,
+  ' ': /^\d{1,3}(?: \d{3})+$/,
+};
 
-function normalizeRepeatedSeparator(value: string, separator: ',' | '.') {
-  const parts = value.split(separator);
+function integerDigits(value: string, separator: keyof typeof GROUPED_INTEGER = ' ') {
+  if (/^\d*$/.test(value)) return value;
+  return GROUPED_INTEGER[separator].test(value) ? value.split(separator).join('') : null;
+}
 
-  if (parts.length === 2) {
-    const [integerPart, fractionPart] = parts;
-
-    if (separator === '.' && fractionPart.length === 3 && integerPart.length > 0) {
-      return `${integerPart}${fractionPart}`;
-    }
-
-    return `${integerPart || '0'}.${fractionPart}`;
-  }
-
-  const groupsAfterFirst = parts.slice(1);
-  const isThousandsGrouping = groupsAfterFirst.every((part) => part.length === 3);
-
-  if (isThousandsGrouping) {
-    return parts.join('');
-  }
-
-  const fractionPart = parts.at(-1) ?? '';
-  const integerPart = parts.slice(0, -1).join('');
-  return `${integerPart || '0'}.${fractionPart}`;
+function decimalNumber(integer: string, fraction: string, grouping?: keyof typeof GROUPED_INTEGER) {
+  const digits = integerDigits(integer, grouping);
+  if (digits === null || !/^\d*$/.test(fraction)) return null;
+  return (digits || '0') + (fraction ? '.' + fraction : '');
 }
 
 export function parseSpanishNumber(value: string) {
-  const cleanedValue = value
-    .normalize('NFKC')
-    .replace(/\u2212/g, '-')
-    .replace(CURRENCY_CODES, '')
-    .replace(CURRENCY_SYMBOLS, '')
-    .replace(SPACING_CHARACTERS, '');
+  let text = value.normalize('NFKC').replace(/\u2212/g, '-').trim();
+  // A copied table row or column is not one number. Keep outer whitespace,
+  // but never join cells by deleting tabs, line breaks or interior currency.
+  if (!text || /[\u0000-\u001f\u007f\u2028\u2029]/.test(text)) return Number.NaN;
 
-  if (!cleanedValue || !/^[+-]?[\d.,]+$/.test(cleanedValue)) {
-    return Number.NaN;
+  let sign = '';
+  if (/^[+-]/.test(text)) {
+    sign = text[0];
+    text = text.slice(1).trimStart();
   }
-
-  const sign = cleanedValue.startsWith('-') ? '-' : '';
-  const unsignedValue = cleanedValue.replace(/^[+-]/, '');
-
-  if (!/\d/.test(unsignedValue)) {
-    return Number.NaN;
+  const prefix = text.match(PREFIX_UNIT);
+  const suffix = text.match(SUFFIX_UNIT);
+  if (prefix && suffix) return Number.NaN;
+  if (prefix) text = text.slice(prefix[0].length);
+  if (suffix) text = text.slice(0, -suffix[0].length);
+  if (!sign && /^[+-]/.test(text)) {
+    sign = text[0];
+    text = text.slice(1).trimStart();
   }
+  if (!/^[\d., ]+$/.test(text) || !/\d/.test(text)) return Number.NaN;
 
-  const lastComma = unsignedValue.lastIndexOf(',');
-  const lastDot = unsignedValue.lastIndexOf('.');
-  let normalizedValue = unsignedValue;
-
+  const lastComma = text.lastIndexOf(',');
+  const lastDot = text.lastIndexOf('.');
+  let normalized: string | null;
   if (lastComma >= 0 && lastDot >= 0) {
-    const decimalIndex = Math.max(lastComma, lastDot);
-    const integerPart = unsignedValue.slice(0, decimalIndex).replace(/[.,]/g, '');
-    const fractionPart = unsignedValue.slice(decimalIndex + 1).replace(/[.,]/g, '');
-    normalizedValue = fractionPart
-      ? `${integerPart || '0'}.${fractionPart}`
-      : integerPart || '0';
-  } else if (lastComma >= 0) {
-    normalizedValue = normalizeRepeatedSeparator(unsignedValue, ',');
-  } else if (lastDot >= 0) {
-    normalizedValue = normalizeRepeatedSeparator(unsignedValue, '.');
+    const decimal = lastComma > lastDot ? ',' : '.';
+    const parts = text.split(decimal);
+    normalized = parts.length === 2
+      ? decimalNumber(parts[0], parts[1], decimal === ',' ? '.' : ',')
+      : null;
+  } else if (lastComma >= 0 || lastDot >= 0) {
+    const separator = lastComma >= 0 ? ',' : '.';
+    const parts = text.split(separator);
+    // Preserve Spanish dot-grouping and comma decimals. Repeated separators
+    // are accepted only as complete, consistently grouped thousands.
+    normalized = parts.length > 2 || (separator === '.' && parts[0] !== '' && parts[1].length === 3)
+      ? integerDigits(text, separator)
+      : decimalNumber(parts[0], parts[1]);
+  } else {
+    normalized = integerDigits(text);
   }
-
-  const parsedValue = Number(`${sign}${normalizedValue}`);
+  if (normalized === null) return Number.NaN;
+  const parsedValue = Number(sign + normalized);
   return Number.isFinite(parsedValue) ? parsedValue : Number.NaN;
 }

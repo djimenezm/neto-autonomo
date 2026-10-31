@@ -1,6 +1,7 @@
 'use client';
 
 import { useId, useRef, useState } from 'react';
+import NumericTextInput from '@/components/NumericTextInput';
 import { AUTONOMOUS_COMMUNITY_LABELS, type CalculatorInput } from '@/lib/calculator';
 import { compareMonthlyScenarios, getScenarioPath, type MonthlyAlternative } from '@/lib/monthlyScenarios';
 import { formatCurrency, formatNumber } from '@/lib/format';
@@ -62,9 +63,9 @@ function ComparisonEditor({ reference }: { reference: CalculatorInput }) {
           return (
             <label key={key}>
               <span id={`${id}-${key}-label`}>{label}</span>
-              <input type="text" inputMode={key === 'billableHours' ? 'numeric' : 'decimal'} value={values[key]}
+              <NumericTextInput inputMode={key === 'billableHours' ? 'numeric' : 'decimal'} value={values[key]}
                 ref={(node) => { refs.current[key] = node; }}
-                onChange={(event) => { setValues({ ...values, [key]: event.target.value }); setChecked(null); }}
+                onValueChange={(nextValue) => { setValues({ ...values, [key]: nextValue }); setChecked(null); }}
                 aria-labelledby={`${id}-${key}-label`} aria-describedby={`${id}-${key}-hint${error ? ` ${id}-${key}-error` : ''}`} aria-invalid={Boolean(error)} />
               <small id={`${id}-${key}-hint`}>{hint}</small>
               {error ? <small className="field-error" id={`${id}-${key}-error`}>{error}</small> : null}

@@ -69,22 +69,6 @@ function trackCalculatorCompleted(data: Record<string, string>) {
   });
 }
 
-function handleNumericPaste(
-  event: ClipboardEvent<HTMLInputElement>,
-  field: FieldName,
-  setValue: (value: string) => void,
-) {
-  const pastedValue = event.clipboardData.getData('text');
-  const normalizedValue = getNormalizedPastedValue(field, pastedValue);
-
-  if (normalizedValue === null) {
-    return;
-  }
-
-  event.preventDefault();
-  setValue(normalizedValue);
-}
-
 export default function CalculatorForm({
   initialValues,
   initiallySubmitted = false,
@@ -124,6 +108,29 @@ export default function CalculatorForm({
   const resultRegionRef = useRef<HTMLElement | null>(null);
   const lastFocusedSubmission = useRef(0);
   const hasTrackedCostImport = useRef(false);
+  const [invalidPastedField, setInvalidPastedField] = useState<FieldName | null>(null);
+
+  function updateNumericValue(field: FieldName, value: string, setValue: (value: string) => void) {
+    setValue(value);
+    if (invalidPastedField === field) setInvalidPastedField(null);
+  }
+
+  function handleNumericPaste(
+    event: ClipboardEvent<HTMLInputElement>,
+    field: FieldName,
+    setValue: (value: string) => void,
+  ) {
+    const normalizedValue = getNormalizedPastedValue(field, event.clipboardData.getData('text'));
+    event.preventDefault();
+    if (normalizedValue === null) {
+      // Number inputs cannot retain malformed text. Clear the old number too,
+      // so a rejected paste cannot silently leave a previous result shareable.
+      setValue('');
+      setInvalidPastedField(field);
+    } else {
+      updateNumericValue(field, normalizedValue, setValue);
+    }
+  }
 
   useEffect(() => {
     if (!importedFromCosts || hasTrackedCostImport.current) return;
@@ -139,8 +146,8 @@ export default function CalculatorForm({
   }, [invalidSubmissionCount]);
 
   const validationErrors = useMemo(
-    () =>
-      validateForm(
+    () => {
+      const errors = validateForm(
         {
           targetNet,
           monthlyExpenses,
@@ -151,7 +158,12 @@ export default function CalculatorForm({
         },
         irpfMode,
         selfEmployedFeeMode,
-      ),
+      );
+      if (invalidPastedField && errors[invalidPastedField]) {
+        errors[invalidPastedField] = 'El formato del dato pegado no es válido. Pega un solo número y revisa los separadores.';
+      }
+      return errors;
+    },
     [
       targetNet,
       monthlyExpenses,
@@ -161,14 +173,18 @@ export default function CalculatorForm({
       selfEmployedFee,
       irpfMode,
       selfEmployedFeeMode,
+      invalidPastedField,
     ],
   );
 
+  const showFieldError = (field: FieldName) =>
+    (submitted || invalidPastedField === field) && Boolean(validationErrors[field]);
   const parsedHours = parseNumericValue(billableHours);
   const hasValidationErrors = Object.keys(validationErrors).length > 0;
   const showHoursError =
     Boolean(validationErrors.billableHours) &&
-    (submitted || (billableHours.trim() !== '' && Number.isFinite(parsedHours) && parsedHours <= 0));
+    (submitted || invalidPastedField === 'billableHours'
+      || (billableHours.trim() !== '' && Number.isFinite(parsedHours) && parsedHours <= 0));
 
   const calculationKey = getCalculationKey({
     targetNet, monthlyExpenses, monthlyNonDeductibleExpenses, billableHours,
@@ -311,13 +327,13 @@ export default function CalculatorForm({
             min="0"
             step="0.01"
             value={targetNet}
-            onChange={(event) => setTargetNet(event.target.value)}
+            onChange={(event) => updateNumericValue('targetNet', event.target.value, setTargetNet)}
             onPaste={(event) => handleNumericPaste(event, 'targetNet', setTargetNet)}
             onBlur={(event) => setTargetNet(normalizeFieldValue('targetNet', event.target.value))}
-            aria-invalid={submitted && Boolean(validationErrors.targetNet)}
-            aria-describedby={submitted && validationErrors.targetNet ? 'target-net-error' : undefined}
+            aria-invalid={showFieldError('targetNet')}
+            aria-describedby={showFieldError('targetNet') ? 'target-net-error' : undefined}
           />
-          {submitted && validationErrors.targetNet && (
+          {showFieldError('targetNet') && (
             <small className="field-error" id="target-net-error" role="alert">
               {validationErrors.targetNet}
             </small>
@@ -332,19 +348,19 @@ export default function CalculatorForm({
             min="0"
             step="0.01"
             value={monthlyExpenses}
-            onChange={(event) => setMonthlyExpenses(event.target.value)}
+            onChange={(event) => updateNumericValue('monthlyExpenses', event.target.value, setMonthlyExpenses)}
             onPaste={(event) =>
               handleNumericPaste(event, 'monthlyExpenses', setMonthlyExpenses)
             }
             onBlur={(event) =>
               setMonthlyExpenses(normalizeFieldValue('monthlyExpenses', event.target.value))
             }
-            aria-invalid={submitted && Boolean(validationErrors.monthlyExpenses)}
+            aria-invalid={showFieldError('monthlyExpenses')}
             aria-describedby={
-              submitted && validationErrors.monthlyExpenses ? 'monthly-expenses-error' : undefined
+              showFieldError('monthlyExpenses') ? 'monthly-expenses-error' : undefined
             }
           />
-          {submitted && validationErrors.monthlyExpenses && (
+          {showFieldError('monthlyExpenses') && (
             <small className="field-error" id="monthly-expenses-error" role="alert">
               {validationErrors.monthlyExpenses}
             </small>
@@ -359,7 +375,7 @@ export default function CalculatorForm({
             min="0"
             step="0.01"
             value={monthlyNonDeductibleExpenses}
-            onChange={(event) => setMonthlyNonDeductibleExpenses(event.target.value)}
+            onChange={(event) => updateNumericValue('monthlyNonDeductibleExpenses', event.target.value, setMonthlyNonDeductibleExpenses)}
             onPaste={(event) =>
               handleNumericPaste(event, 'monthlyNonDeductibleExpenses', setMonthlyNonDeductibleExpenses)
             }
@@ -368,9 +384,9 @@ export default function CalculatorForm({
                 normalizeFieldValue('monthlyNonDeductibleExpenses', event.target.value),
               )
             }
-            aria-invalid={submitted && Boolean(validationErrors.monthlyNonDeductibleExpenses)}
+            aria-invalid={showFieldError('monthlyNonDeductibleExpenses')}
             aria-describedby={
-              submitted && validationErrors.monthlyNonDeductibleExpenses
+              showFieldError('monthlyNonDeductibleExpenses')
                 ? 'monthly-non-deductible-expenses-error'
                 : 'monthly-non-deductible-expenses-hint'
             }
@@ -378,7 +394,7 @@ export default function CalculatorForm({
           <small className="field-hint" id="monthly-non-deductible-expenses-hint">
             Costes que pagas pero no descuentas en esta estimación de IRPF. Escribe 0 si no tienes.
           </small>
-          {submitted && validationErrors.monthlyNonDeductibleExpenses && (
+          {showFieldError('monthlyNonDeductibleExpenses') && (
             <small className="field-error" id="monthly-non-deductible-expenses-error" role="alert">
               {validationErrors.monthlyNonDeductibleExpenses}
             </small>
@@ -394,7 +410,7 @@ export default function CalculatorForm({
             step="1"
             value={billableHours}
             onChange={(event) => {
-              setBillableHours(event.target.value);
+              updateNumericValue('billableHours', event.target.value, setBillableHours);
               setAppliedHours(null);
             }}
             onPaste={(event) => {
@@ -477,13 +493,13 @@ export default function CalculatorForm({
               max="99"
               step="0.1"
               value={irpfRate}
-              onChange={(event) => setIrpfRate(event.target.value)}
+              onChange={(event) => updateNumericValue('irpfRate', event.target.value, setIrpfRate)}
               onPaste={(event) => handleNumericPaste(event, 'irpfRate', setIrpfRate)}
               onBlur={(event) => setIrpfRate(normalizeFieldValue('irpfRate', event.target.value))}
-              aria-invalid={submitted && Boolean(validationErrors.irpfRate)}
-              aria-describedby={submitted && validationErrors.irpfRate ? 'irpf-rate-error' : undefined}
+              aria-invalid={showFieldError('irpfRate')}
+              aria-describedby={showFieldError('irpfRate') ? 'irpf-rate-error' : undefined}
             />
-            {submitted && validationErrors.irpfRate && (
+            {showFieldError('irpfRate') && (
               <small className="field-error" id="irpf-rate-error" role="alert">
                 {validationErrors.irpfRate}
               </small>
@@ -538,19 +554,19 @@ export default function CalculatorForm({
               min="0.01"
               step="0.01"
               value={selfEmployedFee}
-              onChange={(event) => setSelfEmployedFee(event.target.value)}
+              onChange={(event) => updateNumericValue('selfEmployedFee', event.target.value, setSelfEmployedFee)}
               onPaste={(event) =>
                 handleNumericPaste(event, 'selfEmployedFee', setSelfEmployedFee)
               }
               onBlur={(event) =>
                 setSelfEmployedFee(normalizeFieldValue('selfEmployedFee', event.target.value))
               }
-              aria-invalid={submitted && Boolean(validationErrors.selfEmployedFee)}
+              aria-invalid={showFieldError('selfEmployedFee')}
               aria-describedby={
-                submitted && validationErrors.selfEmployedFee ? 'self-employed-fee-error' : undefined
+                showFieldError('selfEmployedFee') ? 'self-employed-fee-error' : undefined
               }
             />
-            {submitted && validationErrors.selfEmployedFee && (
+            {showFieldError('selfEmployedFee') && (
               <small className="field-error" id="self-employed-fee-error" role="alert">
                 {validationErrors.selfEmployedFee}
               </small>

@@ -1,6 +1,7 @@
 'use client';
 
 import { useId, useRef, useState } from 'react';
+import NumericTextInput from '@/components/NumericTextInput';
 import { planAnnualBilling } from '@/lib/annualBillingPlan';
 import { formatCurrency, formatNumber } from '@/lib/format';
 import { parseSpanishNumber } from '@/lib/spanishNumber';
@@ -45,8 +46,8 @@ function PlanEditor({ monthlyBilling }: { monthlyBilling: number }) {
           return (
             <label key={key}>
               <span id={`${id}-${key}-label`}>{label}</span>
-              <input ref={(node) => { refs.current[key] = node; }} type="text" inputMode={key === 'activeMonths' ? 'numeric' : 'decimal'} value={values[key]}
-                onChange={(event) => { setValues({ ...values, [key]: event.target.value }); setChecked(null); setIsExample(false); }}
+              <NumericTextInput ref={(node) => { refs.current[key] = node; }} inputMode={key === 'activeMonths' ? 'numeric' : 'decimal'} value={values[key]}
+                onValueChange={(nextValue) => { setValues({ ...values, [key]: nextValue }); setChecked(null); setIsExample(false); }}
                 aria-labelledby={`${id}-${key}-label`} aria-describedby={`${id}-${key}-hint${error ? ` ${id}-${key}-error` : ''}`} aria-invalid={Boolean(error)} />
               <small id={`${id}-${key}-hint`}>{hint}</small>
               {error ? <small className="field-error" id={`${id}-${key}-error`}>{error}</small> : null}

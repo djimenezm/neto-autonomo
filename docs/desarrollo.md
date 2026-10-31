@@ -48,6 +48,47 @@ Los espacios publicitarios están preparados, pero `lib/ads.ts` exige `NEXT_PUBL
 
 ## Revisión local antes de publicar
 
+### Importes malformados y pegado de varias celdas (31 de octubre de 2026)
+
+Publicación autorizada el 31 de octubre de 2026: protección contra importes
+malformados y pegados de varias celdas, con anuncios, piloto y seguimientos
+intactos. El lector de números podía
+convertir `1,,50` en 1,50 o `12.34,56` en 1234,56. También eliminaba los
+separadores de celdas: dos números copiados con un salto de línea o una
+tabulación podían convertirse en un único importe distinto.
+
+`lib/spanishNumber.ts` valida la estructura antes de retirar los separadores
+de miles. Conserva formatos como `1.234,56`, `1,234.56`, `2 500`, espacios
+estrechos, signos y una unidad en los extremos. Comas repetidas, agrupaciones
+incompletas, unidades interiores y separadores internos de celdas producen
+un dato inválido. Los blancos exteriores habituales del portapapeles siguen
+admitidos. Se conserva la distinción de `1.005` como miles y `1,005` como
+decimal en la notación española; el estado nativo de la calculadora principal
+sigue usando su lectura separada con punto decimal.
+
+`NumericTextInput` protege las ayudas antes de que el navegador elimine
+saltos de línea de un campo de una sola línea. Un pegado multicelda muestra
+marcadores visibles como `↵` y `⇥`, de modo que la validación lo rechaza y
+pide corregirlo. Los pegados ordinarios conservan la selección y la posición
+del cursor. Fechas, archivos, campos ocultos y selectores mantienen sus
+controles anteriores.
+
+En la calculadora principal, un pegado inválido vacía el campo numérico y
+muestra un error asociado a ese campo inmediatamente. Así no queda el
+importe anterior como si se hubiese aceptado el nuevo. El resultado y sus
+acciones de compartir se retiran hasta corregir el dato y calcular otra vez.
+La corrección se puede escribir o pegar, sin cambiar los modos fiscales.
+
+Validación: 711 pruebas en 75 archivos, lint sin avisos y compilación correctos.
+Las regresiones cubren los 22 formatos malformados antes aceptados, lectura
+de formatos válidos, pegado anterior a blur/Enter, retirada del resultado y
+recuperación después de corregir. En navegador se comprueban el error
+inmediato de la calculadora, la retirada de resultado y enlaces, el marcador
+de dos celdas en factura y la recuperación con `1.234,56`; sin errores en la
+consola revisada. Anuncios, captación, piloto, motor fiscal, configuración y
+seguimientos conservan su estado. La publicación autorizada incluye esta
+protección en la calculadora y sus ayudas.
+
 ### Horas completas de una agenda con decimales (30 de octubre de 2026)
 
 Publicación autorizada el 30 de octubre de 2026: corrección de las horas

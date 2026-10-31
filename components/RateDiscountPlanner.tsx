@@ -1,6 +1,7 @@
 'use client';
 
 import { useId, useRef, useState } from 'react';
+import NumericTextInput from '@/components/NumericTextInput';
 import { compareRateDiscount, rateDiscountExample, type RateDiscountInput } from '@/lib/rateDiscount';
 import { formatCurrency, formatNumber } from '@/lib/format';
 import { parseSpanishNumber } from '@/lib/spanishNumber';
@@ -44,8 +45,8 @@ export default function RateDiscountPlanner() {
           return (
             <label key={key}>
               <span id={`${id}-${key}-label`}>{label}</span>
-              <input type="text" inputMode="decimal" value={values[key]} ref={(node) => { refs.current[key] = node; }}
-                onChange={(event) => { setValues({ ...values, [key]: event.target.value }); setResult(null); setIsExample(false); }}
+              <NumericTextInput inputMode="decimal" value={values[key]} ref={(node) => { refs.current[key] = node; }}
+                onValueChange={(nextValue) => { setValues({ ...values, [key]: nextValue }); setResult(null); setIsExample(false); }}
                 aria-labelledby={`${id}-${key}-label`} aria-describedby={`${id}-${key}-hint${error ? ` ${id}-${key}-error` : ''}`} aria-invalid={Boolean(error)} />
               <small id={`${id}-${key}-hint`}>{hint}</small>
               {error ? <small className="field-error" id={`${id}-${key}-error`}>{error}</small> : null}

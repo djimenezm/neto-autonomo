@@ -1,6 +1,7 @@
 'use client';
 
 import { useId, useRef, useState } from 'react';
+import NumericTextInput from '@/components/NumericTextInput';
 import { estimateDayRate, type DayRateInput } from '@/lib/dayRate';
 import { formatCurrency, formatNumber } from '@/lib/format';
 import { parseSpanishNumber } from '@/lib/spanishNumber';
@@ -71,13 +72,12 @@ export default function DayRatePlanner({ example, costExample }: { example: DayR
             return (
               <label key={key}>
                 <span id={`${id}-${key}-label`}>{label}</span>
-                <input
+                <NumericTextInput
                   ref={(node) => { inputsRef.current[key] = node; }}
-                  type="text"
                   inputMode="decimal"
                   value={values[key]}
-                  onChange={(event) => {
-                    setValues({ ...values, [key]: event.target.value });
+                  onValueChange={(nextValue) => {
+                    setValues({ ...values, [key]: nextValue });
                     setEstimate(null);
                     setIsExample(false);
                   }}

@@ -1,6 +1,7 @@
 'use client';
 
 import { useId, useRef, useState } from 'react';
+import NumericTextInput from '@/components/NumericTextInput';
 import { AUTONOMOUS_COMMUNITY_LABELS } from '@/lib/calculator';
 import { estimateMonthlyNet, type NetPreviewReference } from '@/lib/monthlyNet';
 import { formatCurrency, formatNumber } from '@/lib/format';
@@ -37,8 +38,8 @@ function NetEditor({ reference }: { reference: NetPreviewReference }) {
       <noscript><p>La ayuda necesita JavaScript. Puedes consultar el <a href="/tarifa-freelance-por-hora#neto-segun-facturacion">ejemplo de neto según facturación</a>.</p></noscript>
       <label className={styles.field}>
         <span id={`${id}-label`}>Facturación mensual prevista sin IVA (EUR)</span>
-        <input ref={input} type="text" inputMode="decimal" value={value}
-          onChange={(event) => { setValue(event.target.value); setEstimate(null); setIsExample(false); }}
+        <NumericTextInput ref={input} inputMode="decimal" value={value}
+          onValueChange={(nextValue) => { setValue(nextValue); setEstimate(null); setIsExample(false); }}
           onKeyDown={(event) => { if (event.key === 'Enter') { event.preventDefault(); check(); } }}
           aria-labelledby={`${id}-label`} aria-describedby={`${id}-hint ${id}-reference${error ? ` ${id}-error` : ''}`} aria-invalid={Boolean(error)} />
         <small id={`${id}-hint`}>Suma las bases del mes antes de IVA y retenciones. No uses el cobro bancario ni solo una factura. Puedes indicar cero.</small>

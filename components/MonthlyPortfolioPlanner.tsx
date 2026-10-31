@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useId, useRef, useState } from 'react';
+import NumericTextInput from '@/components/NumericTextInput';
 import { examplePortfolioGroups, MAX_PORTFOLIO_GROUPS, planMonthlyPortfolio, type PortfolioGroupInput } from '@/lib/projectPortfolio';
 import { formatCurrency, formatNumber } from '@/lib/format';
 import { parseSpanishNumber } from '@/lib/spanishNumber';
@@ -72,8 +73,8 @@ function PortfolioEditor({ monthlyBilling, billableHours }: Reference) {
                 return (
                   <label key={key} htmlFor={inputId}>
                     <span id={`${inputId}-label`}>{label(index + 1)}</span>
-                    <input id={inputId} ref={(node) => { inputs.current[`${row.id}-${key}`] = node; }} type="text" inputMode={key === 'quantity' ? 'numeric' : 'decimal'} value={row[key]}
-                      onChange={(event) => changeRows(rows.map((item) => item.id === row.id ? { ...item, [key]: event.target.value } : item), '')}
+                    <NumericTextInput id={inputId} ref={(node) => { inputs.current[`${row.id}-${key}`] = node; }} inputMode={key === 'quantity' ? 'numeric' : 'decimal'} value={row[key]}
+                      onValueChange={(nextValue) => changeRows(rows.map((item) => item.id === row.id ? { ...item, [key]: nextValue } : item), '')}
                       aria-labelledby={`${inputId}-label`} aria-invalid={Boolean(error)} aria-describedby={`${inputId}-hint${error ? ` ${inputId}-error` : ''}`} />
                     <small id={`${inputId}-hint`}>{hint}</small>
                     {error ? <small className="field-error" id={`${inputId}-error`}>{error}</small> : null}

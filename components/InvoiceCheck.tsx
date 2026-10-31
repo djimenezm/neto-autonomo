@@ -1,6 +1,7 @@
 'use client';
 
 import { useId, useRef, useState } from 'react';
+import NumericTextInput from '@/components/NumericTextInput';
 import { checkInvoice, invoiceCheckExample, type InvoiceCheckInput } from '@/lib/invoiceCheck';
 import { formatCurrency, formatNumber } from '@/lib/format';
 import { parseSpanishNumber } from '@/lib/spanishNumber';
@@ -48,8 +49,8 @@ export default function InvoiceCheck() {
           return (
             <label key={key} htmlFor={fieldId}>
               <span id={`${fieldId}-label`}>{label}</span>
-              <input id={fieldId} ref={(node) => { refs.current[key] = node; }} type="text" inputMode="decimal" value={values[key]}
-                onChange={(event) => { const value = event.target.value; setValues((previous) => ({ ...previous, [key]: value })); setResult(null); setIsExample(false); }}
+              <NumericTextInput id={fieldId} ref={(node) => { refs.current[key] = node; }} inputMode="decimal" value={values[key]}
+                onValueChange={(nextValue) => { setValues((previous) => ({ ...previous, [key]: nextValue })); setResult(null); setIsExample(false); }}
                 aria-labelledby={`${fieldId}-label`} aria-describedby={`${fieldId}-hint${error ? ` ${fieldId}-error` : ''}`} aria-invalid={Boolean(error)} />
               <small id={`${fieldId}-hint`}>{hint}</small>
               {error ? <small className="field-error" id={`${fieldId}-error`}>{error}</small> : null}
