@@ -1,7 +1,7 @@
 'use client';
 
 import type { ClipboardEvent } from 'react';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Activity, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import ResultCard from '@/components/ResultCard';
 import BillableHoursPlanner from '@/components/BillableHoursPlanner';
 import {
@@ -191,38 +191,29 @@ export default function CalculatorForm({
     irpfMode, irpfRate, autonomousCommunity, hasIVA, selfEmployedFeeMode,
     selfEmployedFee, reducedFeePeriod,
   });
-  const [calculatedKey, setCalculatedKey] = useState<string | null>(() =>
-    initiallySubmitted ? calculationKey : null,
+  const [calculatedValues, setCalculatedValues] = useState<CalculatorFormValues | null>(() =>
+    initiallySubmitted && !hasValidationErrors ? values : null,
   );
+  const calculatedKey = calculatedValues ? getCalculationKey(calculatedValues) : null;
   const resultIsCurrent = calculatedKey === calculationKey;
 
   const result = useMemo(() => {
+    if (!calculatedValues) return null;
+
     return calculateFreelanceBilling({
-      targetNet: parseNumericValue(targetNet),
-      monthlyExpenses: parseNumericValue(monthlyExpenses),
-      monthlyNonDeductibleExpenses: parseNumericValue(monthlyNonDeductibleExpenses),
-      billableHours: parseNumericValue(billableHours),
-      irpfRate: parseNumericValue(irpfRate),
-      irpfMode,
-      autonomousCommunity,
-      hasIVA,
-      selfEmployedFee: parseNumericValue(selfEmployedFee),
-      selfEmployedFeeMode,
-      reducedFeePeriod,
+      targetNet: parseNumericValue(calculatedValues.targetNet),
+      monthlyExpenses: parseNumericValue(calculatedValues.monthlyExpenses),
+      monthlyNonDeductibleExpenses: parseNumericValue(calculatedValues.monthlyNonDeductibleExpenses),
+      billableHours: parseNumericValue(calculatedValues.billableHours),
+      irpfRate: parseNumericValue(calculatedValues.irpfRate),
+      irpfMode: calculatedValues.irpfMode,
+      autonomousCommunity: calculatedValues.autonomousCommunity,
+      hasIVA: calculatedValues.hasIVA,
+      selfEmployedFee: parseNumericValue(calculatedValues.selfEmployedFee),
+      selfEmployedFeeMode: calculatedValues.selfEmployedFeeMode,
+      reducedFeePeriod: calculatedValues.reducedFeePeriod,
     });
-  }, [
-    targetNet,
-    monthlyExpenses,
-    monthlyNonDeductibleExpenses,
-    billableHours,
-    irpfRate,
-    irpfMode,
-    autonomousCommunity,
-    hasIVA,
-    selfEmployedFee,
-    selfEmployedFeeMode,
-    reducedFeePeriod,
-  ]);
+  }, [calculatedValues]);
 
   useEffect(() => {
     if (validSubmissionCount > 0) {
@@ -296,7 +287,7 @@ export default function CalculatorForm({
             setBillableHours(nextValues.billableHours);
             setIrpfRate(nextValues.irpfRate);
             setSelfEmployedFee(nextValues.selfEmployedFee);
-            setCalculatedKey(getCalculationKey(nextValues));
+            setCalculatedValues(nextValues);
 
             if (updateUrlOnSubmit) {
               window.history.replaceState(null, '', nextShareUrl);
@@ -606,6 +597,13 @@ export default function CalculatorForm({
           Calcular mi tarifa orientativa
         </button>
         <p className="form-note">Puedes probar varios escenarios sin registrarte.</p>
+        {calculatedValues ? (
+          <p className="form-note">
+            Los datos de las ayudas del resultado se conservan mientras editas y vuelves a los
+            valores calculados. Si calculas con valores distintos, las ayudas empiezan de nuevo.
+            No se guardan al salir de la página ni se incluyen en el enlace compartido.
+          </p>
+        ) : null}
 
         {submitted && !hasValidationErrors && !resultIsCurrent ? (
           <p className="form-note calculator-import-note" role="status">
@@ -638,18 +636,23 @@ export default function CalculatorForm({
               }}
             />
           )}
-          {resultIsCurrent ? (
-            <ResultCard
-              ref={setResultRegionRef}
-              result={result}
-              hoursBillable={parsedHours}
-              hasIVA={hasIVA}
-              enableCopy={enableResultCopy}
-              shareUrl={shareUrl}
-            />
-          ) : null}
         </>
       )}
+      {/* Preserve drafts against transient edits without exposing a stale result.
+          A confirmed different scenario starts fresh helpers, as before. */}
+      <Activity mode={submitted && !hasValidationErrors && resultIsCurrent ? 'visible' : 'hidden'}>
+        {result && calculatedValues ? (
+          <ResultCard
+            key={calculatedKey}
+            ref={setResultRegionRef}
+            result={result}
+            hoursBillable={parseNumericValue(calculatedValues.billableHours)}
+            hasIVA={calculatedValues.hasIVA}
+            enableCopy={enableResultCopy}
+            shareUrl={shareUrl}
+          />
+        ) : null}
+      </Activity>
     </div>
   );
 }

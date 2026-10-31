@@ -48,6 +48,37 @@ Los espacios publicitarios están preparados, pero `lib/ads.ts` exige `NEXT_PUBL
 
 ## Revisión local antes de publicar
 
+### Conservar las ayudas durante una corrección (31 de octubre de 2026)
+
+Publicación autorizada el 31 de octubre de 2026: protección de borradores de
+las ayudas, sin activar anuncios ni tocar el piloto o los seguimientos.
+Al editar un dato principal, se desmontaba el resultado
+y se perdían los datos de sus ayudas, incluidos los grupos de servicios. Volver
+al mismo neto u horas restauraba el resultado, pero dejaba las ayudas vacías y
+cerradas. El caso se reprodujo en el navegador con dos grupos y el cambio
+temporal de 2000 a 2500 EUR y vuelta a 2000 EUR.
+
+`CalculatorForm.tsx` conserva los valores del último cálculo confirmado. El
+resultado recibe siempre esa referencia, y una frontera `Activity` mantiene
+sus borradores y desplegables mientras permanece oculto por cambios pendientes
+o errores. Volver a valores equivalentes o enviarlos de nuevo recupera las
+ayudas; no vuelve a aparecer ningún resultado ni enlace accesible mientras
+los datos estén pendientes de calcular. Confirmar un escenario distinto
+reinicia las ayudas, como antes. La nota del formulario explica ambas reglas.
+
+Los datos permanecen solo en memoria de la página: no se añaden al GET, al
+enlace compartido, al almacenamiento o a eventos. El motor fiscal, anuncios,
+captación, piloto y seguimientos conservan su estado. No se cambia ninguna
+fecha editorial por esta reparación.
+
+Validación: suite completa correcta (725 pruebas) y seis regresiones específicas
+correctas, incluida la añadida después para el primer envío del usuario. Lint,
+revisión independiente y compilación correctos. En el navegador local se
+comprueban dos grupos manuales, la ocultación del resultado y los enlaces al
+editar, y la recuperación de grupos, plan y desplegables al restaurar tanto un
+valor válido como un campo vacío. El foco y la URL se conservan; sin errores
+en la consola revisada.
+
 ### Costes y horas coherentes al trasladarlos a la tarifa (31 de octubre de 2026)
 
 Publicación autorizada el 31 de octubre de 2026: traslado de costes y horas,
