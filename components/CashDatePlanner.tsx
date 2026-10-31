@@ -37,6 +37,8 @@ export default function CashDatePlanner() {
   const [estimate, setEstimate] = useState<ReturnType<typeof checkCashDates> | null>(null);
   const [isExample, setIsExample] = useState(false);
   const [fileFeedback, setFileFeedback] = useState<{ text: string; error: boolean; download?: boolean } | null>(null);
+  const [planBeforeExample, setPlanBeforeExample] = useState<{ values: Values; isExample: boolean } | null>(null);
+  const [recoveryFeedback, setRecoveryFeedback] = useState<string | null>(null);
 
   function setControl(key: string, node: HTMLInputElement | HTMLSelectElement | null) {
     controls.current[key] = node;
@@ -44,10 +46,11 @@ export default function CashDatePlanner() {
   }
 
   function invalidateFileRead() { fileOperation.current++; setFileFeedback(null); }
-  function clearResult() { invalidateFileRead(); setEstimate(null); setIsExample(false); }
+  function clearResult() { invalidateFileRead(); setEstimate(null); setIsExample(false); setRecoveryFeedback(null); }
 
   function calculate(next = values) {
     invalidateFileRead();
+    setRecoveryFeedback(null);
     const result = checkCashDates({
       initialBalance: parseSpanishNumber(next.initialBalance),
       movements: next.rows.map((row) => ({ date: row.date, kind: row.kind, amount: parseSpanishNumber(row.amount) })),
@@ -67,6 +70,7 @@ export default function CashDatePlanner() {
 
   async function openPlan(file: File) {
     const operation = ++fileOperation.current;
+    setRecoveryFeedback(null);
     if (file.size > MAX_CASH_DATES_FILE_BYTES) {
       setFileFeedback({ text: 'El archivo supera el máximo de 64 KB. No se ha cambiado tu plan actual.', error: true });
       return;
@@ -87,6 +91,19 @@ export default function CashDatePlanner() {
     } catch {
       if (operation === fileOperation.current) setFileFeedback({ text: 'No se ha podido leer el archivo. No se ha cambiado tu plan actual.', error: true });
     }
+  }
+
+  function recoverPlan() {
+    if (!planBeforeExample) return;
+    // A pending import must not replace the draft after recovery. Keep raw
+    // strings, incomplete rows and their order; balances need a fresh check.
+    invalidateFileRead();
+    focusKey.current = 'initialBalance';
+    setValues(planBeforeExample.values);
+    setIsExample(planBeforeExample.isExample);
+    setEstimate(null);
+    setPlanBeforeExample(null);
+    setRecoveryFeedback('Plan anterior recuperado. Vuelve a comprobar los vencimientos para actualizar los saldos.');
   }
 
   function savePlan() {
@@ -193,9 +210,27 @@ export default function CashDatePlanner() {
       <div className={styles.actions}>
         <button type="button" className="primary-button" onClick={() => calculate()}>Comprobar vencimientos</button>
         <button type="button" className="link-button" onClick={() => {
+          // Preserve the first draft until explicitly recovered, even if the
+          // example is edited, checked or loaded again in the meantime.
+          setPlanBeforeExample((previous) => previous ?? { values, isExample });
           const next: Values = { initialBalance: formatNumber(cashDatesExample.initialBalance), rows: cashDatesExample.movements.map((movement) => ({ ...movement, id: nextId.current++, amount: formatNumber(movement.amount) })) };
           setIsExample(true); calculate(next);
         }}>Probar las fechas ficticias</button>
+        {planBeforeExample ? (
+          <button type="button" className="secondary-button" aria-describedby={`${id}-recovery-hint`} onClick={recoverPlan}>
+            Recuperar mi plan anterior
+          </button>
+        ) : null}
+      </div>
+      {planBeforeExample ? (
+        <p className={styles.note} id={`${id}-recovery-hint`}>
+          Conservamos en esta página el plan anterior al primer ejemplo. Recuperarlo sustituye
+          los cambios que ves ahora y deja los saldos pendientes de comprobar. Para conservar
+          un plan al salir, guárdalo en un archivo.
+        </p>
+      ) : null}
+      <div role="status" aria-label="Recuperación del plan" aria-live="polite" aria-atomic="true">
+        {recoveryFeedback ? <p>{recoveryFeedback}</p> : null}
       </div>
       <div role="status" aria-label="Caja por fechas" aria-live="polite" aria-atomic="true">
         {estimate && !estimate.valid ? <p>Revisa los campos indicados. {estimate.errors.movements}</p> : null}

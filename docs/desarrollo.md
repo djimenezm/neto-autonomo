@@ -48,6 +48,40 @@ Los espacios publicitarios están preparados, pero `lib/ads.ts` exige `NEXT_PUBL
 
 ## Revisión local antes de publicar
 
+### Recuperar el plan previo al ejemplo de caja (31 de octubre de 2026)
+
+Publicación autorizada el 31 de octubre de 2026: recuperación del plan de caja
+tras probar el ejemplo y guía actualizada, con anuncios, piloto y seguimientos
+intactos. «Probar las fechas ficticias» sustituía el saldo y
+todos los movimientos propios sin ofrecer recuperación. Un borrador incompleto
+podía contener hasta veinte filas y todavía no era exportable. El caso se
+reprodujo con un saldo de 123,456 EUR, una salida de 80,125 EUR y una segunda
+fila sin fecha antes de cargar el ejemplo.
+
+`CashDatePlanner.tsx` conserva en memoria los valores anteriores al primer
+ejemplo, con textos, orden de filas y marca ficticia originales. Repetir el
+ejemplo o editarlo no sobrescribe esa copia. «Recuperar mi plan anterior»
+restaura incluso entradas incompletas, retira el resultado y exige comprobar
+los vencimientos otra vez. También cancela una lectura pendiente de archivo,
+limpia su aviso y devuelve el foco al saldo inicial. Los identificadores de
+filas no se reutilizan al añadir movimientos después de recuperar.
+
+El aviso indica que recuperar sustituye los cambios posteriores. La copia se
+consume al recuperar y se pierde al salir o recargar; el archivo sigue siendo
+la forma de conservar un plan comprobado para otro día. La guía de costes
+explica estas reglas sin cambiar fechas editoriales, tipos ni fórmulas.
+
+No se añaden eventos, almacenamiento persistente ni envío de datos. Motor,
+anuncios, captación, piloto, configuración y seguimientos permanecen intactos.
+
+Validación: 732 pruebas en 77 archivos, lint y compilación correctos. Las seis
+regresiones nuevas fallaban antes del arreglo y pasan con él; cubren textos y
+filas incompletas, repeticiones, ediciones, lectura de archivo pendiente y la
+marca ficticia original. En navegador se verifica recuperar cuatro filas,
+mantener saldo e importes sin normalizar, conservar la fecha introducida por
+teclado y devolver el foco al saldo. El resultado queda vacío y pide una nueva
+comprobación; la consola revisada no muestra errores.
+
 ### Conservar las ayudas durante una corrección (31 de octubre de 2026)
 
 Publicación autorizada el 31 de octubre de 2026: protección de borradores de

@@ -283,6 +283,7 @@ export default function CuantoCuestaSerAutonomoPage() {
           <p>Los cobros suman {formatCurrency(datedCash.totalReceipts)} y los pagos {formatCurrency(datedCash.totalPayments)}. El saldo final es {formatCurrency(datedCash.finalBalance)}, pero el mínimo es {formatCurrency(datedCash.minimumBalance)} el {formatCashDate(datedCash.firstNegativePoint!)}. Con {formatCurrency(datedCash.additionalInitialBalance)} adicionales al empezar, el mínimo de este supuesto sería cero. No basta con mirar el saldo final.</p>
           <p><strong>Si hay cobros y pagos el mismo día, se calculan los pagos primero.</strong> Aunque el día termine en positivo, puede haber un déficit en ese orden. Si el cobro llega antes, el saldo mínimo real podría ser mayor. Este supuesto no confirma las horas ni fechas de ejecución del banco.</p>
           <h3>Revisa tus movimientos previstos</h3>
+          <p>Antes de probar por primera vez las fechas ficticias, el comprobador conserva en memoria el saldo y los movimientos que tengas escritos, aunque estén incompletos. «Recuperar mi plan anterior» restaura esa copia y sustituye los cambios posteriores. Editar los datos o repetir el ejemplo no reemplaza la copia. Después de recuperarla, pulsa «Comprobar vencimientos» para actualizar los saldos. Esta copia se pierde al salir o recargar; usa el archivo para conservar un plan comprobado.</p>
           <CashDatePlanner />
           <h3 id="guardar-plan-caja">Conserva el plan para revisarlo otro día</h3>
           <ol className="article-list article-list-ordered">
@@ -290,7 +291,7 @@ export default function CuantoCuestaSerAutonomoPage() {
             <li>Conserva el archivo .json descargado. Incluye los importes y las fechas que escribiste; la marca de ejemplo ficticio se conserva si guardaste el ejemplo.</li>
             <li>Al volver, elígelo en «Abrir un plan guardado». Un archivo válido sustituye los datos que tengas en ese comprobador; los saldos se calculan otra vez con los movimientos guardados. Si el archivo no es válido, el plan actual se mantiene.</li>
           </ol>
-          <p>El archivo es para este comprobador de vencimientos por fecha: no incluye el reparto de costes ni el plan de tres meses. La página no guarda una copia por su cuenta ni envía el contenido al servidor. Si cambias fechas o importes después de abrirlo, comprueba de nuevo y guarda otra copia para conservar los cambios.</p>
+          <p>El archivo es para este comprobador de vencimientos por fecha: no incluye el reparto de costes ni el plan de tres meses. La página no conserva una copia al salir ni envía el contenido al servidor. Si cambias fechas o importes después de abrirlo, comprueba de nuevo y guarda otra copia para conservar los cambios.</p>
         </div>
       </section>
 

@@ -50,6 +50,12 @@ describe('recurring-cost guide', () => {
     expect(section.querySelectorAll('input:not([type="file"])')).toHaveLength(7);
     expect(section.querySelector('input[type="file"]')?.getAttribute('accept')).toBe('.json,application/json');
     expect(section.querySelector('#guardar-plan-caja')?.textContent).toBe('Conserva el plan para revisarlo otro día');
+    expect(section.textContent).toContain('Antes de probar por primera vez las fechas ficticias');
+    expect(section.textContent).toContain('aunque estén incompletos');
+    expect(section.textContent).toContain('«Recuperar mi plan anterior» restaura esa copia y sustituye los cambios posteriores');
+    expect(section.textContent).toContain('Editar los datos o repetir el ejemplo no reemplaza la copia');
+    expect(section.textContent).toContain('Después de recuperarla, pulsa «Comprobar vencimientos» para actualizar los saldos');
+    expect(section.textContent).toContain('Esta copia se pierde al salir o recargar; usa el archivo para conservar un plan comprobado');
     expect(section.textContent).toContain('Si el archivo no es válido, el plan actual se mantiene');
     expect(section.querySelectorAll('select')).toHaveLength(3);
     expect(section.querySelector('form')).toBeNull();
