@@ -52,4 +52,12 @@ describe('3000-euro goal and capacity guide', () => {
     expect(section).toHaveTextContent('no copies el precio completo en todos los meses');
     expect(screen.getByRole('link', { name: 'combinación de servicios del mismo mes' })).toHaveAttribute('href', '#combinar-encargos');
   });
+
+  it('explains how to recover the combination replaced by the first example in initial HTML', () => {
+    const document = new DOMParser().parseFromString(renderToStaticMarkup(<Guide />), 'text/html');
+    const text = document.querySelector('section[aria-labelledby="combinar-encargos"]')?.textContent;
+    expect(text).toContain('antes del primer ejemplo con «Recuperar mi combinación anterior»');
+    expect(text).toContain('Recuperarla sustituye los cambios actuales: vuelve a comprobarla para obtener el resultado');
+    expect(text).toContain('La copia solo dura mientras usas esta página y se pierde al salir o cambiar la referencia mensual');
+  });
 });

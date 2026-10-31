@@ -320,6 +320,12 @@ export default function CuantoFacturarAutonomo3000EurosPage() {
             {' '}{shortPortfolio.plannedHours} h: caben por tiempo, pero faltan {formatEuro(-shortPortfolio.billingDifference)}
             {' '}para la facturación objetivo.
           </p>
+          <p>
+            Si pruebas los dos servicios ficticios, puedes volver a la combinación que tenías antes
+            del primer ejemplo con «Recuperar mi combinación anterior». Recuperarla sustituye los
+            cambios actuales: vuelve a comprobarla para obtener el resultado. La copia solo dura
+            mientras usas esta página y se pierde al salir o cambiar la referencia mensual.
+          </p>
           <MonthlyPortfolioPlanner monthlyBilling={eightyHourResult.billingWithoutVAT} billableHours={exampleAssumptions.billableHours} />
           <p>
             Una cuota recurrente se registra con su precio y trabajo de este mes. Para proyectos que

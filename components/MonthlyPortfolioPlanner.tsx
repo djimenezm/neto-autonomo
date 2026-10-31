@@ -24,6 +24,8 @@ function PortfolioEditor({ monthlyBilling, billableHours }: Reference) {
   const [plan, setPlan] = useState<ReturnType<typeof planMonthlyPortfolio> | null>(null);
   const [isExample, setIsExample] = useState(false);
   const [changeMessage, setChangeMessage] = useState('');
+  const [combinationBeforeExample, setCombinationBeforeExample] = useState<Row[] | null>(null);
+  const [recoveryFeedback, setRecoveryFeedback] = useState('');
 
   useEffect(() => {
     if (focusAfterChange.current !== null) {
@@ -38,6 +40,7 @@ function PortfolioEditor({ monthlyBilling, billableHours }: Reference) {
     })) });
     setPlan(result);
     setChangeMessage('');
+    setRecoveryFeedback('');
     if (result.valid) {
       setRows(nextRows.map((row, index) => ({ id: row.id, quantity: formatNumber(result.groups[index].quantity, 0), pricePerProject: formatNumber(result.groups[index].pricePerProject), hoursPerProject: formatNumber(result.groups[index].hoursPerProject) })));
     } else {
@@ -53,6 +56,28 @@ function PortfolioEditor({ monthlyBilling, billableHours }: Reference) {
     setPlan(null);
     setIsExample(false);
     setChangeMessage(message);
+    setRecoveryFeedback('');
+  }
+
+  function loadExample() {
+    // Keep the first draft, including incomplete text, while the example is
+    // edited or loaded again. Row IDs stay stable and nextId keeps increasing.
+    setCombinationBeforeExample((previous) => previous ?? rows.map((row) => ({ ...row })));
+    const exampleRows = examplePortfolioGroups.map((group) => ({ id: nextId.current++, quantity: formatNumber(group.quantity), pricePerProject: formatNumber(group.pricePerProject), hoursPerProject: formatNumber(group.hoursPerProject) }));
+    setRows(exampleRows);
+    setIsExample(true);
+    check(exampleRows);
+  }
+
+  function recoverCombination() {
+    if (!combinationBeforeExample) return;
+    focusAfterChange.current = combinationBeforeExample[0].id;
+    setRows(combinationBeforeExample);
+    setPlan(null);
+    setIsExample(false);
+    setChangeMessage('');
+    setCombinationBeforeExample(null);
+    setRecoveryFeedback('Combinación anterior recuperada. Vuelve a comprobarla para actualizar los resultados.');
   }
 
   return (
@@ -95,13 +120,13 @@ function PortfolioEditor({ monthlyBilling, billableHours }: Reference) {
       }}>Añadir otro grupo</button>
       <p className={styles.note}>Hasta {MAX_PORTFOLIO_GROUPS} grupos. No necesitas escribir nombres de clientes.</p>
       <div className={styles.changeMessage} aria-live="polite">{changeMessage}</div>
+      {combinationBeforeExample ? <p className={styles.note} id={`${id}-recovery-hint`}>Conservamos en esta página la combinación anterior al primer ejemplo. Recuperarla sustituye los cambios que ves ahora. La copia se pierde al salir o cambiar el cálculo de referencia.</p> : null}
       <div className={styles.actions}>
         <button type="button" className="primary-button" onClick={() => check()}>Comprobar combinación</button>
-        <button type="button" className="link-button" onClick={() => {
-          const exampleRows = examplePortfolioGroups.map((group) => ({ id: nextId.current++, quantity: formatNumber(group.quantity), pricePerProject: formatNumber(group.pricePerProject), hoursPerProject: formatNumber(group.hoursPerProject) }));
-          setRows(exampleRows); setIsExample(true); check(exampleRows);
-        }}>Probar dos servicios ficticios</button>
+        <button type="button" className="link-button" onClick={loadExample}>Probar dos servicios ficticios</button>
+        {combinationBeforeExample ? <button type="button" className="link-button" onClick={recoverCombination} aria-describedby={`${id}-recovery-hint`}>Recuperar mi combinación anterior</button> : null}
       </div>
+      <div role="status" aria-label="Recuperación de la combinación" aria-live="polite" aria-atomic="true">{recoveryFeedback ? <p>{recoveryFeedback}</p> : null}</div>
       <div role="status" aria-label="Plan de servicios combinados" aria-live="polite" aria-atomic="true">
         {plan && !plan.valid ? <p>{plan.errors.monthlyBilling ?? plan.errors.billableHours ?? plan.errors.groups ?? 'Revisa los campos indicados antes de comprobar la combinación.'}</p> : null}
         {plan?.valid ? (

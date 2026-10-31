@@ -48,6 +48,38 @@ Los espacios publicitarios están preparados, pero `lib/ads.ts` exige `NEXT_PUBL
 
 ## Revisión local antes de publicar
 
+### Recuperar la combinación de servicios tras probar el ejemplo (31 de octubre de 2026)
+
+Publicación autorizada el 31 de octubre de 2026: recuperación de servicios
+combinados tras probar el ejemplo y guía de 3000 EUR actualizada, con anuncios,
+piloto y seguimientos intactos. «Probar dos servicios ficticios» sustituía hasta ocho
+grupos propios (24 campos) sin permitir volver al borrador, incluso cuando
+contenía datos incompletos que todavía no se podían comprobar.
+
+`MonthlyPortfolioPlanner.tsx` conserva los grupos anteriores al primer ejemplo,
+con sus textos exactos, orden e identificadores. Repetir el ejemplo, editarlo,
+añadir o quitar grupos y comprobarlo no reemplaza esa copia. «Recuperar mi
+combinación anterior» sustituye los cambios actuales, retira los resultados y
+la marca de ejemplo, consume la copia y enfoca la primera cantidad. Hay que
+volver a comprobar los datos para obtener cifras nuevas. Un nuevo ciclo de
+ejemplo conserva el borrador que exista en ese momento.
+
+La copia solo permanece en memoria mientras se utiliza la página; cambiar
+el cálculo de referencia reinicia el editor y su recuperación. La nota del
+botón y la guía de 3000 EUR explican estos límites. No se añaden almacenamiento,
+peticiones, eventos ni campos al GET, y no cambian el motor, el resultado
+principal o su enlace. Anuncios, piloto y seguimientos permanecen intactos.
+
+Validación: 796 pruebas en 80 archivos correctas con dos procesos de pruebas,
+sin ampliar los tiempos de espera. Lint y compilación correctos. Las siete
+regresiones nuevas fallaban antes del arreglo y cubren los 24 campos, texto
+incompleto o malformado, ejemplos repetidos, ediciones, comprobaciones, ciclos
+nuevos, reinicio por referencia y foco. En navegador se recuperan exactamente
+123,456 EUR, 1,005 horas y un segundo grupo incompleto tras editar y repetir
+el ejemplo. Desde el resultado principal, la copia sobrevive a borrar y
+restablecer las horas; el resultado y el resumen compartido siguen iguales.
+No se observan errores en la consola revisada.
+
 ### Aclarar los supuestos al trasladar costes (31 de octubre de 2026)
 
 Publicación autorizada el 31 de octubre de 2026: aclaración del traslado de
