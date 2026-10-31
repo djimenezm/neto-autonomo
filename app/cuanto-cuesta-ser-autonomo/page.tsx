@@ -80,7 +80,7 @@ export default function CuantoCuestaSerAutonomoPage() {
     description,
     inLanguage: 'es',
     url: pageUrl,
-    dateModified: '2026-10-28',
+    dateModified: '2026-10-31',
     accountablePerson: { '@type': 'Person', name: siteConfig.ownerName },
     mainEntity: {
       '@type': 'SoftwareApplication',
@@ -187,7 +187,7 @@ export default function CuantoCuestaSerAutonomoPage() {
 
       <section className="section" aria-labelledby="ejemplo-costes">
         <div className="container text-block">
-          <p className="article-meta">Actualizada el <time dateTime="2026-10-28">28 de octubre de 2026</time>. Responsable: {siteConfig.ownerName}.</p>
+          <p className="article-meta">Actualizada el <time dateTime="2026-10-31">31 de octubre de 2026</time>. Responsable: {siteConfig.ownerName}.</p>
           <h2 id="ejemplo-costes">Un pago anual también pesa en tu tarifa mensual</h2>
           <p>Estos son los datos ficticios con los que empieza la calculadora. No son precios de mercado ni importes deducibles confirmados. Se supone un año completo, sin altas, bajas ni cambios de precio.</p>
           <div className="scenario-table-scroll" role="region" aria-label="Ejemplo de costes con varias frecuencias" tabIndex={0}>
@@ -208,8 +208,9 @@ export default function CuantoCuestaSerAutonomoPage() {
         <div className="container text-block">
           <h2 id="media-y-vencimientos">Una media para la tarifa, otra cuenta para los vencimientos</h2>
           <p>Repartir 420 EUR entre 12 meses da 35 EUR mensuales. Si el recibo vence el mes que viene y no tienes nada apartado, esa media no cubre por sí sola el pago próximo. Anota también la fecha del recibo y el dinero disponible fuera de esta calculadora.</p>
+          <p>Redondeamos cada pago a céntimos antes de repetirlo según su frecuencia. Ejemplo aritmético ficticio: 128,075 EUR se redondean a 128,08 EUR. Si pagas cada mes, 128,08 × 12 = 1536,96 EUR al año; si pagas cada tres meses, 128,08 × 4 = 512,32 EUR al año. No son precios de mercado ni importes deducibles confirmados.</p>
           <p>El total anual se obtiene de los pagos, antes de redondear la media mensual. Por ejemplo, 100 EUR anuales son {formatNumber(100 / 12, 2)} EUR al mes al mostrar dos decimales; multiplicar esa cifra redondeada por 12 da 99,96 EUR. Conservamos los 100 EUR en el total anual para no perder esos céntimos.</p>
-          <p>Al trasladar los datos a la tarifa, la cuota mensual va por separado. En el ejemplo, los otros {formatCurrency(costExample.monthlyOtherCosts)} mensuales se reparten según el importe deducible que indiques. No añadas la cuota otra vez ni repitas un mismo recibo en dos categorías.</p>
+          <p>Al trasladar los datos a la tarifa, la cuota mensual va por separado. En el ejemplo, los otros {formatCurrency(costExample.monthlyOtherCosts)} mensuales se reparten según el importe deducible que indiques. El reparto se redondea a céntimos y se muestra antes de abrir la calculadora de tarifa: comprueba el deducible y el resto no deducible que vas a trasladar. No añadas la cuota otra vez ni repitas un mismo recibo en dos categorías.</p>
           <p>Para observar cómo se mueve el saldo, prepara el <Link href="#plan-caja">plan de cobros y pagos de tres meses</Link>. Introduce el pago anual en el mes en que saldrá de la cuenta, sin repartirlo de nuevo entre doce.</p>
         </div>
       </section>

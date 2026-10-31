@@ -40,6 +40,27 @@ describe('recurring activity costs', () => {
     expect(estimateRecurringCosts({ ...emptyPlan, expenses: { ...emptyPlan.expenses, advisor: { amount: 10.126, period: 'quarterly' } } })).toMatchObject({ valid: true, annualTotal: 40.52, monthlyTotal: 3.38 });
   });
 
+  it.each([
+    ['monthly', 12, 1536.96, 128.08],
+    ['quarterly', 4, 512.32, 42.69],
+    ['annual', 1, 128.08, 10.67],
+  ] as const)('rounds a decimal half-cent payment before its %s repetitions', (period, paymentsPerYear, annualTotal, monthlyTotal) => {
+    const result = estimateRecurringCosts({ ...emptyPlan, expenses: { ...emptyPlan.expenses, software: { amount: 128.075, period } } });
+    expect(result).toMatchObject({ valid: true, annualTotal, monthlyTotal, monthlyOtherCosts: monthlyTotal });
+    if (result.valid) expect(result.lines.find((line) => line.key === 'software'))
+      .toMatchObject({ amountPerPayment: 128.08, paymentsPerYear, annualAmount: annualTotal });
+  });
+
+  it('uses the same cent rounding for the separate monthly fee and keeps real values below a half-cent', () => {
+    expect(estimateRecurringCosts({ ...emptyPlan, fee: 128.075 }))
+      .toMatchObject({ valid: true, monthlyFee: 128.08, monthlyTotal: 128.08, annualTotal: 1536.96, monthlyOtherCosts: 0 });
+    expect(estimateRecurringCosts({ ...emptyPlan, fee: 128.0749 }))
+      .toMatchObject({ valid: true, monthlyFee: 128.07 });
+    expect(estimateRecurringCosts({ ...emptyPlan, fee: 128.0751 }))
+      .toMatchObject({ valid: true, monthlyFee: 128.08 });
+    expect(estimateRecurringCosts({ ...emptyPlan, fee: -0.001 }).valid).toBe(false);
+  });
+
   it.each([Number.NaN, Number.POSITIVE_INFINITY, -1, Number.MAX_VALUE])('rejects invalid payment %s', (amount) => {
     const result = estimateRecurringCosts({ ...emptyPlan, expenses: { ...emptyPlan.expenses, software: { amount, period: 'annual' } } });
     expect(result.valid).toBe(false);

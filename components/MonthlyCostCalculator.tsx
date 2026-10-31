@@ -4,7 +4,7 @@ import { useState } from 'react';
 import NumericTextInput from '@/components/NumericTextInput';
 import { formatCurrency as formatEuro } from '@/lib/format';
 import { parseSpanishNumber } from '@/lib/spanishNumber';
-import { estimateRecurringCosts, expenseFields, paymentPeriods, recurringCostsExample, type PaymentPeriod, type ExpenseKey } from '@/lib/recurringCosts';
+import { estimateRecurringCosts, expenseFields, paymentPeriods, recurringCostsExample, roundCostToCents, type PaymentPeriod, type ExpenseKey } from '@/lib/recurringCosts';
 import styles from './MonthlyCostCalculator.module.css';
 
 const costFields = [
@@ -54,12 +54,15 @@ export default function MonthlyCostCalculator() {
   const monthlyTotal = costs.valid ? costs.monthlyTotal : 0;
   const otherCosts = costs.valid ? costs.monthlyOtherCosts : 0;
   const parsedDeductibleAmount = parseSpanishNumber(deductibleExpenses);
-  const deductibleAmount = Math.round(parsedDeductibleAmount * 100) / 100;
+  const deductibleCents = roundCostToCents(parsedDeductibleAmount);
+  const otherCostCents = roundCostToCents(otherCosts);
+  const deductibleAmount = deductibleCents / 100;
   const validDeductibleAmount =
     deductibleExpenses.trim() !== '' &&
-    Number.isFinite(deductibleAmount) &&
+    Number.isSafeInteger(deductibleCents) &&
     parsedDeductibleAmount >= 0 &&
-    deductibleAmount <= otherCosts;
+    deductibleCents <= otherCostCents;
+  const nonDeductibleAmount = validDeductibleAmount ? (otherCostCents - deductibleCents) / 100 : 0;
   const canTransfer = isValid && fee > 0 && Number.isInteger(hours) && validDeductibleAmount;
 
   function updateValue(key: keyof CostValues, value: string) {
@@ -72,6 +75,7 @@ export default function MonthlyCostCalculator() {
       <p className="card-intro">
         Ejemplo ficticio editable. Escribe el importe de cada pago y elige su frecuencia.
         La cuota sigue siendo mensual. Cambiar la frecuencia no cambia el importe escrito.
+        Redondeamos cada pago a céntimos antes de aplicar su frecuencia.
       </p>
       <noscript><p>Para cambiar los pagos necesitas JavaScript. Más abajo tienes el ejemplo completo y la cuenta para hacer el reparto a mano.</p></noscript>
 
@@ -198,7 +202,15 @@ export default function MonthlyCostCalculator() {
             </label>
             <p id="deductible-expenses-hint">
               Escribe 0 si ninguno es deducible. El resto también se cubrirá con la tarifa, sin descontarlo del IRPF.
+              El importe deducible se redondea a céntimos.
             </p>
+            {canTransfer ? (
+              <p className="form-note" role="status" aria-label="Datos que se trasladarán a la tarifa">
+                Se trasladarán {formatEuro(deductibleAmount)} de gastos deducibles,
+                {' '}{formatEuro(nonDeductibleAmount)} de costes no deducibles y
+                {' '}{formatEuro(fee)} de cuota mensual, con {hours} h/mes.
+              </p>
+            ) : null}
             <input type="hidden" name="source" value="monthly-costs" />
             <input
               type="hidden"
@@ -208,9 +220,9 @@ export default function MonthlyCostCalculator() {
             <input
               type="hidden"
               name="monthlyNonDeductibleExpenses"
-              value={validDeductibleAmount ? (otherCosts - deductibleAmount).toFixed(2) : ''}
+              value={validDeductibleAmount ? nonDeductibleAmount.toFixed(2) : ''}
             />
-            <input type="hidden" name="billableHours" value={values.hours} />
+            <input type="hidden" name="billableHours" value={String(hours)} />
             <input type="hidden" name="selfEmployedFeeMode" value="manual" />
             <input type="hidden" name="selfEmployedFee" value={fee.toFixed(2)} />
             {transferAttempted && !canTransfer && (

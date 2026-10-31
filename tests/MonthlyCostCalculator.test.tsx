@@ -1,9 +1,69 @@
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import MonthlyCostCalculator from '@/components/MonthlyCostCalculator';
+import CalculatorForm from '@/components/CalculatorForm';
+import { getServerSideProps } from '@/pages/index';
 
 describe('MonthlyCostCalculator', () => {
+  it('previews the same rounded cost split and canonical hours that arrive in the main calculator', async () => {
+    const user = userEvent.setup();
+    window.va = vi.fn();
+    window.gtag = vi.fn();
+    const { container, unmount } = render(<MonthlyCostCalculator />);
+    fireEvent.change(screen.getByRole('textbox', { name: 'Otros gastos de actividad' }), { target: { value: '80' } });
+    fireEvent.change(screen.getByRole('textbox', { name: 'Horas facturables al mes' }), { target: { value: '80,00' } });
+    fireEvent.change(screen.getByRole('textbox', { name: /Gastos deducibles, sin incluir la cuota/ }), { target: { value: '128,075' } });
+
+    const form = container.querySelector('form')!;
+    expect(form.querySelector('[name="monthlyExpenses"]')).toHaveValue('128.08');
+    expect(form.querySelector('[name="monthlyNonDeductibleExpenses"]')).toHaveValue('71.92');
+    expect(form.querySelector('[name="billableHours"]')).toHaveValue('80');
+    expect(screen.getByRole('status', { name: 'Datos que se trasladarán a la tarifa' }))
+      .toHaveTextContent('128,08');
+    expect(screen.getByRole('status', { name: 'Datos que se trasladarán a la tarifa' }))
+      .toHaveTextContent('71,92');
+    expect(window.va).not.toHaveBeenCalled();
+    expect(window.gtag).not.toHaveBeenCalled();
+    const query = Object.fromEntries(new FormData(form));
+    const response = await getServerSideProps({ query, res: { setHeader: vi.fn() } } as unknown as Parameters<typeof getServerSideProps>[0]);
+    if (!('props' in response)) throw new Error('El traslado debe devolver los datos de la calculadora.');
+    const props = await response.props;
+    unmount();
+    render(<CalculatorForm initialValues={props.calculatorInitialValues} importedFromCosts={props.importedFromCosts} initiallySubmitted={props.calculatorInitiallySubmitted} />);
+    expect(screen.getByRole('spinbutton', { name: 'Horas facturables al mes' })).toHaveValue(80);
+    expect(screen.getByRole('spinbutton', { name: /Gastos mensuales deducibles/ })).toHaveValue(128.08);
+    expect(screen.getByRole('spinbutton', { name: /Gastos mensuales no deducibles/ })).toHaveValue(71.92);
+    expect(screen.getByRole('spinbutton', { name: /Cuota manual de autónomos/ })).toHaveValue(320);
+    expect(screen.queryByRole('heading', { name: 'Tu referencia mensual para presupuestar' })).not.toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Calcular mi tarifa orientativa' }));
+    const shared = new URL(window.location.href);
+    expect(shared.searchParams.get('billableHours')).toBe('80');
+    expect(shared.searchParams.get('monthlyExpenses')).toBe('128.08');
+    expect(shared.searchParams.get('monthlyNonDeductibleExpenses')).toBe('71.92');
+  });
+
+  it.each([' 80 ', '80,00', '1.000'])('transfers accepted hours %j in canonical numeric notation', (hours) => {
+    const { container } = render(<MonthlyCostCalculator />);
+    fireEvent.change(screen.getByRole('textbox', { name: 'Horas facturables al mes' }), { target: { value: hours } });
+    fireEvent.change(screen.getByRole('textbox', { name: /Gastos deducibles, sin incluir la cuota/ }), { target: { value: '100' } });
+    expect(container.querySelector('[name="billableHours"]')).toHaveValue(hours === '1.000' ? '1000' : '80');
+  });
+
+  it('rejects a deductible amount whose rounded cents exceed the available costs', async () => {
+    const user = userEvent.setup();
+    const { container } = render(<MonthlyCostCalculator />);
+    for (const name of ['Gestoría o asesoría', 'Software y herramientas', 'Seguros']) {
+      fireEvent.change(screen.getByRole('textbox', { name }), { target: { value: '0' } });
+    }
+    fireEvent.change(screen.getByRole('textbox', { name: 'Otros gastos de actividad' }), { target: { value: '10,07' } });
+    fireEvent.change(screen.getByRole('textbox', { name: /Gastos deducibles, sin incluir la cuota/ }), { target: { value: '10,075' } });
+    expect(container.querySelector('[name="monthlyExpenses"]')).toHaveValue('');
+    await user.click(screen.getByRole('button', { name: /Usar estos datos en mi tarifa/ }));
+    expect(screen.getByRole('alert')).toHaveTextContent('10,07');
+    expect(screen.queryByRole('status', { name: 'Datos que se trasladarán a la tarifa' })).not.toBeInTheDocument();
+  });
+
   it('shows a cost-only breakdown and updates it when an expense changes', async () => {
     const user = userEvent.setup();
 

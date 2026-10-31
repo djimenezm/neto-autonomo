@@ -48,6 +48,37 @@ Los espacios publicitarios están preparados, pero `lib/ads.ts` exige `NEXT_PUBL
 
 ## Revisión local antes de publicar
 
+### Costes y horas coherentes al trasladarlos a la tarifa (31 de octubre de 2026)
+
+Publicación autorizada el 31 de octubre de 2026: traslado de costes y horas,
+redondeo, vista previa y guía actualizada, con anuncios, piloto y seguimientos
+intactos. La ayuda de costes validaba
+horas como `80,00`, pero enviaba el texto original al campo numérico principal,
+donde podía aparecer vacío. Ahora el GET lleva la representación numérica
+canónica de las horas ya validadas, manteniendo los demás datos del traslado.
+
+`roundCostToCents` en `lib/recurringCosts.ts` redondea mediante notación decimal
+antes de obtener los céntimos enteros. Se usa para cada pago, la cuota y el
+importe deducible. Un pago de 128,075 EUR pasa a 128,08 EUR: repetido doce veces
+suma 1536,96 EUR al año. Se conserva sumar los pagos anuales antes de obtener
+la media mensual y se siguen rechazando importes negativos o inseguros.
+
+El resto no deducible se obtiene restando los céntimos del reparto. Si el
+deducible redondeado supera los costes disponibles, se pide corregirlo.
+La ayuda muestra gastos deducibles, costes no deducibles, cuota separada y
+horas que se van a trasladar cuando el reparto es válido. El texto explica
+el redondeo por pago y la guía añade un ejemplo aritmético ficticio; su fecha
+visible, datos estructurados y entrada del sitemap pasan al 31 de octubre.
+
+Validación: 720 pruebas en 75 archivos, lint y compilación correctos. Las
+nueve regresiones nuevas fallaban antes del arreglo. Se cubren las tres
+frecuencias, cuota, límites del reparto y el paso por formulario GET,
+lectura del servidor y calculadora de tarifa. En navegador local se verifican
+el pago normalizado de 128,08 EUR, sus 1536,96 EUR anuales y el traslado de
+128,08 EUR deducibles, 125 EUR no deducibles, 320 EUR de cuota y 80 horas.
+La tarifa y su enlace conservan los datos; no aparecen errores en la consola
+revisada. Anuncios, piloto, seguimiento y motor fiscal mantienen su estado.
+
 ### Importes malformados y pegado de varias celdas (31 de octubre de 2026)
 
 Publicación autorizada el 31 de octubre de 2026: protección contra importes

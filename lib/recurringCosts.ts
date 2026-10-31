@@ -31,6 +31,11 @@ type CostPlan =
   | { valid: false; errors: Partial<Record<CostKey | 'total', string>> }
   | { valid: true; lines: CostLine[]; monthlyTotal: number; annualTotal: number; monthlyFee: number; monthlyOtherCosts: number };
 
+export function roundCostToCents(value: number) {
+  const [coefficient, exponent = '0'] = String(value).split('e');
+  return Math.round(Number(`${coefficient}e${Number(exponent) + 2}`));
+}
+
 export function estimateRecurringCosts(input: RecurringCostsInput): CostPlan {
   const errors: Partial<Record<CostKey | 'total', string>> = {};
   const sources = [
@@ -41,7 +46,7 @@ export function estimateRecurringCosts(input: RecurringCostsInput): CostPlan {
   let annualCents = 0;
   for (const source of sources) {
     const period = paymentPeriods.find(({ value }) => value === source.period);
-    const paymentCents = Math.round(source.amount * 100);
+    const paymentCents = roundCostToCents(source.amount);
     const lineAnnualCents = paymentCents * (period?.paymentsPerYear ?? 0);
     if (!period || !Number.isFinite(source.amount) || source.amount < 0 || !Number.isSafeInteger(paymentCents) || !Number.isSafeInteger(lineAnnualCents)) {
       errors[source.key] = 'Revisa el importe y la frecuencia de este gasto.';
@@ -57,7 +62,7 @@ export function estimateRecurringCosts(input: RecurringCostsInput): CostPlan {
   if (!Number.isSafeInteger(annualCents)) errors.total = 'El total es demasiado grande. Revisa los importes.';
   if (Object.keys(errors).length) return { valid: false, errors };
 
-  const feeCents = Math.round(input.fee * 100);
+  const feeCents = roundCostToCents(input.fee);
   return {
     valid: true, lines,
     annualTotal: annualCents / 100,
