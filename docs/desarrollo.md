@@ -48,6 +48,34 @@ Los espacios publicitarios están preparados, pero `lib/ads.ts` exige `NEXT_PUBL
 
 ## Revisión local antes de publicar
 
+### Aclarar los supuestos al trasladar costes (31 de octubre de 2026)
+
+Publicación autorizada el 31 de octubre de 2026: aclaración del traslado de
+costes y guía actualizada, con anuncios, piloto y seguimientos intactos.
+El traslado de costes abre un cálculo nuevo: envía
+gastos deducibles/no deducibles, cuota manual y horas, pero no recupera el neto,
+IRPF o IVA de otro escenario. La nota de llegada pedía revisar únicamente el
+neto, lo que podía hacer pensar que se estaban actualizando los costes del
+escenario anterior.
+
+El aviso previo al traslado identifica sus valores iniciales: 1500 EUR netos,
+IRPF progresivo para territorio común e IVA simulado al 21 %. Sus cantidades
+y criterios se leen de `DEFAULT_FORM_VALUES`; el botón lo incluye en su
+descripción accesible. Al llegar se pide revisar neto, criterio y comunidad
+de IRPF e IVA, junto con los costes y la cuota recibidos. La guía explica el
+mismo recorrido. El resultado sigue esperando un envío manual válido.
+
+Es una aclaración de interfaz: no se cambia el GET, los valores iniciales,
+las fórmulas, el almacenamiento o los eventos. Anuncios, captación, piloto,
+configuración y seguimientos permanecen intactos.
+
+Validación: 50 pruebas existentes del formulario, traslado y guía, lint y
+compilación correctos. En navegador local se revisa el aviso previo y su
+descripción accesible, se hace el traslado GET y se confirman los valores de
+llegada: neto 1500, IRPF progresivo, territorio común, IVA simulado activado y
+cuota manual de 320 EUR. La nota pide revisar esos supuestos y todavía no hay
+resultado calculado. Sin errores en la consola revisada.
+
 ### Preparar costes sin conocer todavía las horas (31 de octubre de 2026)
 
 Publicación autorizada el 31 de octubre de 2026: preparación de costes sin

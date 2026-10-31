@@ -2,7 +2,9 @@
 
 import { useRef, useState } from 'react';
 import NumericTextInput from '@/components/NumericTextInput';
-import { formatCurrency as formatEuro } from '@/lib/format';
+import { AUTONOMOUS_COMMUNITY_LABELS } from '@/lib/calculator';
+import { DEFAULT_FORM_VALUES } from '@/lib/calculatorForm';
+import { formatCurrency as formatEuro, formatNumber } from '@/lib/format';
 import { parseSpanishNumber } from '@/lib/spanishNumber';
 import { estimateRecurringCosts, expenseFields, paymentPeriods, recurringCostsExample, roundCostToCents, type PaymentPeriod, type ExpenseKey } from '@/lib/recurringCosts';
 import styles from './MonthlyCostCalculator.module.css';
@@ -203,6 +205,16 @@ export default function MonthlyCostCalculator() {
               Trasladaremos las medias mensuales, redondeadas a céntimos. La cuota de {formatEuro(fee)} se añadirá por separado.
               De los otros {formatEuro(otherCosts)} al mes, indica cuánto has comprobado que puedes deducir para tu previsión.
             </p>
+            <p className="form-note" id="monthly-cost-transfer-scenario">
+              Abriremos un cálculo nuevo. Este traslado no recupera el escenario que tuvieras antes.
+              {' '}El punto de partida será {formatEuro(Number(DEFAULT_FORM_VALUES.targetNet))} netos al mes,
+              {' '}{DEFAULT_FORM_VALUES.irpfMode === 'progressive'
+                ? 'estimación progresiva de IRPF'
+                : `reserva manual de IRPF del ${formatNumber(Number(DEFAULT_FORM_VALUES.irpfRate))} %`}
+              {' '}en {AUTONOMOUS_COMMUNITY_LABELS[DEFAULT_FORM_VALUES.autonomousCommunity]} y
+              {' '}{DEFAULT_FORM_VALUES.hasIVA ? 'IVA simulado al 21 %' : 'sin IVA'}.
+              {' '}Revisa el neto, el criterio de IRPF, la comunidad y el IVA antes de calcular tu tarifa.
+            </p>
             <label htmlFor="deductible-expenses">
               <span>Gastos deducibles, sin incluir la cuota</span>
               <span className="monthly-cost-input-wrap">
@@ -249,7 +261,7 @@ export default function MonthlyCostCalculator() {
                   : `Indica un importe deducible entre 0 y ${formatEuro(otherCosts)}.`}
               </p>
             )}
-            <button type="submit" className="primary-button">
+            <button type="submit" className="primary-button" aria-describedby="monthly-cost-transfer-scenario">
               Usar estos datos en mi tarifa
             </button>
           </form>

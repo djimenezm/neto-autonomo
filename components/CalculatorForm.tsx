@@ -242,7 +242,9 @@ export default function CalculatorForm({
       </p>
       {importedFromCosts && (
         <p className="calculator-import-note" role="status">
-          Hemos traído tus costes y horas. Revisa el neto mensual que deseas conservar y calcula tu tarifa.
+          Hemos traído tus costes y horas, con la cuota en modo manual. Este traslado abre un cálculo
+          nuevo y no recupera tu escenario anterior. Revisa el neto mensual, el criterio y la comunidad
+          de IRPF y el IVA antes de calcular tu tarifa.
         </p>
       )}
 
