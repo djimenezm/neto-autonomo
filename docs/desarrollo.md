@@ -48,6 +48,41 @@ Los espacios publicitarios están preparados, pero `lib/ads.ts` exige `NEXT_PUBL
 
 ## Revisión local antes de publicar
 
+### Preparar costes sin conocer todavía las horas (31 de octubre de 2026)
+
+Publicación autorizada el 31 de octubre de 2026: preparación de costes sin
+conocer todavía las horas y guía actualizada, con anuncios, piloto y
+seguimientos intactos. En la ayuda de costes, borrar las 80 horas para
+escribir otra cifra ocultaba también una media válida de 480 EUR/mes, los
+5760 EUR/año, el desglose y el reparto deducible. Al volver a indicar horas,
+el desglose reaparecía cerrado. Los pagos y el reparto seguían en memoria,
+pero no se podían consultar ni preparar mientras faltaran las horas.
+
+`MonthlyCostCalculator.tsx` valida los costes por separado. La suma mensual,
+la anual, el desglose abierto y el reparto deducible permanecen disponibles
+con horas vacías o inválidas; cambiar un pago actualiza esos totales. Solo
+el coste por hora necesita horas positivas. El traslado sigue requiriendo
+horas enteras mayores que cero, cuota positiva y un reparto válido.
+
+Las horas vacías no son un error para sumar costes. Si se intenta trasladar
+sin completarlas, o se indica un dato inválido, el error queda asociado al
+campo de horas. El intento de traslado lo enfoca e impide el GET. Los importes
+inválidos siguen retirando los totales; no se muestran costes anteriores.
+La guía explica las mismas reglas sin modificar fechas editoriales.
+
+No se cambian fórmulas, eventos, almacenamiento, captación, anuncios, piloto,
+configuración o seguimientos.
+
+Validación: 739 pruebas en 77 archivos, lint y compilación correctos. Se
+reprodujeron seis fallos antes del arreglo. Las regresiones cubren horas
+vacías, cero, negativas, malformadas y fraccionarias; conservación del
+desglose/reparto, actualización de pagos y bloqueo del traslado. En navegador
+se mantienen los 480 EUR/mes y 5760 EUR/año al vaciar horas; cambiar software
+a 65 EUR/mes actualiza la suma a 510 EUR y 6120 EUR/año. El traslado incompleto
+no navega y enfoca horas; al indicar 60, reaparecen 8,50 EUR/h y una vista
+previa de 100 EUR deducibles, 90 EUR no deducibles y 320 EUR de cuota.
+El desglose sigue abierto y la consola revisada no muestra errores.
+
 ### Recuperar el plan previo al ejemplo de caja (31 de octubre de 2026)
 
 Publicación autorizada el 31 de octubre de 2026: recuperación del plan de caja

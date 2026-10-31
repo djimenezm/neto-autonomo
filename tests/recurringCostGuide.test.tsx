@@ -32,6 +32,10 @@ describe('recurring-cost guide', () => {
     expect(method.textContent).toContain('128,08 × 12 = 1536,96 EUR al año');
     expect(method.textContent).toContain('128,08 × 4 = 512,32 EUR al año');
     expect(method.textContent).toContain('El reparto se redondea a céntimos y se muestra antes de abrir la calculadora');
+    const calculatorIntro = document.querySelector('section[aria-labelledby="cost-calculator-heading"] .cost-calculator-copy')!;
+    expect(calculatorIntro.textContent).toContain('Puedes sumar los pagos y ver la media mensual y el total anual sin indicar horas');
+    expect(calculatorIntro.textContent).toContain('Al indicar horas válidas mayores que cero, verás también el coste por hora facturable');
+    expect(calculatorIntro.textContent).toContain('Para trasladar estos costes a la tarifa, las horas deben ser enteras y mayores que cero');
     expect(document.querySelector('input[type="email"]')).toBeNull();
     expect(metadata.alternates?.canonical).toBe('/cuanto-cuesta-ser-autonomo');
     expect(document.querySelectorAll('h1')).toHaveLength(1);

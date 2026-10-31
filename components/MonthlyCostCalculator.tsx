@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import NumericTextInput from '@/components/NumericTextInput';
 import { formatCurrency as formatEuro } from '@/lib/format';
 import { parseSpanishNumber } from '@/lib/spanishNumber';
@@ -38,6 +38,7 @@ export default function MonthlyCostCalculator() {
   });
   const [deductibleExpenses, setDeductibleExpenses] = useState('');
   const [transferAttempted, setTransferAttempted] = useState(false);
+  const hoursInput = useRef<HTMLInputElement>(null);
   const costs = estimateRecurringCosts({
     fee: parseCost(values.fee),
     expenses: {
@@ -49,8 +50,13 @@ export default function MonthlyCostCalculator() {
   });
   const hours = parseSpanishNumber(values.hours);
   const fee = costs.valid ? costs.monthlyFee : 0;
-  const invalidHours = !Number.isFinite(hours) || hours <= 0;
-  const isValid = costs.valid && !invalidHours;
+  const validHours = Number.isFinite(hours) && hours > 0;
+  const transferHoursValid = validHours && Number.isInteger(hours);
+  const hoursError = !validHours && (values.hours.trim() !== '' || transferAttempted)
+    ? 'Indica un número válido de horas mayor que cero.'
+    : transferAttempted && validHours && !Number.isInteger(hours)
+      ? 'Usa un número entero de horas mayor que cero para trasladar este cálculo.'
+      : null;
   const monthlyTotal = costs.valid ? costs.monthlyTotal : 0;
   const otherCosts = costs.valid ? costs.monthlyOtherCosts : 0;
   const parsedDeductibleAmount = parseSpanishNumber(deductibleExpenses);
@@ -63,7 +69,7 @@ export default function MonthlyCostCalculator() {
     parsedDeductibleAmount >= 0 &&
     deductibleCents <= otherCostCents;
   const nonDeductibleAmount = validDeductibleAmount ? (otherCostCents - deductibleCents) / 100 : 0;
-  const canTransfer = isValid && fee > 0 && Number.isInteger(hours) && validDeductibleAmount;
+  const canTransfer = costs.valid && fee > 0 && transferHoursValid && validDeductibleAmount;
 
   function updateValue(key: keyof CostValues, value: string) {
     setValues((current) => ({ ...current, [key]: value }));
@@ -120,28 +126,37 @@ export default function MonthlyCostCalculator() {
           );
         })}
         <label htmlFor="monthly-cost-hours">
-          <span>Horas facturables al mes</span>
+          <span id="monthly-cost-hours-label">Horas facturables al mes</span>
           <span className="monthly-cost-input-wrap">
             <NumericTextInput
+              ref={hoursInput}
               id="monthly-cost-hours"
               inputMode="numeric"
               value={values.hours}
               onValueChange={(nextValue) => updateValue('hours', nextValue)}
-              aria-invalid={invalidHours}
-              aria-describedby={invalidHours ? 'monthly-cost-error' : undefined}
+              aria-labelledby="monthly-cost-hours-label"
+              aria-invalid={Boolean(hoursError)}
+              aria-describedby={`monthly-cost-hours-hint${hoursError ? ' monthly-cost-hours-error' : ''}`}
             />
             <span aria-hidden="true">h / mes</span>
           </span>
+          <small className="field-hint" id="monthly-cost-hours-hint">
+            No necesitas horas para sumar los costes. Para ver el coste por hora, indica horas
+            mayores que cero; para trasladar los datos, deben ser enteras.
+          </small>
+          {hoursError ? (
+            <small className="field-error" id="monthly-cost-hours-error" role="alert">{hoursError}</small>
+          ) : null}
         </label>
       </div>
 
-      {!isValid && (
+      {!costs.valid && (
         <p className="monthly-cost-error" id="monthly-cost-error" role="alert">
-          Introduce importes válidos no negativos y al menos una hora facturable.
+          Introduce importes de pago válidos, iguales o mayores que cero.
         </p>
       )}
 
-      {isValid && (
+      {costs.valid && (
         <div className="monthly-cost-results" aria-live="polite">
           <div className="monthly-cost-total">
             <span>Media mensual antes de pagarte</span>
@@ -149,8 +164,9 @@ export default function MonthlyCostCalculator() {
           </div>
           <dl className="monthly-cost-stats">
             <div><dt>Al año según las frecuencias</dt><dd>{formatEuro(costs.valid ? costs.annualTotal : 0)}</dd></div>
-            <div><dt>Por hora facturable</dt><dd>{formatEuro(monthlyTotal / hours)}/h</dd></div>
+            {validHours ? <div><dt>Por hora facturable</dt><dd>{formatEuro(monthlyTotal / hours)}/h</dd></div> : null}
           </dl>
+          {!validHours ? <p>Añade tus horas cuando las conozcas para ver el coste por hora. La suma mensual y anual no depende de ellas.</p> : null}
           <p>La media reparte el coste anual entre 12 meses; no indica cuándo vence cada recibo. No se aparta dinero automáticamente.</p>
           {costs.valid ? (
             <details className={styles.breakdown}>
@@ -178,6 +194,7 @@ export default function MonthlyCostCalculator() {
               if (!canTransfer) {
                 event.preventDefault();
                 setTransferAttempted(true);
+                if (!transferHoursValid) hoursInput.current?.focus();
               }
             }}
           >
@@ -222,16 +239,14 @@ export default function MonthlyCostCalculator() {
               name="monthlyNonDeductibleExpenses"
               value={validDeductibleAmount ? nonDeductibleAmount.toFixed(2) : ''}
             />
-            <input type="hidden" name="billableHours" value={String(hours)} />
+            <input type="hidden" name="billableHours" value={validHours ? String(hours) : ''} />
             <input type="hidden" name="selfEmployedFeeMode" value="manual" />
             <input type="hidden" name="selfEmployedFee" value={fee.toFixed(2)} />
-            {transferAttempted && !canTransfer && (
+            {transferAttempted && !canTransfer && (fee <= 0 || transferHoursValid) && (
               <p className="monthly-cost-error" role="alert">
                 {fee <= 0
                   ? 'Indica una cuota mensual mayor que cero para trasladar este cálculo.'
-                  : !Number.isInteger(hours)
-                    ? 'Usa un número entero de horas para trasladar este cálculo.'
-                    : `Indica un importe deducible entre 0 y ${formatEuro(otherCosts)}.`}
+                  : `Indica un importe deducible entre 0 y ${formatEuro(otherCosts)}.`}
               </p>
             )}
             <button type="submit" className="primary-button">

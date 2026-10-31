@@ -1,11 +1,16 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import MonthlyCostCalculator from '@/components/MonthlyCostCalculator';
 import CalculatorForm from '@/components/CalculatorForm';
 import { getServerSideProps } from '@/pages/index';
 
 describe('MonthlyCostCalculator', () => {
+  beforeEach(() => {
+    window.va = vi.fn();
+    window.gtag = vi.fn();
+  });
+
   it('previews the same rounded cost split and canonical hours that arrive in the main calculator', async () => {
     const user = userEvent.setup();
     window.va = vi.fn();
@@ -82,17 +87,118 @@ describe('MonthlyCostCalculator', () => {
     expect(screen.getByText(/6,38/)).toBeInTheDocument();
   });
 
-  it('does not show a misleading total for invalid amounts or zero hours', async () => {
+  it.each(['', '0', '-2', '1,,50'])('keeps valid costs and the open breakdown while hours %j prevent transfer', async (invalidHours) => {
     const user = userEvent.setup();
-
-    render(<MonthlyCostCalculator />);
-
+    const { container } = render(<MonthlyCostCalculator />);
+    const previousUrl = window.location.href;
+    const deductible = screen.getByRole('textbox', { name: /Gastos deducibles, sin incluir la cuota/ });
+    await user.type(deductible, '100');
+    const summary = screen.getByText('Ver cómo se reparte el coste anual');
+    await user.click(summary);
     const hoursInput = screen.getByRole('textbox', { name: /horas facturables al mes/i });
-    await user.clear(hoursInput);
-    await user.type(hoursInput, '0');
+    fireEvent.change(hoursInput, { target: { value: invalidHours } });
 
-    expect(screen.getByRole('alert')).toHaveTextContent(/al menos una hora/i);
-    expect(screen.queryByText(/480,00/)).not.toBeInTheDocument();
+    expect(screen.getByText('Media mensual antes de pagarte').parentElement).toHaveTextContent('480,00');
+    expect(screen.getByText('Al año según las frecuencias').nextElementSibling).toHaveTextContent('5760,00');
+    expect(summary.closest('details')).toHaveAttribute('open');
+    expect(screen.getByRole('region', { name: 'Desglose de pagos de actividad' })).toBeVisible();
+    expect(deductible).toBeVisible();
+    expect(deductible).toHaveValue('100');
+    expect(screen.queryByText('Por hora facturable')).not.toBeInTheDocument();
+    expect(screen.queryByRole('status', { name: 'Datos que se trasladarán a la tarifa' })).not.toBeInTheDocument();
+    if (invalidHours === '') {
+      expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+      expect(hoursInput).toHaveAttribute('aria-invalid', 'false');
+    }
+
+    const form = container.querySelector('form')!;
+    expect(fireEvent.submit(form)).toBe(false);
+    expect(hoursInput).toHaveAttribute('aria-invalid', 'true');
+    expect(hoursInput).toHaveAttribute('aria-describedby', expect.stringContaining('monthly-cost-hours-error'));
+    expect(hoursInput).toHaveAccessibleDescription(/Indica un número válido de horas mayor que cero/);
+    expect(screen.getByRole('alert')).toHaveTextContent('Indica un número válido de horas mayor que cero.');
+    expect(hoursInput).toHaveFocus();
+    expect(form.querySelector('[name="monthlyExpenses"]')).toHaveValue('100.00');
+    expect(form.querySelector('[name="monthlyNonDeductibleExpenses"]')).toHaveValue('60.00');
+    expect(window.location.href).toBe(previousUrl);
+    expect(window.va).not.toHaveBeenCalled();
+    expect(window.gtag).not.toHaveBeenCalled();
+
+    fireEvent.change(hoursInput, { target: { value: '60' } });
+    expect(screen.getByText('Por hora facturable').nextElementSibling).toHaveTextContent('8,00');
+    expect(screen.getByRole('status', { name: 'Datos que se trasladarán a la tarifa' })).toHaveTextContent('60 h/mes');
+    expect(hoursInput).toHaveAttribute('aria-invalid', 'false');
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    expect(summary.closest('details')).toHaveAttribute('open');
+    expect(deductible).toHaveValue('100');
+    expect(form.querySelector('[name="monthlyExpenses"]')).toHaveValue('100.00');
+    expect(form.querySelector('[name="monthlyNonDeductibleExpenses"]')).toHaveValue('60.00');
+    expect(form.querySelector('[name="billableHours"]')).toHaveValue('60');
+    expect(window.location.href).toBe(previousUrl);
+    expect(window.va).not.toHaveBeenCalled();
+    expect(window.gtag).not.toHaveBeenCalled();
+  });
+
+  it('updates totals and the cost split when payments change before hours are known', async () => {
+    const user = userEvent.setup();
+    const { container } = render(<MonthlyCostCalculator />);
+    const previousUrl = window.location.href;
+    await user.type(screen.getByRole('textbox', { name: /Gastos deducibles, sin incluir la cuota/ }), '100');
+    const summary = screen.getByText('Ver cómo se reparte el coste anual');
+    await user.click(summary);
+    await user.clear(screen.getByRole('textbox', { name: /horas facturables al mes/i }));
+    await user.selectOptions(screen.getByRole('combobox', { name: /frecuencia de software/i }), 'monthly');
+    fireEvent.change(screen.getByRole('textbox', { name: /software y herramientas/i }), { target: { value: '65' } });
+
+    expect(screen.getByText('Media mensual antes de pagarte').parentElement).toHaveTextContent('510,00');
+    expect(screen.getByText('Al año según las frecuencias').nextElementSibling).toHaveTextContent('6120,00');
+    expect(summary.closest('details')).toHaveAttribute('open');
+    expect(screen.getByRole('region', { name: 'Desglose de pagos de actividad' })).toHaveTextContent('780,00');
+    expect(container.querySelector('[name="monthlyExpenses"]')).toHaveValue('100.00');
+    expect(container.querySelector('[name="monthlyNonDeductibleExpenses"]')).toHaveValue('90.00');
+    expect(screen.queryByText('Por hora facturable')).not.toBeInTheDocument();
+    expect(screen.queryByRole('status', { name: 'Datos que se trasladarán a la tarifa' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    expect(window.location.href).toBe(previousUrl);
+    expect(window.va).not.toHaveBeenCalled();
+    expect(window.gtag).not.toHaveBeenCalled();
+  });
+
+  it('keeps the quotient for positive fractional hours but requires whole hours for transfer', async () => {
+    const { container } = render(<MonthlyCostCalculator />);
+    const previousUrl = window.location.href;
+    fireEvent.change(screen.getByRole('textbox', { name: /Gastos deducibles, sin incluir la cuota/ }), { target: { value: '100' } });
+    const hours = screen.getByRole('textbox', { name: /horas facturables al mes/i });
+    fireEvent.change(hours, { target: { value: '1,5' } });
+
+    expect(screen.getByText('Media mensual antes de pagarte').parentElement).toHaveTextContent('480,00');
+    expect(screen.getByText('Por hora facturable').nextElementSibling).toHaveTextContent('320,00');
+    expect(screen.queryByRole('status', { name: 'Datos que se trasladarán a la tarifa' })).not.toBeInTheDocument();
+    expect(fireEvent.submit(container.querySelector('form')!)).toBe(false);
+    expect(hours).toHaveAttribute('aria-invalid', 'true');
+    expect(hours).toHaveAttribute('aria-describedby', expect.stringContaining('monthly-cost-hours-error'));
+    expect(hours).toHaveAccessibleDescription(/Usa un número entero de horas mayor que cero para trasladar este cálculo/);
+    expect(screen.getByRole('alert')).toHaveTextContent('Usa un número entero de horas mayor que cero para trasladar este cálculo.');
+    expect(hours).toHaveFocus();
+    expect(window.location.href).toBe(previousUrl);
+    expect(window.va).not.toHaveBeenCalled();
+    expect(window.gtag).not.toHaveBeenCalled();
+  });
+
+  it.each(['-1', '1,,50'])('still withdraws totals and transfer controls for an invalid payment %j', (amount) => {
+    render(<MonthlyCostCalculator />);
+    const hours = screen.getByRole('textbox', { name: /horas facturables al mes/i });
+    fireEvent.change(hours, { target: { value: '' } });
+    fireEvent.change(screen.getByRole('textbox', { name: /software y herramientas/i }), { target: { value: amount } });
+
+    expect(screen.queryByText('Media mensual antes de pagarte')).not.toBeInTheDocument();
+    expect(screen.queryByText('Al año según las frecuencias')).not.toBeInTheDocument();
+    expect(screen.queryByText('Ver cómo se reparte el coste anual')).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /usar estos datos en mi tarifa/i })).not.toBeInTheDocument();
+    expect(screen.getByRole('textbox', { name: /software y herramientas/i })).toHaveAttribute('aria-invalid', 'true');
+    expect(screen.getByRole('alert')).toHaveTextContent(/importe/i);
+    expect(window.va).not.toHaveBeenCalled();
+    expect(window.gtag).not.toHaveBeenCalled();
   });
 
   it('keeps the fee separate and splits other costs before transferring', async () => {
