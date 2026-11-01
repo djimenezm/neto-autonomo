@@ -26,8 +26,11 @@ export default function BillableHoursPlanner({ onApply }: { onApply: (hours: num
   const [values, setValues] = useState<Values>(emptyValues);
   const [estimate, setEstimate] = useState<Estimate | null>(null);
   const [isExample, setIsExample] = useState(false);
+  const [agendaBeforeExample, setAgendaBeforeExample] = useState<Values | null>(null);
+  const [recoveryFeedback, setRecoveryFeedback] = useState('');
 
   function estimateHours(nextValues = values) {
+    setRecoveryFeedback('');
     const nextEstimate = estimateBillableHours({
       daysPerWeek: parseSpanishNumber(nextValues.daysPerWeek),
       hoursPerDay: parseSpanishNumber(nextValues.hoursPerDay),
@@ -39,6 +42,16 @@ export default function BillableHoursPlanner({ onApply }: { onApply: (hours: num
       const firstInvalid = fields.find(({ key }) => nextEstimate.errors[key]);
       if (firstInvalid) inputsRef.current[firstInvalid.key]?.focus();
     }
+  }
+
+  function recoverAgenda() {
+    if (!agendaBeforeExample) return;
+    setValues(agendaBeforeExample);
+    setEstimate(null);
+    setIsExample(false);
+    setAgendaBeforeExample(null);
+    setRecoveryFeedback('Agenda anterior recuperada. Vuelve a estimarla antes de usar sus horas.');
+    inputsRef.current.daysPerWeek?.focus();
   }
 
   return (
@@ -75,6 +88,7 @@ export default function BillableHoursPlanner({ onApply }: { onApply: (hours: num
                   setValues({ ...values, [key]: nextValue });
                   setEstimate(null);
                   setIsExample(false);
+                  setRecoveryFeedback('');
                 }}
                 aria-invalid={Boolean(error)}
                 aria-labelledby={`${id}-${key}-label`}
@@ -92,6 +106,11 @@ export default function BillableHoursPlanner({ onApply }: { onApply: (hours: num
           type="button"
           className="link-button"
           onClick={() => {
+            // Keep the first personal agenda exactly; edited or repeated examples
+            // must not replace it. Recovery never applies hours to the main form.
+            if (!isExample && Object.values(values).some((value) => value.trim() !== '')) {
+              setAgendaBeforeExample((previous) => previous ?? { ...values });
+            }
             const example: Values = {
               daysPerWeek: String(exampleHoursPlan.daysPerWeek),
               hoursPerDay: String(exampleHoursPlan.hoursPerDay),
@@ -103,7 +122,10 @@ export default function BillableHoursPlanner({ onApply }: { onApply: (hours: num
             estimateHours(example);
           }}
         >Probar un ejemplo</button>
+        {agendaBeforeExample ? <button type="button" className="link-button" onClick={recoverAgenda} aria-describedby={`${id}-recovery-hint`}>Recuperar mi agenda anterior</button> : null}
       </div>
+      {agendaBeforeExample ? <p id={`${id}-recovery-hint`}>Conservamos en esta página la agenda anterior al primer ejemplo. Recuperarla sustituye los cambios que ves ahora y no modifica las horas ya aplicadas a la calculadora. Vuelve a estimarla para poder aplicarla. La copia se pierde al salir o recargar la página.</p> : null}
+      <div aria-label="Recuperación de la agenda" aria-live="polite" aria-atomic="true">{recoveryFeedback ? <p>{recoveryFeedback}</p> : null}</div>
       <div aria-live="polite" aria-atomic="true">
         {estimate && !estimate.valid ? <p>Revisa los datos de la agenda. Las horas de la calculadora siguen iguales.</p> : null}
         {estimate?.valid ? (

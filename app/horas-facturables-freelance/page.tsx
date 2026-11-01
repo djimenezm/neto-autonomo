@@ -296,6 +296,7 @@ export default function HorasFacturablesFreelancePage() {
             con mi agenda» junto al campo de horas. Puedes aplicar tu estimación sin perder el resto
             de tus datos.
           </p>
+          <p>Si ya has escrito tu agenda, puedes probar el ejemplo y volver con «Recuperar mi agenda anterior». Se conserva la primera copia de los cuatro campos, aunque estén incompletos o edites el ejemplo. Recuperar sustituye los cambios actuales y no modifica las horas ya aplicadas a la calculadora: vuelve a estimar la agenda y pulsa «Usar … horas al mes» para aplicarla. La copia se pierde al salir o recargar la página.</p>
           <h3>Contrasta la estimación con cuatro semanas de trabajo</h3>
           <p>
             Anota cada día las horas dedicadas a encargos cobrables y, por separado, a gestión,

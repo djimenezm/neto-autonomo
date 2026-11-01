@@ -48,6 +48,43 @@ Los espacios publicitarios están preparados, pero `lib/ads.ts` exige `NEXT_PUBL
 
 ## Revisión local antes de publicar
 
+### Recuperar la agenda propia tras probar el ejemplo (1 de noviembre de 2026)
+
+Publicación autorizada el 1 de noviembre de 2026. Se reproduce en navegador
+la sustitución de los cuatro campos de la agenda al probar el ejemplo:
+4,5 días, 6,5 horas diarias, 8,25 horas no facturables y 5,5 semanas sin actividad
+pasan a los valores ficticios 5, 8, 12 y 6 sin posibilidad de recuperar el
+borrador. Esta ayuda alimenta las horas de la calculadora principal.
+
+La recuperación conserva las cuatro cadenas anteriores al primer ejemplo
+propio, incluidas precisión, espacios, ceros, vacíos y entradas incompletas.
+Se mantiene la primera copia al repetir el ejemplo, editarlo o estimarlo.
+«Recuperar mi agenda anterior» restaura el borrador sin estimar ni aplicar,
+retira la capacidad, errores y botón de aplicación, consume la copia y devuelve
+el foco a los días por semana. Exige volver a estimar antes de usar las horas.
+No modifica las horas ya aplicadas a la calculadora; aplicarlas sigue siendo
+una acción explícita. Un ejemplo puro no se presenta como borrador propio.
+
+La guía de horas explica el recorrido y que esta copia se pierde al salir o
+recargar. Sin cambios en fórmulas, redondeos, parámetros, campos, peticiones,
+almacenamiento persistente o eventos. El cálculo principal y su mecanismo de
+aplicación permanecen intactos, igual que anuncios, piloto y seguimientos.
+La publicación usa la integración Git existente de Vercel.
+
+Validación: cinco regresiones nuevas fallaban contra el original por faltar
+la recuperación; después pasan las diez pruebas de agenda y recuperación.
+Suite completa: 848 pruebas en 83 archivos, lint y compilación correctos.
+Se verifican valores incompletos, ceros, copia inicial, nuevos ciclos, foco,
+ausencia de almacenamiento y envíos, y el formulario principal sin submit.
+
+Navegador local: agenda 4 días × 4 h, 4,8 h no facturables y 7 semanas sin
+actividad. Tras aplicar las 107 h del ejemplo y reabrir, se recuperan las
+cuatro cadenas exactas, sin capacidad ni botón de aplicación. El cálculo
+principal sigue en 107 h; estimar de nuevo ofrece 42 h y solo aplicarlas
+explícitamente cambia ese campo y cierra la ayuda. La guía muestra las nuevas
+instrucciones. Sin errores de consola. Esta es la versión validada en local
+que el usuario ha autorizado publicar.
+
 ### Horas que cubre un precio cerrado de encargo (1 de noviembre de 2026)
 
 Publicación autorizada el 1 de noviembre de 2026. La comparación de un encargo
