@@ -95,6 +95,9 @@ export default function MonthlyProjectPlanner({ monthlyBilling, billableHours, h
               {estimate.projectReferencePrice !== null ? (
                 <div><dt>Referencia para estas horas sin IVA</dt><dd>{formatCurrency(estimate.projectReferencePrice)}</dd></div>
               ) : null}
+              {estimate.projectTimeReference.status === 'available' ? (
+                <div><dt>Horas que cubre este precio a tu referencia</dt><dd>{formatNumber(estimate.projectTimeReference.hoursCovered)} h</dd></div>
+              ) : null}
             </dl>
             <p>{formatCurrency(estimate.pricePerProject)} sin IVA entre {formatNumber(estimate.hoursPerProject)} h = {formatCurrency(estimate.projectHourlyRate)}/h. Es facturación por hora, no sueldo neto.</p>
             {estimate.projectPriceDifference !== null ? (
@@ -106,6 +109,18 @@ export default function MonthlyProjectPlanner({ monthlyBilling, billableHours, h
                     : 'El precio coincide con la referencia para estas horas.'}</strong>
               </p>
             ) : <p className={styles.note}>Sin horas facturables disponibles en el mes no podemos obtener una referencia para comparar este precio. Revisa la capacidad de tu cálculo.</p>}
+            {estimate.projectTimeReference.status === 'available' ? (
+              <>
+                <p className={estimate.projectTimeReference.excessHours > 0 ? styles.shortfall : styles.note}>
+                  <strong>{estimate.projectTimeReference.hoursCovered === 0
+                    ? 'El precio no cubre ni 0,01 h a tu referencia. Revisa el alcance o el precio.'
+                    : estimate.projectTimeReference.excessHours > 0
+                      ? `Las horas previstas superan este límite en ${formatNumber(estimate.projectTimeReference.excessHours)} h. Revisa el alcance o el precio antes de comprometer el trabajo.`
+                      : 'Las horas previstas no superan este límite.'}</strong>
+                </p>
+                <p className={styles.note}>Calculamos las horas con la proporción mensual completa y redondeamos hacia abajo a centésimas. Son horas decimales: 1,5 h es una hora y media. Este límite no reserva hueco en tu agenda.</p>
+              </>
+            ) : estimate.projectTimeReference.status === 'out-of-range' ? <p className={styles.note}>No podemos mostrar con precisión las horas que cubre este precio. Revisa los importes y la capacidad de referencia.</p> : null}
             <p className={styles.note}>La referencia reparte el objetivo mensual entre las horas disponibles y lo aplica a las del encargo, redondeando al alza al céntimo. Esta comparación no añade costes específicos del encargo ni calcula beneficio neto o decide si debes aceptarlo.</p>
             <Heading>Si repites encargos iguales durante el mes</Heading>
             <dl>

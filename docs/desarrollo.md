@@ -48,6 +48,48 @@ Los espacios publicitarios están preparados, pero `lib/ads.ts` exige `NEXT_PUBL
 
 ## Revisión local antes de publicar
 
+### Horas que cubre un precio cerrado de encargo (1 de noviembre de 2026)
+
+Publicación autorizada el 1 de noviembre de 2026. La comparación de un encargo
+mostraba el desfase económico frente a la referencia, pero exigía hacer otra
+cuenta para revisar el alcance manteniendo un precio fijo. Ahora muestra las
+horas que cubre ese precio y cuánto excede la estimación ese límite. Reutiliza
+el precio y las horas existentes, antes del plan mensual.
+
+`projectTimeReference` deriva la cuenta inversa de la referencia completa:
+precio en céntimos × capacidad en centésimas de hora ÷ facturación en céntimos.
+La división entera con BigInt redondea hacia abajo, sin usar la tarifa por hora
+mostrada. El exceso es la diferencia positiva de las horas previstas con ese
+límite. Con 600 EUR, 30 h y referencia de 2687,65 EUR / 100 h se obtienen
+22,32 h cubiertas y 7,68 h de exceso. No se limita el resultado a la capacidad
+mensual: la disponibilidad se revisa por separado en el plan existente.
+
+Con capacidad cero no se inventa un límite. Un límite calculado de cero advierte
+que no se cubren ni 0,01 h. Una salida fuera de la escala numérica segura se
+omite con un aviso, sin invalidar los demás resultados. Editar retira las cifras;
+una nueva referencia actualiza también este límite. La interfaz explica las
+horas decimales, el redondeo hacia abajo y que no reserva agenda ni añade costes
+específicos, calcula neto o decide la aceptación.
+
+La guía de 3000 EUR amplía su ejemplo con 40,48 h cubiertas por 2100 EUR y
+19,52 h de exceso si el encargo ocupa 60 h, con cuenta derivada del mismo motor.
+Su fecha visible y esquema ya son del 1 de noviembre y se mantienen. Sin nuevos
+campos, rutas, parámetros compartidos, almacenamiento ni eventos. Anuncios,
+piloto, seguimientos y cálculo principal intactos. La publicación usa la integración Git existente de Vercel.
+
+Validación: 18 regresiones matemáticas fallaron antes de añadir la salida y
+las 28 previas seguían pasando; después pasan las 46. La interfaz reprodujo
+cinco fallos por faltar el nuevo límite y luego pasan sus diez pruebas. Se
+comprueban límites y +0,01 h, normalización, capacidad cero, salida menor de
+0,01 h y salida fuera de escala sin perder las cuentas existentes. Suite
+completa: 843 pruebas en 82 archivos, lint y compilación correctos.
+
+Navegador local: el caso de 600 EUR / 30 h muestra 22,32 h y 7,68 h de exceso;
+editar retira las cifras y 900 EUR da 33,48 h, sin exceso. Se mantienen los dos
+campos, el resultado principal y el resumen compartido. La guía muestra 40,48 h
+y 19,52 h para 60 h tanto en el texto inicial como en la ayuda interactiva.
+Sin errores de consola. Esta es la versión validada en local que el usuario ha autorizado publicar.
+
 ### Recuperar los tres meses propios después de probar el ejemplo (1 de noviembre de 2026)
 
 Publicación autorizada el 1 de noviembre de 2026. Se reproduce otra pérdida

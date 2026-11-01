@@ -29,6 +29,10 @@ describe('monthly project capacity planner', () => {
     ]);
     expect(within(result).getByText('Precio por hora del encargo').nextElementSibling).toHaveTextContent('20,00');
     expect(within(result).getByText('Referencia para estas horas sin IVA').nextElementSibling).toHaveTextContent('806,30');
+    expect(within(result).getByText('Horas que cubre este precio a tu referencia').nextElementSibling).toHaveTextContent('22,32 h');
+    expect(result).toHaveTextContent('Las horas previstas superan este límite en 7,68 h');
+    expect(result).toHaveTextContent('Revisa el alcance o el precio');
+    expect(result).toHaveTextContent('redondeamos hacia abajo a centésimas');
     expect(result).toHaveTextContent('El precio queda 206,30');
     expect(result).toHaveTextContent('por debajo de la referencia para estas horas');
     expect(result).toHaveTextContent('no añade costes específicos');
@@ -48,8 +52,47 @@ describe('monthly project capacity planner', () => {
     expect(within(result).getByText('Precio por hora del encargo').nextElementSibling).toHaveTextContent('20,00');
     expect(result).toHaveTextContent('Sin horas facturables disponibles');
     expect(within(result).queryByText('Referencia para estas horas sin IVA')).not.toBeInTheDocument();
+    expect(within(result).queryByText('Horas que cubre este precio a tu referencia')).not.toBeInTheDocument();
     expect(result).not.toHaveTextContent('Infinity');
     expect(result).not.toHaveTextContent('NaN');
+  });
+
+  it('distinguishes a covered scope from capacity and removes the time limit while editing', async () => {
+    render(<Planner monthlyBilling={100} billableHours={4.5} />);
+    fireEvent.change(screen.getByRole('textbox', { name: 'Precio por encargo sin IVA (EUR)' }), { target: { value: '50' } });
+    fireEvent.change(screen.getByRole('textbox', { name: 'Horas totales por encargo' }), { target: { value: '1,5' } });
+    await userEvent.click(screen.getByRole('button', { name: 'Comprobar encargos' }));
+    const result = screen.getByRole('status');
+    expect(within(result).getByText('Horas que cubre este precio a tu referencia').nextElementSibling).toHaveTextContent('2,25 h');
+    expect(result).toHaveTextContent('Las horas previstas no superan este límite');
+    expect(result).toHaveTextContent('no reserva hueco en tu agenda');
+    expect(result).not.toHaveTextContent('Las horas previstas superan este límite');
+    fireEvent.change(screen.getByRole('textbox', { name: 'Precio por encargo sin IVA (EUR)' }), { target: { value: '25' } });
+    expect(result).toBeEmptyDOMElement();
+  });
+
+  it('explains a price that does not cover a hundredth of an hour instead of suggesting free work', async () => {
+    render(<Planner monthlyBilling={0.02} billableHours={0.01} />);
+    fireEvent.change(screen.getByRole('textbox', { name: 'Precio por encargo sin IVA (EUR)' }), { target: { value: '0,01' } });
+    fireEvent.change(screen.getByRole('textbox', { name: 'Horas totales por encargo' }), { target: { value: '0,01' } });
+    await userEvent.click(screen.getByRole('button', { name: 'Comprobar encargos' }));
+    const result = screen.getByRole('status');
+    expect(result).toHaveTextContent('El precio no cubre ni 0,01 h a tu referencia');
+    expect(result).toHaveTextContent('Revisa el alcance o el precio');
+    expect(result).not.toHaveTextContent('Las horas previstas no superan este límite');
+  });
+
+  it('keeps the comparison and monthly plan when only the new time limit is beyond the precise range', async () => {
+    render(<Planner monthlyBilling={0.01} billableHours={100} />);
+    fireEvent.change(screen.getByRole('textbox', { name: 'Precio por encargo sin IVA (EUR)' }), { target: { value: '10000000000000' } });
+    fireEvent.change(screen.getByRole('textbox', { name: 'Horas totales por encargo' }), { target: { value: '100' } });
+    await userEvent.click(screen.getByRole('button', { name: 'Comprobar encargos' }));
+    const result = screen.getByRole('status');
+    expect(result).toHaveTextContent('No podemos mostrar con precisión las horas que cubre este precio');
+    expect(within(result).queryByText('Horas que cubre este precio a tu referencia')).not.toBeInTheDocument();
+    expect(within(result).getByText('Referencia para estas horas sin IVA').nextElementSibling).toHaveTextContent('0,01');
+    expect(result).toHaveTextContent('Encargos completos para alcanzar el importe');
+    expect(result).not.toHaveTextContent('Infinity');
   });
 
   it('marks the fictional example and clears an old plan when effort changes', async () => {
@@ -84,6 +127,7 @@ describe('monthly project capacity planner', () => {
     rerender(<Planner monthlyBilling={5000} billableHours={80} />);
     expect(screen.getByRole('status')).toHaveTextContent('3 × 2100,00');
     expect(screen.getByRole('status')).toHaveTextContent('Faltarían 800,00');
+    expect(screen.getByRole('status')).toHaveTextContent('Las horas previstas superan este límite en 6,4 h');
   });
 
   it('integrates with the actual result and leaves that result and its link intact', async () => {

@@ -8,6 +8,7 @@ import MonthlyPortfolioPlanner from '@/components/MonthlyPortfolioPlanner';
 import { calculateExample, exampleAssumptions, formatEuro, getExampleUrl } from '@/lib/scenarioExamples';
 import { projectCapacityExample, projectCapacityResult, projectMonthlyExample, slowerProjectResult } from '@/lib/projectCapacityExample';
 import { portfolioExampleResult, portfolioOverloadResult, portfolioShortfallResult } from '@/lib/projectPortfolioExample';
+import { formatNumber } from '@/lib/format';
 import { getSiteUrl, siteConfig } from '@/lib/site';
 import styles from './capacityGuide.module.css';
 
@@ -90,6 +91,9 @@ export default function CuantoFacturarAutonomo3000EurosPage() {
   if (regular.projectReferencePrice === null || regular.projectPriceDifference === null
     || slower.projectReferencePrice === null || slower.projectPriceDifference === null) {
     throw new Error('Invalid editorial single-project comparison');
+  }
+  if (regular.projectTimeReference.status !== 'available' || slower.projectTimeReference.status !== 'available') {
+    throw new Error('Invalid editorial project-time reference');
   }
   const siteUrl = getSiteUrl();
   const pageUrl = new URL(route, siteUrl).toString();
@@ -230,6 +234,19 @@ export default function CuantoFacturarAutonomo3000EurosPage() {
               {' '}{formatEuro(slower.projectHourlyRate)}/h. La referencia para ese tiempo sube a
               {' '}{formatEuro(slower.projectReferencePrice)} y faltan
               {' '}{formatEuro(-slower.projectPriceDifference)} para alcanzarla.
+            </p>
+            <p>
+              Con el precio cerrado de {formatEuro(regular.pricePerProject)} sin IVA cubres
+              {' '}{formatNumber(regular.projectTimeReference.hoursCovered)} h a esta referencia.
+              {' '}Si prevés {formatNumber(slower.hoursPerProject)} h, superas ese umbral en
+              {' '}{formatNumber(slower.projectTimeReference.excessHours)} h. Revisa el alcance o el precio
+              antes de acordarlo.
+            </p>
+            <p>
+              La cuenta inversa es precio sin IVA × horas mensuales disponibles ÷ facturación
+              mensual, usando la proporción completa. Redondeamos las horas cubiertas hacia
+              abajo a centésimas de hora: 1,5 h es una hora y media. Este umbral no indica
+              horas libres, no reserva agenda ni fija fechas de entrega.
             </p>
             <p>
               Obtenemos la referencia repartiendo la facturación mensual entre las horas

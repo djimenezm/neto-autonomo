@@ -47,6 +47,14 @@ describe('3000-euro goal and capacity guide', () => {
     expect(comparison?.textContent).toContain('35,00');
     expect(comparison?.textContent).toContain('3112,06');
     expect(comparison?.textContent).toContain('1012,06');
+    expect(comparison?.textContent).toContain('40,48 h');
+    expect(comparison?.textContent).toContain('19,52 h');
+    expect(comparison?.textContent).toContain('Revisa el alcance o el precio');
+    expect(comparison?.textContent).toContain('precio sin IVA × horas mensuales disponibles ÷ facturación mensual');
+    expect(comparison?.textContent).toContain('abajo a centésimas de hora');
+    expect(comparison?.textContent).toContain('1,5 h es una hora y media');
+    expect(comparison?.textContent).toContain('no indica horas libres');
+    expect(comparison?.textContent).toContain('no reserva agenda ni fija fechas de entrega');
     expect(comparison?.textContent).toContain('proporción completa');
     expect(comparison?.textContent).toContain('céntimo superior');
     expect(comparison?.textContent).toContain('no neto ni beneficio');

@@ -122,3 +122,85 @@ describe('price of one project against the monthly reference', () => {
     if (!result.valid) expect(result.errors[field]).toBeTruthy();
   });
 });
+
+describe('time covered by a fixed project price', () => {
+  const input: ProjectCapacityInput = {
+    monthlyBilling: 2687.65, billableHours: 100, pricePerProject: 600, hoursPerProject: 30,
+  };
+
+  it('turns a price shortfall into covered time without changing the monthly plan', () => {
+    expect(estimateProjectCapacity(input)).toMatchObject({
+      valid: true,
+      projectTimeReference: { status: 'available', hoursCovered: 22.32, excessHours: 7.68 },
+      projectReferencePrice: 806.3, projectPriceDifference: -206.3,
+      requiredProjects: 5, plannedBilling: 3000, plannedHours: 150, maxProjects: 3,
+    });
+  });
+
+  it.each([[40, 0], [60, 19.52]])('uses the guide price for a project taking %s hours', (hoursPerProject, excessHours) => {
+    expect(estimateProjectCapacity({ ...projectCapacityExample, hoursPerProject })).toMatchObject({
+      valid: true,
+      projectTimeReference: { status: 'available', hoursCovered: 40.48, excessHours },
+    });
+  });
+
+  it.each([
+    [{ monthlyBilling: 0.02, billableHours: 0.01, pricePerProject: 0.01, hoursPerProject: 0.01 }, 0, 0.01],
+    [{ monthlyBilling: 0.01, billableHours: 0.01, pricePerProject: 0.01, hoursPerProject: 0.01 }, 0.01, 0],
+    [{ monthlyBilling: 0.3, billableHours: 0.3, pricePerProject: 0.1, hoursPerProject: 0.1 }, 0.1, 0],
+    [{ monthlyBilling: 1, billableHours: 3, pricePerProject: 0.33, hoursPerProject: 1 }, 0.99, 0.01],
+  ] as const)('keeps the hundredth-hour boundary for %j', (values, hoursCovered, excessHours) => {
+    expect(estimateProjectCapacity(values)).toMatchObject({
+      valid: true, projectTimeReference: { status: 'available', hoursCovered, excessHours },
+    });
+  });
+
+  it('normalizes the monthly reference, price and duration before calculating covered time', () => {
+    expect(estimateProjectCapacity({ monthlyBilling: 1.005, billableHours: 2.005, pricePerProject: 0.335, hoursPerProject: 0.675 })).toMatchObject({
+      valid: true, monthlyBilling: 1.01, billableHours: 2.01, pricePerProject: 0.34, hoursPerProject: 0.68,
+      projectTimeReference: { status: 'available', hoursCovered: 0.67, excessHours: 0.01 },
+    });
+  });
+
+  it.each([0, 0.001])('does not turn a zero normalized capacity (%s) into a zero time allowance', (billableHours) => {
+    expect(estimateProjectCapacity({ ...input, billableHours })).toMatchObject({
+      valid: true, projectHourlyRate: 20, maxProjects: 0, capacityBilling: 0,
+      projectTimeReference: { status: 'no-capacity', hoursCovered: null, excessHours: null },
+    });
+  });
+
+  it('allows an exact result despite an intermediate product beyond the safe-integer range', () => {
+    expect(estimateProjectCapacity({ monthlyBilling: 1e13, billableHours: 100, pricePerProject: 1e13, hoursPerProject: 100 })).toMatchObject({
+      valid: true, projectReferencePrice: 1e13, projectPriceDifference: 0,
+      projectTimeReference: { status: 'available', hoursCovered: 100, excessHours: 0 },
+    });
+  });
+
+  it('keeps the existing estimate when the covered time itself is outside the precise range', () => {
+    expect(estimateProjectCapacity({ monthlyBilling: 0.01, billableHours: 100, pricePerProject: 1e13, hoursPerProject: 100 })).toMatchObject({
+      valid: true, projectReferencePrice: 0.01, projectHourlyRate: 1e11,
+      requiredProjects: 1, plannedBilling: 1e13, plannedHours: 100, maxProjects: 1,
+      projectTimeReference: { status: 'out-of-range', hoursCovered: null, excessHours: null },
+    });
+  });
+
+  it.each([
+    [2687.65, 100, 600, 22.32],
+    [2687.65, 100, 806.29, 29.99],
+    [2687.65, 100, 806.3, 30],
+    [4149.41, 80, 2100, 40.48],
+    [1, 3, 0.33, 0.99],
+    [0.3, 0.3, 0.1, 0.1],
+  ])('covers the price reference through the time limit, but not another 0.01 h (%s/%s/%s)', (monthlyBilling, billableHours, pricePerProject, hoursCovered) => {
+    for (const [hoursPerProject, coversReference] of [[hoursCovered, true], [Math.round((hoursCovered + 0.01) * 100) / 100, false]] as const) {
+      const result = estimateProjectCapacity({ monthlyBilling, billableHours, pricePerProject, hoursPerProject });
+      expect(result.valid).toBe(true);
+      if (!result.valid) throw new Error('Expected a valid project estimate');
+      expect(result.projectTimeReference).toMatchObject({ status: 'available', hoursCovered });
+      if (result.projectTimeReference.status !== 'available') throw new Error('Expected a time reference');
+      expect(result.projectPriceDifference).not.toBeNull();
+      expect(result.projectPriceDifference! >= 0).toBe(coversReference);
+      expect(result.hoursPerProject <= result.projectTimeReference.hoursCovered).toBe(coversReference);
+    }
+  });
+});

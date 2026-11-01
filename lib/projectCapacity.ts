@@ -5,6 +5,10 @@ export type ProjectCapacityInput = {
   hoursPerProject: number;
 };
 
+type ProjectTimeReference =
+  | { status: 'available'; hoursCovered: number; excessHours: number }
+  | { status: 'no-capacity' | 'out-of-range'; hoursCovered: null; excessHours: null };
+
 type CapacityEstimate =
   | { valid: false; errors: Partial<Record<keyof ProjectCapacityInput, string>> }
   | {
@@ -16,6 +20,7 @@ type CapacityEstimate =
       projectHourlyRate: number;
       projectReferencePrice: number | null;
       projectPriceDifference: number | null;
+      projectTimeReference: ProjectTimeReference;
       requiredProjects: number;
       plannedBilling: number;
       plannedHours: number;
@@ -80,6 +85,20 @@ export function estimateProjectCapacity(input: ProjectCapacityInput): CapacityEs
   if (projectReferenceCents !== null && projectReferenceCents > maximumCents) {
     return { valid: false, errors: { hoursPerProject: 'La referencia para estas horas es demasiado grande para calcularla con precisión.' } };
   }
+
+  let projectTimeReference: ProjectTimeReference = { status: 'no-capacity', hoursCovered: null, excessHours: null };
+  if (capacityTicks > BigInt(0)) {
+    // The inverse of the price comparison floors the covered time to hundredths.
+    // Keep an unrepresentable time output separate from the existing estimate.
+    const coveredTicks = BigInt(units.pricePerProject) * capacityTicks / BigInt(units.monthlyBilling);
+    projectTimeReference = coveredTicks > maximumCents
+      ? { status: 'out-of-range', hoursCovered: null, excessHours: null }
+      : {
+          status: 'available',
+          hoursCovered: Number(coveredTicks) / 100,
+          excessHours: Number(projectTicks > coveredTicks ? projectTicks - coveredTicks : BigInt(0)) / 100,
+        };
+  }
   return {
     valid: true,
     monthlyBilling: units.monthlyBilling / 100,
@@ -89,6 +108,7 @@ export function estimateProjectCapacity(input: ProjectCapacityInput): CapacityEs
     projectHourlyRate: Number(projectHourlyCents) / 100,
     projectReferencePrice: projectReferenceCents === null ? null : Number(projectReferenceCents) / 100,
     projectPriceDifference: projectReferenceCents === null ? null : Number(BigInt(units.pricePerProject) - projectReferenceCents) / 100,
+    projectTimeReference,
     requiredProjects,
     plannedBilling: plannedBilling / 100,
     plannedHours: plannedHours / 100,
