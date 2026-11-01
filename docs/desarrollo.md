@@ -48,6 +48,57 @@ Los espacios publicitarios están preparados, pero `lib/ads.ts` exige `NEXT_PUBL
 
 ## Revisión local antes de publicar
 
+### Recuperar el borrador al abrir un archivo de caja por fechas (1 de noviembre de 2026)
+
+Publicación autorizada el 1 de noviembre de 2026. Reproducción: un borrador
+con saldo -125,005 EUR, tres filas incompletas y los importes 1500,50, 0 y
+1,,50 se sustituye por un archivo válido de un movimiento sin ofrecer vuelta.
+El comprobador admite veinte movimientos, hasta 61 campos; un borrador
+incompleto no puede guardarse todavía. La protección anterior solo se creaba
+al probar el ejemplo.
+
+`CashDatePlanner` comparte ahora una primera copia entre ejemplos e importaciones.
+Solo una lectura vigente y validada puede crear la copia antes de sustituir
+el plan. Se clonan saldo, filas, identificadores, orden, texto original y marca
+ficticia. Abrir otros archivos, editar, comprobar o probar ejemplos mantiene
+la primera copia hasta recuperarla. Recuperar invalida las lecturas pendientes,
+restaura el borrador sin calcular, retira resultados y descargas y enfoca el
+saldo inicial. El siguiente identificador sigue creciendo.
+
+La primera importación en las tres filas iniciales vacías no crea una copia
+vacía: después puede recuperarse ese archivo al probar el ejemplo. Un cero,
+datos parciales o cambiar el número de filas sí constituyen un borrador.
+Se conservan también los planes marcados ficticios. Un archivo inválido,
+demasiado grande, fallido u obsoleto no crea ni sustituye la copia.
+
+Si la copia procede de un archivo, su único botón y aviso aparecen junto al
+selector para no obligar a recorrer veinte filas. Si procede del ejemplo,
+mantienen su ubicación. La confirmación de recuperación aparece junto al
+saldo. La guía y su FAQ explican la primera copia y su duración en la página.
+No cambia el formato JSON, el guardado, las fórmulas, las fechas editoriales,
+el plan de tres meses ni otros comprobadores. Sin almacenamiento persistente,
+peticiones o eventos nuevos; anuncios, piloto y seguimientos intactos.
+La publicación usa la integración Git existente de Vercel.
+
+Validación: seis regresiones nuevas fallaban en el original por faltar la
+recuperación de importaciones; después pasan las 28 pruebas de caja por fechas
+y sus archivos, y las cuatro de la guía. Se cubren veinte filas con orden e
+identificadores, ceros y cambios de estructura, errores JSON/tamaño/lectura,
+carreras con ediciones, importación posterior y recuperación, prioridad de la
+primera copia y marca ficticia. Suite completa: 854 pruebas en 84 archivos;
+lint y compilación correctos.
+
+Navegador local con un archivo ficticio de saldo 333 EUR y cobro de 444 EUR:
+tras abrirlo aparece un único botón de recuperación junto al selector. Probar
+el ejemplo y abrir el archivo de nuevo conserva la primera copia. Recuperar
+devuelve exactamente -125,005 y las tres filas originales (1500,50 / 0 / 1,,50,
+con fechas y tipos incompletos), sin saldos ni descarga anterior. El foco vuelve
+al saldo y la copia se consume. Sin errores de consola; captura local guardada.
+El archivo de prueba es inventado y se lee en el navegador. En la revisión previa
+a publicar se aclara la guía para no prometer siempre la ubicación del botón:
+depende de si la primera copia nació de un archivo o del ejemplo. Sus cuatro
+pruebas y el lint vuelven a pasar. Esta es la versión autorizada para publicar.
+
 ### Recuperar la agenda propia tras probar el ejemplo (1 de noviembre de 2026)
 
 Publicación autorizada el 1 de noviembre de 2026. Se reproduce en navegador

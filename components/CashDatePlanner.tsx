@@ -10,6 +10,8 @@ import styles from './CashDatePlanner.module.css';
 
 type Row = { id: number; date: string; kind: CashMovementInput['kind']; amount: string };
 type Values = { initialBalance: string; rows: Row[] };
+type PlanBackup = { values: Values; isExample: boolean; source: 'example' | 'file' };
+const INITIAL_ROW_COUNT = 3;
 const fields = [
   { key: 'date', label: 'Fecha' },
   { key: 'kind', label: 'Tipo' },
@@ -29,15 +31,15 @@ function readPlanFile(file: File): Promise<string> {
 
 export default function CashDatePlanner() {
   const id = useId();
-  const nextId = useRef(3);
+  const nextId = useRef(INITIAL_ROW_COUNT);
   const controls = useRef<Record<string, HTMLInputElement | HTMLSelectElement | null>>({});
   const focusKey = useRef<string | null>(null);
   const fileOperation = useRef(0);
-  const [values, setValues] = useState<Values>({ initialBalance: '', rows: [blankRow(0), blankRow(1), blankRow(2)] });
+  const [values, setValues] = useState<Values>({ initialBalance: '', rows: Array.from({ length: INITIAL_ROW_COUNT }, (_, index) => blankRow(index)) });
   const [estimate, setEstimate] = useState<ReturnType<typeof checkCashDates> | null>(null);
   const [isExample, setIsExample] = useState(false);
   const [fileFeedback, setFileFeedback] = useState<{ text: string; error: boolean; download?: boolean } | null>(null);
-  const [planBeforeExample, setPlanBeforeExample] = useState<{ values: Values; isExample: boolean } | null>(null);
+  const [planBeforeReplacement, setPlanBeforeReplacement] = useState<PlanBackup | null>(null);
   const [recoveryFeedback, setRecoveryFeedback] = useState<string | null>(null);
 
   function setControl(key: string, node: HTMLInputElement | HTMLSelectElement | null) {
@@ -47,6 +49,13 @@ export default function CashDatePlanner() {
 
   function invalidateFileRead() { fileOperation.current++; setFileFeedback(null); }
   function clearResult() { invalidateFileRead(); setEstimate(null); setIsExample(false); setRecoveryFeedback(null); }
+
+  function rememberPlan(source: PlanBackup['source']) {
+    setPlanBeforeReplacement((previous) => previous ?? {
+      values: { initialBalance: values.initialBalance, rows: values.rows.map((row) => ({ ...row })) },
+      isExample, source,
+    });
+  }
 
   function calculate(next = values) {
     invalidateFileRead();
@@ -81,6 +90,11 @@ export default function CashDatePlanner() {
       if (operation !== fileOperation.current) return;
       const decoded = decodeCashDatesFile(text);
       if (!decoded.valid) { setFileFeedback({ text: decoded.error, error: true }); return; }
+      // A valid, current read may replace an incomplete draft. Preserve it only
+      // now; invalid, failed or superseded reads must not affect the first copy.
+      const hasDraft = values.initialBalance.trim() !== '' || values.rows.length !== INITIAL_ROW_COUNT
+        || values.rows.some((row) => row.date !== '' || row.kind !== '' || row.amount.trim() !== '');
+      if (hasDraft) rememberPlan('file');
       const next: Values = {
         initialBalance: formatNumber(decoded.input.initialBalance),
         rows: decoded.input.movements.map((row) => ({ ...row, id: nextId.current++, amount: formatNumber(row.amount) })),
@@ -94,15 +108,15 @@ export default function CashDatePlanner() {
   }
 
   function recoverPlan() {
-    if (!planBeforeExample) return;
+    if (!planBeforeReplacement) return;
     // A pending import must not replace the draft after recovery. Keep raw
     // strings, incomplete rows and their order; balances need a fresh check.
     invalidateFileRead();
     focusKey.current = 'initialBalance';
-    setValues(planBeforeExample.values);
-    setIsExample(planBeforeExample.isExample);
+    setValues(planBeforeReplacement.values);
+    setIsExample(planBeforeReplacement.isExample);
     setEstimate(null);
-    setPlanBeforeExample(null);
+    setPlanBeforeReplacement(null);
     setRecoveryFeedback('Plan anterior recuperado. Vuelve a comprobar los vencimientos para actualizar los saldos.');
   }
 
@@ -127,6 +141,21 @@ export default function CashDatePlanner() {
     }
   }
 
+  const recoveryButton = planBeforeReplacement ? (
+    <button type="button" className="secondary-button" aria-describedby={`${id}-recovery-hint`} onClick={recoverPlan}>
+      Recuperar mi plan anterior
+    </button>
+  ) : null;
+  const recoveryHint = planBeforeReplacement ? (
+    <p className={styles.note} id={`${id}-recovery-hint`}>
+      {planBeforeReplacement.source === 'file'
+        ? 'Conservamos en esta página el borrador anterior al primer archivo abierto.'
+        : 'Conservamos en esta página el plan anterior al primer ejemplo.'}
+      {' '}Recuperarlo sustituye los cambios que ves ahora y deja los saldos pendientes de comprobar.
+      Para conservar un plan al salir, guárdalo en un archivo.
+    </p>
+  ) : null;
+
   return (
     <div className={styles.planner} onKeyDown={(event) => {
       if (event.key === 'Enter' && event.target instanceof HTMLInputElement && event.target.type !== 'file') { event.preventDefault(); calculate(); }
@@ -141,10 +170,14 @@ export default function CashDatePlanner() {
           event.currentTarget.value = '';
           if (file) void openPlan(file);
         }} />
-        <p id={`${id}-file-hint`}>Elige un archivo .json generado con «Guardar este plan en un archivo», de hasta 64 KB. Abrirlo sustituye el saldo y los movimientos actuales si el archivo es válido. Se lee en tu navegador; no se envía al servidor.</p>
+        <p id={`${id}-file-hint`}>Elige un archivo .json generado con «Guardar este plan en un archivo», de hasta 64 KB. Abrirlo sustituye el saldo y los movimientos actuales si el archivo es válido. Si tienes un borrador, puedes volver con «Recuperar mi plan anterior» mientras sigas en esta página. Se lee en tu navegador; no se envía al servidor.</p>
         <div role="status" aria-label="Archivo del plan" aria-live="polite" aria-atomic="true">
           {fileFeedback && !fileFeedback.download ? <p className={fileFeedback.error ? 'field-error' : undefined}>{fileFeedback.text}</p> : null}
         </div>
+        {planBeforeReplacement?.source === 'file' ? <>{recoveryButton}{recoveryHint}</> : null}
+      </div>
+      <div role="status" aria-label="Recuperación del plan" aria-live="polite" aria-atomic="true">
+        {recoveryFeedback ? <p>{recoveryFeedback}</p> : null}
       </div>
       <label className={styles.initial}>
         <span id={`${id}-initial-label`}>Saldo antes del primer movimiento (EUR)</span>
@@ -210,28 +243,14 @@ export default function CashDatePlanner() {
       <div className={styles.actions}>
         <button type="button" className="primary-button" onClick={() => calculate()}>Comprobar vencimientos</button>
         <button type="button" className="link-button" onClick={() => {
-          // Preserve the first draft until explicitly recovered, even if the
-          // example is edited, checked or loaded again in the meantime.
-          setPlanBeforeExample((previous) => previous ?? { values, isExample });
+          // Imports and examples share the first copy until explicit recovery.
+          rememberPlan('example');
           const next: Values = { initialBalance: formatNumber(cashDatesExample.initialBalance), rows: cashDatesExample.movements.map((movement) => ({ ...movement, id: nextId.current++, amount: formatNumber(movement.amount) })) };
           setIsExample(true); calculate(next);
         }}>Probar las fechas ficticias</button>
-        {planBeforeExample ? (
-          <button type="button" className="secondary-button" aria-describedby={`${id}-recovery-hint`} onClick={recoverPlan}>
-            Recuperar mi plan anterior
-          </button>
-        ) : null}
+        {planBeforeReplacement?.source === 'example' ? recoveryButton : null}
       </div>
-      {planBeforeExample ? (
-        <p className={styles.note} id={`${id}-recovery-hint`}>
-          Conservamos en esta página el plan anterior al primer ejemplo. Recuperarlo sustituye
-          los cambios que ves ahora y deja los saldos pendientes de comprobar. Para conservar
-          un plan al salir, guárdalo en un archivo.
-        </p>
-      ) : null}
-      <div role="status" aria-label="Recuperación del plan" aria-live="polite" aria-atomic="true">
-        {recoveryFeedback ? <p>{recoveryFeedback}</p> : null}
-      </div>
+      {planBeforeReplacement?.source === 'example' ? recoveryHint : null}
       <div role="status" aria-label="Caja por fechas" aria-live="polite" aria-atomic="true">
         {estimate && !estimate.valid ? <p>Revisa los campos indicados. {estimate.errors.movements}</p> : null}
         {estimate?.valid ? (
