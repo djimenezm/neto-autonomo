@@ -180,6 +180,7 @@ export default function TarifaDiariaFreelancePage() {
           <span className="eyebrow">Tus horas y tu precio</span>
           <h2 id="comprobar-jornada">Comprueba una jornada antes de ofrecerla</h2>
           <p>Introduce una referencia por hora que incluya tus costes habituales. Si aún no la tienes, <Link href="/#calculadora">calcúlala con tu objetivo mensual</Link>. Indica cero si no hay costes específicos adicionales. El precio a comparar es opcional.</p>
+          <p>Si ya has escrito datos de tu servicio, puedes probar cualquiera de los dos ejemplos y volver con «Recuperar mi jornada anterior». Se recuperan los campos anteriores al primer ejemplo, también los que dejaste vacíos. Recuperar sustituye lo que ves ahora y requiere volver a comprobar la jornada. La copia solo se conserva mientras sigues en esta página.</p>
           <DayRatePlanner example={dayRateExample} costExample={dayRateCostExample} />
         </div>
       </section>

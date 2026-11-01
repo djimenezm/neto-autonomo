@@ -24,8 +24,11 @@ export default function DayRatePlanner({ example, costExample }: { example: DayR
   const [values, setValues] = useState<Values>(emptyValues);
   const [estimate, setEstimate] = useState<ReturnType<typeof estimateDayRate> | null>(null);
   const [isExample, setIsExample] = useState(false);
+  const [draftBeforeExample, setDraftBeforeExample] = useState<Values | null>(null);
+  const [recoveryFeedback, setRecoveryFeedback] = useState('');
 
   function calculate(nextValues = values) {
+    setRecoveryFeedback('');
     const result = estimateDayRate({
       hourlyRate: parseSpanishNumber(nextValues.hourlyRate),
       sessionHours: parseSpanishNumber(nextValues.sessionHours),
@@ -50,6 +53,11 @@ export default function DayRatePlanner({ example, costExample }: { example: DayR
   }
 
   function loadExample(input: DayRateInput) {
+    // Preserve the first personal draft exactly, even while examples are edited,
+    // checked or switched. An untouched example is not a personal draft.
+    if (!isExample && Object.values(values).some((value) => value.trim() !== '')) {
+      setDraftBeforeExample((previous) => previous ?? { ...values });
+    }
     setIsExample(true);
     calculate({
       hourlyRate: formatNumber(input.hourlyRate),
@@ -59,6 +67,16 @@ export default function DayRatePlanner({ example, costExample }: { example: DayR
       serviceCosts: formatNumber(input.serviceCosts ?? 0),
       proposedPrice: input.proposedPrice === undefined ? '' : formatNumber(input.proposedPrice),
     });
+  }
+
+  function recoverDraft() {
+    if (!draftBeforeExample) return;
+    setValues(draftBeforeExample);
+    setEstimate(null);
+    setIsExample(false);
+    setDraftBeforeExample(null);
+    setRecoveryFeedback('Jornada anterior recuperada. Vuelve a comprobarla para actualizar los resultados.');
+    inputsRef.current.hourlyRate?.focus();
   }
 
   return (
@@ -80,6 +98,7 @@ export default function DayRatePlanner({ example, costExample }: { example: DayR
                     setValues({ ...values, [key]: nextValue });
                     setEstimate(null);
                     setIsExample(false);
+                    setRecoveryFeedback('');
                   }}
                   aria-invalid={Boolean(error)}
                   aria-labelledby={`${id}-${key}-label`}
@@ -95,8 +114,11 @@ export default function DayRatePlanner({ example, costExample }: { example: DayR
           <button className="primary-button" type="submit">Comprobar jornada</button>
           <button type="button" className="link-button" onClick={() => loadExample(example)}>Cargar el ejemplo de la guía</button>
           {costExample ? <button type="button" className="link-button" onClick={() => loadExample(costExample)}>Probar el ejemplo con costes</button> : null}
+          {draftBeforeExample ? <button type="button" className="link-button" onClick={recoverDraft} aria-describedby={`${id}-recovery-hint`}>Recuperar mi jornada anterior</button> : null}
         </div>
       </form>
+      {draftBeforeExample ? <p id={`${id}-recovery-hint`}>Conservamos en esta página los datos anteriores al primer ejemplo. Recuperarlos sustituye los cambios que ves ahora y deja el resultado pendiente de comprobar. La copia se pierde al salir de la página.</p> : null}
+      <div role="status" aria-label="Recuperación de la jornada" aria-live="polite" aria-atomic="true">{recoveryFeedback ? <p>{recoveryFeedback}</p> : null}</div>
       <div role="status" aria-label="Comprobación de jornada y costes" aria-live="polite" aria-atomic="true">
         {estimate && !estimate.valid ? <p>Revisa los campos indicados antes de comprobar la jornada.</p> : null}
         {estimate?.valid ? (

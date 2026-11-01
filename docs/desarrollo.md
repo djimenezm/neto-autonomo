@@ -48,6 +48,43 @@ Los espacios publicitarios están preparados, pero `lib/ads.ts` exige `NEXT_PUBL
 
 ## Revisión local antes de publicar
 
+### Recuperar la jornada propia después de probar ejemplos (1 de noviembre de 2026)
+
+Publicación autorizada el 1 de noviembre de 2026. Reproducción en navegador:
+en la ayuda de tarifa diaria se introducen referencia 37,125 EUR/h, jornada
+de 5,5 h, preparación de 1,25 h, cierre de 0,5 h y costes de 42,75 EUR, dejando
+vacío el precio opcional. «Probar el ejemplo con costes» sustituía los seis
+campos por los ficticios sin permitir recuperar el borrador.
+
+`DayRatePlanner` conserva ahora las seis cadenas anteriores al primer ejemplo
+propio, sin interpretar ni redondear. La misma copia sobrevive a los dos botones
+de ejemplo, ediciones y comprobaciones. «Recuperar mi jornada anterior» restaura
+los campos, consume la copia y limpia resultado, errores y marca de ejemplo;
+enfoca la referencia por hora y pide volver a comprobar. Una nueva edición
+puede iniciar otro ciclo. Empezar vacío y alternar solo los ejemplos no crea
+una copia propia; un cero escrito sí cuenta como dato.
+
+El aviso junto al botón explica que recuperar sustituye los cambios actuales
+y que la copia se pierde al salir. La guía añade las mismas instrucciones.
+No hay almacenamiento persistente, peticiones, parámetros nuevos ni eventos.
+Las fórmulas, referencias fiscales, fechas editoriales, anuncios, piloto y
+seguimientos no cambian. La publicación usa la integración Git existente de Vercel.
+
+Regresión reproducida con cinco pruebas nuevas: cuatro fallaban en el componente
+original por faltar la recuperación y una confirmaba el inicio vacío. Tras el
+cambio pasan las doce pruebas de jornada y recuperación, incluidos valores
+incompletos, espacios, coma decimal, precio vacío, foco y ausencia de envíos.
+Las consultas de resultado existentes se acotan por su nombre accesible para
+distinguir el nuevo aviso de recuperación.
+
+Validación final: 817 pruebas en 81 archivos, lint y compilación correctos.
+En navegador local se recuperan exactamente los seis campos de la reproducción
+después de cargar el primer ejemplo, editarlo, comprobarlo y cargar el de costes.
+El precio opcional sigue vacío, la referencia mantiene sus tres decimales, no
+queda un resultado anterior y la copia se consume. El foco vuelve al primer
+campo; el aviso pide volver a comprobar. Sin errores de consola. Esta es la
+versión validada en local que el usuario ha autorizado publicar.
+
 ### Comparar el precio de un encargo antes del plan mensual (1 de noviembre de 2026)
 
 Publicación autorizada el 1 de noviembre de 2026. El acceso «Tengo un precio para

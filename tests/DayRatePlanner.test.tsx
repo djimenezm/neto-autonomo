@@ -19,10 +19,10 @@ describe('day-rate planner', () => {
   it('loads the clearly marked example without conversion events or stale results after editing', async () => {
     render(<DayRatePlanner example={dayRateExample} />);
     await userEvent.click(screen.getByRole('button', { name: 'Cargar el ejemplo de la guía' }));
-    expect(screen.getByRole('status')).toHaveTextContent('297,28');
-    expect(screen.getByRole('status')).toHaveTextContent('27,87');
-    expect(screen.getByRole('status')).toHaveTextContent('Faltan 74,32');
-    expect(screen.getByRole('status')).toHaveTextContent('Ejemplo hipotético');
+    expect(screen.getByRole('status', { name: 'Comprobación de jornada y costes' })).toHaveTextContent('297,28');
+    expect(screen.getByRole('status', { name: 'Comprobación de jornada y costes' })).toHaveTextContent('27,87');
+    expect(screen.getByRole('status', { name: 'Comprobación de jornada y costes' })).toHaveTextContent('Faltan 74,32');
+    expect(screen.getByRole('status', { name: 'Comprobación de jornada y costes' })).toHaveTextContent('Ejemplo hipotético');
     expect(window.va).not.toHaveBeenCalled();
     expect(window.gtag).not.toHaveBeenCalled();
     fireEvent.change(screen.getByRole('textbox', { name: 'Horas de preparación de este servicio' }), { target: { value: '2' } });
@@ -37,8 +37,8 @@ describe('day-rate planner', () => {
     await user.type(screen.getByRole('textbox', { name: 'Horas de preparación de este servicio' }), '1,5');
     await user.type(screen.getByRole('textbox', { name: 'Horas de cierre y seguimiento' }), '0,5');
     await user.type(screen.getByRole('textbox', { name: 'Costes específicos que debe cubrir el precio (EUR)' }), '0{Enter}');
-    expect(screen.getByRole('status')).toHaveTextContent('6 h');
-    expect(screen.getByRole('status')).toHaveTextContent('303,00');
+    expect(screen.getByRole('status', { name: 'Comprobación de jornada y costes' })).toHaveTextContent('6 h');
+    expect(screen.getByRole('status', { name: 'Comprobación de jornada y costes' })).toHaveTextContent('303,00');
     expect(screen.queryByText('Por hora tras esos costes')).not.toBeInTheDocument();
     expect(screen.getAllByRole('textbox').every((input) => !input.hasAttribute('name'))).toBe(true);
     expect(window.va).not.toHaveBeenCalled();
@@ -51,11 +51,11 @@ describe('day-rate planner', () => {
     const price = screen.getByRole('textbox', { name: 'Precio que estás valorando sin IVA (EUR, opcional)' });
     fireEvent.change(price, { target: { value: '297,28' } });
     await userEvent.click(screen.getByRole('button', { name: 'Comprobar jornada' }));
-    expect(screen.getByRole('status')).toHaveTextContent('El precio coincide');
+    expect(screen.getByRole('status', { name: 'Comprobación de jornada y costes' })).toHaveTextContent('El precio coincide');
     fireEvent.change(price, { target: { value: '350' } });
     await userEvent.click(screen.getByRole('button', { name: 'Comprobar jornada' }));
-    expect(screen.getByRole('status')).toHaveTextContent('Supera tu referencia en 52,72');
-    expect(screen.getByRole('status')).toHaveTextContent('No calcula beneficio neto');
+    expect(screen.getByRole('status', { name: 'Comprobación de jornada y costes' })).toHaveTextContent('Supera tu referencia en 52,72');
+    expect(screen.getByRole('status', { name: 'Comprobación de jornada y costes' })).toHaveTextContent('No calcula beneficio neto');
   });
 
   it('subtracts only specific costs before comparing hourly amounts, and clears edited results', async () => {
@@ -85,8 +85,8 @@ describe('day-rate planner', () => {
     fireEvent.change(costs, { target: { value: '90' } });
     fireEvent.change(screen.getByRole('textbox', { name: 'Precio que estás valorando sin IVA (EUR, opcional)' }), { target: { value: '60' } });
     await userEvent.click(screen.getByRole('button', { name: 'Comprobar jornada' }));
-    expect(screen.getByRole('status')).toHaveTextContent('El precio ni siquiera cubre los costes específicos: faltan 30,00');
-    expect(screen.getByRole('status')).toHaveTextContent('-3,75');
+    expect(screen.getByRole('status', { name: 'Comprobación de jornada y costes' })).toHaveTextContent('El precio ni siquiera cubre los costes específicos: faltan 30,00');
+    expect(screen.getByRole('status', { name: 'Comprobación de jornada y costes' })).toHaveTextContent('-3,75');
   });
 
   it('normalizes entered decimal values before presenting a reproducible comparison', async () => {
@@ -96,8 +96,8 @@ describe('day-rate planner', () => {
     fireEvent.change(costs, { target: { value: '1,005' } });
     fireEvent.submit(screen.getByRole('form', { name: 'Comprobar una tarifa diaria' }));
     expect(costs).toHaveValue('1,01');
-    expect(screen.getByRole('status')).toHaveTextContent('298,29');
-    expect(screen.getByRole('status')).toHaveTextContent('Faltan 75,33');
+    expect(screen.getByRole('status', { name: 'Comprobación de jornada y costes' })).toHaveTextContent('298,29');
+    expect(screen.getByRole('status', { name: 'Comprobación de jornada y costes' })).toHaveTextContent('Faltan 75,33');
     expect(screen.getAllByRole('textbox')).toHaveLength(6);
     expect(screen.getAllByRole('textbox').every((input) => !input.hasAttribute('name'))).toBe(true);
   });
