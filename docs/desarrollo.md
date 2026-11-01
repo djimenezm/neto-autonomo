@@ -48,6 +48,41 @@ Los espacios publicitarios están preparados, pero `lib/ads.ts` exige `NEXT_PUBL
 
 ## Revisión local antes de publicar
 
+### Recuperar los datos propios de una factura tras probar el ejemplo (1 de noviembre de 2026)
+
+Publicación autorizada el 1 de noviembre de 2026. Caso ficticio: base de
+2450,755 EUR, IVA supuesto del 10 % y retención supuesta del 7 %. Probar la
+factura ficticia de 1000 EUR sustituye los tres campos por 1000 / 21 / 15 sin
+permitir volver a los datos propios. No se confirmó un defecto matemático o
+de decisión de mayor impacto en las ayudas revisadas.
+
+`InvoiceCheck` conserva las tres cadenas anteriores al primer ejemplo con
+datos propios escritos, incluidos precisión, espacios, ceros, campos vacíos
+e importes incompletos. Editar, comprobar o repetir el ejemplo mantiene la
+primera copia. «Recuperar mis datos de factura» restaura los campos sin
+calcular, retira resultado y errores, limpia la marca ficticia, consume la
+copia y enfoca la base sin IVA. Pide volver a comprobar la factura. El estado
+vacío y los ejemplos puros no se copian como datos propios; se puede iniciar
+un segundo ciclo tras recuperar y preparar otros datos.
+
+La guía por hora explica la recuperación, la sustitución de los cambios
+actuales y que la copia se pierde al salir o recargar. La ayuda no elige tipos
+ni emite facturas. No cambia el motor, el redondeo, la tabla, las fechas
+editoriales, el selector o el resultado principal y su enlace. Sin nuevos
+campos, almacenamiento persistente, peticiones ni eventos. Anuncios, piloto
+y seguimientos intactos. Se publica por la integración Git existente.
+
+Validación: las 39 pruebas específicas de recuperación, componente, motor y
+guía y la batería completa (869 pruebas en 87 archivos) pasan. ESLint y
+compilación correctos; revisión de accesibilidad sin
+hallazgos. Los cinco casos nuevos cubren cadenas originales, ceros, campos
+incompletos, primera copia, repeticiones, comprobaciones válidas o inválidas
+y un nuevo ciclo, sin almacenamiento ni envíos. En el navegador sobre el
+build local, probar el ejemplo, introducir un IVA malformado, comprobar,
+repetir y recuperar devuelve exactamente 2450,755 / 10 / 7. Se retiran
+resultado y errores, se consume la copia y vuelve el foco a la base. Guía
+visible y consola sin errores.
+
 ### Recuperar la comparación propia de una rebaja de tarifa (1 de noviembre de 2026)
 
 Publicación autorizada el 1 de noviembre de 2026. Reproducción ficticia en la

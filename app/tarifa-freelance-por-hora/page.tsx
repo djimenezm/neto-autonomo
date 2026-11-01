@@ -418,6 +418,13 @@ export default function TarifaFreelancePorHoraPage() {
           <div id="comprobar-factura" className={styles.invoiceCheck}>
             <h3 id="comprobar-cobro">Comprueba una factura con tu base y tus porcentajes</h3>
             <p>Prepara la base sin IVA, antes de retención, y los porcentajes que correspondan a tu caso. Los tres campos empiezan vacíos; el ejemplo anterior no se aplica automáticamente a tus datos.</p>
+            <p>
+              Si ya has escrito tus datos, puedes probar la factura ficticia de 1000 EUR y volver
+              con «Recuperar mis datos de factura». Se recuperan los tres campos anteriores al
+              primer ejemplo, incluidos los que dejaste incompletos. Recuperar sustituye los
+              cambios actuales y retira el resultado: pulsa «Comprobar esta factura» para
+              calcularlo de nuevo. La copia se pierde al salir o recargar la página.
+            </p>
             <InvoiceCheck />
             <p>
               Otro supuesto ficticio: {formatEuro(invoiceGuideExample.baseAmount)} de base con

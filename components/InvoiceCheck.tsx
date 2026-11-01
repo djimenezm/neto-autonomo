@@ -24,8 +24,11 @@ export default function InvoiceCheck() {
   const [values, setValues] = useState<Values>({ baseAmount: '', vatRate: '', withholdingRate: '' });
   const [result, setResult] = useState<ReturnType<typeof checkInvoice> | null>(null);
   const [isExample, setIsExample] = useState(false);
+  const [invoiceBeforeExample, setInvoiceBeforeExample] = useState<Values | null>(null);
+  const [recoveryFeedback, setRecoveryFeedback] = useState('');
 
   function calculate(next = values) {
+    setRecoveryFeedback('');
     const checked = checkInvoice(parseValues(next));
     setResult(checked);
     if (checked.valid) setValues({ baseAmount: formatNumber(checked.baseAmount), vatRate: formatNumber(checked.vatRate), withholdingRate: formatNumber(checked.withholdingRate) });
@@ -33,6 +36,16 @@ export default function InvoiceCheck() {
       const invalid = fields.find(({ key }) => checked.errors[key]);
       if (invalid) refs.current[invalid.key]?.focus();
     }
+  }
+
+  function recoverInvoiceData() {
+    if (!invoiceBeforeExample) return;
+    setValues(invoiceBeforeExample);
+    setResult(null);
+    setIsExample(false);
+    setInvoiceBeforeExample(null);
+    setRecoveryFeedback('Datos de factura recuperados. Vuelve a comprobar la factura para actualizar los resultados.');
+    refs.current.baseAmount?.focus();
   }
 
   return (
@@ -50,7 +63,7 @@ export default function InvoiceCheck() {
             <label key={key} htmlFor={fieldId}>
               <span id={`${fieldId}-label`}>{label}</span>
               <NumericTextInput id={fieldId} ref={(node) => { refs.current[key] = node; }} inputMode="decimal" value={values[key]}
-                onValueChange={(nextValue) => { setValues((previous) => ({ ...previous, [key]: nextValue })); setResult(null); setIsExample(false); }}
+                onValueChange={(nextValue) => { setValues((previous) => ({ ...previous, [key]: nextValue })); setResult(null); setIsExample(false); setRecoveryFeedback(''); }}
                 aria-labelledby={`${fieldId}-label`} aria-describedby={`${fieldId}-hint${error ? ` ${fieldId}-error` : ''}`} aria-invalid={Boolean(error)} />
               <small id={`${fieldId}-hint`}>{hint}</small>
               {error ? <small className="field-error" id={`${fieldId}-error`}>{error}</small> : null}
@@ -61,10 +74,18 @@ export default function InvoiceCheck() {
       <div className={styles.actions}>
         <button type="button" className="primary-button" onClick={() => calculate()}>Comprobar esta factura</button>
         <button type="button" className="link-button" onClick={() => {
+          // Preserve the first personal inputs exactly, even before they are complete.
+          // Repeated examples, edits and checks must not replace that copy.
+          if (!isExample && Object.values(values).some((value) => value.trim() !== '')) {
+            setInvoiceBeforeExample((previous) => previous ?? { ...values });
+          }
           setIsExample(true);
           calculate({ baseAmount: formatNumber(invoiceCheckExample.baseAmount), vatRate: formatNumber(invoiceCheckExample.vatRate), withholdingRate: formatNumber(invoiceCheckExample.withholdingRate) });
         }}>Probar la factura ficticia de 1000 €</button>
+        {invoiceBeforeExample ? <button type="button" className="link-button" onClick={recoverInvoiceData} aria-describedby={`${id}-recovery-hint`}>Recuperar mis datos de factura</button> : null}
       </div>
+      {invoiceBeforeExample ? <p className={styles.note} id={`${id}-recovery-hint`}>Conservamos en esta página los datos anteriores al primer ejemplo. Recuperarlos sustituye los cambios que ves ahora y deja el resultado pendiente de comprobar. La copia se pierde al salir o recargar la página.</p> : null}
+      <div role="status" aria-label="Recuperación de los datos de factura" aria-live="polite" aria-atomic="true">{recoveryFeedback ? <p>{recoveryFeedback}</p> : null}</div>
       <div role="status" aria-label="Comprobación de una factura" aria-live="polite" aria-atomic="true">
         {result && !result.valid ? <p>Revisa los campos indicados para comprobar la factura.</p> : null}
         {result?.valid ? (
