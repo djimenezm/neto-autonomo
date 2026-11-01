@@ -48,6 +48,28 @@ Los espacios publicitarios están preparados, pero `lib/ads.ts` exige `NEXT_PUBL
 
 ## Revisión local antes de publicar
 
+### Aclarar la reserva manual de IRPF (1 de noviembre de 2026)
+
+Publicación autorizada el 1 de noviembre de 2026: aclaración de la reserva
+manual de IRPF, con anuncios, piloto y seguimientos intactos. El campo «IRPF
+manual (%)» pasa a llamarse «Reserva de IRPF para la simulación (%)». El texto del modo
+manual identifica su uso para estimar la facturación. Junto al porcentaje
+se explica que es una reserva elegida para la simulación, no la retención
+de una factura, y que no determina el tipo de IRPF que corresponde.
+
+La ayuda permanece asociada al campo mediante `aria-describedby`; al validar,
+se añade también la referencia al error. `aria-labelledby` mantiene un nombre
+accesible breve. No cambian valores, fórmulas, validaciones, parámetros del
+GET, eventos, anuncios, piloto o seguimientos.
+
+Validación: 39 pruebas existentes del formulario y coherencia del resultado,
+lint y compilación correctos. Solo se actualizan en las pruebas los nombres
+del control. En navegador, el ejemplo ficticio de 1800 EUR netos, 250 EUR de
+gastos, 100 horas, reserva manual del 15 % y cuota de 320 EUR conserva
+2687,65 EUR/mes y 26,88 EUR/h. Con un porcentaje de 100 se mantienen la ayuda
+y el error en la descripción accesible y el foco vuelve al campo. Sin errores
+en la consola revisada.
+
 ### Recuperar la combinación de servicios tras probar el ejemplo (31 de octubre de 2026)
 
 Publicación autorizada el 31 de octubre de 2026: recuperación de servicios

@@ -356,7 +356,7 @@ describe('CalculatorForm', () => {
   it.each([
     ['Gastos mensuales deducibles (EUR)', '1,,50', '250'],
     ['Horas facturables al mes', '100\t200', '40'],
-    ['IRPF manual (%)', '15%5', '15.5'],
+    ['Reserva de IRPF para la simulación (%)', '15%5', '15.5'],
   ])('blocks a malformed paste in %s until corrected and calculated again', async (label, pasted, correction) => {
     const user = userEvent.setup();
     render(<CalculatorForm initiallySubmitted initialValues={{ irpfMode: 'manual', selfEmployedFeeMode: 'manual', selfEmployedFee: '320' }} />);
@@ -494,7 +494,7 @@ describe('CalculatorForm', () => {
     );
 
     const irpfInput = screen.getByRole('spinbutton', {
-      name: /irpf manual/i,
+      name: /reserva de irpf para la simulación/i,
     });
 
     await user.clear(irpfInput);

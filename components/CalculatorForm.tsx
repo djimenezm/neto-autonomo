@@ -451,7 +451,7 @@ export default function CalculatorForm({
             {irpfMode === 'progressive' &&
               'Usamos una estimación anual por tramos sobre beneficio, con mínimo personal estatal y una aproximación simplificada de la parte autonómica.'}
             {irpfMode === 'manual' &&
-              'Usaremos exactamente el porcentaje de IRPF que indiques para la simulación.'}
+              'Usaremos la reserva de IRPF que indiques para estimar tu objetivo de facturación.'}
           </small>
         </label>
 
@@ -478,7 +478,7 @@ export default function CalculatorForm({
 
         {irpfMode === 'manual' && (
           <label>
-            <span>IRPF manual (%)</span>
+            <span id="irpf-rate-label">Reserva de IRPF para la simulación (%)</span>
             <input
               name="irpfRate"
               type="number"
@@ -490,8 +490,13 @@ export default function CalculatorForm({
               onPaste={(event) => handleNumericPaste(event, 'irpfRate', setIrpfRate)}
               onBlur={(event) => setIrpfRate(normalizeFieldValue('irpfRate', event.target.value))}
               aria-invalid={showFieldError('irpfRate')}
-              aria-describedby={showFieldError('irpfRate') ? 'irpf-rate-error' : undefined}
+              aria-labelledby="irpf-rate-label"
+              aria-describedby={`irpf-rate-hint${showFieldError('irpfRate') ? ' irpf-rate-error' : ''}`}
             />
+            <small className="field-hint" id="irpf-rate-hint">
+              Es la reserva que eliges para esta simulación, no la retención de una factura.
+              No determina el tipo de IRPF que te corresponde.
+            </small>
             {showFieldError('irpfRate') && (
               <small className="field-error" id="irpf-rate-error" role="alert">
                 {validationErrors.irpfRate}

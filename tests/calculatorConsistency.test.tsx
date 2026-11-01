@@ -53,7 +53,7 @@ describe('calculated results and shared scenarios stay together', () => {
     ['Gastos mensuales deducibles (EUR)', '475'],
     ['Gastos mensuales no deducibles (EUR)', '60'],
     ['Horas facturables al mes', '60'],
-    ['IRPF manual (%)', '18'],
+    ['Reserva de IRPF para la simulación (%)', '18'],
     ['Cuota manual de autónomos (EUR)', '350'],
   ])('requires recalculation after editing %s', async (name, value) => {
     render(<CalculatorForm initialValues={manualValues} initiallySubmitted />);
@@ -79,7 +79,7 @@ describe('calculated results and shared scenarios stay together', () => {
   it('keeps the Enter calculation and the encoded percentage identical after rounding', async () => {
     const user = userEvent.setup();
     render(<CalculatorForm initialValues={manualValues} />);
-    const rate = screen.getByRole('spinbutton', { name: 'IRPF manual (%)' });
+    const rate = screen.getByRole('spinbutton', { name: 'Reserva de IRPF para la simulación (%)' });
     await user.clear(rate);
     await user.type(rate, '15.55{Enter}');
     const { summary, link } = summaryAndLink();
