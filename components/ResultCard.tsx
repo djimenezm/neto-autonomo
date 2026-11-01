@@ -238,6 +238,10 @@ const ResultCard = forwardRef<HTMLElement, ResultCardProps>(function ResultCard(
               Comparte el resumen detallado con el enlace de la calculadora al final. Así la otra
               persona ve primero los números y luego puede abrir el escenario precargado.
             </p>
+            <p id="result-share-scope">
+              El enlace conserva el cálculo principal, pero no los datos que hayas introducido
+              en las ayudas, como los de un encargo o una combinación de servicios.
+            </p>
           </div>
           <script
             dangerouslySetInnerHTML={{
@@ -248,6 +252,7 @@ const ResultCard = forwardRef<HTMLElement, ResultCardProps>(function ResultCard(
             className="result-share-text"
             readOnly
             aria-label="Resumen detallado para compartir"
+            aria-describedby="result-share-scope"
             value={channelShareUrls.text}
           />
           <div className="result-share-actions" aria-label="Opciones para compartir el resultado">

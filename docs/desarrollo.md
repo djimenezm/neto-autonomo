@@ -48,6 +48,26 @@ Los espacios publicitarios están preparados, pero `lib/ads.ts` exige `NEXT_PUBL
 
 ## Revisión local antes de publicar
 
+### Aclarar qué conserva el enlace compartido (1 de noviembre de 2026)
+
+Publicación autorizada el 1 de noviembre de 2026: aclaración del alcance del
+enlace compartido, con anuncios, piloto y seguimientos intactos. Junto al resumen
+y las opciones para compartir se indica que conserva el cálculo principal, pero no
+los datos de las ayudas; se citan el encargo y la combinación de servicios.
+La nota queda asociada al área de texto mediante `aria-describedby`.
+
+Solo cambia la explicación del alcance: no se modifican el contenido del
+resumen, el enlace, sus parámetros, los canales de envío ni el almacenamiento.
+No cambian fórmulas, eventos, anuncios, piloto o seguimientos.
+
+Validación: 25 pruebas existentes de coherencia del resultado, encargos y
+servicios combinados, lint y compilación correctos. Las pruebas comprueban
+que las ayudas no alteran el resumen ni el enlace compartido. En navegador
+se revisa la nota junto al resumen y los canales, su descripción accesible,
+la conservación del texto compartido y el resultado del ejemplo ficticio
+de 1800 EUR netos: 2687,65 EUR/mes y 26,88 EUR/h. Sin errores en la consola
+revisada.
+
 ### Acceso a precio y horas de un encargo desde el selector (1 de noviembre de 2026)
 
 Publicación autorizada el 1 de noviembre de 2026: acceso para valorar un
