@@ -48,6 +48,36 @@ Los espacios publicitarios están preparados, pero `lib/ads.ts` exige `NEXT_PUBL
 
 ## Revisión local antes de publicar
 
+### Acceso a precio y horas de un encargo desde el selector (1 de noviembre de 2026)
+
+Publicación autorizada el 1 de noviembre de 2026: acceso para valorar un
+encargo desde el selector, con anuncios, piloto y seguimientos intactos.
+«Antes de aceptar» incorpora
+la tarjeta «Tengo un precio para un encargo», con acceso directo al comprobador
+existente en `/cuanto-facturar-autonomo-3000-euros#plan-encargos`.
+Se indica preparar el precio total sin IVA y todas las horas, y se explica
+que la ayuda comprueba encargos iguales frente al objetivo y capacidad del mes.
+
+La tarjeta identifica la referencia ficticia de 3000 EUR netos de la guía y
+explica cómo usar el comprobador desde un resultado propio. Un segundo enlace
+lleva a la calculadora para preparar esa referencia. El selector mantiene sus
+cuatro grupos, ahora con nueve decisiones, y continúa funcionando como HTML
+sin formulario ni JavaScript. No se crea una herramienta o ruta nueva ni se
+trasladan datos al destino.
+
+Es una mejora de acceso: no cambia el comprobador, el motor, los valores,
+las fórmulas, los eventos, anuncios, piloto o seguimientos. Se conservan las
+fechas editoriales de las guías y sitemap.
+
+Validación: 12 pruebas existentes del selector, comprobador y guía, lint y
+compilación correctos. Las pruebas recorren todos los enlaces del selector
+contra las secciones del HTML real de destino. En navegador se sigue la nueva
+tarjeta hasta el mismo comprobador, con sus campos vacíos y referencia de
+4149,41 EUR sin IVA y 80 horas. El caso ficticio de 600 EUR y 30 horas calcula
+7 encargos y 210 horas, de los que caben 2; también se comprueba el acceso a
+la calculadora para obtener una referencia propia. Sin errores en la consola
+revisada.
+
 ### Aclarar la reserva manual de IRPF (1 de noviembre de 2026)
 
 Publicación autorizada el 1 de noviembre de 2026: aclaración de la reserva
