@@ -30,9 +30,12 @@ export default function ProjectReview() {
   const [values, setValues] = useState<Values>({ hourlyReference: '', finalPrice: '', plannedHours: '', actualHours: '' });
   const [checked, setChecked] = useState<Values | null>(null);
   const [isExample, setIsExample] = useState(false);
+  const [reviewBeforeExample, setReviewBeforeExample] = useState<Values | null>(null);
+  const [recoveryFeedback, setRecoveryFeedback] = useState('');
   const review = checked ? reviewProject(parseValues(checked)) : null;
 
   function calculate(next = values) {
+    setRecoveryFeedback('');
     const result = reviewProject(parseValues(next));
     const normalized = result.valid ? {
       hourlyReference: formatNumber(result.hourlyReference),
@@ -46,6 +49,16 @@ export default function ProjectReview() {
       const invalid = fields.find(({ key }) => result.errors[key]);
       if (invalid) refs.current[invalid.key]?.focus();
     }
+  }
+
+  function recoverReview() {
+    if (!reviewBeforeExample) return;
+    setValues(reviewBeforeExample);
+    setChecked(null);
+    setIsExample(false);
+    setReviewBeforeExample(null);
+    setRecoveryFeedback('Revisión anterior recuperada. Vuelve a revisar el encargo para actualizar los resultados.');
+    refs.current.hourlyReference?.focus();
   }
 
   return (
@@ -63,7 +76,7 @@ export default function ProjectReview() {
             <label key={key}>
               <span id={`${id}-${key}-label`}>{label}</span>
               <NumericTextInput ref={(node) => { refs.current[key] = node; }} inputMode="decimal" value={values[key]}
-                onValueChange={(nextValue) => { setValues({ ...values, [key]: nextValue }); setChecked(null); setIsExample(false); }}
+                onValueChange={(nextValue) => { setValues({ ...values, [key]: nextValue }); setChecked(null); setIsExample(false); setRecoveryFeedback(''); }}
                 aria-labelledby={`${id}-${key}-label`} aria-describedby={`${id}-${key}-hint${error ? ` ${id}-${key}-error` : ''}`} aria-invalid={Boolean(error)} />
               <small id={`${id}-${key}-hint`}>{hint}</small>
               {error ? <small className="field-error" id={`${id}-${key}-error`}>{error}</small> : null}
@@ -74,10 +87,18 @@ export default function ProjectReview() {
       <div className={styles.actions}>
         <button type="button" className="primary-button" onClick={() => calculate()}>Revisar encargo</button>
         <button type="button" className="link-button" onClick={() => {
+          // Keep the first personal review exactly, including incomplete inputs.
+          // Repeated examples and later checks must not replace that draft.
+          if (!isExample && Object.values(values).some((value) => value.trim() !== '')) {
+            setReviewBeforeExample((previous) => previous ?? { ...values });
+          }
           setIsExample(true);
           calculate({ hourlyReference: formatNumber(projectReviewExample.hourlyReference), finalPrice: formatNumber(projectReviewExample.finalPrice), plannedHours: formatNumber(projectReviewExample.plannedHours), actualHours: formatNumber(projectReviewExample.actualHours) });
         }}>Probar el ejemplo de 400 €</button>
+        {reviewBeforeExample ? <button type="button" className="link-button" onClick={recoverReview} aria-describedby={`${id}-recovery-hint`}>Recuperar mi revisión anterior</button> : null}
       </div>
+      {reviewBeforeExample ? <p className={styles.note} id={`${id}-recovery-hint`}>Conservamos en esta página la revisión anterior al primer ejemplo. Recuperarla sustituye los cambios que ves ahora y deja el resultado pendiente de revisar. La copia se pierde al salir o recargar la página.</p> : null}
+      <div role="status" aria-label="Recuperación de la revisión" aria-live="polite" aria-atomic="true">{recoveryFeedback ? <p>{recoveryFeedback}</p> : null}</div>
       <div role="status" aria-label="Revisión del encargo" aria-live="polite" aria-atomic="true">
         {review && !review.valid ? <p>Revisa los campos indicados para comparar el encargo.</p> : null}
         {review?.valid ? (

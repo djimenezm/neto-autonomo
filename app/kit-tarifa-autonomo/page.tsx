@@ -324,6 +324,7 @@ export default function KitTarifaAutonomoPage() {
             impuestos. No es beneficio neto ni confirma el cobro de la factura. Los costes
             extraordinarios del encargo que no estén en tu referencia se revisan aparte.
           </div>
+          <p>Si ya has escrito tus datos, puedes probar el ejemplo y volver con «Recuperar mi revisión anterior». Se recuperan los cuatro campos anteriores al primer ejemplo, incluidos los que dejaste incompletos. Recuperar sustituye los cambios actuales y retira el resultado: pulsa «Revisar encargo» para calcularlo de nuevo. La copia se pierde al salir o recargar la página.</p>
           <ProjectReview />
           <p>
             Guarda la revisión en la ficha descargable. Anota la causa concreta de las horas

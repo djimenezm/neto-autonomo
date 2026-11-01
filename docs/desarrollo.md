@@ -48,6 +48,38 @@ Los espacios publicitarios están preparados, pero `lib/ads.ts` exige `NEXT_PUBL
 
 ## Revisión local antes de publicar
 
+### Recuperar la revisión propia de un encargo terminado (1 de noviembre de 2026)
+
+Publicación autorizada el 1 de noviembre de 2026. Reproducción ficticia en el
+kit: referencia de 45,005 EUR/h, precio pactado de 850,50 EUR, previsión de
+18,5 h y registro de 23,75 h. Probar el ejemplo de 400 EUR sustituía los cuatro
+campos por 40 / 400 / 8 / 12 sin permitir recuperar la revisión propia. La
+pérdida afecta a horas ya registradas y al precio de un trabajo terminado.
+
+`ProjectReview` conserva ahora las cuatro cadenas del borrador antes de probar
+el primer ejemplo, incluidas precisión, espacios, ceros, vacíos e importes incompletos.
+Editar, volver a revisar o repetir el ejemplo mantiene la primera copia.
+«Recuperar mi revisión anterior» restaura el borrador sin calcular, retira el
+resultado y los errores, limpia la marca ficticia, consume la copia y enfoca
+la referencia por hora. Pide volver a revisar el encargo. Un nuevo borrador
+puede iniciar otro ciclo; un ejemplo puro no se conserva como datos propios.
+
+El kit explica la recuperación y que la copia se pierde al salir o recargar.
+No cambia el motor, el redondeo, la ficha descargable, las fechas editoriales,
+el acceso desde el resultado ni su resumen o enlace compartido. Sin nuevos
+campos, rutas, almacenamiento persistente, peticiones ni eventos. Anuncios,
+piloto y seguimientos intactos. Se publica por la integración Git existente.
+
+Validación: las 31 pruebas específicas de recuperación, componente, motor y kit
+y la batería completa (859 pruebas en 85 archivos) pasan, al igual que ESLint
+y la compilación completa. En el navegador, sobre
+el build local, probar el ejemplo, editar sus horas, revisar y repetir el
+ejemplo permite recuperar exactamente 45,005 / 850,50 / 18,5 / 23,75. El
+resultado queda vacío, desaparece la recuperación consumida y el foco vuelve
+a la referencia por hora. Guía visible y consola sin errores. Los cinco
+casos nuevos cubren también borradores incompletos, ceros, repetición,
+revisión válida o inválida y un segundo ciclo, sin almacenamiento ni envíos.
+
 ### Recuperar el borrador al abrir un archivo de caja por fechas (1 de noviembre de 2026)
 
 Publicación autorizada el 1 de noviembre de 2026. Reproducción: un borrador
