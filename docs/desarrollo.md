@@ -48,6 +48,40 @@ Los espacios publicitarios están preparados, pero `lib/ads.ts` exige `NEXT_PUBL
 
 ## Revisión local antes de publicar
 
+### Recuperar la comparación propia de una rebaja de tarifa (1 de noviembre de 2026)
+
+Publicación autorizada el 1 de noviembre de 2026. Reproducción ficticia en la
+guía por hora: tarifa de 52,505 EUR/h, rebaja del 7,5 %, 64,25 h facturadas y
+90,5 h de capacidad. Probar la rebaja ficticia del 10 % sustituye esos cuatro
+datos por 40 / 10 / 80 / 80 sin ofrecer vuelta al borrador propio. Una revisión
+del motor no detectó un error matemático de mayor impacto en esta ayuda.
+
+`RateDiscountPlanner` conserva ahora las cuatro cadenas del borrador antes de
+probar el primer ejemplo. Incluye precisión, espacios, ceros deliberados,
+campos vacíos e importes incompletos. Editar, comprobar o repetir el ejemplo
+mantiene la primera copia. «Recuperar mi comparación anterior» restaura el
+borrador sin calcular, retira resultado y errores, limpia la marca ficticia,
+consume la copia y enfoca la tarifa actual por hora. Pide volver a comprobar
+la rebaja. Un nuevo borrador puede iniciar otro ciclo; los ejemplos puros o
+el estado vacío no se ofrecen como una comparación propia recuperable.
+
+La guía explica la sustitución de los campos, el nuevo cálculo explícito y
+que la copia se pierde al salir o recargar la página. Sin cambios en motor,
+redondeo, fechas editoriales, tabla, selector, enlace compartido o resultado
+principal. Sin almacenamiento persistente, peticiones ni eventos nuevos.
+Anuncios, piloto y seguimientos intactos. Se publica por la integración Git existente.
+
+Validación: 36 pruebas específicas de componente, recuperación, motor y guía,
+y la batería completa (864 pruebas en 86 archivos), todas correctas. ESLint,
+compilación y revisión de accesibilidad sin hallazgos. Los cinco casos nuevos
+cubren cadenas sin normalizar, ceros, campos incompletos, primera copia,
+repeticiones, comprobaciones válidas o inválidas y un nuevo ciclo, sin envíos
+ni almacenamiento. En el navegador sobre el build local, probar el ejemplo,
+introducir una rebaja malformada, comprobar, repetir y recuperar devuelve
+52,505 / 7,5 / 64,25 / 90,5 exactamente. Se retiran resultado y errores,
+se consume la copia y vuelve el foco a la tarifa. Guía visible y consola
+sin errores.
+
 ### Recuperar la revisión propia de un encargo terminado (1 de noviembre de 2026)
 
 Publicación autorizada el 1 de noviembre de 2026. Reproducción ficticia en el

@@ -21,8 +21,11 @@ export default function RateDiscountPlanner() {
   const [values, setValues] = useState<Values>({ hourlyRate: '', discountPercent: '', currentHours: '', capacityHours: '' });
   const [result, setResult] = useState<ReturnType<typeof compareRateDiscount> | null>(null);
   const [isExample, setIsExample] = useState(false);
+  const [comparisonBeforeExample, setComparisonBeforeExample] = useState<Values | null>(null);
+  const [recoveryFeedback, setRecoveryFeedback] = useState('');
 
   function calculate(next = values) {
+    setRecoveryFeedback('');
     const estimate = compareRateDiscount({ hourlyRate: parseSpanishNumber(next.hourlyRate), discountPercent: parseSpanishNumber(next.discountPercent), currentHours: parseSpanishNumber(next.currentHours), capacityHours: parseSpanishNumber(next.capacityHours) });
     setResult(estimate);
     if (estimate.valid) setValues({ hourlyRate: formatNumber(estimate.hourlyRate), discountPercent: formatNumber(estimate.discountPercent), currentHours: formatNumber(estimate.currentHours), capacityHours: formatNumber(estimate.capacityHours) });
@@ -30,6 +33,16 @@ export default function RateDiscountPlanner() {
       const invalid = fields.find(({ key }) => estimate.errors[key]);
       if (invalid) refs.current[invalid.key]?.focus();
     }
+  }
+
+  function recoverComparison() {
+    if (!comparisonBeforeExample) return;
+    setValues(comparisonBeforeExample);
+    setResult(null);
+    setIsExample(false);
+    setComparisonBeforeExample(null);
+    setRecoveryFeedback('Comparación anterior recuperada. Vuelve a comprobar la rebaja para actualizar los resultados.');
+    refs.current.hourlyRate?.focus();
   }
 
   return (
@@ -46,7 +59,7 @@ export default function RateDiscountPlanner() {
             <label key={key}>
               <span id={`${id}-${key}-label`}>{label}</span>
               <NumericTextInput inputMode="decimal" value={values[key]} ref={(node) => { refs.current[key] = node; }}
-                onValueChange={(nextValue) => { setValues({ ...values, [key]: nextValue }); setResult(null); setIsExample(false); }}
+                onValueChange={(nextValue) => { setValues({ ...values, [key]: nextValue }); setResult(null); setIsExample(false); setRecoveryFeedback(''); }}
                 aria-labelledby={`${id}-${key}-label`} aria-describedby={`${id}-${key}-hint${error ? ` ${id}-${key}-error` : ''}`} aria-invalid={Boolean(error)} />
               <small id={`${id}-${key}-hint`}>{hint}</small>
               {error ? <small className="field-error" id={`${id}-${key}-error`}>{error}</small> : null}
@@ -57,10 +70,18 @@ export default function RateDiscountPlanner() {
       <div className={styles.actions}>
         <button type="button" className="primary-button" onClick={() => calculate()}>Comprobar rebaja de tarifa</button>
         <button type="button" className="link-button" onClick={() => {
+          // Keep the first personal comparison exactly, including unfinished inputs.
+          // Later edits, checks and examples must not replace that draft.
+          if (!isExample && Object.values(values).some((value) => value.trim() !== '')) {
+            setComparisonBeforeExample((previous) => previous ?? { ...values });
+          }
           setIsExample(true);
           calculate({ hourlyRate: formatNumber(rateDiscountExample.hourlyRate), discountPercent: formatNumber(rateDiscountExample.discountPercent), currentHours: formatNumber(rateDiscountExample.currentHours), capacityHours: formatNumber(rateDiscountExample.capacityHours) });
         }}>Probar la rebaja ficticia del 10 %</button>
+        {comparisonBeforeExample ? <button type="button" className="link-button" onClick={recoverComparison} aria-describedby={`${id}-recovery-hint`}>Recuperar mi comparación anterior</button> : null}
       </div>
+      {comparisonBeforeExample ? <p className={styles.note} id={`${id}-recovery-hint`}>Conservamos en esta página la comparación anterior al primer ejemplo. Recuperarla sustituye los cambios que ves ahora y deja el resultado pendiente de comprobar. La copia se pierde al salir o recargar la página.</p> : null}
+      <div role="status" aria-label="Recuperación de la comparación" aria-live="polite" aria-atomic="true">{recoveryFeedback ? <p>{recoveryFeedback}</p> : null}</div>
       <div role="status" aria-label="Rebaja de tarifa y capacidad" aria-live="polite" aria-atomic="true">
         {result && !result.valid ? <p>Revisa los datos indicados antes de comparar la rebaja.</p> : null}
         {result?.valid ? (

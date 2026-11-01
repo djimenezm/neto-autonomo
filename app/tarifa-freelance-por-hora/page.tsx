@@ -288,6 +288,13 @@ export default function TarifaFreelancePorHoraPage() {
             Son 8,89 h adicionales, aproximadamente un 11,11 % más de tiempo. Con 80 h disponibles
             no cabe; con 100 h cabría por horas, pero aún tendrías que venderlas.
           </p>
+          <p>
+            Si ya has escrito tus datos, puedes probar la rebaja ficticia del 10 % y volver con
+            «Recuperar mi comparación anterior». Se recuperan los cuatro campos anteriores al
+            primer ejemplo, incluidos los que dejaste incompletos. Recuperar sustituye los cambios
+            actuales y retira el resultado: pulsa «Comprobar rebaja de tarifa» para calcularlo de
+            nuevo. La copia se pierde al salir o recargar la página.
+          </p>
           <RateDiscountPlanner />
           <p>
             Método: tarifa nueva = tarifa de partida × (1 − rebaja ÷ 100), redondeada a céntimos.
