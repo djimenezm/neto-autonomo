@@ -48,6 +48,42 @@ Los espacios publicitarios están preparados, pero `lib/ads.ts` exige `NEXT_PUBL
 
 ## Revisión local antes de publicar
 
+### Recuperar los meses y las horas del calendario anual (1 de noviembre de 2026)
+
+Publicación autorizada el 2 de noviembre de 2026. Reproducción ficticia en la
+guía de 1500 EUR: 9 meses activos y 85,505 horas por mes. Probar 10 meses de
+70 horas sustituye los dos campos sin permitir recuperar el calendario propio.
+No se confirmó un defecto matemático de mayor impacto en las ayudas revisadas.
+
+`AnnualBillingPlanner` conserva en `PlanEditor` la primera copia de los dos
+textos propios antes del ejemplo. Incluye precisión, espacios, ceros, vacíos
+y datos incompletos. Editar, comprobar o repetir el ejemplo no sustituye la
+copia. «Recuperar mi calendario anterior» restaura los campos sin calcular,
+retira resultado y errores, limpia la marca ficticia, consume la copia y
+enfoca los meses activos. Pide volver a comprobar el plan y permite un nuevo
+ciclo. El estado vacío y los ejemplos intactos no se copian como datos propios.
+
+Se mantiene `key={monthlyBilling}`: cambiar la referencia mensual reinicia
+campos, resultado, copia y mensajes. Volver a la referencia anterior no
+recupera datos del cálculo previo. La guía de 1500 EUR y el aviso junto al
+botón aclaran ese límite, además de la pérdida al salir o recargar la página.
+Se usa el mismo estado accesible del resultado para anunciar la recuperación.
+Sin cambios en motor, redondeo, fechas editoriales, tabla, selector, resultado
+principal o enlace compartido. Sin nuevos campos, almacenamiento persistente,
+peticiones ni eventos. Anuncios, piloto y seguimientos intactos. Se publica por la integración Git existente.
+
+Validación: 34 pruebas específicas de recuperación, componente, motor y guía
+y la batería completa (881 pruebas en 89 archivos), todas correctas. ESLint
+y compilación correctos. Revisión de accesibilidad sin hallazgos.
+Los seis casos nuevos cubren textos originales, ceros inválidos, campos
+incompletos, primera copia, repeticiones, comprobaciones válidas o inválidas
+y segundo ciclo. Mantener la misma referencia conserva la copia; cambiarla
+reinicia el calendario, la copia y los mensajes, sin recuperarlos al volver
+al valor anterior. No hay almacenamiento ni envíos. En el navegador sobre
+el build local, probar el ejemplo, comprobar 13 meses, repetir y recuperar
+devuelve exactamente 9 / 85,505. Se retiran el resultado y los errores; se consume
+la copia y vuelve el foco a meses activos. Guía visible y consola sin errores.
+
 ### Recuperar precio y horas al valorar un encargo (1 de noviembre de 2026)
 
 Publicación autorizada el 1 de noviembre de 2026. Reproducción ficticia en la

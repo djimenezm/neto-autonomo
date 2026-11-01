@@ -19,9 +19,12 @@ function PlanEditor({ monthlyBilling }: { monthlyBilling: number }) {
   const [values, setValues] = useState<Values>({ activeMonths: '', hoursPerActiveMonth: '' });
   const [checked, setChecked] = useState<Values | null>(null);
   const [isExample, setIsExample] = useState(false);
+  const [calendarBeforeExample, setCalendarBeforeExample] = useState<Values | null>(null);
+  const [recoveryFeedback, setRecoveryFeedback] = useState('');
   const plan = checked ? planAnnualBilling({ monthlyBilling, activeMonths: parseSpanishNumber(checked.activeMonths), hoursPerActiveMonth: parseSpanishNumber(checked.hoursPerActiveMonth) }) : null;
 
   function calculate(next = values) {
+    setRecoveryFeedback('');
     const result = planAnnualBilling({ monthlyBilling, activeMonths: parseSpanishNumber(next.activeMonths), hoursPerActiveMonth: parseSpanishNumber(next.hoursPerActiveMonth) });
     const normalized = result.valid ? { activeMonths: String(result.activeMonths), hoursPerActiveMonth: formatNumber(result.hoursPerActiveMonth) } : next;
     setValues(normalized);
@@ -30,6 +33,16 @@ function PlanEditor({ monthlyBilling }: { monthlyBilling: number }) {
       const invalid = fields.find(({ key }) => result.errors[key]);
       if (invalid) refs.current[invalid.key]?.focus();
     }
+  }
+
+  function recoverCalendar() {
+    if (!calendarBeforeExample) return;
+    setValues(calendarBeforeExample);
+    setChecked(null);
+    setIsExample(false);
+    setCalendarBeforeExample(null);
+    setRecoveryFeedback('Calendario anterior recuperado. Vuelve a comprobar el plan anual para actualizar los resultados.');
+    refs.current.activeMonths?.focus();
   }
 
   return (
@@ -47,7 +60,7 @@ function PlanEditor({ monthlyBilling }: { monthlyBilling: number }) {
             <label key={key}>
               <span id={`${id}-${key}-label`}>{label}</span>
               <NumericTextInput ref={(node) => { refs.current[key] = node; }} inputMode={key === 'activeMonths' ? 'numeric' : 'decimal'} value={values[key]}
-                onValueChange={(nextValue) => { setValues({ ...values, [key]: nextValue }); setChecked(null); setIsExample(false); }}
+                onValueChange={(nextValue) => { setValues({ ...values, [key]: nextValue }); setChecked(null); setIsExample(false); setRecoveryFeedback(''); }}
                 aria-labelledby={`${id}-${key}-label`} aria-describedby={`${id}-${key}-hint${error ? ` ${id}-${key}-error` : ''}`} aria-invalid={Boolean(error)} />
               <small id={`${id}-${key}-hint`}>{hint}</small>
               {error ? <small className="field-error" id={`${id}-${key}-error`}>{error}</small> : null}
@@ -57,9 +70,20 @@ function PlanEditor({ monthlyBilling }: { monthlyBilling: number }) {
       </fieldset>
       <div className={styles.actions}>
         <button type="button" className="primary-button" onClick={() => calculate()}>Comprobar plan anual</button>
-        <button type="button" className="link-button" onClick={() => { setIsExample(true); calculate({ activeMonths: '10', hoursPerActiveMonth: '70' }); }}>Probar 10 meses de 70 horas</button>
+        <button type="button" className="link-button" onClick={() => {
+          // Keep the first personal calendar exactly, including unfinished inputs.
+          // This copy shares the editor's lifetime and resets with the monthly reference.
+          if (!isExample && Object.values(values).some((value) => value.trim() !== '')) {
+            setCalendarBeforeExample((previous) => previous ?? { ...values });
+          }
+          setIsExample(true);
+          calculate({ activeMonths: '10', hoursPerActiveMonth: '70' });
+        }}>Probar 10 meses de 70 horas</button>
+        {calendarBeforeExample ? <button type="button" className="link-button" onClick={recoverCalendar} aria-describedby={`${id}-recovery-hint`}>Recuperar mi calendario anterior</button> : null}
       </div>
+      {calendarBeforeExample ? <p className={styles.note} id={`${id}-recovery-hint`}>Conservamos en esta página los meses y las horas anteriores al primer ejemplo. Recuperarlos sustituye los cambios que ves ahora y deja el resultado pendiente de comprobar. La copia se pierde al salir, recargar o cambiar la referencia mensual.</p> : null}
       <div role="status" aria-label="Plan anual de facturación" aria-live="polite" aria-atomic="true">
+        {recoveryFeedback ? <p>{recoveryFeedback}</p> : null}
         {plan && !plan.valid ? <p>{plan.errors.monthlyBilling ?? 'Revisa los campos indicados antes de comprobar el plan.'}</p> : null}
         {plan?.valid ? (
           <div className={styles.result}>

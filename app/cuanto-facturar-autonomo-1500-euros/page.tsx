@@ -277,6 +277,13 @@ export default function CuantoFacturarAutonomo1500EurosPage() {
           </p>
           <h3 id="comprobar-plan-anual">Comprueba tus meses activos sobre este ejemplo</h3>
           <p>Esta ayuda usa la facturación del caso ligero. Para usar tus propios costes y neto, ajusta el cálculo y abre «Planificar los meses sin facturación» en tu resultado.</p>
+          <p>
+            Si ya has escrito tus datos, puedes probar los 10 meses de 70 horas y volver con
+            «Recuperar mi calendario anterior». Se recuperan los dos campos anteriores al primer
+            ejemplo, incluidos los incompletos. Recuperar sustituye los cambios actuales y retira
+            el resultado: pulsa «Comprobar plan anual» para calcularlo de nuevo. La copia se pierde
+            al salir, recargar o cambiar la facturación mensual de referencia.
+          </p>
           <AnnualBillingPlanner monthlyBilling={leanResult.billingWithoutVAT} />
           <p>
             El reparto no fija fechas de cobro ni reserva dinero para los meses sin facturar.
