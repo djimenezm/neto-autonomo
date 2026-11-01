@@ -80,6 +80,44 @@ el ejemplo. Desde el resultado principal, la copia sobrevive a borrar y
 restablecer las horas; el resultado y el resumen compartido siguen iguales.
 No se observan errores en la consola revisada.
 
+### Vista previa compartida con los mismos datos que la calculadora (31 de octubre de 2026)
+
+Publicación autorizada el 1 de noviembre de 2026: corrección de la vista previa
+compartida, con anuncios, piloto y seguimientos intactos. La imagen tenía un lector
+de números independiente y calculaba sin validar. Con un neto de `2.500,50`,
+reserva manual del 15 %, cuota de 320 EUR y 80 horas, la página obtenía
+3461,76 EUR/mes y 43,27 EUR/h, pero la imagen sustituía el neto por 1500 EUR y
+mostraba 2284,71 EUR/mes y 28,56 EUR/h. Con horas cero o fraccionarias, la
+página pedía corregirlas mientras la imagen las ajustaba y anunciaba cifras.
+
+`lib/calculatorQuery.ts` comparte valores iniciales, modos permitidos,
+interpretación y validación de la query entre portada e imagen. Los números
+válidos se representan con punto decimal para mostrarse en los campos nativos,
+sin redondear su valor. Los vacíos y formatos malformados no se sustituyen por
+ceros o valores iniciales. Se conserva la primera aparición de un parámetro
+duplicado y se respetan los campos inactivos de cada modo.
+
+La ruta de la imagen valida antes de calcular y reutiliza la imagen genérica
+existente si hay errores o resultados no finitos. La portada aplica un criterio
+separado a sus metadatos sociales; conserva el estado de envío que muestra los
+errores del formulario. No se cambia el motor, las condiciones de seguimiento,
+la configuración, los anuncios, el piloto ni los seguimientos existentes.
+
+Validación: 788 pruebas en 79 archivos, lint y compilación correctos. La ruta
+anterior fallaba en doce regresiones; se cubren formatos españoles, vacíos,
+límites activos, campos inactivos, duplicados y enlaces canónicos. Se comprueba
+también que los metadatos genéricos no alteran los indicadores de envío y
+seguimiento existentes. Las respuestas HTTP reales devuelven PNG de 1200 ×
+630: el neto `2.500,50` muestra 3461,76 EUR/mes y 43,27 EUR/h; con 80,5 horas
+la respuesta es la imagen genérica sin cifras de resultado. Ambas imágenes
+se revisan visualmente. En navegador, el neto aparece como 2500.5 en su campo,
+el resultado coincide con la imagen y las horas fraccionarias mantienen el
+error sin resultado. La consola revisada no muestra errores.
+
+Comprobación previa a la publicación: las 50 pruebas de lectura de parámetros,
+imagen y portada vuelven a pasar. La batería completa de 796 pruebas, lint y
+compilación ya se habían validado con este mismo código de la vista previa.
+
 ### Aclarar los supuestos al trasladar costes (31 de octubre de 2026)
 
 Publicación autorizada el 31 de octubre de 2026: aclaración del traslado de

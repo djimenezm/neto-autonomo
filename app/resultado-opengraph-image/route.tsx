@@ -1,11 +1,6 @@
 import { ImageResponse } from 'next/og';
-import {
-  calculateFreelanceBilling,
-  type AutonomousCommunity,
-  type IrpfMode,
-  type ReducedFeePeriod,
-  type SelfEmployedFeeMode,
-} from '@/lib/calculator';
+import OpenGraphImage from '@/app/opengraph-image';
+import { calculateValidSharedResult, readCalculatorQuery } from '@/lib/calculatorQuery';
 import { formatCurrency } from '@/lib/format';
 import { siteConfig } from '@/lib/site';
 
@@ -14,46 +9,11 @@ const size = {
   height: 630,
 };
 
-const irpfModes = ['progressive', 'manual'] satisfies readonly IrpfMode[];
-const autonomousCommunities = [
-  'common',
-  'madrid',
-  'catalunya',
-  'andalucia',
-  'valencia',
-] satisfies readonly AutonomousCommunity[];
-const selfEmployedFeeModes = ['auto', 'reduced', 'manual'] satisfies readonly SelfEmployedFeeMode[];
-const reducedFeePeriods = ['initial', 'extended'] satisfies readonly ReducedFeePeriod[];
-
-function parseNumber(value: string | null, fallback: number) {
-  const parsedValue = Number(value?.replace(',', '.'));
-
-  return Number.isFinite(parsedValue) ? parsedValue : fallback;
-}
-
-function getAllowedValue<T extends string>(value: string | null, allowedValues: readonly T[], fallback: T) {
-  return value && allowedValues.includes(value as T) ? (value as T) : fallback;
-}
-
 export async function GET(request: Request) {
   const searchParams = new URL(request.url).searchParams;
-  const result = calculateFreelanceBilling({
-    targetNet: parseNumber(searchParams.get('targetNet'), 1500),
-    monthlyExpenses: parseNumber(searchParams.get('monthlyExpenses'), 200),
-    monthlyNonDeductibleExpenses: parseNumber(searchParams.get('monthlyNonDeductibleExpenses'), 0),
-    billableHours: parseNumber(searchParams.get('billableHours'), 80),
-    irpfMode: getAllowedValue(searchParams.get('irpfMode'), irpfModes, 'progressive'),
-    autonomousCommunity: getAllowedValue(
-      searchParams.get('autonomousCommunity'),
-      autonomousCommunities,
-      'common',
-    ),
-    irpfRate: parseNumber(searchParams.get('irpfRate'), 15),
-    hasIVA: searchParams.get('hasIVA') !== 'no',
-    selfEmployedFeeMode: getAllowedValue(searchParams.get('selfEmployedFeeMode'), selfEmployedFeeModes, 'auto'),
-    reducedFeePeriod: getAllowedValue(searchParams.get('reducedFeePeriod'), reducedFeePeriods, 'initial'),
-    selfEmployedFee: parseNumber(searchParams.get('selfEmployedFee'), 0),
-  });
+  const values = readCalculatorQuery((key) => searchParams.get(key) ?? undefined);
+  const result = calculateValidSharedResult(values);
+  if (!result) return OpenGraphImage();
 
   const stats = [
     ['Neto objetivo', `${formatCurrency(result.targetNet)}/mes`],

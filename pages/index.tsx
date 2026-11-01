@@ -1,33 +1,11 @@
 import type { GetServerSideProps } from 'next';
 import Head from 'next/head';
 import HomePage from '@/components/HomePage';
-import type { CalculatorFormValues } from '@/components/CalculatorForm';
+import { DEFAULT_FORM_VALUES, type CalculatorFormValues } from '@/lib/calculatorForm';
+import { calculatorQueryKeys, calculateValidSharedResult, readCalculatorQuery } from '@/lib/calculatorQuery';
 import { siteConfig } from '@/lib/site';
 
 const pageTitle = 'Cuánto facturar como autónomo | Calculadora gratis';
-const calculatorQueryKeys = [
-  'targetNet',
-  'monthlyExpenses',
-  'monthlyNonDeductibleExpenses',
-  'billableHours',
-  'irpfMode',
-  'autonomousCommunity',
-  'irpfRate',
-  'hasIVA',
-  'selfEmployedFeeMode',
-  'reducedFeePeriod',
-  'selfEmployedFee',
-];
-const irpfModes = ['progressive', 'manual'] satisfies readonly CalculatorFormValues['irpfMode'][];
-const autonomousCommunities = [
-  'common',
-  'madrid',
-  'catalunya',
-  'andalucia',
-  'valencia',
-] satisfies readonly CalculatorFormValues['autonomousCommunity'][];
-const selfEmployedFeeModes = ['auto', 'reduced', 'manual'] satisfies readonly CalculatorFormValues['selfEmployedFeeMode'][];
-const reducedFeePeriods = ['initial', 'extended'] satisfies readonly CalculatorFormValues['reducedFeePeriod'][];
 
 type HomeIndexProps = {
   calculatorInitialValues?: Partial<CalculatorFormValues>;
@@ -44,14 +22,6 @@ function getQueryValue(query: Record<string, string | string[] | undefined>, key
   }
 
   return value;
-}
-
-function getAllowedValue<T extends string>(
-  value: string | undefined,
-  allowedValues: readonly T[],
-  fallback: T,
-) {
-  return value && allowedValues.includes(value as T) ? (value as T) : fallback;
 }
 
 function getResultImageUrl(values?: Partial<CalculatorFormValues>) {
@@ -109,31 +79,7 @@ export const getServerSideProps: GetServerSideProps<HomeIndexProps> = async ({ q
 
   res.setHeader('Cache-Control', 'private, no-store');
 
-  const calculatorInitialValues: Partial<CalculatorFormValues> = {
-    targetNet: getQueryValue(query, 'targetNet') ?? '1500',
-    monthlyExpenses: getQueryValue(query, 'monthlyExpenses') ?? '200',
-    monthlyNonDeductibleExpenses: getQueryValue(query, 'monthlyNonDeductibleExpenses') ?? '0',
-    billableHours: getQueryValue(query, 'billableHours') ?? '80',
-    irpfMode: getAllowedValue(getQueryValue(query, 'irpfMode'), irpfModes, 'progressive'),
-    autonomousCommunity: getAllowedValue(
-      getQueryValue(query, 'autonomousCommunity'),
-      autonomousCommunities,
-      'common',
-    ),
-    irpfRate: getQueryValue(query, 'irpfRate') ?? '15',
-    hasIVA: getQueryValue(query, 'hasIVA') !== 'no',
-    selfEmployedFeeMode: getAllowedValue(
-      getQueryValue(query, 'selfEmployedFeeMode'),
-      selfEmployedFeeModes,
-      'auto',
-    ),
-    reducedFeePeriod: getAllowedValue(
-      getQueryValue(query, 'reducedFeePeriod'),
-      reducedFeePeriods,
-      'initial',
-    ),
-    selfEmployedFee: getQueryValue(query, 'selfEmployedFee') ?? '0',
-  };
+  const calculatorInitialValues = readCalculatorQuery((key) => getQueryValue(query, key));
 
   return {
     props: {
@@ -153,13 +99,15 @@ export default function IndexPage({
   calculatorShareUrl,
   importedFromCosts,
 }: HomeIndexProps) {
-  const openGraphImage = calculatorInitiallySubmitted
+  const hasValidSharedResult = calculatorInitiallySubmitted && calculatorInitialValues !== undefined
+    && calculateValidSharedResult({ ...DEFAULT_FORM_VALUES, ...calculatorInitialValues }) !== null;
+  const openGraphImage = hasValidSharedResult
     ? getResultImageUrl(calculatorInitialValues)
     : `${siteConfig.url}/opengraph-image`;
-  const openGraphTitle = calculatorInitiallySubmitted
+  const openGraphTitle = hasValidSharedResult
     ? 'Resultado orientativo para facturar como autónomo'
     : pageTitle;
-  const openGraphDescription = calculatorInitiallySubmitted
+  const openGraphDescription = hasValidSharedResult
     ? 'Calculadora precargada con una referencia de facturación mensual y tarifa por hora para autónomos.'
     : siteConfig.description;
 
