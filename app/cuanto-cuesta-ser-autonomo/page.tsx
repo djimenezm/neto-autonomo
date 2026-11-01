@@ -259,6 +259,7 @@ export default function CuantoCuestaSerAutonomoPage() {
             reservado que siga en la cuenta forma parte del saldo; no vuelvas a restarlo como pago
             hasta que salga de ella.
           </p>
+          <p>Si ya has escrito tu saldo, cobros o pagos, puedes probar los tres meses ficticios y volver con «Recuperar mis tres meses anteriores». Se conserva la primera copia, también con campos incompletos, aunque edites o repitas el ejemplo. Recuperar sustituye los cambios actuales y requiere volver a comprobar los saldos. Esta copia del plan mensual se pierde al salir o recargar la página.</p>
           <CashFlowPlanner />
           <p>
             Revisa después las fechas concretas y los pagos posteriores al tercer mes. El{' '}

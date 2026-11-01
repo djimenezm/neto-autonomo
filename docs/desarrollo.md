@@ -48,6 +48,37 @@ Los espacios publicitarios están preparados, pero `lib/ads.ts` exige `NEXT_PUBL
 
 ## Revisión local antes de publicar
 
+### Recuperar los tres meses propios después de probar el ejemplo (1 de noviembre de 2026)
+
+Publicación autorizada el 1 de noviembre de 2026. Se reproduce otra pérdida
+de datos en `CashFlowPlanner`: «Probar tres meses ficticios» sustituye el saldo
+inicial y los seis importes mensuales. La recuperación publicada para caja
+por fechas pertenece a `CashDatePlanner` y no cubre este plan mensual.
+
+La mejora conserva las siete cadenas anteriores al primer ejemplo propio,
+incluidos saldo negativo, ceros, precisión, importes incompletos y vacíos.
+La copia se mantiene al editar, comprobar o repetir el ejemplo. «Recuperar mis
+tres meses anteriores» restaura el borrador, consume la copia y retira los
+saldos, errores y marca ficticia; devuelve el foco al saldo inicial y pide
+volver a comprobar. Un nuevo borrador permite otro ciclo. Empezar vacío y
+repetir solo el ejemplo no crea una copia propia; escribir cero sí cuenta.
+
+La guía de costes explica la recuperación de esta ayuda y su límite temporal:
+solo en la página actual, hasta salir o recargar. No añade guardado en archivo
+al plan de tres meses. El comprobador por fechas, sus archivos y su recuperación
+permanecen intactos. No hay nuevos campos, rutas, peticiones, almacenamiento
+persistente ni eventos; no cambian fórmulas, fechas editoriales, anuncios,
+piloto ni seguimientos. La publicación usa la integración Git existente de Vercel.
+
+Validación: cinco regresiones nuevas, cuatro fallando contra el componente
+original por faltar la recuperación; después pasan las diez pruebas del plan
+y su recuperación. Suite completa: 822 pruebas en 82 archivos; lint y compilación
+correctos. Navegador local: saldo -125,005 EUR y seis importes, con cero y un
+pago vacío; cargar el ejemplo, editarlo, comprobarlo y repetirlo conserva la
+primera copia. Se recuperan las siete cadenas exactas, sin resultados antiguos,
+con foco en el saldo inicial y sin errores de consola. La copia se consume.
+Esta es la versión validada en local que el usuario ha autorizado publicar.
+
 ### Recuperar la jornada propia después de probar ejemplos (1 de noviembre de 2026)
 
 Publicación autorizada el 1 de noviembre de 2026. Reproducción en navegador:

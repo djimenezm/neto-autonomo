@@ -19,9 +19,12 @@ export default function CashFlowPlanner() {
   const [values, setValues] = useState<Values>({ initialBalance: '', months: Array.from({ length: CASH_PLAN_MONTHS }, () => ({ receipts: '', payments: '' })) });
   const [plan, setPlan] = useState<ReturnType<typeof planCash> | null>(null);
   const [isExample, setIsExample] = useState(false);
+  const [planBeforeExample, setPlanBeforeExample] = useState<Values | null>(null);
+  const [recoveryFeedback, setRecoveryFeedback] = useState('');
   const initialError = plan && !plan.valid ? plan.errors.initialBalance : undefined;
 
   function check(next = values) {
+    setRecoveryFeedback('');
     const result = planCash({ initialBalance: parseSpanishNumber(next.initialBalance), months: next.months.map((month) => ({ receipts: parseSpanishNumber(month.receipts), payments: parseSpanishNumber(month.payments) })) });
     setPlan(result);
     if (result.valid) {
@@ -33,7 +36,27 @@ export default function CashFlowPlanner() {
     }
   }
 
-  function edit(next: Values) { setValues(next); setPlan(null); setIsExample(false); }
+  function edit(next: Values) { setValues(next); setPlan(null); setIsExample(false); setRecoveryFeedback(''); }
+
+  function loadExample() {
+    // Keep the first personal draft, including incomplete monthly amounts.
+    // Repeated examples and later edits must not replace that copy.
+    if (!isExample && (values.initialBalance.trim() !== '' || values.months.some((month) => Object.values(month).some((value) => value.trim() !== '')))) {
+      setPlanBeforeExample((previous) => previous ?? { initialBalance: values.initialBalance, months: values.months.map((month) => ({ ...month })) });
+    }
+    const next = { initialBalance: formatNumber(cashPlanExample.initialBalance), months: cashPlanExample.months.map((month) => ({ receipts: formatNumber(month.receipts), payments: formatNumber(month.payments) })) };
+    setIsExample(true); setValues(next); check(next);
+  }
+
+  function recoverPlan() {
+    if (!planBeforeExample) return;
+    setValues(planBeforeExample);
+    setPlan(null);
+    setIsExample(false);
+    setPlanBeforeExample(null);
+    setRecoveryFeedback('Plan de tres meses recuperado. Vuelve a comprobarlo para actualizar los saldos.');
+    refs.current.initialBalance?.focus();
+  }
 
   return (
     <div className={styles.planner}>
@@ -72,11 +95,11 @@ export default function CashFlowPlanner() {
       </div>
       <div className={styles.actions}>
         <button type="button" className="primary-button" onClick={() => check()}>Comprobar plan de caja</button>
-        <button type="button" className="link-button" onClick={() => {
-          const next = { initialBalance: formatNumber(cashPlanExample.initialBalance), months: cashPlanExample.months.map((month) => ({ receipts: formatNumber(month.receipts), payments: formatNumber(month.payments) })) };
-          setIsExample(true); setValues(next); check(next);
-        }}>Probar tres meses ficticios</button>
+        <button type="button" className="link-button" onClick={loadExample}>Probar tres meses ficticios</button>
+        {planBeforeExample ? <button type="button" className="link-button" onClick={recoverPlan} aria-describedby={`${id}-recovery-hint`}>Recuperar mis tres meses anteriores</button> : null}
       </div>
+      {planBeforeExample ? <p className={styles.note} id={`${id}-recovery-hint`}>Conservamos en esta página el saldo y los importes anteriores al primer ejemplo. Recuperarlos sustituye los cambios que ves ahora y deja los saldos pendientes de comprobar. La copia se pierde al salir o recargar la página.</p> : null}
+      <div role="status" aria-label="Recuperación del plan de tres meses" aria-live="polite" aria-atomic="true">{recoveryFeedback ? <p>{recoveryFeedback}</p> : null}</div>
       <div role="status" aria-label="Plan de caja de tres meses" aria-live="polite" aria-atomic="true">
         {plan && !plan.valid ? <p>{plan.errors.months ?? 'Revisa los campos indicados; escribe cero donde no preveas movimientos.'}</p> : null}
         {plan?.valid ? (
