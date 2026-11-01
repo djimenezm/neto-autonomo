@@ -45,3 +45,80 @@ describe('monthly complete-project capacity', () => {
     expect(estimateProjectCapacity(extreme).valid).toBe(false);
   });
 });
+
+describe('price of one project against the monthly reference', () => {
+  const input: ProjectCapacityInput = {
+    monthlyBilling: 2687.65, billableHours: 100, pricePerProject: 600, hoursPerProject: 30,
+  };
+
+  it('compares one project directly without changing the monthly plan', () => {
+    expect(estimateProjectCapacity(input)).toMatchObject({
+      valid: true,
+      projectHourlyRate: 20,
+      projectReferencePrice: 806.3,
+      projectPriceDifference: -206.3,
+      requiredProjects: 5, plannedBilling: 3000, plannedHours: 150, maxProjects: 3,
+    });
+  });
+
+  it.each([
+    [806.29, -0.01], [806.3, 0], [900, 93.7],
+  ])('compares a price of %s with the cent reference before rounding hourly displays', (pricePerProject, projectPriceDifference) => {
+    expect(estimateProjectCapacity({ ...input, pricePerProject })).toMatchObject({
+      valid: true, projectReferencePrice: 806.3, projectPriceDifference,
+    });
+  });
+
+  it('does not use the rounded hourly reference to decide whether the price covers the project', () => {
+    const repeatingReference = { monthlyBilling: 1, billableHours: 3, hoursPerProject: 1 };
+    expect(estimateProjectCapacity({ ...repeatingReference, pricePerProject: 0.33 })).toMatchObject({
+      valid: true, projectHourlyRate: 0.33, projectReferencePrice: 0.34, projectPriceDifference: -0.01,
+    });
+    expect(estimateProjectCapacity({ ...repeatingReference, pricePerProject: 0.34 })).toMatchObject({
+      valid: true, projectHourlyRate: 0.34, projectReferencePrice: 0.34, projectPriceDifference: 0,
+    });
+  });
+
+  it('keeps an exact decimal boundary at the existing whole-project capacity', () => {
+    expect(estimateProjectCapacity({ monthlyBilling: 0.3, billableHours: 0.3, pricePerProject: 0.1, hoursPerProject: 0.1 })).toMatchObject({
+      valid: true, projectHourlyRate: 1, projectReferencePrice: 0.1, projectPriceDifference: 0,
+      requiredProjects: 3, maxProjects: 3,
+    });
+  });
+
+  it('uses the same normalized money and hours as the monthly plan', () => {
+    expect(estimateProjectCapacity({ monthlyBilling: 2.01, billableHours: 2.02, pricePerProject: 1.005, hoursPerProject: 1.005 })).toMatchObject({
+      valid: true, pricePerProject: 1.01, hoursPerProject: 1.01,
+      projectHourlyRate: 1, projectReferencePrice: 1.01, projectPriceDifference: 0,
+    });
+  });
+
+  it('rounds the displayed project hourly rate at an exact half-cent without using it for the price comparison', () => {
+    expect(estimateProjectCapacity({ monthlyBilling: 0.01, billableHours: 2, pricePerProject: 0.01, hoursPerProject: 2 })).toMatchObject({
+      valid: true, projectHourlyRate: 0.01, projectReferencePrice: 0.01, projectPriceDifference: 0,
+    });
+  });
+
+  it.each([0, 0.001])('keeps a zero normalized monthly capacity (%s) without an infinite reference', (billableHours) => {
+    expect(estimateProjectCapacity({ ...input, billableHours })).toMatchObject({
+      valid: true, billableHours: 0, projectHourlyRate: 20,
+      projectReferencePrice: null, projectPriceDifference: null,
+      maxProjects: 0, capacityBilling: 0,
+    });
+  });
+
+  it('allows large intermediate products when the comparison outputs remain precise', () => {
+    expect(estimateProjectCapacity({ monthlyBilling: 1e13, billableHours: 100, pricePerProject: 1e13, hoursPerProject: 100 })).toMatchObject({
+      valid: true, projectHourlyRate: 1e11, projectReferencePrice: 1e13, projectPriceDifference: 0,
+    });
+  });
+
+  it.each([
+    [{ monthlyBilling: 1e10, billableHours: 0.01, pricePerProject: 1e10, hoursPerProject: 1000 }, 'hoursPerProject'],
+    [{ monthlyBilling: 1e12, billableHours: 0.01, pricePerProject: 1e12, hoursPerProject: 0.01 }, 'pricePerProject'],
+  ] as const)('rejects comparison outputs beyond the precise cent range: %j', (extreme, field) => {
+    const result = estimateProjectCapacity(extreme);
+    expect(result.valid).toBe(false);
+    if (!result.valid) expect(result.errors[field]).toBeTruthy();
+  });
+});

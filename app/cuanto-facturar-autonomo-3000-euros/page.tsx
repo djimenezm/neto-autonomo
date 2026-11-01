@@ -87,6 +87,10 @@ export default function CuantoFacturarAutonomo3000EurosPage() {
   const overloadedPortfolio = portfolioOverloadResult;
   const shortPortfolio = portfolioShortfallResult;
   if (!regular.valid || !slower.valid || !portfolio.valid || !overloadedPortfolio.valid || !shortPortfolio.valid) throw new Error('Invalid editorial project-capacity example');
+  if (regular.projectReferencePrice === null || regular.projectPriceDifference === null
+    || slower.projectReferencePrice === null || slower.projectPriceDifference === null) {
+    throw new Error('Invalid editorial single-project comparison');
+  }
   const siteUrl = getSiteUrl();
   const pageUrl = new URL(route, siteUrl).toString();
 
@@ -106,7 +110,7 @@ export default function CuantoFacturarAutonomo3000EurosPage() {
       name: siteConfig.name,
     },
     datePublished: '2026-04-26',
-    dateModified: '2026-10-27',
+    dateModified: '2026-11-01',
     accountablePerson: { '@type': 'Person', name: siteConfig.ownerName },
   };
 
@@ -203,7 +207,7 @@ export default function CuantoFacturarAutonomo3000EurosPage() {
 
       <section className="section" aria-labelledby="ejemplo-encargos">
         <div className="container text-block">
-          <p className="article-meta">Actualizada el <time dateTime="2026-10-27">27 de octubre de 2026</time>. Responsable: {siteConfig.ownerName}.</p>
+          <p className="article-meta">Actualizada el <time dateTime="2026-11-01">1 de noviembre de 2026</time>. Responsable: {siteConfig.ownerName}.</p>
           <h2 id="ejemplo-encargos">Dos encargos pueden cubrir el importe y superar tu capacidad</h2>
           <p>
             Partimos de {formatEuro(exampleAssumptions.monthlyExpenses)} de gastos deducibles,
@@ -213,6 +217,28 @@ export default function CuantoFacturarAutonomo3000EurosPage() {
             {' '}El motor de la calculadora obtiene {formatEuro(eightyHourResult.billingWithoutVAT)}
             {' '}sin IVA para el objetivo de 3000 euros netos.
           </p>
+          <div className="disclaimer-box" role="region" aria-labelledby="precio-un-encargo">
+            <h3 id="precio-un-encargo">Qué supone un solo encargo</h3>
+            <p>
+              Un encargo de {formatEuro(regular.pricePerProject)} sin IVA que ocupa
+              {' '}{regular.hoursPerProject} h equivale a {formatEuro(regular.projectHourlyRate)}/h.
+              {' '}La referencia para esas horas es {formatEuro(regular.projectReferencePrice)}:
+              {' '}el precio queda {formatEuro(regular.projectPriceDifference)} por encima.
+            </p>
+            <p>
+              Si el mismo precio exige {slower.hoursPerProject} h, equivale a
+              {' '}{formatEuro(slower.projectHourlyRate)}/h. La referencia para ese tiempo sube a
+              {' '}{formatEuro(slower.projectReferencePrice)} y faltan
+              {' '}{formatEuro(-slower.projectPriceDifference)} para alcanzarla.
+            </p>
+            <p>
+              Obtenemos la referencia repartiendo la facturación mensual entre las horas
+              disponibles y aplicando esa proporción completa al encargo. Redondeamos al
+              céntimo superior, sin multiplicar la tarifa por hora ya redondeada que ves en
+              pantalla. Comparamos facturación sin IVA, no neto ni beneficio. Los costes
+              específicos adicionales de este encargo se revisan aparte.
+            </p>
+          </div>
           <p>
             Ahora suponemos encargos iguales de {formatEuro(projectCapacityExample.pricePerProject)} sin IVA.
             {' '}Uno no alcanza esa facturación; hacen falta {regular.requiredProjects} completos:
@@ -280,6 +306,7 @@ export default function CuantoFacturarAutonomo3000EurosPage() {
         <div className="container text-block">
           <h2 id="plan-encargos">Comprueba tu precio y tus horas por encargo</h2>
           <p>Aquí usamos la referencia del ejemplo. Para obtener la tuya, <Link href={getExampleUrl(3000)}>ajusta los datos en la calculadora</Link> y abre «Comprobar cuántos encargos necesito y si caben» en tu resultado.</p>
+          <p>Primero compara el precio de un encargo con la referencia para sus horas. Después revisa qué supondría repetir encargos iguales durante el mes.</p>
           <MonthlyProjectPlanner monthlyBilling={eightyHourResult.billingWithoutVAT} billableHours={exampleAssumptions.billableHours} />
           <p>Si tus servicios tienen precios y duraciones diferentes, usa la <Link href="#combinar-encargos">combinación de servicios del mismo mes</Link>.</p>
         </div>

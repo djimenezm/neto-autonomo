@@ -25,7 +25,8 @@ describe('3000-euro goal and capacity guide', () => {
     const document = new DOMParser().parseFromString(renderToStaticMarkup(<Guide />), 'text/html');
     const schemas = [...document.querySelectorAll('script[type="application/ld+json"]')].map((script) => JSON.parse(script.textContent!));
     expect(schemas.map((schema) => schema['@type'])).toEqual(['Article', 'BreadcrumbList', 'FAQPage']);
-    expect(schemas[0].dateModified).toBe('2026-10-27');
+    expect(schemas[0].dateModified).toBe('2026-11-01');
+    expect(document.querySelector('time')?.getAttribute('datetime')).toBe(schemas[0].dateModified);
     expect(schemas[2].mainEntity).toHaveLength(5);
     for (const item of schemas[2].mainEntity) {
       expect(document.body.textContent).toContain(item.name);
@@ -35,6 +36,23 @@ describe('3000-euro goal and capacity guide', () => {
     expect(document.querySelector('main')?.getAttribute('id')).toBe('contenido-principal');
     expect(document.querySelectorAll('h1')).toHaveLength(1);
     expect(metadata.alternates?.canonical).toBe('/cuanto-facturar-autonomo-3000-euros');
+  });
+
+  it('compares one project with its hours before the monthly plan in initial HTML', () => {
+    const document = new DOMParser().parseFromString(renderToStaticMarkup(<Guide />), 'text/html');
+    const comparison = document.getElementById('precio-un-encargo')?.parentElement;
+    expect(comparison?.textContent).toContain('52,50');
+    expect(comparison?.textContent).toContain('2074,71');
+    expect(comparison?.textContent).toContain('25,29');
+    expect(comparison?.textContent).toContain('35,00');
+    expect(comparison?.textContent).toContain('3112,06');
+    expect(comparison?.textContent).toContain('1012,06');
+    expect(comparison?.textContent).toContain('proporción completa');
+    expect(comparison?.textContent).toContain('céntimo superior');
+    expect(comparison?.textContent).toContain('no neto ni beneficio');
+    expect(comparison?.textContent).toContain('costes específicos adicionales');
+    const monthlyComparison = document.querySelector('[aria-label="Encargos necesarios y capacidad de 80 horas"]');
+    expect(comparison!.compareDocumentPosition(monthlyComparison!)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
   });
 
   it('explains a combination that fits, one that overloads capacity and one below target in initial HTML', () => {

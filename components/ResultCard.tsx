@@ -209,7 +209,7 @@ const ResultCard = forwardRef<HTMLElement, ResultCardProps>(function ResultCard(
 
       <details className={breakdownStyles.disclosure}>
         <summary>Comprobar cuántos encargos necesito y si caben</summary>
-        <MonthlyProjectPlanner monthlyBilling={result.billingWithoutVAT} billableHours={hoursBillable} />
+        <MonthlyProjectPlanner monthlyBilling={result.billingWithoutVAT} billableHours={hoursBillable} headingLevel="h4" />
         <a href="/cuanto-facturar-autonomo-3000-euros#ejemplo-encargos">Ver un ejemplo de encargos y capacidad mensual</a>
         <details className={`${breakdownStyles.disclosure} ${portfolioStyles.disclosure}`}>
           <summary>Combinar encargos de distintos precios y horas</summary>

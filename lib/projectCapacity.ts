@@ -13,6 +13,9 @@ type CapacityEstimate =
       billableHours: number;
       pricePerProject: number;
       hoursPerProject: number;
+      projectHourlyRate: number;
+      projectReferencePrice: number | null;
+      projectPriceDifference: number | null;
       requiredProjects: number;
       plannedBilling: number;
       plannedHours: number;
@@ -59,12 +62,33 @@ export function estimateProjectCapacity(input: ProjectCapacityInput): CapacityEs
   if (![plannedBilling, plannedHours, capacityBilling].every(Number.isSafeInteger)) {
     return { valid: false, errors: { pricePerProject: 'El plan produce cifras demasiado grandes. Revisa precio y horas.' } };
   }
+
+  // Compare the project's full hours with the monthly ratio, not with a rounded
+  // hourly display. Exact integer division also avoids adding an extra cent
+  // at decimal boundaries. Only the reference price rounds up to a whole cent.
+  const projectTicks = BigInt(units.hoursPerProject);
+  const capacityTicks = BigInt(units.billableHours);
+  const hourlyNumerator = BigInt(units.pricePerProject) * BigInt(100);
+  const projectHourlyCents = hourlyNumerator / projectTicks
+    + (hourlyNumerator % projectTicks * BigInt(2) >= projectTicks ? BigInt(1) : BigInt(0));
+  const projectReferenceCents = capacityTicks === BigInt(0) ? null
+    : (BigInt(units.monthlyBilling) * projectTicks + capacityTicks - BigInt(1)) / capacityTicks;
+  const maximumCents = BigInt(Number.MAX_SAFE_INTEGER);
+  if (projectHourlyCents > maximumCents) {
+    return { valid: false, errors: { pricePerProject: 'El precio por hora es demasiado grande para calcularlo con precisión. Revisa precio y horas.' } };
+  }
+  if (projectReferenceCents !== null && projectReferenceCents > maximumCents) {
+    return { valid: false, errors: { hoursPerProject: 'La referencia para estas horas es demasiado grande para calcularla con precisión.' } };
+  }
   return {
     valid: true,
     monthlyBilling: units.monthlyBilling / 100,
     billableHours: units.billableHours / 100,
     pricePerProject: units.pricePerProject / 100,
     hoursPerProject: units.hoursPerProject / 100,
+    projectHourlyRate: Number(projectHourlyCents) / 100,
+    projectReferencePrice: projectReferenceCents === null ? null : Number(projectReferenceCents) / 100,
+    projectPriceDifference: projectReferenceCents === null ? null : Number(BigInt(units.pricePerProject) - projectReferenceCents) / 100,
     requiredProjects,
     plannedBilling: plannedBilling / 100,
     plannedHours: plannedHours / 100,

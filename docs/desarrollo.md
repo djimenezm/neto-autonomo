@@ -48,6 +48,46 @@ Los espacios publicitarios están preparados, pero `lib/ads.ts` exige `NEXT_PUBL
 
 ## Revisión local antes de publicar
 
+### Comparar el precio de un encargo antes del plan mensual (1 de noviembre de 2026)
+
+Publicación autorizada el 1 de noviembre de 2026. El acceso «Tengo un precio para
+un encargo» llevaba a una ayuda que comenzaba por cuántos encargos completos
+se necesitaban durante el mes. Con el precio y las horas ya disponibles, ahora
+se muestra primero «Qué supone este encargo»: facturación por hora, referencia
+proporcional para sus horas y diferencia frente al precio indicado. Después
+se conserva el plan mensual existente.
+
+`lib/projectCapacity.ts` amplía el resultado sin cambiar las cuentas mensuales:
+precio por hora del encargo, referencia y diferencia. La referencia reparte
+la facturación mensual entre la capacidad del mes y la aplica al tiempo del
+encargo; se redondea al céntimo superior. La división entera exacta evita usar
+la tarifa por hora redondeada. El caso ficticio de 600 EUR y 30 horas frente
+a 2687,65 EUR y 100 horas mensuales da 20 EUR/h, 806,30 EUR de referencia y
+206,30 EUR por debajo. Multiplicar 26,88 EUR/h por 30 daría otros 10 céntimos.
+
+Con capacidad mensual normalizada a cero se mantiene el precio por hora del
+encargo, sin inventar referencia o diferencia. Las salidas fuera de la escala
+de céntimos segura se rechazan. La interfaz distingue esta comparación de
+beneficio neto, no añade costes específicos ni decide si conviene aceptar.
+Editar retira las cifras y volver a comprobar usa los datos actuales. Los
+encabezados se adaptan a la guía y al resultado principal.
+
+La guía de 3000 EUR incorpora la comparación estática de sus encargos de 40 y
+60 horas. Su fecha visible, esquema y entrada de sitemap pasan al 1 de noviembre
+por esta ampliación de contenido. El selector describe primero la comparación
+del precio y después el plan mensual, conservando su acceso existente.
+No hay nuevos campos, rutas, eventos o datos
+en el enlace compartido; el cálculo principal, anuncios, piloto y seguimientos
+permanecen intactos. La publicación usa la integración Git existente de Vercel.
+
+Validación: 812 pruebas en 80 archivos, lint y compilación de producción
+correctos. Tras ajustar la descripción del selector, pasan sus tres pruebas,
+su lint y la nueva compilación. Navegador local: entrada desde el selector,
+comparación con 600 EUR / 30 h, edición a 900 EUR retirando el resultado previo,
+plan mensual conservado y resumen compartido sin cambios. El ejemplo de la
+guía muestra 52,50 EUR/h, referencia de 2074,71 EUR y diferencia de 25,29 EUR;
+encabezados h3 en la guía y h4 dentro del resultado. Sin errores de consola.
+
 ### Aclarar qué conserva el enlace compartido (1 de noviembre de 2026)
 
 Publicación autorizada el 1 de noviembre de 2026: aclaración del alcance del

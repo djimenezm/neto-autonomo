@@ -17,6 +17,41 @@ describe('monthly project capacity planner', () => {
     expect(screen.getByRole('status')).not.toHaveTextContent('Encargos completos para alcanzar');
   });
 
+  it('compares one offer before the monthly plan, using the full reference rather than its rounded hourly display', async () => {
+    render(<Planner monthlyBilling={2687.65} billableHours={100} />);
+    fireEvent.change(screen.getByRole('textbox', { name: 'Precio por encargo sin IVA (EUR)' }), { target: { value: '600' } });
+    fireEvent.change(screen.getByRole('textbox', { name: 'Horas totales por encargo' }), { target: { value: '30' } });
+    await userEvent.click(screen.getByRole('button', { name: 'Comprobar encargos' }));
+
+    const result = screen.getByRole('status');
+    expect(within(result).getAllByRole('heading').map((heading) => heading.textContent)).toEqual([
+      'Qué supone este encargo', 'Si repites encargos iguales durante el mes',
+    ]);
+    expect(within(result).getByText('Precio por hora del encargo').nextElementSibling).toHaveTextContent('20,00');
+    expect(within(result).getByText('Referencia para estas horas sin IVA').nextElementSibling).toHaveTextContent('806,30');
+    expect(result).toHaveTextContent('El precio queda 206,30');
+    expect(result).toHaveTextContent('por debajo de la referencia para estas horas');
+    expect(result).toHaveTextContent('no añade costes específicos');
+    expect(result).toHaveTextContent('faltan 50 horas');
+
+    fireEvent.change(screen.getByRole('textbox', { name: 'Horas totales por encargo' }), { target: { value: '40' } });
+    expect(result).toBeEmptyDOMElement();
+  });
+
+  it('shows the offer hourly price without inventing a reference when monthly capacity is zero', async () => {
+    render(<Planner monthlyBilling={2687.65} billableHours={0} />);
+    fireEvent.change(screen.getByRole('textbox', { name: 'Precio por encargo sin IVA (EUR)' }), { target: { value: '600' } });
+    fireEvent.change(screen.getByRole('textbox', { name: 'Horas totales por encargo' }), { target: { value: '30' } });
+    await userEvent.click(screen.getByRole('button', { name: 'Comprobar encargos' }));
+
+    const result = screen.getByRole('status');
+    expect(within(result).getByText('Precio por hora del encargo').nextElementSibling).toHaveTextContent('20,00');
+    expect(result).toHaveTextContent('Sin horas facturables disponibles');
+    expect(within(result).queryByText('Referencia para estas horas sin IVA')).not.toBeInTheDocument();
+    expect(result).not.toHaveTextContent('Infinity');
+    expect(result).not.toHaveTextContent('NaN');
+  });
+
   it('marks the fictional example and clears an old plan when effort changes', async () => {
     render(<Planner {...projectCapacityExample} />);
     await userEvent.click(screen.getByRole('button', { name: 'Probar un encargo ficticio' }));
@@ -56,7 +91,7 @@ describe('monthly project capacity planner', () => {
     render(<CalculatorForm initiallySubmitted initialValues={{ targetNet: '3000', monthlyExpenses: '300', irpfMode: 'manual', irpfRate: '15', selfEmployedFeeMode: 'manual', selfEmployedFee: '320' }} initialShareUrl="https://www.cuantofacturar.es/?targetNet=3000#calculadora" />);
     const before = (screen.getByRole('textbox', { name: 'Resumen detallado para compartir' }) as HTMLTextAreaElement).value;
     await user.click(screen.getByText('Comprobar cuántos encargos necesito y si caben'));
-    const group = screen.getByRole('group', { name: 'El encargo que quieres repetir' });
+    const group = screen.getByRole('group', { name: 'El encargo que quieres valorar' });
     expect(within(group).getAllByRole('textbox')).toHaveLength(2);
     await user.click(screen.getByRole('button', { name: 'Probar un encargo ficticio' }));
     expect(within(group.parentElement!).getByRole('status')).toHaveTextContent('4200,00');

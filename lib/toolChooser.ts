@@ -55,7 +55,7 @@ export const toolChooserGroups: readonly ToolChooserGroup[] = [
         id: 'precio-encargo',
         title: 'Tengo un precio para un encargo',
         prepare: 'Precio total del encargo sin IVA y todas sus horas, incluidas preparación, reuniones y revisiones.',
-        shows: 'Comprueba cuántos encargos iguales cubrirían tu objetivo mensual y si caben en tus horas disponibles.',
+        shows: 'Compara el precio del encargo con la referencia para sus horas. Después comprueba cuántos iguales cubrirían tu objetivo mensual y si caben.',
         limit: 'La guía usa una referencia ficticia de 3000 EUR netos. Para tus datos, calcula primero y abre «Comprobar cuántos encargos necesito y si caben» en tu resultado.',
         link: { href: '/cuanto-facturar-autonomo-3000-euros#plan-encargos', label: 'Comprobar precio y horas de un encargo' },
         relatedLinks: [

@@ -9,11 +9,11 @@ import styles from './MonthlyProjectPlanner.module.css';
 
 type Values = { pricePerProject: string; hoursPerProject: string };
 const fields = [
-  { key: 'pricePerProject', label: 'Precio por encargo sin IVA (EUR)', hint: 'Precio completo de un encargo del tipo que quieres repetir.' },
+  { key: 'pricePerProject', label: 'Precio por encargo sin IVA (EUR)', hint: 'Precio completo de un encargo, no la suma de varios.' },
   { key: 'hoursPerProject', label: 'Horas totales por encargo', hint: 'Incluye preparación, reuniones, ejecución, revisiones y cierre de ese cliente. Cuenta cada hora una sola vez.' },
 ] as const;
 
-export default function MonthlyProjectPlanner({ monthlyBilling, billableHours }: { monthlyBilling: number; billableHours: number }) {
+export default function MonthlyProjectPlanner({ monthlyBilling, billableHours, headingLevel: Heading = 'h3' }: { monthlyBilling: number; billableHours: number; headingLevel?: 'h3' | 'h4' }) {
   const id = useId();
   const [values, setValues] = useState<Values>({ pricePerProject: '', hoursPerProject: '' });
   const [checkedValues, setCheckedValues] = useState<Values | null>(null);
@@ -46,12 +46,12 @@ export default function MonthlyProjectPlanner({ monthlyBilling, billableHours }:
         Referencia de este cálculo: <strong>{formatCurrency(monthlyBilling)} sin IVA al mes</strong>
         {' '}y <strong>{formatNumber(billableHours)} h facturables disponibles</strong>.
       </p>
-      <p>Compara encargos iguales que puedas completar y facturar en ese mes. Redondeamos importes y horas a dos decimales.</p>
+      <p>Compara primero el precio de un encargo con tu referencia y después revisa qué supondría repetirlo durante el mes. Redondeamos importes y horas a dos decimales.</p>
       <noscript><p>El comprobador necesita JavaScript. La guía de <a href="/cuanto-facturar-autonomo-3000-euros#ejemplo-encargos">encargos y capacidad mensual</a> muestra la misma cuenta paso a paso.</p></noscript>
       <fieldset className={styles.fields} aria-describedby={`${id}-reference`} onKeyDown={(event) => {
         if (event.key === 'Enter' && event.target instanceof HTMLInputElement) { event.preventDefault(); check(); }
       }}>
-        <legend>El encargo que quieres repetir</legend>
+        <legend>El encargo que quieres valorar</legend>
         {fields.map(({ key, label, hint }) => {
           const error = estimate && !estimate.valid ? estimate.errors[key] : undefined;
           return (
@@ -89,6 +89,25 @@ export default function MonthlyProjectPlanner({ monthlyBilling, billableHours }:
         {estimate?.valid ? (
           <div className={styles.result}>
             {isExample ? <p><strong>Precio y horas del encargo ficticios; se usa la referencia mensual de arriba.</strong></p> : null}
+            <Heading>Qué supone este encargo</Heading>
+            <dl>
+              <div><dt>Precio por hora del encargo</dt><dd>{formatCurrency(estimate.projectHourlyRate)}/h sin IVA</dd></div>
+              {estimate.projectReferencePrice !== null ? (
+                <div><dt>Referencia para estas horas sin IVA</dt><dd>{formatCurrency(estimate.projectReferencePrice)}</dd></div>
+              ) : null}
+            </dl>
+            <p>{formatCurrency(estimate.pricePerProject)} sin IVA entre {formatNumber(estimate.hoursPerProject)} h = {formatCurrency(estimate.projectHourlyRate)}/h. Es facturación por hora, no sueldo neto.</p>
+            {estimate.projectPriceDifference !== null ? (
+              <p className={estimate.projectPriceDifference < 0 ? styles.shortfall : styles.fits}>
+                <strong>{estimate.projectPriceDifference < 0
+                  ? `El precio queda ${formatCurrency(-estimate.projectPriceDifference)} por debajo de la referencia para estas horas.`
+                  : estimate.projectPriceDifference > 0
+                    ? `El precio supera en ${formatCurrency(estimate.projectPriceDifference)} la referencia para estas horas.`
+                    : 'El precio coincide con la referencia para estas horas.'}</strong>
+              </p>
+            ) : <p className={styles.note}>Sin horas facturables disponibles en el mes no podemos obtener una referencia para comparar este precio. Revisa la capacidad de tu cálculo.</p>}
+            <p className={styles.note}>La referencia reparte el objetivo mensual entre las horas disponibles y lo aplica a las del encargo, redondeando al alza al céntimo. Esta comparación no añade costes específicos del encargo ni calcula beneficio neto o decide si debes aceptarlo.</p>
+            <Heading>Si repites encargos iguales durante el mes</Heading>
             <dl>
               <div><dt>Encargos completos para alcanzar el importe</dt><dd>{formatNumber(estimate.requiredProjects)}</dd></div>
               <div><dt>Facturación de esos encargos sin IVA</dt><dd>{formatCurrency(estimate.plannedBilling)}</dd></div>
