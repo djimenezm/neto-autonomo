@@ -324,6 +324,13 @@ export default function CuantoFacturarAutonomo3000EurosPage() {
           <h2 id="plan-encargos">Comprueba tu precio y tus horas por encargo</h2>
           <p>Aquí usamos la referencia del ejemplo. Para obtener la tuya, <Link href={getExampleUrl(3000)}>ajusta los datos en la calculadora</Link> y abre «Comprobar cuántos encargos necesito y si caben» en tu resultado.</p>
           <p>Primero compara el precio de un encargo con la referencia para sus horas. Después revisa qué supondría repetir encargos iguales durante el mes.</p>
+          <p>
+            Si ya has escrito tus datos, puedes probar el encargo ficticio y volver con
+            «Recuperar mis datos del encargo». Se recuperan el precio y las horas anteriores al
+            primer ejemplo, incluidos los campos incompletos. Recuperar sustituye los cambios
+            actuales y retira el resultado: pulsa «Comprobar encargos» para usar la referencia
+            mensual vigente. La copia se pierde al salir o recargar la página.
+          </p>
           <MonthlyProjectPlanner monthlyBilling={eightyHourResult.billingWithoutVAT} billableHours={exampleAssumptions.billableHours} />
           <p>Si tus servicios tienen precios y duraciones diferentes, usa la <Link href="#combinar-encargos">combinación de servicios del mismo mes</Link>.</p>
         </div>

@@ -18,6 +18,8 @@ export default function MonthlyProjectPlanner({ monthlyBilling, billableHours, h
   const [values, setValues] = useState<Values>({ pricePerProject: '', hoursPerProject: '' });
   const [checkedValues, setCheckedValues] = useState<Values | null>(null);
   const [isExample, setIsExample] = useState(false);
+  const [offerBeforeExample, setOfferBeforeExample] = useState<Values | null>(null);
+  const [recoveryFeedback, setRecoveryFeedback] = useState('');
   const inputsRef = useRef<Partial<Record<keyof Values, HTMLInputElement | null>>>({});
   // Derive from the current reference as well as the last explicit submission,
   // so a changed monthly target cannot leave an old capacity check visible.
@@ -28,6 +30,7 @@ export default function MonthlyProjectPlanner({ monthlyBilling, billableHours, h
   }) : null;
 
   function check(nextValues = values) {
+    setRecoveryFeedback('');
     setCheckedValues(nextValues);
     const result = estimateProjectCapacity({
       monthlyBilling, billableHours,
@@ -38,6 +41,16 @@ export default function MonthlyProjectPlanner({ monthlyBilling, billableHours, h
       const firstInvalid = fields.find(({ key }) => result.errors[key]);
       if (firstInvalid) inputsRef.current[firstInvalid.key]?.focus();
     }
+  }
+
+  function recoverOfferData() {
+    if (!offerBeforeExample) return;
+    setValues(offerBeforeExample);
+    setCheckedValues(null);
+    setIsExample(false);
+    setOfferBeforeExample(null);
+    setRecoveryFeedback('Datos del encargo recuperados. Vuelve a comprobarlos con la referencia mensual actual.');
+    inputsRef.current.pricePerProject?.focus();
   }
 
   return (
@@ -64,6 +77,7 @@ export default function MonthlyProjectPlanner({ monthlyBilling, billableHours, h
                   setValues({ ...values, [key]: nextValue });
                   setCheckedValues(null);
                   setIsExample(false);
+                  setRecoveryFeedback('');
                 }}
                 aria-labelledby={`${id}-${key}-label`}
                 aria-describedby={`${id}-${key}-hint${error ? ` ${id}-${key}-error` : ''}`}
@@ -78,13 +92,21 @@ export default function MonthlyProjectPlanner({ monthlyBilling, billableHours, h
       <div className={styles.actions}>
         <button type="button" className="primary-button" onClick={() => check()}>Comprobar encargos</button>
         <button type="button" className="link-button" onClick={() => {
+          // Keep the first personal price and hours, including unfinished inputs.
+          // Recover only the draft: the next check uses the current monthly reference.
+          if (!isExample && Object.values(values).some((value) => value.trim() !== '')) {
+            setOfferBeforeExample((previous) => previous ?? { ...values });
+          }
           const nextValues = { pricePerProject: String(exampleProject.pricePerProject), hoursPerProject: String(exampleProject.hoursPerProject) };
           setValues(nextValues);
           setIsExample(true);
           check(nextValues);
         }}>Probar un encargo ficticio</button>
+        {offerBeforeExample ? <button type="button" className="link-button" onClick={recoverOfferData} aria-describedby={`${id}-recovery-hint`}>Recuperar mis datos del encargo</button> : null}
       </div>
-      <div role="status" aria-live="polite" aria-atomic="true">
+      {offerBeforeExample ? <p className={styles.note} id={`${id}-recovery-hint`}>Conservamos en esta página el precio y las horas anteriores al primer ejemplo. Recuperarlos sustituye los cambios que ves ahora y deja el resultado pendiente de comprobar con la referencia mensual actual. La copia se pierde al salir o recargar la página.</p> : null}
+      <div role="status" aria-label="Comprobación de encargos" aria-live="polite" aria-atomic="true">
+        {recoveryFeedback ? <p>{recoveryFeedback}</p> : null}
         {estimate && !estimate.valid ? <p>Revisa los datos indicados y la referencia mensual antes de comprobar el plan.</p> : null}
         {estimate?.valid ? (
           <div className={styles.result}>

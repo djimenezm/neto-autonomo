@@ -48,6 +48,43 @@ Los espacios publicitarios están preparados, pero `lib/ads.ts` exige `NEXT_PUBL
 
 ## Revisión local antes de publicar
 
+### Recuperar precio y horas al valorar un encargo (1 de noviembre de 2026)
+
+Publicación autorizada el 1 de noviembre de 2026. Reproducción ficticia en la
+guía de 3000 EUR: precio de 650,505 EUR y 18,75 h. Probar el encargo ficticio
+sustituye ambos campos por 2100 / 40 sin permitir volver al borrador propio.
+Se prioriza esta pérdida frente al plan anual, también de dos campos, por
+su uso antes de comprometer precio y alcance. No se confirmó un defecto
+matemático o de decisión de mayor impacto en las ayudas revisadas.
+
+`MonthlyProjectPlanner` conserva la primera copia de las dos cadenas propias
+antes de probar el ejemplo: precisión, espacios, ceros, vacíos y datos
+incompletos. Editar, comprobar o repetir el ejemplo mantiene esa copia.
+«Recuperar mis datos del encargo» restaura los campos sin calcular, retira
+el resultado y los errores, limpia la marca ficticia, consume la copia y
+enfoca el precio. Pide comprobarlos con la referencia mensual vigente; no
+restaura objetivos mensuales ni resultados anteriores. Se permite un nuevo
+ciclo. El estado vacío y los ejemplos intactos no se ofrecen como datos propios.
+
+La guía de 3000 EUR explica la recuperación y su duración en esta página.
+Sin cambios en motor, redondeo, fechas editoriales, tabla, selector o enlace
+compartido. Se conserva un único estado accesible para resultado y aviso.
+Sin nuevos campos, almacenamiento persistente, peticiones o eventos.
+Anuncios, piloto y seguimientos intactos. Se publica por la integración Git existente.
+
+Validación: 67 pruebas específicas de componente, recuperación, motor y guía
+y la batería completa (875 pruebas en 88 archivos), todas correctas. ESLint
+y compilación correctos; revisión de accesibilidad sin hallazgos. Los seis
+casos nuevos cubren cadenas originales, ceros inválidos, campos incompletos,
+primera copia, repeticiones, comprobaciones válidas o inválidas y nuevo ciclo.
+Tras cambiar la referencia a 5000 EUR y 80 h, recuperar 600 EUR / 30 h y volver
+a comprobar obtiene 1875 EUR de referencia y 9,6 h cubiertas, sin restaurar
+la referencia anterior. Sin almacenamiento ni envíos. En navegador sobre
+el build local, ejemplo, precio malformado, comprobación y repetición permiten
+recuperar exactamente 650,505 / 18,75. No quedan resultados ni errores;
+se consume la copia, el foco vuelve al precio y aparece la indicación de
+comprobar con la referencia actual. Guía visible y consola sin errores.
+
 ### Recuperar los datos propios de una factura tras probar el ejemplo (1 de noviembre de 2026)
 
 Publicación autorizada el 1 de noviembre de 2026. Caso ficticio: base de
