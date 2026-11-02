@@ -48,6 +48,44 @@ Los espacios publicitarios están preparados, pero `lib/ads.ts` exige `NEXT_PUBL
 
 ## Revisión local antes de publicar
 
+### Validar importes positivos que quedan en cero al redondear (3 de noviembre de 2026)
+
+Publicación autorizada el 3 de noviembre de 2026. Reproducción ficticia en
+el build local: abrir un cálculo con neto o cuota manual de 0.004 EUR permite
+un resultado inicial, pero Enter convierte el campo en cero y actualiza la
+URL con ese valor inválido. El resultado desaparece al renderizar de nuevo.
+La entrada pasaba la validación por ser positiva antes del redondeo.
+
+`getFieldError` rechaza los positivos de neto y cuota manual que la función
+de normalización existente convertiría en cero. Reutiliza ese mismo formato,
+sin recursión ni un redondeo alternativo. El mensaje explica el resultado del
+redondeo y pide al menos un céntimo. La normalización conserva el dato inválido
+para corregirlo, también al pegar un importe español. La validación compartida
+protege el envío, el cálculo inicial de una consulta y su imagen compartida.
+
+Se mantiene la frontera existente: 0.005, 0.009 y 0.01 EUR se admiten y se
+normalizan a 0.01; los mensajes de cero y negativos no cambian. Gastos y
+reserva de IRPF pueden seguir siendo cero. La cuota manual se ignora cuando
+la modalidad elegida es automática o reducida. El lector de consultas
+conserva su precisión; no se cambia la canonización general de las consultas.
+
+Validación: doce casos nuevos cubren Enter sin blur, salida del campo,
+pegado español, conservación del dato, corrección, límites, campos inactivos,
+SSR y metadatos. Las pruebas dirigidas y la batería completa (926 pruebas
+en 96 archivos, con dos procesos) pasan. ESLint y compilación correctos.
+Revisión independiente sin bloqueos. En navegador sobre el build local,
+neto y cuota manual de 0.004 se mantienen tras Enter, con error asociado,
+sin resultado ni cambios en la URL. La consulta inválida usa la imagen
+genérica. Pegar 0,004 EUR conserva el dato; pegar 0,01 EUR y calcular permite
+un resultado con la cuota manual de 0,01 EUR, sin pasar a automática.
+Consola y servidor sin errores observados.
+
+No cambia el motor, los tipos fiscales, el lector de consultas, el formulario
+GET ni los controladores de envío, seguimiento o conversión. Los flags de
+estado inicial del servidor se mantienen. No se crean peticiones, eventos ni
+almacenamiento nuevos. Anuncios, piloto y seguimientos intactos. Se publica
+por la integración Git existente.
+
 ### Etiquetas estables y ayudas asociadas en el formulario principal (3 de noviembre de 2026)
 
 Publicación autorizada el 3 de noviembre de 2026. En el formulario principal,

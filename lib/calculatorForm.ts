@@ -158,6 +158,15 @@ function getFieldError(field: FieldName, value: string) {
     }
   }
 
+  // Positive net and manual fee amounts must remain positive at the same
+  // cent precision used when accepting and sharing the form's values.
+  if ((field === 'targetNet' || field === 'selfEmployedFee') && parsedValue > 0
+    && Number(formatNormalizedNumber(parsedValue)) === 0) {
+    return field === 'targetNet'
+      ? 'El neto mensual queda en 0,00 EUR al redondear. Indica al menos 0,01 EUR.'
+      : 'La cuota manual queda en 0,00 EUR al redondear. Indica al menos 0,01 EUR.';
+  }
+
   if (field === 'billableHours' && parsedValue <= 0) {
     return 'Las horas facturables deben ser mayores que 0.';
   }
