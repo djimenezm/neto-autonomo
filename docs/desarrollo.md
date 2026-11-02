@@ -48,6 +48,45 @@ Los espacios publicitarios están preparados, pero `lib/ads.ts` exige `NEXT_PUBL
 
 ## Revisión local antes de publicar
 
+### Guiar la corrección de los datos que impiden trasladar costes (3 de noviembre de 2026)
+
+Publicación autorizada el 3 de noviembre de 2026. Reproducción ficticia en
+la calculadora de costes: intentar trasladar con deducibles vacíos muestra
+un aviso pero mantiene el foco en el botón y no enlaza el error con el campo.
+Con cuota cero, 80 h y 100 EUR de deducibles, el traslado también se bloquea,
+pero la cuota continúa con `aria-invalid=false` y sin mensaje asociado.
+Los totales son válidos para planificar; el bloqueo corresponde al traslado.
+
+`MonthlyCostCalculator` muestra el error de cuota junto al importe y el de
+deducibles junto al reparto. Ambos se vinculan con `aria-describedby` y
+marcan el campo como inválido tras intentar trasladar. El nombre accesible
+de deducibles se fija con su etiqueta, independiente del mensaje. Se retira
+el aviso genérico del botón para evitar duplicados. Si hay varios errores,
+se indican todos y el envío lleva al primero en orden de pantalla: cuota,
+horas y deducibles. Corregir un dato retira su aviso sin mover el foco.
+
+La cuota cero o una cantidad que se redondea a cero sigue permitiendo sumar
+costes antes del intento de traslado. No cambian importes, frecuencias,
+redondeo, criterios de validación, vista previa ni formulario GET. Se
+conservan las cadenas escritas y el desglose abierto durante la corrección.
+No se añade una guía para describir el manejo del foco; los mensajes útiles
+aparecen junto a los campos en el momento en que se necesitan.
+
+Validación: siete casos nuevos fallan en la versión anterior y pasan con la
+corrección. Las 38 pruebas específicas de componente, traslado y motor y la
+batería completa (908 pruebas en 93 archivos, con dos procesos) son correctas.
+ESLint y compilación correctos. Revisión de React y accesibilidad sin bloqueos.
+En navegador sobre el build local se reproduce y corrige el flujo de cuota
+cero, horas fraccionarias y reparto superior al disponible. Los mensajes
+se asocian con cada campo y el foco avanza al corregirlos. El desglose
+permanece abierto. Tras corregir el reparto, el GET lleva 100 EUR deducibles,
+60 EUR no deducibles, cuota manual de 320 EUR y 80 h a los campos de la
+calculadora principal. Consola y servidor sin errores observados.
+
+Sin cambios en fórmulas fiscales, guía, fechas editoriales, enlace compartido,
+almacenamiento persistente, peticiones ni eventos nuevos. Anuncios, piloto y
+seguimientos intactos. Se publica por la integración Git existente.
+
 ### Recuperar la alternativa tras cargar los datos de partida (3 de noviembre de 2026)
 
 Publicación autorizada el 3 de noviembre de 2026. Reproducción ficticia en el comparador de gastos y

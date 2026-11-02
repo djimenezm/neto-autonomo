@@ -40,7 +40,9 @@ export default function MonthlyCostCalculator() {
   });
   const [deductibleExpenses, setDeductibleExpenses] = useState('');
   const [transferAttempted, setTransferAttempted] = useState(false);
+  const feeInput = useRef<HTMLInputElement>(null);
   const hoursInput = useRef<HTMLInputElement>(null);
+  const deductibleInput = useRef<HTMLInputElement>(null);
   const costs = estimateRecurringCosts({
     fee: parseCost(values.fee),
     expenses: {
@@ -72,6 +74,12 @@ export default function MonthlyCostCalculator() {
     deductibleCents <= otherCostCents;
   const nonDeductibleAmount = validDeductibleAmount ? (otherCostCents - deductibleCents) / 100 : 0;
   const canTransfer = costs.valid && fee > 0 && transferHoursValid && validDeductibleAmount;
+  const feeTransferError = transferAttempted && costs.valid && fee <= 0
+    ? 'Indica una cuota mensual mayor que cero para trasladar este cálculo.'
+    : null;
+  const deductibleError = transferAttempted && costs.valid && !validDeductibleAmount
+    ? `Indica un importe deducible entre 0 y ${formatEuro(otherCosts)}.`
+    : null;
 
   function updateValue(key: keyof CostValues, value: string) {
     setValues((current) => ({ ...current, [key]: value }));
@@ -90,6 +98,7 @@ export default function MonthlyCostCalculator() {
       <div className="monthly-cost-inputs">
         {costFields.map(({ key, label }) => {
           const invalid = !costs.valid && Boolean(costs.errors[key]);
+          const transferError = key === 'fee' ? feeTransferError : null;
 
           return (
             <fieldset key={key} className={styles.costField}>
@@ -99,16 +108,18 @@ export default function MonthlyCostCalculator() {
                   <span>Importe de cada pago</span>
                   <span className="monthly-cost-input-wrap">
                     <NumericTextInput
+                      ref={key === 'fee' ? feeInput : undefined}
                       id={`monthly-cost-${key}`}
                       inputMode="decimal"
                       value={values[key]}
                       onValueChange={(nextValue) => updateValue(key, nextValue)}
-                      aria-invalid={invalid}
+                      aria-invalid={invalid || Boolean(transferError)}
                       aria-labelledby={`monthly-cost-${key}-label`}
-                      aria-describedby={invalid ? 'monthly-cost-error' : undefined}
+                      aria-describedby={invalid ? 'monthly-cost-error' : transferError ? 'monthly-cost-fee-error' : undefined}
                     />
                     <span aria-hidden="true">{key === 'fee' ? '€ / mes' : '€ / pago'}</span>
                   </span>
+                  {transferError ? <small className="field-error" id="monthly-cost-fee-error" role="alert">{transferError}</small> : null}
                 </label>
                 {key !== 'fee' ? (
                   <label htmlFor={`monthly-cost-${key}-period`}>
@@ -196,7 +207,9 @@ export default function MonthlyCostCalculator() {
               if (!canTransfer) {
                 event.preventDefault();
                 setTransferAttempted(true);
-                if (!transferHoursValid) hoursInput.current?.focus();
+                if (fee <= 0) feeInput.current?.focus();
+                else if (!transferHoursValid) hoursInput.current?.focus();
+                else if (!validDeductibleAmount) deductibleInput.current?.focus();
               }
             }}
           >
@@ -216,18 +229,21 @@ export default function MonthlyCostCalculator() {
               {' '}Revisa el neto, el criterio de IRPF, la comunidad y el IVA antes de calcular tu tarifa.
             </p>
             <label htmlFor="deductible-expenses">
-              <span>Gastos deducibles, sin incluir la cuota</span>
+              <span id="deductible-expenses-label">Gastos deducibles, sin incluir la cuota</span>
               <span className="monthly-cost-input-wrap">
                 <NumericTextInput
+                  ref={deductibleInput}
                   id="deductible-expenses"
                   inputMode="decimal"
                   value={deductibleExpenses}
                   onValueChange={setDeductibleExpenses}
-                  aria-invalid={transferAttempted && !validDeductibleAmount}
-                  aria-describedby="deductible-expenses-hint"
+                  aria-labelledby="deductible-expenses-label"
+                  aria-invalid={Boolean(deductibleError)}
+                  aria-describedby={`deductible-expenses-hint${deductibleError ? ' deductible-expenses-error' : ''}`}
                 />
                 <span aria-hidden="true">€ / mes</span>
               </span>
+              {deductibleError ? <small className="field-error" id="deductible-expenses-error" role="alert">{deductibleError}</small> : null}
             </label>
             <p id="deductible-expenses-hint">
               Escribe 0 si ninguno es deducible. El resto también se cubrirá con la tarifa, sin descontarlo del IRPF.
@@ -254,13 +270,6 @@ export default function MonthlyCostCalculator() {
             <input type="hidden" name="billableHours" value={validHours ? String(hours) : ''} />
             <input type="hidden" name="selfEmployedFeeMode" value="manual" />
             <input type="hidden" name="selfEmployedFee" value={fee.toFixed(2)} />
-            {transferAttempted && !canTransfer && (fee <= 0 || transferHoursValid) && (
-              <p className="monthly-cost-error" role="alert">
-                {fee <= 0
-                  ? 'Indica una cuota mensual mayor que cero para trasladar este cálculo.'
-                  : `Indica un importe deducible entre 0 y ${formatEuro(otherCosts)}.`}
-              </p>
-            )}
             <button type="submit" className="primary-button" aria-describedby="monthly-cost-transfer-scenario">
               Usar estos datos en mi tarifa
             </button>
