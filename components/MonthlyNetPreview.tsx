@@ -14,13 +14,26 @@ function NetEditor({ reference }: { reference: NetPreviewReference }) {
   const [value, setValue] = useState('');
   const [estimate, setEstimate] = useState<ReturnType<typeof estimateMonthlyNet> | null>(null);
   const [isExample, setIsExample] = useState(false);
+  const [billingBeforeExample, setBillingBeforeExample] = useState<string | null>(null);
+  const [recoveryFeedback, setRecoveryFeedback] = useState('');
   const error = estimate && !estimate.valid ? estimate.errors.monthlyBilling : undefined;
 
   function check(nextValue = value) {
+    setRecoveryFeedback('');
     const result = estimateMonthlyNet(reference, parseSpanishNumber(nextValue));
     setEstimate(result);
     if (result.valid) setValue(formatNumber(result.monthlyBilling));
     else input.current?.focus();
+  }
+
+  function recoverBilling() {
+    if (billingBeforeExample === null) return;
+    setValue(billingBeforeExample);
+    setEstimate(null);
+    setIsExample(false);
+    setBillingBeforeExample(null);
+    setRecoveryFeedback('Facturación anterior recuperada. Vuelve a estimar el neto para actualizar los resultados.');
+    input.current?.focus();
   }
 
   return (
@@ -39,7 +52,7 @@ function NetEditor({ reference }: { reference: NetPreviewReference }) {
       <label className={styles.field}>
         <span id={`${id}-label`}>Facturación mensual prevista sin IVA (EUR)</span>
         <NumericTextInput ref={input} inputMode="decimal" value={value}
-          onValueChange={(nextValue) => { setValue(nextValue); setEstimate(null); setIsExample(false); }}
+          onValueChange={(nextValue) => { setValue(nextValue); setEstimate(null); setIsExample(false); setRecoveryFeedback(''); }}
           onKeyDown={(event) => { if (event.key === 'Enter') { event.preventDefault(); check(); } }}
           aria-labelledby={`${id}-label`} aria-describedby={`${id}-hint ${id}-reference${error ? ` ${id}-error` : ''}`} aria-invalid={Boolean(error)} />
         <small id={`${id}-hint`}>Suma las bases del mes antes de IVA y retenciones. No uses el cobro bancario ni solo una factura. Puedes indicar cero.</small>
@@ -47,9 +60,21 @@ function NetEditor({ reference }: { reference: NetPreviewReference }) {
       </label>
       <div className={styles.actions}>
         <button type="button" className="primary-button" onClick={() => check()}>Estimar neto con esta facturación</button>
-        <button type="button" className="link-button" onClick={() => { setIsExample(true); setValue('2500'); check('2500'); }}>Probar una facturación de 2.500 €</button>
+        <button type="button" className="link-button" onClick={() => {
+          // Keep the first personal amount exactly; zero is a deliberate forecast too.
+          // The editor key resets this copy together with its reference assumptions.
+          if (!isExample && value.trim() !== '') {
+            setBillingBeforeExample((previous) => previous ?? value);
+          }
+          setIsExample(true);
+          setValue('2500');
+          check('2500');
+        }}>Probar una facturación de 2.500 €</button>
+        {billingBeforeExample !== null ? <button type="button" className="link-button" onClick={recoverBilling} aria-describedby={`${id}-recovery-hint`}>Recuperar mi facturación anterior</button> : null}
       </div>
+      {billingBeforeExample !== null ? <p className={styles.note} id={`${id}-recovery-hint`}>Conservamos en esta página el importe anterior al primer ejemplo. Recuperarlo sustituye los cambios que ves ahora y deja el neto pendiente de estimar. La copia se pierde al salir, recargar o cambiar los costes, la cuota, el objetivo o los supuestos de IRPF de referencia.</p> : null}
       <div role="status" aria-label="Neto según facturación" aria-live="polite" aria-atomic="true">
+        {recoveryFeedback ? <p>{recoveryFeedback}</p> : null}
         {estimate && !estimate.valid ? <p>{estimate.errors.reference ?? 'Revisa la facturación indicada antes de estimar el neto.'}</p> : null}
         {estimate?.valid ? (
           <div className={styles.result}>

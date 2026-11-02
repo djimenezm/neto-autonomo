@@ -48,6 +48,45 @@ Los espacios publicitarios están preparados, pero `lib/ads.ts` exige `NEXT_PUBL
 
 ## Revisión local antes de publicar
 
+### Recuperar la facturación prevista tras probar el ejemplo de neto (2 de noviembre de 2026)
+
+Publicación autorizada el 2 de noviembre de 2026. Reproducción ficticia en la
+guía por hora: escribir 3250,555 EUR de facturación prevista y probar los
+2500 EUR del ejemplo sustituye el importe sin permitir recuperarlo. La
+previsión puede proceder de sumar varias facturas. No se confirmó un fallo
+numérico de mayor impacto en los motores de neto y retención revisados.
+
+`MonthlyNetPreview` conserva dentro de `NetEditor` la primera cadena propia
+antes del ejemplo, con precisión, espacios, ceros y datos incompletos.
+Editar, estimar o repetir el ejemplo no sustituye esa copia. «Recuperar mi
+facturación anterior» restaura el importe sin calcular, retira estimación y
+errores, limpia la marca ficticia, consume la copia y devuelve el foco al
+campo. Pide estimar de nuevo. Cero es una previsión válida, no ausencia de
+datos; el estado vacío y los ejemplos intactos no se ofrecen como copia propia.
+
+Se mantiene `key={JSON.stringify(reference)}`: cambiar los supuestos de
+referencia reinicia campo, resultado, copia y mensajes. Volver a los datos
+anteriores no recupera la copia. La guía por hora y el aviso junto al botón
+aclaran la duración al salir, recargar o cambiar costes, cuota, objetivo o
+supuestos de IRPF. Se anuncia la recuperación en el mismo estado accesible.
+Sin cambios en fórmulas fiscales, redondeo, fechas editoriales, tabla, selector,
+resultado principal o enlace compartido. Sin almacenamiento persistente,
+peticiones ni eventos nuevos. Anuncios, piloto y seguimientos intactos.
+Se publica por la integración Git existente.
+
+Validación: 42 pruebas específicas de recuperación, componente, motor y guía
+y la batería completa (887 pruebas en 90 archivos), todas correctas. ESLint
+y compilación correctos; revisión de accesibilidad sin hallazgos. Los seis
+casos nuevos cubren cadenas malformadas y precisas, primera copia, repeticiones,
+estimaciones válidas o inválidas, segundo ciclo y cero con déficit válido
+solo tras estimar explícitamente. Una referencia equivalente mantiene la
+copia; cambiar costes o criterio fiscal la reinicia junto al campo, los
+mensajes y el resultado, sin revivirla al volver. Sin almacenamiento ni envíos.
+En el navegador sobre el build local, ejemplo, importe malformado, estimación
+y repetición permiten recuperar exactamente 3250,555, sin estimación anterior
+ni errores, con foco en el campo y copia consumida. Guía visible y consola
+sin errores.
+
 ### Recuperar los meses y las horas del calendario anual (1 de noviembre de 2026)
 
 Publicación autorizada el 2 de noviembre de 2026. Reproducción ficticia en la
