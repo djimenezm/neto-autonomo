@@ -48,6 +48,42 @@ Los espacios publicitarios están preparados, pero `lib/ads.ts` exige `NEXT_PUBL
 
 ## Revisión local antes de publicar
 
+### Etiquetas estables y ayudas asociadas en el formulario principal (3 de noviembre de 2026)
+
+Publicación autorizada el 3 de noviembre de 2026. En el formulario principal,
+un error de neto, gastos o cuota se incorpora al nombre accesible del campo
+porque comparte la etiqueta envolvente. Las pistas de los selectores también
+forman parte del nombre y lo alargan al cambiar de modo. En gastos no
+deducibles, el error sustituye la pista en `aria-describedby`. Reproducción
+ficticia en navegador: neto cero y gastos no deducibles negativos; la búsqueda
+por el nombre original del neto deja de resolver y la pista queda sin asociar.
+
+`CalculatorForm` asocia de forma explícita las etiquetas visibles de neto,
+gastos deducibles, gastos no deducibles y cuota manual. Los errores quedan
+como descripciones, sin renombrar los controles. Los cuatro selectores de
+IRPF, comunidad, modalidad de cuota y período reducido también separan su
+etiqueta de la pista, que conserva su asociación al cambiar las opciones.
+Gastos no deducibles mantiene simultáneamente pista y error, como ya hacían
+horas y reserva de IRPF. No se cambia el texto visible.
+
+Validación: seis casos nuevos fallan antes del cambio y pasan después. Las
+48 pruebas específicas de componente, etiquetas y validación y la batería
+completa (914 pruebas en 94 archivos, con dos procesos) son correctas.
+ESLint y compilación correctos. Revisión de React, GET y SSR sin bloqueos:
+los identificadores son deterministas y no colisionan en el uso actual.
+En navegador sobre el build local, los cuatro nombres numéricos resuelven
+exactamente tras mostrar varios errores, la pista no deducible permanece
+asociada junto a su error y el foco sigue en el primer campo inválido.
+Comunidad, período reducido y modalidades conservan nombres breves y sus
+pistas. Volver a la referencia anterior recupera el resumen idéntico. Corregir
+los campos y calcular obtiene 2972,94 EUR/mes sin IVA y 37,16 EUR/h con los
+supuestos ficticios de 2000 EUR netos, 300 EUR de gastos, 80 h, reserva manual
+del 15 % y cuota de 320 EUR. Consola y servidor sin errores observados.
+
+Sin cambios en fórmulas, validación, normalización, GET, resumen, URL,
+almacenamiento, peticiones ni eventos de seguimiento. Anuncios, piloto y
+seguimientos intactos. Se publica por la integración Git existente.
+
 ### Guiar la corrección de los datos que impiden trasladar costes (3 de noviembre de 2026)
 
 Publicación autorizada el 3 de noviembre de 2026. Reproducción ficticia en

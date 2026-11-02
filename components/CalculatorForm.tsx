@@ -313,7 +313,7 @@ export default function CalculatorForm({
         className="calculator-form"
       >
         <label>
-          <span>Neto mensual deseado (EUR)</span>
+          <span id="target-net-label">Neto mensual deseado (EUR)</span>
           <input
             name="targetNet"
             type="number"
@@ -324,6 +324,7 @@ export default function CalculatorForm({
             onPaste={(event) => handleNumericPaste(event, 'targetNet', setTargetNet)}
             onBlur={(event) => setTargetNet(normalizeFieldValue('targetNet', event.target.value))}
             aria-invalid={showFieldError('targetNet')}
+            aria-labelledby="target-net-label"
             aria-describedby={showFieldError('targetNet') ? 'target-net-error' : undefined}
           />
           {showFieldError('targetNet') && (
@@ -334,7 +335,7 @@ export default function CalculatorForm({
         </label>
 
         <label>
-          <span>Gastos mensuales deducibles (EUR)</span>
+          <span id="monthly-expenses-label">Gastos mensuales deducibles (EUR)</span>
           <input
             name="monthlyExpenses"
             type="number"
@@ -349,6 +350,7 @@ export default function CalculatorForm({
               setMonthlyExpenses(normalizeFieldValue('monthlyExpenses', event.target.value))
             }
             aria-invalid={showFieldError('monthlyExpenses')}
+            aria-labelledby="monthly-expenses-label"
             aria-describedby={
               showFieldError('monthlyExpenses') ? 'monthly-expenses-error' : undefined
             }
@@ -361,7 +363,7 @@ export default function CalculatorForm({
         </label>
 
         <label>
-          <span>Gastos mensuales no deducibles (EUR)</span>
+          <span id="monthly-non-deductible-expenses-label">Gastos mensuales no deducibles (EUR)</span>
           <input
             name="monthlyNonDeductibleExpenses"
             type="number"
@@ -378,11 +380,8 @@ export default function CalculatorForm({
               )
             }
             aria-invalid={showFieldError('monthlyNonDeductibleExpenses')}
-            aria-describedby={
-              showFieldError('monthlyNonDeductibleExpenses')
-                ? 'monthly-non-deductible-expenses-error'
-                : 'monthly-non-deductible-expenses-hint'
-            }
+            aria-labelledby="monthly-non-deductible-expenses-label"
+            aria-describedby={`monthly-non-deductible-expenses-hint${showFieldError('monthlyNonDeductibleExpenses') ? ' monthly-non-deductible-expenses-error' : ''}`}
           />
           <small className="field-hint" id="monthly-non-deductible-expenses-hint">
             Costes que pagas pero no descuentas en esta estimación de IRPF. Escribe 0 si no tienes.
@@ -438,16 +437,18 @@ export default function CalculatorForm({
         ) : null}
 
         <label>
-          <span>Cómo quieres estimar el IRPF</span>
+          <span id="irpf-mode-label">Cómo quieres estimar el IRPF</span>
           <select
             name="irpfMode"
             value={irpfMode}
             onChange={(event) => setIrpfMode(event.target.value as IrpfMode)}
+            aria-labelledby="irpf-mode-label"
+            aria-describedby="irpf-mode-hint"
           >
             <option value="progressive">Estimación progresiva simplificada</option>
             <option value="manual">Porcentaje manual</option>
           </select>
-          <small className="field-hint">
+          <small className="field-hint" id="irpf-mode-hint">
             {irpfMode === 'progressive' &&
               'Usamos una estimación anual por tramos sobre beneficio, con mínimo personal estatal y una aproximación simplificada de la parte autonómica.'}
             {irpfMode === 'manual' &&
@@ -457,11 +458,13 @@ export default function CalculatorForm({
 
         {irpfMode === 'progressive' && (
           <label>
-            <span>Comunidad autónoma para el IRPF</span>
+            <span id="autonomous-community-label">Comunidad autónoma para el IRPF</span>
             <select
               name="autonomousCommunity"
               value={autonomousCommunity}
               onChange={(event) => setAutonomousCommunity(event.target.value as AutonomousCommunity)}
+              aria-labelledby="autonomous-community-label"
+              aria-describedby="autonomous-community-hint"
             >
               {Object.entries(AUTONOMOUS_COMMUNITY_LABELS).map(([value, label]) => (
                 <option key={value} value={value}>
@@ -469,7 +472,7 @@ export default function CalculatorForm({
                 </option>
               ))}
             </select>
-            <small className="field-hint">
+            <small className="field-hint" id="autonomous-community-hint">
               Territorio común mantiene una aproximación general. Madrid, Cataluña, Andalucía y
               Comunitat Valenciana usan escalas autonómicas específicas de 2026.
             </small>
@@ -506,17 +509,19 @@ export default function CalculatorForm({
         )}
 
         <label>
-          <span>Cómo quieres calcular la cuota de autónomos</span>
+          <span id="self-employed-fee-mode-label">Cómo quieres calcular la cuota de autónomos</span>
           <select
             name="selfEmployedFeeMode"
             value={selfEmployedFeeMode}
             onChange={(event) => setSelfEmployedFeeMode(event.target.value as SelfEmployedFeeMode)}
+            aria-labelledby="self-employed-fee-mode-label"
+            aria-describedby="self-employed-fee-mode-hint"
           >
             <option value="auto">Estimar según tramo 2026</option>
             <option value="reduced">Tarifa reducida / nuevo autónomo</option>
             <option value="manual">Indicar cuota manual</option>
           </select>
-          <small className="field-hint">
+          <small className="field-hint" id="self-employed-fee-mode-hint">
             {selfEmployedFeeMode === 'auto' &&
               'Estimamos una cuota mínima orientativa según el tramo de rendimientos netos mensuales de 2026.'}
             {selfEmployedFeeMode === 'reduced' &&
@@ -528,16 +533,18 @@ export default function CalculatorForm({
 
         {selfEmployedFeeMode === 'reduced' && (
           <label>
-            <span>Período de la tarifa reducida</span>
+            <span id="reduced-fee-period-label">Período de la tarifa reducida</span>
             <select
               name="reducedFeePeriod"
               value={reducedFeePeriod}
               onChange={(event) => setReducedFeePeriod(event.target.value as ReducedFeePeriod)}
+              aria-labelledby="reduced-fee-period-label"
+              aria-describedby="reduced-fee-period-hint"
             >
               <option value="initial">Primeros 12 meses</option>
               <option value="extended">Prórroga 12 meses si sigues por debajo del SMI</option>
             </select>
-            <small className="field-hint">
+            <small className="field-hint" id="reduced-fee-period-hint">
               Comparamos rendimientos anuales estimados con el SMI de 2026: {formatCurrency(ANNUAL_SMI_2026)} al año. No es el neto que deseas conservar ni tu facturación.
             </small>
           </label>
@@ -545,7 +552,7 @@ export default function CalculatorForm({
 
         {selfEmployedFeeMode === 'manual' && (
           <label>
-            <span>Cuota manual de autónomos (EUR)</span>
+            <span id="self-employed-fee-label">Cuota manual de autónomos (EUR)</span>
             <input
               name="selfEmployedFee"
               type="number"
@@ -560,6 +567,7 @@ export default function CalculatorForm({
                 setSelfEmployedFee(normalizeFieldValue('selfEmployedFee', event.target.value))
               }
               aria-invalid={showFieldError('selfEmployedFee')}
+              aria-labelledby="self-employed-fee-label"
               aria-describedby={
                 showFieldError('selfEmployedFee') ? 'self-employed-fee-error' : undefined
               }
