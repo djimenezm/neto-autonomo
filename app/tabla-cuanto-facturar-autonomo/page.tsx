@@ -287,6 +287,13 @@ export default function TablaCuantoFacturarAutonomoPage() {
             y 60 horas para reproducir la última fila. Para comparar con tus propios impuestos y cuota,
             {' '}<Link href={getExampleUrl(2000)}>ajusta primero tu cálculo</Link> y abre «Comparar cambios en mis gastos y horas» en el resultado.
           </p>
+          <p>
+            Si ya has escrito una alternativa, «Cargar los datos de partida» permite volver a ella
+            con «Recuperar mi alternativa anterior». Conservamos los gastos y las horas anteriores
+            a la primera carga, aunque estén incompletos. Recuperarlos sustituye los cambios actuales
+            y retira la comparación y su enlace: vuelve a pulsar «Comparar escenarios».
+            La copia se pierde al salir, recargar o cambiar el cálculo de referencia.
+          </p>
           <MonthlyScenarioComparator reference={monthlyScenarioInput} />
         </div>
       </section>

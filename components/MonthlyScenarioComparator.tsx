@@ -22,12 +22,16 @@ function ComparisonEditor({ reference }: { reference: CalculatorInput }) {
   const id = useId();
   const [values, setValues] = useState<Values>({ monthlyExpenses: '', billableHours: '' });
   const [checked, setChecked] = useState<Values | null>(null);
+  const [alternativeBeforeLoad, setAlternativeBeforeLoad] = useState<Values | null>(null);
+  const [usesStartingValues, setUsesStartingValues] = useState(false);
+  const [recoveryFeedback, setRecoveryFeedback] = useState('');
   const refs = useRef<Partial<Record<keyof Values, HTMLInputElement | null>>>({});
   const comparison = checked ? compareMonthlyScenarios(reference, {
     monthlyExpenses: parseSpanishNumber(checked.monthlyExpenses), billableHours: parseSpanishNumber(checked.billableHours),
   }) : null;
 
   function compare(next = values) {
+    setRecoveryFeedback('');
     const result = compareMonthlyScenarios(reference, {
       monthlyExpenses: parseSpanishNumber(next.monthlyExpenses), billableHours: parseSpanishNumber(next.billableHours),
     });
@@ -40,6 +44,28 @@ function ComparisonEditor({ reference }: { reference: CalculatorInput }) {
       const invalid = fields.find(({ key }) => result.errors[key]);
       if (invalid) refs.current[invalid.key]?.focus();
     }
+  }
+
+  function loadStartingValues() {
+    // Keep the first personal alternative, including unfinished inputs. Loading
+    // and comparing the untouched starting values must not create a new copy.
+    if (!usesStartingValues && Object.values(values).some((value) => value.trim() !== '')) {
+      setAlternativeBeforeLoad((previous) => previous ?? { ...values });
+    }
+    setValues({ monthlyExpenses: formatNumber(reference.monthlyExpenses), billableHours: String(reference.billableHours) });
+    setChecked(null);
+    setUsesStartingValues(true);
+    setRecoveryFeedback('');
+  }
+
+  function recoverAlternative() {
+    if (!alternativeBeforeLoad) return;
+    setValues(alternativeBeforeLoad);
+    setChecked(null);
+    setAlternativeBeforeLoad(null);
+    setUsesStartingValues(false);
+    setRecoveryFeedback('Alternativa anterior recuperada. Vuelve a comparar los escenarios para actualizar los resultados.');
+    refs.current.monthlyExpenses?.focus();
   }
 
   return (
@@ -65,7 +91,7 @@ function ComparisonEditor({ reference }: { reference: CalculatorInput }) {
               <span id={`${id}-${key}-label`}>{label}</span>
               <NumericTextInput inputMode={key === 'billableHours' ? 'numeric' : 'decimal'} value={values[key]}
                 ref={(node) => { refs.current[key] = node; }}
-                onValueChange={(nextValue) => { setValues({ ...values, [key]: nextValue }); setChecked(null); }}
+                onValueChange={(nextValue) => { setValues({ ...values, [key]: nextValue }); setChecked(null); setUsesStartingValues(false); setRecoveryFeedback(''); }}
                 aria-labelledby={`${id}-${key}-label`} aria-describedby={`${id}-${key}-hint${error ? ` ${id}-${key}-error` : ''}`} aria-invalid={Boolean(error)} />
               <small id={`${id}-${key}-hint`}>{hint}</small>
               {error ? <small className="field-error" id={`${id}-${key}-error`}>{error}</small> : null}
@@ -75,12 +101,12 @@ function ComparisonEditor({ reference }: { reference: CalculatorInput }) {
       </fieldset>
       <div className={styles.actions}>
         <button type="button" className="primary-button" onClick={() => compare()}>Comparar escenarios</button>
-        <button type="button" className="link-button" onClick={() => {
-          setValues({ monthlyExpenses: formatNumber(reference.monthlyExpenses), billableHours: String(reference.billableHours) });
-          setChecked(null);
-        }}>Cargar los datos de partida</button>
+        <button type="button" className="link-button" onClick={loadStartingValues}>Cargar los datos de partida</button>
+        {alternativeBeforeLoad ? <button type="button" className="link-button" onClick={recoverAlternative} aria-describedby={`${id}-recovery-hint`}>Recuperar mi alternativa anterior</button> : null}
       </div>
+      {alternativeBeforeLoad ? <p className={styles.note} id={`${id}-recovery-hint`}>Conservamos en esta página los gastos y las horas anteriores a la primera carga de datos de partida. Recuperarlos sustituye los cambios que ves ahora y deja la comparación y su enlace pendientes de comprobar. La copia se pierde al salir, recargar o cambiar el cálculo de referencia.</p> : null}
       <div role="status" aria-label="Comparación de escenarios" aria-live="polite" aria-atomic="true">
+        {recoveryFeedback ? <p>{recoveryFeedback}</p> : null}
         {comparison && !comparison.valid ? <p>Revisa los campos indicados antes de comparar.</p> : null}
         {comparison?.valid ? (
           <div className={styles.result}>

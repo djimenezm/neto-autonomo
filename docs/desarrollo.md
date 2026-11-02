@@ -48,6 +48,45 @@ Los espacios publicitarios están preparados, pero `lib/ads.ts` exige `NEXT_PUBL
 
 ## Revisión local antes de publicar
 
+### Recuperar la alternativa tras cargar los datos de partida (3 de noviembre de 2026)
+
+Publicación autorizada el 3 de noviembre de 2026. Reproducción ficticia en el comparador de gastos y
+horas: escribir 450,555 EUR y 60 h y pulsar «Cargar los datos de partida»
+sustituye ambos campos por 300 / 80 sin permitir recuperarlos. No se ha
+confirmado un defecto de cálculo de mayor impacto en los motores revisados.
+
+`MonthlyScenarioComparator` conserva la primera alternativa propia anterior
+a la carga, incluidas precisión, espacios, ceros y cadenas incompletas.
+Repetir la carga, editar o comparar no sustituye esa copia. La procedencia
+de los datos cargados se mantiene al comparar, también con Enter: una partida
+intacta no se ofrece como alternativa propia. Editar o recuperar permite
+iniciar un nuevo ciclo. No se crea copia desde los campos vacíos.
+
+«Recuperar mi alternativa anterior» restaura las dos cadenas sin calcular,
+retira comparación, enlace y errores, consume la copia y devuelve el foco a
+gastos. Pide volver a comparar. Se mantiene el único estado accesible y la
+clave de referencia existente: una referencia equivalente conserva la copia;
+cambiar los supuestos reinicia campos, copia y mensajes sin revivirlos al
+volver. El aviso y la tabla explican la sustitución de los cambios actuales
+y la pérdida de la copia al salir, recargar o cambiar la referencia.
+
+Validación: siete casos nuevos fallan antes y pasan después del cambio.
+Las 28 pruebas específicas de recuperación, componente, motor y guía son
+correctas. Batería completa: 901 pruebas en 92 archivos, todas correctas con
+dos procesos. La primera ejecución, simultánea con lint y build, agotó el
+tiempo en una prueba existente de importación de caja; al repetir la batería
+con menos carga pasa sin modificarla. ESLint y compilación correctos.
+Revisión de React y accesibilidad sin hallazgos. En navegador sobre el build
+local, cargas repetidas, botón, Enter y errores posteriores permiten recuperar
+exactamente 450,555 / 60. Se retiran resultados y enlace hasta volver a comparar;
+entonces se usan 450,56 EUR y 60 h también en el enlace alternativo. El resumen
+principal permanece idéntico. Explicación visible y consola sin errores.
+
+Sin cambios en fórmulas, redondeo, fechas editoriales, selector, cálculo
+principal o enlace compartido. Sin almacenamiento persistente, peticiones
+ni eventos nuevos. Anuncios, piloto y seguimientos intactos. Se publica por
+la integración Git existente.
+
 ### Recuperar la retención y conservar el aviso de ejemplo (2 de noviembre de 2026)
 
 Publicación autorizada el 2 de noviembre de 2026. Reproducción ficticia en la ayuda
