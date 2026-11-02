@@ -451,6 +451,14 @@ export default function TarifaFreelancePorHoraPage() {
               base, tipos y casos en que no se repercute. Esta comprobación solo aplica los porcentajes que escribas.
             </p>
             <p>Si lo que quieres contrastar es toda tu referencia mensual, abre «Ver cómo se reparte la facturación» y después «Comprobar el cobro si hay retención» en el resultado de la calculadora. Esa ayuda conserva la base y el IVA del resultado mensual.</p>
+            <p>
+              En esa ayuda del resultado mensual puedes probar el 15 % ficticio y volver al porcentaje
+              que habías escrito con «Recuperar mi retención anterior», incluso si era cero o estaba
+              incompleto. Recuperar sustituye los cambios actuales y retira el resultado: vuelve a
+              pulsar «Comprobar importe a cobrar». La copia se pierde al salir, recargar o cambiar la
+              base, el IVA o la referencia de la ayuda. El 15 % sigue marcado como ficticio si vuelves
+              a comprobarlo sin editar; no indica qué retención corresponde a tu actividad.
+            </p>
           </div>
         </div>
       </section>

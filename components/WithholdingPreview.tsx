@@ -14,15 +14,27 @@ function PreviewEditor({ baseAmount, vatAmount, context }: Props) {
   const input = useRef<HTMLInputElement>(null);
   const [rate, setRate] = useState('');
   const [checked, setChecked] = useState<{ rate: string; isExample: boolean } | null>(null);
+  const [rateBeforeExample, setRateBeforeExample] = useState<string | null>(null);
+  const [recoveryFeedback, setRecoveryFeedback] = useState('');
   const result = checked ? previewWithholding({ baseAmount, vatAmount, withholdingRate: parseSpanishNumber(checked.rate) }) : null;
   const fieldError = result && !result.valid && result.field === 'withholdingRate' ? result.error : undefined;
 
-  function check(nextRate = rate, isExample = false) {
+  function check(nextRate = rate, isExample = checked?.isExample ?? false) {
+    setRecoveryFeedback('');
     const estimate = previewWithholding({ baseAmount, vatAmount, withholdingRate: parseSpanishNumber(nextRate) });
     const normalizedRate = estimate.valid ? formatNumber(estimate.rateUsed) : nextRate;
     setRate(normalizedRate);
     setChecked({ rate: normalizedRate, isExample });
     if (!estimate.valid && estimate.field === 'withholdingRate') input.current?.focus();
+  }
+
+  function recoverRate() {
+    if (rateBeforeExample === null) return;
+    setRate(rateBeforeExample);
+    setChecked(null);
+    setRateBeforeExample(null);
+    setRecoveryFeedback('Retención anterior recuperada. Vuelve a comprobar el importe a cobrar para actualizar los resultados.');
+    input.current?.focus();
   }
 
   return (
@@ -38,7 +50,7 @@ function PreviewEditor({ baseAmount, vatAmount, context }: Props) {
       <label className={styles.field}>
         <span id={`${id}-label`}>Retención que quieres comprobar (%)</span>
         <NumericTextInput ref={input} inputMode="decimal" value={rate}
-          onValueChange={(nextValue) => { setRate(nextValue); setChecked(null); }}
+          onValueChange={(nextValue) => { setRate(nextValue); setChecked(null); setRecoveryFeedback(''); }}
           onKeyDown={(event) => { if (event.key === 'Enter') { event.preventDefault(); check(); } }}
           aria-labelledby={`${id}-label`} aria-describedby={`${id}-hint ${id}-reference${fieldError ? ` ${id}-error` : ''}`}
           aria-invalid={Boolean(fieldError)} />
@@ -47,9 +59,19 @@ function PreviewEditor({ baseAmount, vatAmount, context }: Props) {
       </label>
       <div className={styles.actions}>
         <button type="button" className="primary-button" onClick={() => check()}>Comprobar importe a cobrar</button>
-        <button type="button" className="link-button" onClick={() => check('15', true)}>Probar una retención ficticia del 15 %</button>
+        <button type="button" className="link-button" onClick={() => {
+          // Preserve the first personal percentage, including zero and unfinished inputs.
+          // Rechecking an untouched example keeps its origin and must not create a draft.
+          if (!checked?.isExample && rate.trim() !== '') {
+            setRateBeforeExample((previous) => previous ?? rate);
+          }
+          check('15', true);
+        }}>Probar una retención ficticia del 15 %</button>
+        {rateBeforeExample !== null ? <button type="button" className="link-button" onClick={recoverRate} aria-describedby={`${id}-recovery-hint`}>Recuperar mi retención anterior</button> : null}
       </div>
+      {rateBeforeExample !== null ? <p className={styles.note} id={`${id}-recovery-hint`}>Conservamos en esta página el porcentaje anterior al primer ejemplo. Recuperarlo sustituye los cambios que ves ahora y deja el importe a cobrar pendiente de comprobar. La copia se pierde al salir, recargar o cambiar la base, el IVA o la referencia (ejemplo o resultado mensual).</p> : null}
       <div role="status" aria-label="Importe a cobrar con retención" aria-live="polite" aria-atomic="true">
+        {recoveryFeedback ? <p>{recoveryFeedback}</p> : null}
         {result && !result.valid ? <p>{result.error}</p> : null}
         {result?.valid ? (
           <div className={styles.result}>

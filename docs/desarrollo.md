@@ -48,6 +48,47 @@ Los espacios publicitarios están preparados, pero `lib/ads.ts` exige `NEXT_PUBL
 
 ## Revisión local antes de publicar
 
+### Recuperar la retención y conservar el aviso de ejemplo (2 de noviembre de 2026)
+
+Publicación autorizada el 2 de noviembre de 2026. Reproducción ficticia en la ayuda
+del resultado mensual: escribir 7,125 % y probar el 15 % sustituye el valor
+sin recuperarlo. Además, pulsar «Comprobar importe a cobrar» o Enter sin
+editar retira la marca ficticia aunque se sigue usando el 15 % del ejemplo.
+
+`WithholdingPreview` conserva la primera cadena propia anterior al ejemplo
+dentro de `PreviewEditor`, incluidos precisión, espacios, cero y datos
+incompletos. Editar, comprobar o repetir el ejemplo no sustituye esa copia.
+«Recuperar mi retención anterior» restaura el campo sin calcular, retira el
+resultado y los errores, consume la copia y devuelve el foco. Pide comprobar
+de nuevo. El estado vacío y los ejemplos intactos no se ofrecen como datos propios.
+
+`check` conserva por defecto el origen de `checked`: recomprobar o pulsar
+Enter no convierte un ejemplo en un porcentaje propio. Editar ya retira
+`checked`, por lo que una comprobación posterior usa el porcentaje escrito
+sin marca ficticia. No se duplica el estado de origen. Se mantiene la clave
+`baseAmount:vatAmount:context`: cambiar cada referencia reinicia campo,
+copia, resultado y mensajes; volver atrás no revive la copia antigua.
+
+La guía por hora explica la recuperación en la ayuda mensual y el aviso
+ficticio persistente. La descripción del botón nombra base, IVA y referencia
+con ejemplos comprensibles (ejemplo o resultado mensual), sin exponer el
+nombre interno de la prop. Sin cambios en tipos fiscales, motor, redondeo,
+fechas editoriales, tabla, selector, resumen o enlace compartido. Sin nuevos
+campos, almacenamiento persistente, peticiones o eventos. Anuncios, piloto
+y seguimientos intactos. Se publica por la integración Git existente.
+
+Validación: 34 pruebas específicas de componente, recuperación, motor y guías
+y la batería completa (894 pruebas en 91 archivos), todas correctas. ESLint
+y compilación correctos; revisión de accesibilidad sin hallazgos. Los siete
+casos nuevos cubren marca ficticia tras botón y Enter, edición, primera copia,
+texto original, cero válido, errores, nuevo ciclo y reinicios independientes
+por base, IVA o contexto. Sin almacenamiento ni envíos. En navegador sobre
+el build local, 7,125 / ejemplo del 15 % / botón / Enter mantiene el aviso;
+repetir y comprobar un 101 % inválido permite recuperar 7,125 exactamente.
+Se retiran resultado y errores, se consume la copia y vuelve el foco. El
+resumen detallado principal permanece idéntico. Guía visible y consola sin
+errores.
+
 ### Recuperar la facturación prevista tras probar el ejemplo de neto (2 de noviembre de 2026)
 
 Publicación autorizada el 2 de noviembre de 2026. Reproducción ficticia en la
