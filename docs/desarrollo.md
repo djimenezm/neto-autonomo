@@ -48,6 +48,43 @@ Los espacios publicitarios están preparados, pero `lib/ads.ts` exige `NEXT_PUBL
 
 ## Revisión local antes de publicar
 
+### Conservar los supuestos en el resumen del cálculo (3 de noviembre de 2026)
+
+Publicación autorizada el 4 de noviembre de 2026. El texto exportado conservaba
+los resultados, pero omitía los gastos deducibles y el criterio de IRPF y
+de cuota. `ResultCard` amplía únicamente `resultSummary`, compartido por la
+vista previa, la copia y los textos de WhatsApp, X y email.
+
+Se indican siempre gastos deducibles sin cuota y costes no deducibles,
+también cero. El modo manual lleva el porcentaje de reserva sobre el
+beneficio y aclara que no es retención de factura. El progresivo se identifica
+como estimación simplificada y muestra su comunidad, sin presentar el tipo
+efectivo como un porcentaje elegido. La modalidad de cuota procede del
+resultado aplicado: manual, estimada por tramo, reducida inicial o prórroga.
+
+Solo la prórroga reducida añade rendimientos y SMI anuales, la comparación
+del modelo y los límites que ya muestra `ReducedFeeNotice`: doce meses
+iguales, cuota seleccionada conservada sin acreditar derecho, solicitud y
+otros requisitos aparte y revisión de cada año si abarca dos años naturales.
+No se introduce esa comparación como requisito de la cuota reducida inicial.
+
+Validación: seis casos nuevos y 45 pruebas en tres archivos correctas.
+ESLint, compilación y TypeScript pasan. Las pruebas comprueban importes,
+modalidades y ambas ramas de la prórroga, igualdad del texto en vista previa,
+copia y canales y conservación de URL, parámetros, atributos y eventos.
+La ruta principal mantiene `enableResultCopy={false}`: el texto compartido
+se comprueba en navegador y la copia al portapapeles en pruebas del componente,
+sin activar el botón en esa ruta.
+
+En navegador local se revisan reserva manual, progresivo de Madrid, gastos
+cero y prórroga por encima del SMI. Los tres canales llevan el mismo texto
+base, sin abrir sus destinos ni enviar mensajes. A 320 px el contenido se
+ajusta al ancho del campo. Consola sin errores observados. Datos ficticios.
+
+No cambia el cálculo, los campos, la validación, las URLs ni los controladores
+de copia, compartición o seguimiento. Anuncios, piloto y seguimientos intactos.
+Se publica por la integración Git existente.
+
 ### Acceso directo a la estimación de neto según facturación (3 de noviembre de 2026)
 
 Publicación autorizada el 3 de noviembre de 2026. La ayuda existente para recorrer

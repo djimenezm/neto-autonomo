@@ -82,15 +82,33 @@ const ResultCard = forwardRef<HTMLElement, ResultCardProps>(function ResultCard(
         `Facturación objetivo sin IVA: ${formatCurrency(result.billingWithoutVAT)} al mes`,
         `Tarifa media orientativa: ${formatCurrency(result.hourlyRate)}/h`,
         `Horas facturables usadas: ${hoursBillable} al mes`,
+        `Gastos deducibles de actividad, sin cuota: ${formatCurrency(result.monthlyExpenses)} al mes`,
+        `Otros costes no deducibles: ${formatCurrency(result.monthlyNonDeductibleExpenses)} al mes`,
         hasIVA
           ? `IVA simulado al 21 % (aparte del neto): ${formatCurrency(result.estimatedVAT)}`
           : 'IVA: no incluido en esta simulación',
+        result.irpfMode === 'manual'
+          ? `Criterio de IRPF: reserva manual del ${formatNumber(result.irpfRate)} % sobre el beneficio de la simulación; no es retención de una factura.`
+          : 'Criterio de IRPF: estimación progresiva simplificada.',
         `Reserva estimada de IRPF: ${formatCurrency(result.estimatedIRPF)} al mes`,
         `Cuota de autónomos aplicada: ${formatCurrency(result.selfEmployedFee)} al mes`,
-        ...(result.monthlyNonDeductibleExpenses > 0
-          ? [`Otros costes no deducibles: ${formatCurrency(result.monthlyNonDeductibleExpenses)} al mes`]
+        `Modalidad de cuota: ${result.selfEmployedFeeMode === 'manual'
+          ? 'manual indicada'
+          : result.selfEmployedFeeMode === 'auto'
+            ? 'estimada según tramo 2026'
+            : result.reducedFeePeriod === 'extended'
+              ? 'prórroga simulada de cuota reducida (MEI incluido)'
+              : 'cuota reducida inicial simulada (MEI incluido)'}`,
+        ...(result.irpfMode === 'progressive'
+          ? [`Comunidad de referencia para IRPF: ${autonomousCommunityLabel}`]
           : []),
-        `Comunidad de referencia para IRPF: ${autonomousCommunityLabel}`,
+        ...(result.selfEmployedFeeMode === 'reduced' && result.reducedFeePeriod === 'extended'
+          ? [
+            `Prórroga (doce meses iguales): rendimientos estimados para cotización ${formatCurrency(result.annualEstimatedNetReturnsForContributions)} al año; SMI de referencia ${formatCurrency(result.referenceAnnualSMI)} al año.`,
+            `La estimación ${result.reducedFeeExtensionEligible ? 'queda' : 'no queda'} por debajo del SMI anual. La simulación conserva la cuota reducida seleccionada; no acredita el derecho a la prórroga.`,
+            'Solicitud y demás requisitos aparte. Si el periodo abarca dos años naturales, revisa rendimientos y SMI de cada año.',
+          ]
+          : []),
       ].join('\n'),
     [autonomousCommunityLabel, hasIVA, hoursBillable, result],
   );
