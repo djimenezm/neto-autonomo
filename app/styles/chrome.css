@@ -1,6 +1,7 @@
 /* Shared navigation and closing treatment. */
 #calculadora,
-#como-funciona {
+#como-funciona,
+.result-card {
   scroll-margin-top: 7rem;
 }
 

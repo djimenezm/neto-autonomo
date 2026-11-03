@@ -69,6 +69,13 @@ function trackCalculatorCompleted(data: Record<string, string>) {
   });
 }
 
+function focusResultRegion(node: HTMLElement) {
+  node.focus({ preventScroll: true });
+  // Align the beginning even when a tall result is already partly in view.
+  // The shared scroll margin keeps it below the sticky navigation.
+  node.scrollIntoView?.({ block: 'start', behavior: 'instant' });
+}
+
 export default function CalculatorForm({
   initialValues,
   initiallySubmitted = false,
@@ -217,7 +224,7 @@ export default function CalculatorForm({
 
   useEffect(() => {
     if (validSubmissionCount > 0) {
-      resultRegionRef.current?.focus({ preventScroll: false });
+      if (resultRegionRef.current) focusResultRegion(resultRegionRef.current);
     }
   }, [validSubmissionCount]);
 
@@ -227,7 +234,7 @@ export default function CalculatorForm({
 
       if (node && validSubmissionCount > lastFocusedSubmission.current) {
         lastFocusedSubmission.current = validSubmissionCount;
-        window.requestAnimationFrame(() => node.focus({ preventScroll: false }));
+        window.requestAnimationFrame(() => focusResultRegion(node));
       }
     },
     [validSubmissionCount],

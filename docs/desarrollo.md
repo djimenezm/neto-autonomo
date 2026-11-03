@@ -48,6 +48,33 @@ Los espacios publicitarios están preparados, pero `lib/ads.ts` exige `NEXT_PUBL
 
 ## Revisión local antes de publicar
 
+### Mostrar el inicio del resultado bajo la cabecera fija (3 de noviembre de 2026)
+
+Publicación autorizada el 3 de noviembre de 2026. En el build anterior, calcular
+en escritorio y en móvil lleva el foco a la tarjeta, pero su título queda
+bajo la cabecera fija. Con Enter a 320 px también puede desplazarse hasta
+una zona intermedia de un resultado alto. Reproducción con datos ficticios;
+no son sesiones con usuarios reales.
+
+`chrome.css` aplica al resultado el mismo margen de desplazamiento de 7 rem
+que las anclas principales. `CalculatorForm` conserva el foco en la tarjeta
+y alinea expresamente su inicio tras cada cálculo válido, sin animación.
+Se reutilizan los dos puntos de enfoque existentes, incluido el posterior
+al montaje. Abrir un cálculo compartido no fuerza este desplazamiento.
+
+Validación: 48 pruebas en cuatro archivos, incluidas tres regresiones de
+navegación, correctas. ESLint y compilación pasan. En navegador se comprueban
+clic, Enter y recálculo: el título queda a unos 137 px del borde superior,
+bajo la cabecera de unos 75 px en escritorio y 105 px en móvil de 390 y
+320 px; el foco permanece en el resultado. Consola y servidor sin errores
+observados. Los errores conservan el foco en el campo que debe corregirse;
+la edición y la carga inicial no fuerzan el desplazamiento al resultado.
+No cambia el cálculo, el formulario GET, el resumen, los enlaces, las ayudas
+o la recuperación de sus borradores.
+
+No se crean eventos, peticiones ni almacenamiento. Anuncios, piloto y
+seguimientos intactos. Se publica por la integración Git existente.
+
 ### Acceso directo al kit sin correo desde la portada (3 de noviembre de 2026)
 
 Publicación autorizada el 3 de noviembre de 2026. El acceso «Quiero el kit»
