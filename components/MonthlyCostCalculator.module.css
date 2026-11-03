@@ -1,5 +1,8 @@
 .calculator { container-type: inline-size; }
 
+.draftControls { display: grid; gap: 0.65rem; margin: 1rem 0 1.5rem; }
+.draftControls p { margin: 0; }
+
 .costField {
   grid-column: 1 / -1;
   min-width: 0;

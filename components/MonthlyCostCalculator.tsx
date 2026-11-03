@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import NumericTextInput from '@/components/NumericTextInput';
 import { AUTONOMOUS_COMMUNITY_LABELS } from '@/lib/calculator';
 import { DEFAULT_FORM_VALUES } from '@/lib/calculatorForm';
@@ -16,6 +16,11 @@ const costFields = [
 
 type CostKey = (typeof costFields)[number]['key'];
 type CostValues = Record<CostKey | 'hours', string>;
+type CostPeriods = Record<ExpenseKey, PaymentPeriod>;
+type CostDraft = { values: CostValues; periods: CostPeriods; deductibleExpenses: string };
+
+const emptyValues: CostValues = { fee: '', advisor: '', software: '', insurance: '', other: '', hours: '' };
+const monthlyPeriods: CostPeriods = { advisor: 'monthly', software: 'monthly', insurance: 'monthly', other: 'monthly' };
 
 const initialValues: CostValues = {
   fee: String(recurringCostsExample.fee),
@@ -32,7 +37,7 @@ function parseCost(value: string) {
 
 export default function MonthlyCostCalculator() {
   const [values, setValues] = useState<CostValues>(initialValues);
-  const [periods, setPeriods] = useState<Record<ExpenseKey, PaymentPeriod>>({
+  const [periods, setPeriods] = useState<CostPeriods>({
     advisor: recurringCostsExample.expenses.advisor.period,
     software: recurringCostsExample.expenses.software.period,
     insurance: recurringCostsExample.expenses.insurance.period,
@@ -40,9 +45,19 @@ export default function MonthlyCostCalculator() {
   });
   const [deductibleExpenses, setDeductibleExpenses] = useState('');
   const [transferAttempted, setTransferAttempted] = useState(false);
+  const [costsBeforeStart, setCostsBeforeStart] = useState<CostDraft | null>(null);
+  const [draftFeedback, setDraftFeedback] = useState('');
+  const [draftActionCount, setDraftActionCount] = useState(0);
   const feeInput = useRef<HTMLInputElement>(null);
   const hoursInput = useRef<HTMLInputElement>(null);
   const deductibleInput = useRef<HTMLInputElement>(null);
+  useEffect(() => {
+    if (draftActionCount === 0 || !feeInput.current) return;
+    // Recovery controls change the height above the field. Focus after commit,
+    // then keep the input clear of the sticky header, including on narrow screens.
+    feeInput.current.focus({ preventScroll: true });
+    feeInput.current.scrollIntoView?.({ block: 'center', behavior: 'instant' });
+  }, [draftActionCount]);
   const costs = estimateRecurringCosts({
     fee: parseCost(values.fee),
     expenses: {
@@ -85,15 +100,52 @@ export default function MonthlyCostCalculator() {
     setValues((current) => ({ ...current, [key]: value }));
   }
 
+  function startOwnCosts() {
+    setCostsBeforeStart((previous) => previous ?? {
+      values: { ...values }, periods: { ...periods }, deductibleExpenses,
+    });
+    setValues(emptyValues);
+    setPeriods(monthlyPeriods);
+    setDeductibleExpenses('');
+    setTransferAttempted(false);
+    setDraftFeedback('Campos preparados. Añade tus pagos y revisa las frecuencias.');
+    setDraftActionCount((count) => count + 1);
+  }
+
+  function recoverCosts() {
+    if (!costsBeforeStart) return;
+    setValues(costsBeforeStart.values);
+    setPeriods(costsBeforeStart.periods);
+    setDeductibleExpenses(costsBeforeStart.deductibleExpenses);
+    setCostsBeforeStart(null);
+    setTransferAttempted(false);
+    setDraftFeedback('Costes anteriores recuperados. Los totales se actualizan con esos datos.');
+    setDraftActionCount((count) => count + 1);
+  }
+
   return (
     <div className={`calculator-card monthly-cost-card ${styles.calculator}`} id="costes-mensuales">
       <h2>Calcula tus costes fijos</h2>
       <p className="card-intro">
-        Ejemplo ficticio editable. Escribe el importe de cada pago y elige su frecuencia.
+        Los valores iniciales son un ejemplo ficticio editable. Escribe el importe de cada pago y elige su frecuencia.
         La cuota sigue siendo mensual. Cambiar la frecuencia no cambia el importe escrito.
         Redondeamos cada pago a céntimos antes de aplicar su frecuencia.
       </p>
       <noscript><p>Para cambiar los pagos necesitas JavaScript. Más abajo tienes el ejemplo completo y la cuenta para hacer el reparto a mano.</p></noscript>
+
+      <div className={styles.draftControls}>
+        <div className="button-row">
+          <button type="button" className="secondary-button" onClick={startOwnCosts} aria-describedby="monthly-cost-start-hint">Empezar con mis costes</button>
+          {costsBeforeStart ? <button type="button" className="link-button" onClick={recoverCosts} aria-describedby="monthly-cost-recovery-hint">Recuperar mis costes anteriores</button> : null}
+        </div>
+        <p className="form-note" id="monthly-cost-start-hint">
+          Vacía importes, horas y deducibles; deja las cuatro frecuencias en «Cada mes». Los importes vacíos cuentan como 0.
+        </p>
+        {costsBeforeStart ? <p className="form-note" id="monthly-cost-recovery-hint">Puedes recuperar los datos anteriores al primer inicio, incluso incompletos. Recuperarlos sustituye los actuales. Repetir el inicio conserva esta copia, que se pierde al salir o recargar.</p> : null}
+        <div role="status" aria-label="Preparación de costes" aria-live="polite" aria-atomic="true">
+          {draftFeedback ? <p className="form-note">{draftFeedback}</p> : null}
+        </div>
+      </div>
 
       <div className="monthly-cost-inputs">
         {costFields.map(({ key, label }) => {

@@ -48,6 +48,42 @@ Los espacios publicitarios están preparados, pero `lib/ads.ts` exige `NEXT_PUBL
 
 ## Revisión local antes de publicar
 
+### Preparar costes propios sin arrastrar el ejemplo (3 de noviembre de 2026)
+
+Publicación autorizada el 3 de noviembre de 2026. La calculadora de costes empieza
+con cinco importes ficticios, cuatro frecuencias y 80 horas. Para preparar
+otro plan había que sustituir todos esos datos uno a uno.
+
+`MonthlyCostCalculator` añade «Empezar con mis costes»: vacía los importes,
+las horas y el reparto deducible, pone las cuatro frecuencias en «Cada mes»
+y limpia el intento anterior de traslado. Los importes vacíos siguen contando
+como cero; las horas no son necesarias para sumar costes. La introducción y
+la guía explican el inicio, los ceros y el alcance de la copia recuperable.
+
+Antes de vaciar conserva una primera copia en memoria de las seis cadenas,
+las cuatro frecuencias y los deducibles. Repetir el inicio no la reemplaza.
+«Recuperar mis costes anteriores» restaura los textos exactos, incluso
+incompletos o inválidos, consume la copia y permite empezar otro ciclo.
+Los totales se recalculan en vivo; los errores reales del borrador conservan
+su validación. La copia no se conserva al salir o recargar.
+
+Ambas acciones llevan el foco a la cuota después de actualizar la pantalla
+y centran el campo sin animación. Se corrigió un caso observado a 320 px:
+al aparecer la recuperación, enfocar antes de actualizar dejaba la cuota
+fuera de la vista. El campo queda visible tras empezar y recuperar.
+
+Validación: seis regresiones, rojas antes de la implementación, y 48 pruebas
+en cinco archivos correctas. ESLint y compilación pasan. En navegador local
+se comprueban inicio y recuperación con Enter, primera copia tras repetir,
+decimales y frecuencias originales y pantalla estrecha. Un plan ficticio de
+350 EUR de cuota y 60 EUR trimestrales de gestoría suma 370 EUR mensuales
+y 4440 EUR anuales. Con 80 horas y 10 EUR deducibles, la vista previa y el
+traslado GET coinciden: 10 EUR deducibles, 10 no deducibles y cuota de 350.
+
+No cambia el motor, la validación, los datos iniciales, el formulario GET
+ni sus eventos. No se añaden peticiones o almacenamiento. Anuncios, piloto
+y seguimientos intactos. Se publica por la integración Git existente.
+
 ### Mostrar el inicio del resultado bajo la cabecera fija (3 de noviembre de 2026)
 
 Publicación autorizada el 3 de noviembre de 2026. En el build anterior, calcular

@@ -172,6 +172,7 @@ export default function CuantoCuestaSerAutonomoPage() {
               El ejemplo combina varias frecuencias de pago. Ajusta importes y frecuencias a tu
               actividad; no necesitas convertir a mano un recibo anual en mensual.
             </p>
+            <p>Para preparar tus pagos sin arrastrar el ejemplo, usa «Empezar con mis costes». Vacía importes, horas y deducibles y pone las frecuencias en «Cada mes». Puedes volver a la primera copia con «Recuperar mis costes anteriores» mientras sigas en esta página; no se conserva al salir o recargar.</p>
             <p>Puedes sumar los pagos y ver la media mensual y el total anual sin indicar horas. Al indicar horas válidas mayores que cero, verás también el coste por hora facturable. Para trasladar estos costes a la tarifa, las horas deben ser enteras y mayores que cero.</p>
           </div>
 
