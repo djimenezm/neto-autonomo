@@ -48,6 +48,39 @@ Los espacios publicitarios están preparados, pero `lib/ads.ts` exige `NEXT_PUBL
 
 ## Revisión local antes de publicar
 
+### Acceso directo a la estimación de neto según facturación (3 de noviembre de 2026)
+
+Publicación autorizada el 3 de noviembre de 2026. La ayuda existente para recorrer
+la cuenta desde una facturación prevista estaba dentro del desplegable de
+desglose. El selector tampoco ofrecía esta pregunta como punto de entrada.
+
+`ResultCard` mueve el mismo desplegable «Estimar qué neto dejaría otra
+facturación» al primer nivel del resultado, con el estilo de las otras
+ayudas. No duplica el componente ni cambia su referencia, clave o estado.
+El desglose y su comprobador de retención se mantienen. Se retira únicamente
+el estilo de anidación del neto que deja de utilizarse.
+
+El selector añade «Ya sé lo que voy a facturar» hacia la sección existente
+de la guía por hora, con enlace al cálculo para usar gastos y cuota propios.
+La tarjeta explica los costes ficticios, la cuota fija y los doce meses
+iguales del ejemplo. La guía actualiza el acceso directo y enlaza el cálculo
+de partida. No se añaden herramientas, rutas ni datos de entrada nuevos.
+
+Validación: 65 pruebas en siete archivos, ESLint y compilación correctos.
+Se adaptan dos pruebas existentes; las dos comprobaciones de acceso fallaban
+antes del cambio. Se comprueban las diez decisiones del selector y todos
+sus destinos reales, el acceso con el desglose cerrado y la conservación
+del importe y la estimación al cerrar y reabrir. En navegador local se sigue
+portada, selector, guía y cálculo propio. Con 150 EUR de gastos, cuota de
+320 EUR y reserva manual del 15 %, facturar 2500 EUR deja 1725,50 EUR.
+El resumen y la URL principal permanecen iguales. Editar y restaurar el
+neto principal conserva el borrador; apertura con teclado comprobada a
+320 px. No aparecen errores de consola en el recorrido revisado.
+
+No cambia el motor, la validación, el resumen compartido, el formulario GET,
+la recuperación de ejemplos ni los eventos. Anuncios, piloto y seguimientos
+intactos. Se publica por la integración Git existente.
+
 ### Preparar costes propios sin arrastrar el ejemplo (3 de noviembre de 2026)
 
 Publicación autorizada el 3 de noviembre de 2026. La calculadora de costes empieza

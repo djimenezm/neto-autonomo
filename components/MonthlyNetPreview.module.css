@@ -1,5 +1,4 @@
 .preview { container-type: inline-size; color: #173a2c; overflow-wrap: anywhere; }
-.disclosure.disclosure { border: 0; border-top: 1px solid #cbded4; border-radius: 0; padding: 1rem 0; }
 .preview p { font-size: 0.94rem; line-height: 1.65; }
 .reference { border-left: 3px solid #0e6d54; padding: 0.8rem; background: #edf6ef; }
 .field { display: grid; gap: 0.5rem; min-width: 0; margin: 1.3rem 0; font-weight: 700; }

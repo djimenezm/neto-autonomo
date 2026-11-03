@@ -19,11 +19,11 @@ function documentOf(content: React.ReactNode) {
 }
 
 describe('choosing an existing tool by the decision to make', () => {
-  it('offers nine decisions in server HTML, with no form or JavaScript interaction to choose', () => {
+  it('offers ten decisions in server HTML, with no form or JavaScript interaction to choose', () => {
     const doc = documentOf(<Guide />);
     const chooser = doc.querySelector('section[aria-labelledby="elegir-herramienta"]')!;
     expect(chooser).not.toBeNull();
-    expect(chooser.querySelectorAll('article')).toHaveLength(9);
+    expect(chooser.querySelectorAll('article')).toHaveLength(10);
     expect(chooser.querySelectorAll('h3')).toHaveLength(4);
     expect(chooser.querySelectorAll('input,select,button,form,script')).toHaveLength(0);
     expect(chooser.querySelectorAll('[data-result-kit-cta],[data-share-channel],[onclick]')).toHaveLength(0);

@@ -347,7 +347,7 @@ export default function TarifaFreelancePorHoraPage() {
             y la retención no se descuenta otra vez. Con {formatEuro(netExamples[2].monthlyBilling)} y estos
             mismos supuestos, el neto del modelo sería {formatEuro(netExamples[2].estimatedNet)}.
           </p>
-          <p>Para probar tus costes, abre «Ver cómo se reparte la facturación» y después «Estimar qué neto dejaría otra facturación» en tu resultado. Aquí se mantienen los supuestos ficticios de la tabla.</p>
+          <p>Para probar tus costes, <Link href="/#calculadora">calcula primero tu referencia mensual</Link> y abre directamente «Estimar qué neto dejaría otra facturación» en tu resultado. Aquí se mantienen los supuestos ficticios de la tabla.</p>
           <p>
             Si ya has escrito tu facturación prevista, puedes probar los 2500 EUR del ejemplo y
             volver con «Recuperar mi facturación anterior». Se conserva el importe anterior al

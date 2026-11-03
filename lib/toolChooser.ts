@@ -113,6 +113,17 @@ export const toolChooserGroups: readonly ToolChooserGroup[] = [
     title: 'Entender y revisar',
     cards: [
       {
+        id: 'neto-previsto',
+        title: 'Ya sé lo que voy a facturar',
+        prepare: 'Tu facturación mensual prevista sin IVA. Para tus propios supuestos, también gastos, cuota y criterio de IRPF.',
+        shows: 'Estima cuánto quedaría tras gastos, cuota y reserva de IRPF, y compáralo con tu neto objetivo.',
+        limit: 'El ejemplo mantiene costes ficticios y una cuota fija durante doce meses iguales. Para tus datos, calcula primero y abre «Estimar qué neto dejaría otra facturación» en tu resultado.',
+        link: { href: '/tarifa-freelance-por-hora#neto-segun-facturacion', label: 'Ver el ejemplo de neto según facturación' },
+        relatedLinks: [
+          { href: '/#calculadora', label: 'Calcular con mis gastos y cuota' },
+        ],
+      },
+      {
         id: 'base-iva-retencion',
         title: 'Quiero comprobar base, IVA y retención',
         prepare: 'La base sin IVA de una factura y los porcentajes de IVA y retención que hayas comprobado para tu caso.',
