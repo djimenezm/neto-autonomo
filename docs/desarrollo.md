@@ -48,6 +48,34 @@ Los espacios publicitarios están preparados, pero `lib/ads.ts` exige `NEXT_PUBL
 
 ## Revisión local antes de publicar
 
+### Acceso directo al kit sin correo desde la portada (3 de noviembre de 2026)
+
+Publicación autorizada el 3 de noviembre de 2026. El acceso «Quiero el kit»
+del resultado lleva al bloque de la portada con el formulario de correo. El
+kit, la ficha y el registro ya son públicos y se pueden usar sin registrarse,
+pero ese bloque no ofrecía un enlace directo a ellos.
+
+`HomePage` añade «Abrir el kit sin correo» en la columna de contenido del
+bloque `kit-tarifa-form`, junto a una explicación de la ficha, el registro
+de cuatro semanas y las listas. Reutiliza `/kit-tarifa-autonomo`, el archivo
+público y los estilos existentes. El formulario de correo conserva sus
+props, destino, campos, textos y botón. El acceso del resultado y sus
+atributos tampoco cambian. No se añade seguimiento al enlace.
+
+Validación: las 32 pruebas existentes de calculadora, formulario de correo
+y kit pasan. ESLint y compilación correctos. Revisión independiente sin
+bloqueos. En navegador local se sigue el acceso desde el resultado, se abre
+el kit y se encuentra la descarga con el correo vacío, sin enviar el
+formulario. El archivo público responde HTTP 200 como texto UTF-8 y sus
+11.245 bytes coinciden exactamente con el recurso del repositorio. El
+navegador de pruebas no devolvió un evento de descarga; se comprobó el
+archivo servido directamente. Consola y servidor sin errores observados.
+
+El cambio se limita al acceso y al texto de la portada. No se cambian el
+formulario de captación, la configuración, los eventos, la página de gracias,
+los anuncios, el piloto o los seguimientos. Se publica por la integración
+Git existente.
+
 ### Validar importes positivos que quedan en cero al redondear (3 de noviembre de 2026)
 
 Publicación autorizada el 3 de noviembre de 2026. Reproducción ficticia en

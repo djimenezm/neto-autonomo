@@ -147,7 +147,13 @@ export default function HomePage({
           <div className="cost-checklist-copy">
             <span className="eyebrow">Después del cálculo</span>
             <h2>Revisa la tarifa antes de enviarla.</h2>
-            <p>Una lista de comprobación corta para comprobar margen, alcance y horas no facturables.</p>
+            <p>
+              Abre la ficha de tarifa, el registro de cuatro semanas y las listas de comprobación.
+              Puedes leerlos y descargarlos sin cuenta ni correo.
+            </p>
+            <div className="button-row">
+              <a href="/kit-tarifa-autonomo" className="link-button">Abrir el kit sin correo</a>
+            </div>
           </div>
 
           <LeadMagnetForm
