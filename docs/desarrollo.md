@@ -48,6 +48,44 @@ Los espacios publicitarios están preparados, pero `lib/ads.ts` exige `NEXT_PUBL
 
 ## Revisión local antes de publicar
 
+### Mantener los avisos pendientes del comprobador de jornada (4 de noviembre de 2026)
+
+Publicación autorizada el 4 de noviembre de 2026. El comprobador de jornada borraba todos
+los errores al editar un campo, aunque otros datos obligatorios siguieran
+vacíos o fueran incorrectos. Tiene cinco datos obligatorios y un precio
+opcional; corregir preparación no debe ocultar los avisos de cierre y costes.
+
+Tras una comprobación explícita, los errores usan los valores actuales y
+el mismo parseo y motor existentes. Editar no mueve el foco ni normaliza
+los textos. La normalización a dos decimales sigue ocurriendo únicamente
+al comprobar una jornada válida, como antes.
+
+El resultado se retira al editar. Completar todos los datos deja el aviso
+«Datos modificados. Pulsa «Comprobar jornada» para actualizar el resultado.»
+hasta comprobar de nuevo. El precio puede seguir vacío y se mantienen
+los ceros válidos. Ambos ejemplos pasan por la comprobación explícita;
+recuperar el borrador restaura sus cadenas y reinicia los avisos sin
+recuperar ni calcular resultados antiguos.
+
+Validación: seis casos nuevos y 54 pruebas correctas en cinco archivos,
+con máximo dos workers y sin avisos React. Cubren errores individuales,
+precio opcional vacío/cero/incorrecto, precisión cruda, retirada del
+resultado, ejemplos y recuperación, y ausencia de cambios en URL,
+almacenamiento, peticiones y eventos. El test anterior de retirada de
+resultados ahora espera el aviso pendiente y ausencia del título de cifras.
+ESLint, TypeScript y compilación correctos.
+
+En navegador local, completar 40 EUR/h, 8 horas y 1 de preparación deja
+visibles los errores de cierre y costes. Sus ceros producen datos válidos
+sin mostrar resultados antes de comprobar: entonces son 9 h y 360 EUR.
+Un precio opcional de 400 EUR se compara solo tras comprobar con Enter;
+corregir su error no borra el de una jornada vacía. Se revisa la vista de
+320 px sin desbordamiento y se restaura la pantalla normal. Consola sin
+errores; datos ficticios.
+
+Se publica mediante la conexión Git existente. No cambian fórmulas, límites, redondeos, GET ni eventos.
+Anuncios, piloto y seguimientos intactos.
+
 ### Mantener los avisos pendientes de la agenda al corregir datos (4 de noviembre de 2026)
 
 Publicación autorizada el 4 de noviembre de 2026. Después de estimar una agenda incompleta,

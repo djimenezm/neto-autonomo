@@ -65,7 +65,8 @@ describe('day-rate planner', () => {
     for (const value of ['387,28', '260,00', '32,50', 'Faltan 37,28', 'no es sueldo neto']) expect(status).toHaveTextContent(value);
     const costs = screen.getByRole('textbox', { name: 'Costes específicos que debe cubrir el precio (EUR)' });
     fireEvent.change(costs, { target: { value: '0' } });
-    expect(status).toBeEmptyDOMElement();
+    expect(status).toHaveTextContent('Datos modificados. Pulsa «Comprobar jornada» para actualizar el resultado.');
+    expect(screen.queryByRole('heading', { name: 'Lo que supone esta jornada' })).not.toBeInTheDocument();
     await userEvent.click(screen.getByRole('button', { name: 'Comprobar jornada' }));
     expect(status).toHaveTextContent('Supera tu referencia en 52,72');
     expect(status).toHaveTextContent('43,75');

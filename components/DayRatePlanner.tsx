@@ -18,25 +18,32 @@ const fields = [
 type Values = Record<keyof DayRateInput, string>;
 const emptyValues: Values = { hourlyRate: '', sessionHours: '', preparationHours: '', followUpHours: '', serviceCosts: '', proposedPrice: '' };
 
+function checkDayRate(values: Values) {
+  return estimateDayRate({
+    hourlyRate: parseSpanishNumber(values.hourlyRate),
+    sessionHours: parseSpanishNumber(values.sessionHours),
+    preparationHours: parseSpanishNumber(values.preparationHours),
+    followUpHours: parseSpanishNumber(values.followUpHours),
+    serviceCosts: parseSpanishNumber(values.serviceCosts),
+    proposedPrice: values.proposedPrice.trim() ? parseSpanishNumber(values.proposedPrice) : undefined,
+  });
+}
+
 export default function DayRatePlanner({ example, costExample }: { example: DayRateInput; costExample?: DayRateInput }) {
   const id = useId();
   const inputsRef = useRef<Partial<Record<keyof Values, HTMLInputElement | null>>>({});
   const [values, setValues] = useState<Values>(emptyValues);
   const [estimate, setEstimate] = useState<ReturnType<typeof estimateDayRate> | null>(null);
+  const [hasAttemptedCheck, setHasAttemptedCheck] = useState(false);
   const [isExample, setIsExample] = useState(false);
   const [draftBeforeExample, setDraftBeforeExample] = useState<Values | null>(null);
   const [recoveryFeedback, setRecoveryFeedback] = useState('');
+  const validation = hasAttemptedCheck ? checkDayRate(values) : null;
 
   function calculate(nextValues = values) {
     setRecoveryFeedback('');
-    const result = estimateDayRate({
-      hourlyRate: parseSpanishNumber(nextValues.hourlyRate),
-      sessionHours: parseSpanishNumber(nextValues.sessionHours),
-      preparationHours: parseSpanishNumber(nextValues.preparationHours),
-      followUpHours: parseSpanishNumber(nextValues.followUpHours),
-      serviceCosts: parseSpanishNumber(nextValues.serviceCosts),
-      proposedPrice: nextValues.proposedPrice.trim() ? parseSpanishNumber(nextValues.proposedPrice) : undefined,
-    });
+    const result = checkDayRate(nextValues);
+    setHasAttemptedCheck(true);
     setEstimate(result);
     if (result.valid) setValues({
       hourlyRate: formatNumber(result.hourlyRate),
@@ -73,6 +80,7 @@ export default function DayRatePlanner({ example, costExample }: { example: DayR
     if (!draftBeforeExample) return;
     setValues(draftBeforeExample);
     setEstimate(null);
+    setHasAttemptedCheck(false);
     setIsExample(false);
     setDraftBeforeExample(null);
     setRecoveryFeedback('Jornada anterior recuperada. Vuelve a comprobarla para actualizar los resultados.');
@@ -86,7 +94,7 @@ export default function DayRatePlanner({ example, costExample }: { example: DayR
       <form noValidate aria-label="Comprobar una tarifa diaria" aria-describedby={`${id}-intro`} onSubmit={(event) => { event.preventDefault(); calculate(); }}>
         <div className={styles.fields}>
           {fields.map(({ key, label, hint }) => {
-            const error = estimate && !estimate.valid ? estimate.errors[key] : undefined;
+            const error = validation && !validation.valid ? validation.errors[key] : undefined;
             return (
               <label key={key}>
                 <span id={`${id}-${key}-label`}>{label}</span>
@@ -120,7 +128,8 @@ export default function DayRatePlanner({ example, costExample }: { example: DayR
       {draftBeforeExample ? <p id={`${id}-recovery-hint`}>Conservamos en esta página los datos anteriores al primer ejemplo. Recuperarlos sustituye los cambios que ves ahora y deja el resultado pendiente de comprobar. La copia se pierde al salir de la página.</p> : null}
       <div role="status" aria-label="Recuperación de la jornada" aria-live="polite" aria-atomic="true">{recoveryFeedback ? <p>{recoveryFeedback}</p> : null}</div>
       <div role="status" aria-label="Comprobación de jornada y costes" aria-live="polite" aria-atomic="true">
-        {estimate && !estimate.valid ? <p>Revisa los campos indicados antes de comprobar la jornada.</p> : null}
+        {validation && !validation.valid ? <p>Revisa los campos indicados antes de comprobar la jornada.</p> : null}
+        {!estimate && validation?.valid ? <p>Datos modificados. Pulsa «Comprobar jornada» para actualizar el resultado.</p> : null}
         {estimate?.valid ? (
           <div className={styles.result}>
             {isExample ? <p><strong>Ejemplo hipotético; cambia los datos para tu servicio.</strong></p> : null}
