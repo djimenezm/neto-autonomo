@@ -27,6 +27,12 @@ describe('stable names and separate help in the main calculator', () => {
       expect(numeric(name)).toHaveAccessibleName(labels[name]);
       expect(numeric(name)).toHaveAttribute('name', name);
     }
+    for (const name of ['targetNet', 'monthlyExpenses', 'monthlyNonDeductibleExpenses', 'selfEmployedFee'] as const) {
+      expect(numeric(name)).toHaveAccessibleDescription(/1500 sin separador de miles/);
+      expect(numeric(name)).toHaveAccessibleDescription(/pegarla como 1\.500,50 €/);
+    }
+    expect(numeric('billableHours')).not.toHaveAccessibleDescription(/separador de miles/);
+    expect(numeric('irpfRate')).not.toHaveAccessibleDescription(/separador de miles/);
     expect(numeric('monthlyNonDeductibleExpenses')).toHaveAccessibleDescription(/Costes que pagas pero no descuentas en esta estimación de IRPF/);
     expect(numeric('billableHours')).toHaveAccessibleDescription(/Horas que prevés cobrar, no toda tu jornada/);
     expect(numeric('irpfRate')).toHaveAccessibleDescription(/no la retención de una factura/);
@@ -42,7 +48,10 @@ describe('stable names and separate help in the main calculator', () => {
     for (const name of ['targetNet', 'monthlyExpenses', 'monthlyNonDeductibleExpenses', 'selfEmployedFee'] as const) {
       expect(fields[name]).toHaveAccessibleName(labels[name]);
       expect(fields[name]).toHaveAttribute('aria-invalid', 'true');
-      expect(fields[name]).toHaveAccessibleDescription();
+      expect(fields[name]).toHaveAccessibleDescription(/1500 sin separador de miles/);
+      const error = fields[name].closest('label')?.querySelector('[role="alert"]');
+      expect(error).not.toBeNull();
+      expect(fields[name]).toHaveAccessibleDescription(expect.stringContaining(error!.textContent!.trim()));
     }
     expect(fields.monthlyNonDeductibleExpenses).toHaveAccessibleDescription(/Costes que pagas pero no descuentas en esta estimación de IRPF/);
     expect(fields.monthlyNonDeductibleExpenses).toHaveAccessibleDescription(/Los gastos no deducibles no pueden ser negativos/);
@@ -65,6 +74,8 @@ describe('stable names and separate help in the main calculator', () => {
       expect(field).toHaveFocus();
       expect(field).toHaveAccessibleName(labels[name]);
       expect(field).toHaveAttribute('aria-invalid', 'false');
+      expect(field).toHaveAccessibleDescription(/1500 sin separador de miles/);
+      expect(field).toHaveValue(Number(value));
     }
     expect(numeric('monthlyNonDeductibleExpenses')).toHaveAccessibleDescription(/Escribe 0 si no tienes/);
     expect(numeric('monthlyNonDeductibleExpenses')).not.toHaveAccessibleDescription(/no pueden ser negativos/);
@@ -94,6 +105,7 @@ describe('stable names and separate help in the main calculator', () => {
     expect(field).toHaveValue(null);
     expect(field).toHaveAttribute('aria-invalid', 'true');
     expect(field).toHaveAccessibleDescription(/Costes que pagas pero no descuentas en esta estimación de IRPF/);
+    expect(field).toHaveAccessibleDescription(/1500 sin separador de miles/);
     expect(field).toHaveAccessibleDescription(/Pega un solo número y revisa los separadores/);
     await calculate();
     await waitFor(() => expect(field).toHaveFocus());
@@ -102,6 +114,7 @@ describe('stable names and separate help in the main calculator', () => {
     expect(field).toHaveAccessibleName(labels.monthlyNonDeductibleExpenses);
     expect(field).toHaveAttribute('aria-invalid', 'false');
     expect(field).toHaveAccessibleDescription(/Escribe 0 si no tienes/);
+    expect(field).toHaveAccessibleDescription(/pegarla como 1\.500,50 €/);
     expect(field).not.toHaveAccessibleDescription(/Pega un solo número/);
     expect(window.va).not.toHaveBeenCalled();
     expect(window.gtag).not.toHaveBeenCalled();
@@ -157,6 +170,14 @@ describe('stable names and separate help in the main calculator', () => {
       expect(ids).not.toHaveLength(0);
       expect(ids.map(id => markup.querySelector(`[id="${id}"]`)?.textContent).join(' ')).toBe(label);
     }
+    const formatHint = serverForm.querySelector('#calculator-amount-format-hint')!;
+    expect(formatHint).not.toBeEmptyDOMElement();
+    for (const name of ['targetNet', 'monthlyExpenses', 'monthlyNonDeductibleExpenses', 'selfEmployedFee']) {
+      const input = serverForm.querySelector(`[name="${name}"]`)!;
+      const descriptionIds = input.getAttribute('aria-describedby')?.split(/\s+/) ?? [];
+      expect(descriptionIds).toContain(formatHint.id);
+      for (const id of descriptionIds) expect(markup.querySelector(`[id="${id}"]`)).not.toBeEmptyDOMElement();
+    }
     for (const name of ['irpfMode', 'selfEmployedFeeMode']) {
       const select = serverForm.querySelector(`select[name="${name}"]`)!;
       const ids = select.getAttribute('aria-describedby')?.split(/\s+/) ?? [];
@@ -174,10 +195,12 @@ describe('stable names and separate help in the main calculator', () => {
     const field = numeric('monthlyNonDeductibleExpenses');
     fireEvent.change(field, { target: { value: '-1' } });
     expect(field).toHaveAccessibleName(labels.monthlyNonDeductibleExpenses);
+    expect(field).toHaveAccessibleDescription(/1500 sin separador de miles/);
     expect(field).toHaveAccessibleDescription(/Los gastos no deducibles no pueden ser negativos/);
     expect(screen.queryByRole('heading', { name: 'Tu referencia mensual para presupuestar' })).not.toBeInTheDocument();
     fireEvent.change(field, { target: { value: '0' } });
     expect(field).toHaveAccessibleName(labels.monthlyNonDeductibleExpenses);
+    expect(field).toHaveAccessibleDescription(/1500 sin separador de miles/);
     expect(screen.getByRole('heading', { name: 'Tu referencia mensual para presupuestar' })).toBeVisible();
     expect([...new FormData(form).entries()]).toEqual(serverData);
     expect((screen.getByRole('textbox', { name: 'Resumen detallado para compartir' }) as HTMLTextAreaElement).value).toBe(originalSummary);

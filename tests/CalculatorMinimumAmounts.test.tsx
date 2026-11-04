@@ -50,7 +50,7 @@ describe('positive main amounts that would round to zero cents', () => {
     await waitFor(() => expect(input).toHaveFocus());
     expect(input).toHaveValue(0.004);
     expect(input).toHaveAttribute('aria-invalid', 'true');
-    expect(input).toHaveAccessibleDescription(message);
+    expect(input).toHaveAccessibleDescription(expect.stringContaining(message));
     expect(screen.getByText(message)).toHaveAttribute('role', 'alert');
     expectNoResult();
     expect(window.location.href).toBe(previousUrl);
@@ -82,7 +82,7 @@ describe('positive main amounts that would round to zero cents', () => {
     expect(input).toHaveValue(0.004);
     await user.keyboard('{Enter}');
     await waitFor(() => expect(input).toHaveFocus());
-    expect(input).toHaveAccessibleDescription(message);
+    expect(input).toHaveAccessibleDescription(expect.stringContaining(message));
     expectNoResult();
     expect(window.location.href).toBe(previousUrl);
     expect(window.va).not.toHaveBeenCalled();

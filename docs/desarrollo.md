@@ -48,6 +48,38 @@ Los espacios publicitarios están preparados, pero `lib/ads.ts` exige `NEXT_PUBL
 
 ## Revisión local antes de publicar
 
+### Aclarar cómo escribir y pegar importes en el formulario (4 de noviembre de 2026)
+
+Publicación autorizada el 4 de noviembre de 2026. En el navegador, escribir con teclado
+1.500 en el control numérico del neto conserva ese texto pero lo interpreta
+como 1,5; pegar 1.500 usa en cambio la notación española y significa 1500.
+La diferencia corresponde al contrato existente entre entrada numérica
+nativa y pegado. No se reinterpreta una cantidad que podría ser decimal.
+
+Una sola nota visible al principio del formulario indica escribir 1500
+sin separador de miles y permite pegar un importe como 1.500,50 €.
+Su ID se asocia mediante aria-describedby a neto, gastos deducibles,
+gastos no deducibles y cuota manual. Conserva los nombres, la pista de
+no deducibles y los mensajes de error; no se asocia a horas ni a porcentajes.
+No se añade texto repetido debajo de cada campo ni se cambia la guía.
+
+Se amplían las aserciones de los seis casos de accesibilidad existentes:
+ayuda con y sin errores, correcciones sin renombrar ni cambiar valores,
+pegados inválidos y contenido servido con sus referencias accesibles.
+Dos aserciones de importes mínimos pasan a comprobar que la descripción
+contiene el error, permitiendo que también incluya la ayuda compartida.
+No se añaden casos nuevos solo para comprobar texto estático.
+
+Validación: 57 pruebas correctas en cinco archivos con máximo dos workers,
+ESLint, TypeScript y compilación correctos. En navegador local se confirma
+que escribir 1500 mantiene 1500 y pegar 1.500,50 € introduce 1500,50.
+La nota se lee a 320 px sin desbordamiento. Se restaura la pantalla normal
+y no hay errores de consola. Los importes usados son ficticios.
+
+Se publica mediante la conexión Git existente. No cambian parsers, controles, normalización, cálculo,
+formulario GET, enlace compartido ni eventos. Anuncios, piloto y
+seguimientos intactos.
+
 ### Deshacer la última eliminación de un grupo de servicios (4 de noviembre de 2026)
 
 Publicación autorizada el 4 de noviembre de 2026. «Quitar grupo» del plan de servicios

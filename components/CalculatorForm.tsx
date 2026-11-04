@@ -321,6 +321,10 @@ export default function CalculatorForm({
         }}
         className="calculator-form"
       >
+        <p className="form-note" id="calculator-amount-format-hint">
+          Al escribir importes, usa <strong>1500 sin separador de miles</strong>.
+          {' '}Si copias una cifra, puedes pegarla como <strong>1.500,50 €</strong>.
+        </p>
         <label>
           <span id="target-net-label">Neto mensual deseado (EUR)</span>
           <input
@@ -334,7 +338,7 @@ export default function CalculatorForm({
             onBlur={(event) => setTargetNet(normalizeFieldValue('targetNet', event.target.value))}
             aria-invalid={showFieldError('targetNet')}
             aria-labelledby="target-net-label"
-            aria-describedby={showFieldError('targetNet') ? 'target-net-error' : undefined}
+            aria-describedby={`calculator-amount-format-hint${showFieldError('targetNet') ? ' target-net-error' : ''}`}
           />
           {showFieldError('targetNet') && (
             <small className="field-error" id="target-net-error" role="alert">
@@ -361,7 +365,7 @@ export default function CalculatorForm({
             aria-invalid={showFieldError('monthlyExpenses')}
             aria-labelledby="monthly-expenses-label"
             aria-describedby={
-              showFieldError('monthlyExpenses') ? 'monthly-expenses-error' : undefined
+              `calculator-amount-format-hint${showFieldError('monthlyExpenses') ? ' monthly-expenses-error' : ''}`
             }
           />
           {showFieldError('monthlyExpenses') && (
@@ -390,7 +394,7 @@ export default function CalculatorForm({
             }
             aria-invalid={showFieldError('monthlyNonDeductibleExpenses')}
             aria-labelledby="monthly-non-deductible-expenses-label"
-            aria-describedby={`monthly-non-deductible-expenses-hint${showFieldError('monthlyNonDeductibleExpenses') ? ' monthly-non-deductible-expenses-error' : ''}`}
+            aria-describedby={`monthly-non-deductible-expenses-hint calculator-amount-format-hint${showFieldError('monthlyNonDeductibleExpenses') ? ' monthly-non-deductible-expenses-error' : ''}`}
           />
           <small className="field-hint" id="monthly-non-deductible-expenses-hint">
             Costes que pagas pero no descuentas en esta estimación de IRPF. Escribe 0 si no tienes.
@@ -578,7 +582,7 @@ export default function CalculatorForm({
               aria-invalid={showFieldError('selfEmployedFee')}
               aria-labelledby="self-employed-fee-label"
               aria-describedby={
-                showFieldError('selfEmployedFee') ? 'self-employed-fee-error' : undefined
+                `calculator-amount-format-hint${showFieldError('selfEmployedFee') ? ' self-employed-fee-error' : ''}`
               }
             />
             {showFieldError('selfEmployedFee') && (
