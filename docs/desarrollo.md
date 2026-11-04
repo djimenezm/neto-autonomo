@@ -48,6 +48,42 @@ Los espacios publicitarios están preparados, pero `lib/ads.ts` exige `NEXT_PUBL
 
 ## Revisión local antes de publicar
 
+### Mantener los avisos pendientes de la agenda al corregir datos (4 de noviembre de 2026)
+
+Publicación autorizada el 4 de noviembre de 2026. Después de estimar una agenda incompleta,
+corregir cualquier campo borraba también los errores de los otros campos,
+porque todos dependían de la estimación retirada al editar.
+
+Tras el primer intento explícito, los avisos usan los valores actuales de
+los cuatro campos y el mismo motor y parseo existentes. Corregir un campo
+retira solo los errores que ya no corresponden. También se actualiza la
+comprobación de horas no facturables frente a días y horas de la jornada.
+No hay cambios de foco al editar ni avisos nuevos antes del primer intento.
+
+La capacidad y el botón Usar siguen dependiendo exclusivamente de una
+estimación explícita: editar los retira, y completar todos los datos muestra
+«Datos modificados. Pulsa «Estimar horas» para actualizar la capacidad.».
+No se aplican horas automáticamente. Probar el ejemplo valida sus propios
+valores; recuperar la agenda anterior restaura el borrador sin errores ni
+resultados anteriores y requiere volver a estimar, como antes.
+
+Validación: seis casos nuevos y 66 pruebas correctas en cinco archivos,
+con máximo dos workers y sin avisos React. Cubren errores individuales,
+dependencia semanal, datos malformados tras una capacidad válida, ejemplo
+y recuperación, capacidad cero e integración con el cálculo principal.
+ESLint, TypeScript y compilación correctos.
+
+En navegador local, corregir Días deja visibles los otros tres errores.
+Completar 5 días, 8 horas, 12 no facturables y 6 semanas no muestra capacidad
+hasta estimar; entonces conserva 107,3 h y la aplicación de 107 h completas.
+Reducir días a 1 vuelve a señalar la incompatibilidad semanal sin mover
+el foco; corregirla retira el aviso y vuelve a pedir estimar. Enter funciona,
+las horas principales siguen en 80 y la vista a 320 px no se desborda.
+Consola sin errores y pantalla normal restaurada. Datos ficticios.
+
+Se publica mediante la conexión Git existente. No cambian fórmulas, redondeo, formulario GET, enlaces
+compartidos ni eventos. Anuncios, piloto y seguimientos intactos.
+
 ### Aclarar cómo escribir y pegar importes en el formulario (4 de noviembre de 2026)
 
 Publicación autorizada el 4 de noviembre de 2026. En el navegador, escribir con teclado

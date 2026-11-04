@@ -19,24 +19,31 @@ type Values = Record<keyof BillableHoursPlan, string>;
 const emptyValues: Values = { daysPerWeek: '', hoursPerDay: '', nonBillableHoursPerWeek: '', weeksOff: '' };
 type Estimate = ReturnType<typeof estimateBillableHours>;
 
+function checkAgenda(values: Values): Estimate {
+  return estimateBillableHours({
+    daysPerWeek: parseSpanishNumber(values.daysPerWeek),
+    hoursPerDay: parseSpanishNumber(values.hoursPerDay),
+    nonBillableHoursPerWeek: parseSpanishNumber(values.nonBillableHoursPerWeek),
+    weeksOff: parseSpanishNumber(values.weeksOff),
+  });
+}
+
 export default function BillableHoursPlanner({ onApply }: { onApply: (hours: number) => void }) {
   const id = useId();
   const detailsRef = useRef<HTMLDetailsElement>(null);
   const inputsRef = useRef<Partial<Record<keyof Values, HTMLInputElement | null>>>({});
   const [values, setValues] = useState<Values>(emptyValues);
   const [estimate, setEstimate] = useState<Estimate | null>(null);
+  const [hasAttemptedEstimate, setHasAttemptedEstimate] = useState(false);
   const [isExample, setIsExample] = useState(false);
   const [agendaBeforeExample, setAgendaBeforeExample] = useState<Values | null>(null);
   const [recoveryFeedback, setRecoveryFeedback] = useState('');
+  const validation = hasAttemptedEstimate ? checkAgenda(values) : null;
 
   function estimateHours(nextValues = values) {
     setRecoveryFeedback('');
-    const nextEstimate = estimateBillableHours({
-      daysPerWeek: parseSpanishNumber(nextValues.daysPerWeek),
-      hoursPerDay: parseSpanishNumber(nextValues.hoursPerDay),
-      nonBillableHoursPerWeek: parseSpanishNumber(nextValues.nonBillableHoursPerWeek),
-      weeksOff: parseSpanishNumber(nextValues.weeksOff),
-    });
+    const nextEstimate = checkAgenda(nextValues);
+    setHasAttemptedEstimate(true);
     setEstimate(nextEstimate);
     if (!nextEstimate.valid) {
       const firstInvalid = fields.find(({ key }) => nextEstimate.errors[key]);
@@ -48,6 +55,7 @@ export default function BillableHoursPlanner({ onApply }: { onApply: (hours: num
     if (!agendaBeforeExample) return;
     setValues(agendaBeforeExample);
     setEstimate(null);
+    setHasAttemptedEstimate(false);
     setIsExample(false);
     setAgendaBeforeExample(null);
     setRecoveryFeedback('Agenda anterior recuperada. Vuelve a estimarla antes de usar sus horas.');
@@ -76,7 +84,7 @@ export default function BillableHoursPlanner({ onApply }: { onApply: (hours: num
       >
         <legend>Tu agenda de trabajo</legend>
         {fields.map(({ key, label, hint }) => {
-          const error = estimate && !estimate.valid ? estimate.errors[key] : undefined;
+          const error = validation && !validation.valid ? validation.errors[key] : undefined;
           return (
             <label key={key}>
               <span id={`${id}-${key}-label`}>{label}</span>
@@ -127,7 +135,8 @@ export default function BillableHoursPlanner({ onApply }: { onApply: (hours: num
       {agendaBeforeExample ? <p id={`${id}-recovery-hint`}>Conservamos en esta página la agenda anterior al primer ejemplo. Recuperarla sustituye los cambios que ves ahora y no modifica las horas ya aplicadas a la calculadora. Vuelve a estimarla para poder aplicarla. La copia se pierde al salir o recargar la página.</p> : null}
       <div aria-label="Recuperación de la agenda" aria-live="polite" aria-atomic="true">{recoveryFeedback ? <p>{recoveryFeedback}</p> : null}</div>
       <div aria-live="polite" aria-atomic="true">
-        {estimate && !estimate.valid ? <p>Revisa los datos de la agenda. Las horas de la calculadora siguen iguales.</p> : null}
+        {validation && !validation.valid ? <p>Revisa los datos de la agenda. Las horas de la calculadora siguen iguales.</p> : null}
+        {!estimate && validation?.valid ? <p>Datos modificados. Pulsa «Estimar horas» para actualizar la capacidad.</p> : null}
         {estimate?.valid ? (
           <div className={styles.result}>
             {isExample ? <p><strong>Ejemplo hipotético; ajústalo a tu actividad.</strong></p> : null}
