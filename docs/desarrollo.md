@@ -48,6 +48,46 @@ Los espacios publicitarios están preparados, pero `lib/ads.ts` exige `NEXT_PUBL
 
 ## Revisión local antes de publicar
 
+### Deshacer la última eliminación de un grupo de servicios (4 de noviembre de 2026)
+
+Publicación autorizada el 4 de noviembre de 2026. «Quitar grupo» del plan de servicios
+combinados eliminaba cantidad, precio y horas sin recuperarlos. La copia
+anterior al ejemplo no cubre una eliminación ordinaria. Se incorpora
+«Deshacer la última eliminación» en el componente existente y un párrafo
+sobre su alcance en la guía de 3000 EUR.
+
+La copia guarda una fila cruda con su ID e índice; restaurar la reinserta
+en su posición y mantiene las ediciones actuales de los otros grupos.
+Consume la copia, retira el resultado y devuelve el foco a la cantidad
+mediante el efecto de foco ya existente. No recupera cifras antiguas:
+requiere volver a comprobar con la referencia actual.
+
+Editar o comprobar mantiene la opción; otra eliminación sustituye la copia.
+Añadir un grupo la descarta con aviso explícito. Probar el ejemplo,
+recuperar la combinación completa o cambiar la referencia también la
+retira. Se respeta el máximo de ocho grupos y la copia completa anterior
+al ejemplo permanece independiente. La región de cambios mantiene un
+contenedor de estado accesible estable, aunque su contenido esté vacío.
+
+Validación: siete casos nuevos y 53 pruebas correctas en cinco archivos,
+con máximo dos workers y sin avisos React. Se cubren datos crudos y ceros,
+primera/intermedia/última fila, ediciones posteriores, copia más reciente,
+límite de ocho, sustituciones y recuperación completa, cambio de referencia
+y conservación del resultado y resumen principal. Un test anterior contaba
+cuatro desplegables pese a que el acceso directo al neto ya añadió un quinto;
+se sustituye ese recuento por la comprobación de que esta ayuda está dentro
+del resultado y de la ayuda de encargos. ESLint y compilación correctos.
+
+En navegador local se recuperan horas malformadas, precio cero y orden,
+se conservan los otros cambios y se validan los campos al recomprobar.
+El nuevo cálculo refleja 1700,52 EUR y 26 h para los datos ficticios usados.
+Tab y Enter a 320 px restauran la cantidad con foco visible; el botón cabe
+sin desbordamiento. Se restaura la pantalla normal y la consola no muestra
+errores. Son comprobaciones ficticias, no sesiones con usuarios reales.
+
+Se publica mediante la conexión Git existente, sin almacenamiento nuevo. No cambian el motor, GET, enlaces
+compartidos ni eventos. Anuncios, piloto y seguimientos intactos.
+
 ### Deshacer la última eliminación de un movimiento (4 de noviembre de 2026)
 
 Publicación autorizada el 4 de noviembre de 2026. El comprobador de caja por fechas permitía

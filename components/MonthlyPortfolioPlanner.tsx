@@ -8,6 +8,7 @@ import { parseSpanishNumber } from '@/lib/spanishNumber';
 import styles from './MonthlyPortfolioPlanner.module.css';
 
 type Row = { id: number; quantity: string; pricePerProject: string; hoursPerProject: string };
+type RemovedGroup = { row: Row; index: number };
 type Reference = { monthlyBilling: number; billableHours: number };
 const fields = [
   { key: 'quantity', label: (group: number) => `Cantidad del grupo ${group}`, hint: 'Número de servicios iguales que prevés completar y facturar este mes.' },
@@ -26,6 +27,7 @@ function PortfolioEditor({ monthlyBilling, billableHours }: Reference) {
   const [changeMessage, setChangeMessage] = useState('');
   const [combinationBeforeExample, setCombinationBeforeExample] = useState<Row[] | null>(null);
   const [recoveryFeedback, setRecoveryFeedback] = useState('');
+  const [removedGroup, setRemovedGroup] = useState<RemovedGroup | null>(null);
 
   useEffect(() => {
     if (focusAfterChange.current !== null) {
@@ -63,6 +65,7 @@ function PortfolioEditor({ monthlyBilling, billableHours }: Reference) {
     // Keep the first draft, including incomplete text, while the example is
     // edited or loaded again. Row IDs stay stable and nextId keeps increasing.
     setCombinationBeforeExample((previous) => previous ?? rows.map((row) => ({ ...row })));
+    setRemovedGroup(null);
     const exampleRows = examplePortfolioGroups.map((group) => ({ id: nextId.current++, quantity: formatNumber(group.quantity), pricePerProject: formatNumber(group.pricePerProject), hoursPerProject: formatNumber(group.hoursPerProject) }));
     setRows(exampleRows);
     setIsExample(true);
@@ -71,6 +74,7 @@ function PortfolioEditor({ monthlyBilling, billableHours }: Reference) {
 
   function recoverCombination() {
     if (!combinationBeforeExample) return;
+    setRemovedGroup(null);
     focusAfterChange.current = combinationBeforeExample[0].id;
     setRows(combinationBeforeExample);
     setPlan(null);
@@ -78,6 +82,14 @@ function PortfolioEditor({ monthlyBilling, billableHours }: Reference) {
     setChangeMessage('');
     setCombinationBeforeExample(null);
     setRecoveryFeedback('Combinación anterior recuperada. Vuelve a comprobarla para actualizar los resultados.');
+  }
+
+  function undoRemoval() {
+    if (!removedGroup || rows.length >= MAX_PORTFOLIO_GROUPS) return;
+    const { row, index } = removedGroup;
+    changeRows([...rows.slice(0, index), row, ...rows.slice(index)],
+      `Grupo recuperado en la posición ${index + 1}. Vuelve a comprobar la combinación para actualizar los resultados.`, row.id);
+    setRemovedGroup(null);
   }
 
   return (
@@ -109,17 +121,32 @@ function PortfolioEditor({ monthlyBilling, billableHours }: Reference) {
             </div>
             {rows.length > 1 ? <button type="button" className="link-button" onClick={() => {
               const remaining = rows.filter((item) => item.id !== row.id);
-              changeRows(remaining, `Grupo eliminado. Quedan ${remaining.length} grupos.`, remaining[Math.min(index, remaining.length - 1)].id);
+              changeRows(remaining, `Grupo ${index + 1} eliminado. Quedan ${remaining.length} grupos. Puedes deshacer la última eliminación.`, remaining[Math.min(index, remaining.length - 1)].id);
+              setRemovedGroup({ row: { ...row }, index });
             }}>Quitar grupo {index + 1}</button> : null}
           </fieldset>
         ))}
       </div>
-      <button type="button" className="link-button" disabled={rows.length >= MAX_PORTFOLIO_GROUPS} onClick={() => {
-        const rowId = nextId.current++;
-        changeRows([...rows, { id: rowId, quantity: '', pricePerProject: '', hoursPerProject: '' }], `Grupo ${rows.length + 1} añadido.`, rowId);
-      }}>Añadir otro grupo</button>
+      <div className={styles.actions}>
+        <button type="button" className="link-button" disabled={rows.length >= MAX_PORTFOLIO_GROUPS} onClick={() => {
+          const rowId = nextId.current++;
+          changeRows([...rows, { id: rowId, quantity: '', pricePerProject: '', hoursPerProject: '' }],
+            `Grupo ${rows.length + 1} añadido.${removedGroup ? ' Ya no se puede deshacer la eliminación anterior.' : ''}`, rowId);
+          setRemovedGroup(null);
+        }}>Añadir otro grupo</button>
+        {removedGroup ? <button type="button" className="secondary-button" onClick={undoRemoval}
+          aria-describedby={`${id}-removal-hint`}>Deshacer la última eliminación</button> : null}
+      </div>
+      {removedGroup ? <p className={styles.note} id={`${id}-removal-hint`}>
+        Recupera el último grupo eliminado en su posición anterior, sin cambiar los demás grupos.
+        Editar los campos o comprobar la combinación mantiene esta opción. Otra eliminación sustituye la copia;
+        añadir un grupo, probar el ejemplo, recuperar la combinación anterior, cambiar la referencia mensual,
+        salir o recargar la página la descarta.
+      </p> : null}
       <p className={styles.note}>Hasta {MAX_PORTFOLIO_GROUPS} grupos. No necesitas escribir nombres de clientes.</p>
-      <div className={styles.changeMessage} aria-live="polite">{changeMessage}</div>
+      <div role="status" aria-label="Cambios en la combinación" aria-live="polite" aria-atomic="true">
+        <div className={styles.changeMessage}>{changeMessage}</div>
+      </div>
       {combinationBeforeExample ? <p className={styles.note} id={`${id}-recovery-hint`}>Conservamos en esta página la combinación anterior al primer ejemplo. Recuperarla sustituye los cambios que ves ahora. La copia se pierde al salir o cambiar el cálculo de referencia.</p> : null}
       <div className={styles.actions}>
         <button type="button" className="primary-button" onClick={() => check()}>Comprobar combinación</button>

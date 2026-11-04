@@ -103,7 +103,9 @@ describe('monthly portfolio editor', () => {
     const row = screen.getByRole('group', { name: 'Grupo 1 de servicios iguales' });
     for (const input of within(row).getAllByRole('textbox')) expect(input).not.toHaveAttribute('name');
     const resultSection = screen.getByRole('heading', { name: 'Tu referencia mensual para presupuestar' }).closest('section');
-    expect(resultSection?.querySelectorAll(':scope > details')).toHaveLength(4);
+    const portfolioDisclosure = screen.getByText('Combinar encargos de distintos precios y horas').closest('details');
+    expect(resultSection).toContainElement(portfolioDisclosure);
+    expect(portfolioDisclosure?.parentElement).toBe(screen.getByText('Comprobar cuántos encargos necesito y si caben').closest('details'));
     expect(screen.getByRole('link', { name: 'Ver el ejemplo de servicios combinados' })).toHaveAttribute('href', '/cuanto-facturar-autonomo-3000-euros#combinar-encargos');
     expect(window.va).not.toHaveBeenCalled(); expect(window.gtag).not.toHaveBeenCalled();
   });

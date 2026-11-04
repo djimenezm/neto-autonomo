@@ -377,6 +377,14 @@ export default function CuantoFacturarAutonomo3000EurosPage() {
             cambios actuales: vuelve a comprobarla para obtener el resultado. La copia solo dura
             mientras usas esta página y se pierde al salir o cambiar la referencia mensual.
           </p>
+          <p>
+            Si quitas un grupo por error, «Deshacer la última eliminación» recupera su cantidad,
+            precio y horas en la posición anterior, aunque estuvieran incompletos. Mantiene las
+            ediciones de los otros grupos y pide volver a comprobar la combinación. Editar o
+            comprobar conserva esta opción; otra eliminación sustituye la copia. Añadir un
+            grupo, probar el ejemplo, recuperar la combinación anterior, cambiar la referencia
+            mensual, salir o recargar la descarta.
+          </p>
           <MonthlyPortfolioPlanner monthlyBilling={eightyHourResult.billingWithoutVAT} billableHours={exampleAssumptions.billableHours} />
           <p>
             Una cuota recurrente se registra con su precio y trabajo de este mes. Para proyectos que
