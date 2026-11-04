@@ -11,6 +11,7 @@ import styles from './CashDatePlanner.module.css';
 type Row = { id: number; date: string; kind: CashMovementInput['kind']; amount: string };
 type Values = { initialBalance: string; rows: Row[] };
 type PlanBackup = { values: Values; isExample: boolean; source: 'example' | 'file' };
+type RemovedMovement = { row: Row; index: number };
 const INITIAL_ROW_COUNT = 3;
 const fields = [
   { key: 'date', label: 'Fecha' },
@@ -41,6 +42,8 @@ export default function CashDatePlanner() {
   const [fileFeedback, setFileFeedback] = useState<{ text: string; error: boolean; download?: boolean } | null>(null);
   const [planBeforeReplacement, setPlanBeforeReplacement] = useState<PlanBackup | null>(null);
   const [recoveryFeedback, setRecoveryFeedback] = useState<string | null>(null);
+  const [removedMovement, setRemovedMovement] = useState<RemovedMovement | null>(null);
+  const [movementFeedback, setMovementFeedback] = useState('');
 
   function setControl(key: string, node: HTMLInputElement | HTMLSelectElement | null) {
     controls.current[key] = node;
@@ -48,7 +51,20 @@ export default function CashDatePlanner() {
   }
 
   function invalidateFileRead() { fileOperation.current++; setFileFeedback(null); }
-  function clearResult() { invalidateFileRead(); setEstimate(null); setIsExample(false); setRecoveryFeedback(null); }
+  function clearResult() { invalidateFileRead(); setEstimate(null); setIsExample(false); setRecoveryFeedback(null); setMovementFeedback(''); }
+
+  function forgetRemoval() { setRemovedMovement(null); setMovementFeedback(''); }
+
+  function undoRemoval() {
+    if (!removedMovement || values.rows.length >= MAX_CASH_MOVEMENTS) return;
+    const { row, index } = removedMovement;
+    const rows = [...values.rows.slice(0, index), row, ...values.rows.slice(index)];
+    focusKey.current = `${row.id}-date`;
+    setValues({ ...values, rows });
+    clearResult();
+    setRemovedMovement(null);
+    setMovementFeedback(`Movimiento recuperado en la posición ${index + 1}. Vuelve a comprobar los vencimientos para actualizar los saldos.`);
+  }
 
   function rememberPlan(source: PlanBackup['source']) {
     setPlanBeforeReplacement((previous) => previous ?? {
@@ -60,6 +76,7 @@ export default function CashDatePlanner() {
   function calculate(next = values) {
     invalidateFileRead();
     setRecoveryFeedback(null);
+    setMovementFeedback('');
     const result = checkCashDates({
       initialBalance: parseSpanishNumber(next.initialBalance),
       movements: next.rows.map((row) => ({ date: row.date, kind: row.kind, amount: parseSpanishNumber(row.amount) })),
@@ -95,6 +112,7 @@ export default function CashDatePlanner() {
       const hasDraft = values.initialBalance.trim() !== '' || values.rows.length !== INITIAL_ROW_COUNT
         || values.rows.some((row) => row.date !== '' || row.kind !== '' || row.amount.trim() !== '');
       if (hasDraft) rememberPlan('file');
+      forgetRemoval();
       const next: Values = {
         initialBalance: formatNumber(decoded.input.initialBalance),
         rows: decoded.input.movements.map((row) => ({ ...row, id: nextId.current++, amount: formatNumber(row.amount) })),
@@ -112,6 +130,7 @@ export default function CashDatePlanner() {
     // A pending import must not replace the draft after recovery. Keep raw
     // strings, incomplete rows and their order; balances need a fresh check.
     invalidateFileRead();
+    forgetRemoval();
     focusKey.current = 'initialBalance';
     setValues(planBeforeReplacement.values);
     setIsExample(planBeforeReplacement.isExample);
@@ -231,20 +250,35 @@ export default function CashDatePlanner() {
             const rows = values.rows.filter((item) => item.id !== row.id);
             focusKey.current = `${rows[Math.min(index, rows.length - 1)].id}-date`;
             setValues({ ...values, rows }); clearResult();
+            setRemovedMovement({ row: { ...row }, index });
+            setMovementFeedback(`Movimiento ${index + 1} eliminado. Puedes deshacer la última eliminación.`);
           }}>Eliminar movimiento {index + 1}</button>
         </fieldset>
       ))}
-      <button type="button" className="secondary-button" disabled={values.rows.length >= MAX_CASH_MOVEMENTS} onClick={() => {
-        const row = blankRow(nextId.current++);
-        focusKey.current = `${row.id}-date`;
-        setValues({ ...values, rows: [...values.rows, row] }); clearResult();
-      }}>Añadir movimiento</button>
+      <div className={styles.actions}>
+        <button type="button" className="secondary-button" disabled={values.rows.length >= MAX_CASH_MOVEMENTS} onClick={() => {
+          const row = blankRow(nextId.current++);
+          focusKey.current = `${row.id}-date`;
+          setValues({ ...values, rows: [...values.rows, row] }); clearResult();
+          forgetRemoval();
+          if (removedMovement) setMovementFeedback('Movimiento añadido. Ya no se puede deshacer la eliminación anterior.');
+        }}>Añadir movimiento</button>
+        {removedMovement ? <button type="button" className="secondary-button" onClick={undoRemoval}
+          aria-describedby={`${id}-removal-hint`}>Deshacer la última eliminación</button> : null}
+      </div>
+      {removedMovement ? <p className={styles.note} id={`${id}-removal-hint`}>
+        Recupera el último movimiento eliminado en su posición anterior, sin cambiar el saldo ni los demás movimientos.
+        Editar los campos o comprobar los vencimientos mantiene esta opción. Otra eliminación sustituye la copia;
+        añadir un movimiento, sustituir el plan, salir o recargar la página la descarta.
+      </p> : null}
+      <div role="status" aria-label="Eliminación de movimientos" aria-live="polite" aria-atomic="true">{movementFeedback ? <p>{movementFeedback}</p> : null}</div>
       <p>Incluye de 1 a {MAX_CASH_MOVEMENTS} movimientos. Todos deben tener fecha, tipo e importe; usa 0 si el importe es cero o elimina la fila que no necesites. No se añaden movimientos recurrentes automáticamente.</p>
       <div className={styles.actions}>
         <button type="button" className="primary-button" onClick={() => calculate()}>Comprobar vencimientos</button>
         <button type="button" className="link-button" onClick={() => {
           // Imports and examples share the first copy until explicit recovery.
           rememberPlan('example');
+          forgetRemoval();
           const next: Values = { initialBalance: formatNumber(cashDatesExample.initialBalance), rows: cashDatesExample.movements.map((movement) => ({ ...movement, id: nextId.current++, amount: formatNumber(movement.amount) })) };
           setIsExample(true); calculate(next);
         }}>Probar las fechas ficticias</button>

@@ -48,6 +48,42 @@ Los espacios publicitarios están preparados, pero `lib/ads.ts` exige `NEXT_PUBL
 
 ## Revisión local antes de publicar
 
+### Deshacer la última eliminación de un movimiento (4 de noviembre de 2026)
+
+Publicación autorizada el 4 de noviembre de 2026. El comprobador de caja por fechas permitía
+eliminar un movimiento completo o incompleto sin recuperarlo. El botón
+«Deshacer la última eliminación» vuelve a insertar la fecha, el tipo y el
+importe crudos con su ID y posición anterior. Conserva el saldo y las
+ediciones de los demás movimientos; no recupera resultados antiguos.
+
+Se conserva una sola eliminación. Editar los campos o comprobar mantiene
+la opción; otra eliminación sustituye la copia. Añadir un movimiento la
+descarta con un aviso explícito. Así la recuperación no queda bloqueada por
+el máximo de 20 filas después de añadir una nueva. Probar un ejemplo,
+abrir un archivo válido o recuperar el plan completo también la descarta,
+para evitar mezclar datos de planes distintos. Un archivo inválido conserva
+la opción. La guía de costes explica este alcance junto al comprobador.
+
+Recuperar consume la copia, enfoca la fecha de la fila restaurada y retira
+los saldos y la descarga hasta volver a comprobar. También invalida las
+lecturas de archivo pendientes. No se añade almacenamiento: la copia se
+pierde al salir o recargar y no se exporta en el archivo del plan.
+
+Validación: siete casos nuevos y 94 pruebas correctas en ocho archivos,
+con un máximo de dos workers. Cubren datos incompletos y malformados,
+primera/intermedia/última fila, ediciones posteriores, copia más reciente,
+límite de 20, descarte al añadir o sustituir, archivos inválidos, lectura
+pendiente y exportación solo de los datos comprobados. ESLint y compilación
+correctos. En navegador local se prueban el texto malformado recuperado,
+la validación posterior, cambios conservados en saldo y otra fila, retirada
+de los saldos y foco en la fecha. Enter y presentación a 320 px correctos;
+consola sin errores. Las fechas de esa prueba se cargan desde el ejemplo
+porque el fill de la herramienta sobre input date no las establece.
+
+Datos de prueba ficticios; no son sesiones con usuarios reales. No cambian
+el motor, el formato de archivo, GET, enlaces compartidos ni eventos.
+Se publica por la integración Git existente. Anuncios, piloto y seguimientos intactos.
+
 ### Copiar el resumen con su enlace desde la portada (4 de noviembre de 2026)
 
 Publicación autorizada el 4 de noviembre de 2026. La portada ofrecía el resumen
