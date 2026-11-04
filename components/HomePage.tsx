@@ -8,6 +8,7 @@ type HomePageProps = {
   calculatorInitialValues?: Partial<CalculatorFormValues>;
   calculatorInitiallySubmitted?: boolean;
   enableResultCopy?: boolean;
+  enableResultShareCopy?: boolean;
   initialShareUrl?: string;
   trackServerConversion?: boolean;
   importedFromCosts?: boolean;
@@ -23,6 +24,7 @@ export default function HomePage({
   calculatorInitialValues,
   calculatorInitiallySubmitted = false,
   enableResultCopy = true,
+  enableResultShareCopy = false,
   initialShareUrl,
   trackServerConversion = false,
   importedFromCosts = false,
@@ -97,6 +99,7 @@ export default function HomePage({
             initialValues={calculatorInitialValues}
             initiallySubmitted={calculatorInitiallySubmitted}
             enableResultCopy={enableResultCopy}
+            enableResultShareCopy={enableResultShareCopy}
             initialShareUrl={initialShareUrl}
             trackServerConversion={trackServerConversion}
             importedFromCosts={importedFromCosts}

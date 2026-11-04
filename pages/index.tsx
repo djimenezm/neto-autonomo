@@ -140,6 +140,7 @@ export default function IndexPage({
         calculatorInitialValues={calculatorInitialValues}
         calculatorInitiallySubmitted={calculatorInitiallySubmitted}
         enableResultCopy={false}
+        enableResultShareCopy
         initialShareUrl={calculatorShareUrl}
         trackServerConversion={calculatorInitiallySubmitted}
         importedFromCosts={importedFromCosts}

@@ -1,6 +1,6 @@
 'use client';
 
-import { forwardRef, useMemo, useState } from 'react';
+import { forwardRef, useMemo, useRef, useState, type ReactNode } from 'react';
 import { AUTONOMOUS_COMMUNITY_LABELS, type CalculationResult } from '@/lib/calculator';
 import { formatCurrency, formatNumber } from '@/lib/format';
 import BillingBreakdown from '@/components/BillingBreakdown';
@@ -22,6 +22,7 @@ type ResultCardProps = {
   hoursBillable: number;
   hasIVA: boolean;
   enableCopy?: boolean;
+  enableShareCopy?: boolean;
   shareUrl?: string;
 };
 
@@ -44,14 +45,62 @@ async function copyTextToClipboard(text: string) {
   textArea.style.position = 'fixed';
   textArea.style.left = '-9999px';
   document.body.appendChild(textArea);
-  textArea.select();
-
-  const copied = document.execCommand('copy');
-  document.body.removeChild(textArea);
-
-  if (!copied) {
-    throw new Error('No se pudo copiar el resumen.');
+  try {
+    textArea.select();
+    if (!document.execCommand('copy')) {
+      throw new Error('No se pudo copiar el resumen.');
+    }
+  } finally {
+    textArea.remove();
   }
+}
+
+function ShareableSummary({ text, enableCopy, children }: { text: string; enableCopy: boolean; children: ReactNode }) {
+  const textArea = useRef<HTMLTextAreaElement>(null);
+  const [status, setStatus] = useState<CopyStatus | 'copying'>('idle');
+
+  async function copySummaryAndLink() {
+    setStatus('copying');
+    try {
+      await copyTextToClipboard(text);
+      setStatus('copied');
+    } catch {
+      setStatus('error');
+      textArea.current?.focus();
+      textArea.current?.select();
+    }
+  }
+
+  return (
+    <>
+      <textarea
+        ref={textArea}
+        className="result-share-text"
+        readOnly
+        aria-label="Resumen detallado para compartir"
+        aria-describedby="result-share-scope"
+        value={text}
+      />
+      <div className="result-share-actions" aria-label="Opciones para compartir el resultado">
+        {enableCopy ? (
+          <button type="button" className="secondary-button" onClick={copySummaryAndLink} disabled={status === 'copying'} aria-busy={status === 'copying'}>
+            Copiar resumen y enlace
+          </button>
+        ) : null}
+        {children}
+      </div>
+      {enableCopy ? (
+        <>
+          <div role="status" aria-label="Copia del resumen y enlace" aria-live="polite" aria-atomic="true">
+            {status === 'copying' ? <p>Copiando el resumen y el enlace…</p> : null}
+            {status === 'copied' ? <p>Resumen y enlace copiados.</p> : null}
+            {status === 'error' ? <p className="field-error">No se ha podido copiar automáticamente. El resumen queda seleccionado para que lo copies manualmente.</p> : null}
+          </div>
+          <noscript><p>Sin JavaScript, selecciona el resumen y cópialo manualmente.</p></noscript>
+        </>
+      ) : null}
+    </>
+  );
 }
 
 function trackResultKitCtaClicked(event?: ResultKitCtaEvent) {
@@ -69,7 +118,7 @@ function trackResultKitCtaClicked(event?: ResultKitCtaEvent) {
 }
 
 const ResultCard = forwardRef<HTMLElement, ResultCardProps>(function ResultCard(
-  { result, hoursBillable, hasIVA, enableCopy = true, shareUrl },
+  { result, hoursBillable, hasIVA, enableCopy = true, enableShareCopy = false, shareUrl },
   ref,
 ) {
   const [copyStatus, setCopyStatus] = useState<CopyStatus>('idle');
@@ -266,14 +315,7 @@ const ResultCard = forwardRef<HTMLElement, ResultCardProps>(function ResultCard(
               __html: `window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments)};(function(){if(window.__cuantoFacturarShareTracking)return;window.__cuantoFacturarShareTracking=true;document.addEventListener('click',function(event){var link=event.target&&event.target.closest?event.target.closest('[data-share-channel]'):null;if(!link)return;window.va('event',{name:'result_shared',data:{channel:link.getAttribute('data-share-channel')||'unknown'}});});})();`,
             }}
           />
-          <textarea
-            className="result-share-text"
-            readOnly
-            aria-label="Resumen detallado para compartir"
-            aria-describedby="result-share-scope"
-            value={channelShareUrls.text}
-          />
-          <div className="result-share-actions" aria-label="Opciones para compartir el resultado">
+          <ShareableSummary key={channelShareUrls.text} text={channelShareUrls.text} enableCopy={enableShareCopy}>
             <a
               className="link-button"
               href={channelShareUrls.whatsapp}
@@ -295,7 +337,7 @@ const ResultCard = forwardRef<HTMLElement, ResultCardProps>(function ResultCard(
             <a className="link-button" href={channelShareUrls.email} data-share-channel="email">
               Email
             </a>
-          </div>
+          </ShareableSummary>
         </div>
       )}
 

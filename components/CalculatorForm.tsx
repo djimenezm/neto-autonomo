@@ -33,6 +33,7 @@ type CalculatorFormProps = {
   initialValues?: Partial<CalculatorFormValues>;
   initiallySubmitted?: boolean;
   enableResultCopy?: boolean;
+  enableResultShareCopy?: boolean;
   initialShareUrl?: string;
   trackServerConversion?: boolean;
   updateUrlOnSubmit?: boolean;
@@ -80,6 +81,7 @@ export default function CalculatorForm({
   initialValues,
   initiallySubmitted = false,
   enableResultCopy = true,
+  enableResultShareCopy = false,
   initialShareUrl = '',
   trackServerConversion = false,
   updateUrlOnSubmit = true,
@@ -671,6 +673,7 @@ export default function CalculatorForm({
             hoursBillable={parseNumericValue(calculatedValues.billableHours)}
             hasIVA={calculatedValues.hasIVA}
             enableCopy={enableResultCopy}
+            enableShareCopy={enableResultShareCopy}
             shareUrl={shareUrl}
           />
         ) : null}

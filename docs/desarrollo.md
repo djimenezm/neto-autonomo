@@ -48,6 +48,43 @@ Los espacios publicitarios están preparados, pero `lib/ads.ts` exige `NEXT_PUBL
 
 ## Revisión local antes de publicar
 
+### Copiar el resumen con su enlace desde la portada (4 de noviembre de 2026)
+
+Publicación autorizada el 4 de noviembre de 2026. La portada ofrecía el resumen
+detallado en un campo seleccionable y enlaces a servicios externos, pero no
+una acción para copiarlo completo y conservar el enlace en unas notas.
+
+«Copiar resumen y enlace» usa exactamente el contenido visible del campo,
+con sus supuestos y la URL ya generada. Se activa solo en la portada mediante
+`enableResultShareCopy`; el antiguo bloque `enableResultCopy={false}` se
+mantiene desactivado. Los demás usos conservan el nuevo control desactivado
+por defecto. No se cambia el texto ni sus parámetros UTM.
+
+`ShareableSummary` mantiene su estado de copia separado del botón antiguo,
+deshabilita el control mientras espera y confirma solo tras resolver la API.
+Si falla, enfoca y selecciona el mismo texto para copia manual. Se reutiliza
+el auxiliar existente; su campo temporal se retira también si `execCommand`
+lanza una excepción. El texto identifica la instancia del control, para no
+mostrar un éxito anterior ni enfocar otro resumen tras un cambio de cálculo.
+Sin JavaScript permanece la selección manual con su indicación en HTML.
+
+Validación: nueve casos nuevos y 60 pruebas en cinco archivos correctas,
+ESLint y compilación incluidos. Cubren copia exacta, espera, rechazo,
+fallback verdadero/falso/excepción, selección, limpieza, independencia de
+ambos controles, respuestas tardías, activación en la ruta real y HTML/SEO
+de consultas válidas e inválidas. No aparecen avisos nuevos en estas pruebas.
+
+En navegador local se comprueban el botón y su confirmación, la retirada al
+editar, el aviso vacío en un nuevo cálculo y teclado/móvil de 320 px. El
+portapapeles virtual de la herramienta no recoge lo escrito por la API de
+la página: la lectura devuelve vacío y no permite comprobar un pegado real.
+La igualdad del contenido se comprueba en las pruebas automáticas; no se
+presenta como una lectura del portapapeles real. Consola sin errores.
+
+Los datos de comprobación son ficticios. No se envía ningún formulario o
+mensaje. No cambian cálculos, GET, metadatos, enlaces, eventos ni seguimiento.
+Anuncios, piloto y seguimientos intactos. Se publica por la integración Git existente.
+
 ### Conservar los supuestos en el resumen del cálculo (3 de noviembre de 2026)
 
 Publicación autorizada el 4 de noviembre de 2026. El texto exportado conservaba
