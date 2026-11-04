@@ -48,6 +48,44 @@ Los espacios publicitarios están preparados, pero `lib/ads.ts` exige `NEXT_PUBL
 
 ## Revisión local antes de publicar
 
+### Mantener los avisos pendientes al comprobar una factura (4 de noviembre de 2026)
+
+Publicación autorizada el 4 de noviembre de 2026. Corregir la base de una factura retiraba
+los avisos de IVA y retención aunque sus campos siguieran vacíos. Los
+avisos dependían del resultado, que se elimina al editar cualquier dato.
+
+Tras el primer intento explícito, los errores usan los tres valores
+actuales y el mismo parseo y motor. Corregir un campo retira únicamente
+los avisos que ya no correspondan, sin mover el foco. Los campos vacíos
+siguen siendo inválidos; cero es un porcentaje explícito válido y se
+conservan la base mínima y los límites de los porcentajes.
+
+El cobro y su desglose siguen pendientes hasta comprobar. Editar los
+retira; completar datos válidos muestra «Datos modificados. Pulsa
+«Comprobar esta factura» para actualizar el resultado.». La normalización
+solo ocurre al comprobar correctamente. El ejemplo se comprueba de forma
+explícita; recuperar los datos personales reinicia avisos y resultados,
+conservando la copia original con su texto crudo.
+
+Validación: seis casos nuevos y 45 pruebas correctas en cinco archivos,
+con máximo dos workers y sin avisos React. Cubren errores independientes,
+porcentajes cero y límites, base inválida, precisión antes de comprobar,
+retirada del cobro, Enter, ejemplo, recuperación y ausencia de envíos o
+persistencia. Dos expectativas anteriores se adaptan al aviso pendiente
+o al error actual, manteniendo la comprobación de ausencia de cobros.
+ESLint, TypeScript y compilación correctos.
+
+En navegador local, escribir la base 1000 después de comprobar vacío
+conserva ambos avisos de porcentajes. Con 21 y 15, el cobro de 1060 EUR
+solo aparece tras comprobar. Corregir un IVA inválido a cero no oculta
+una base vacía; 2000 con IVA cero y retención 100 produce cero al comprobar
+con Enter. Son datos ficticios, no tipos recomendados. Vista de 320 px sin
+desbordamiento, pantalla normal restaurada y consola sin errores.
+
+Se publica mediante la conexión Git existente. No cambian fórmulas, normalización, límites, formulario
+GET, cálculo principal, enlace compartido ni eventos. Anuncios, piloto
+y seguimientos intactos.
+
 ### Mantener los avisos pendientes del comprobador de jornada (4 de noviembre de 2026)
 
 Publicación autorizada el 4 de noviembre de 2026. El comprobador de jornada borraba todos

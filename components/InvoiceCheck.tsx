@@ -23,13 +23,16 @@ export default function InvoiceCheck() {
   const refs = useRef<Partial<Record<keyof Values, HTMLInputElement | null>>>({});
   const [values, setValues] = useState<Values>({ baseAmount: '', vatRate: '', withholdingRate: '' });
   const [result, setResult] = useState<ReturnType<typeof checkInvoice> | null>(null);
+  const [hasAttemptedCheck, setHasAttemptedCheck] = useState(false);
   const [isExample, setIsExample] = useState(false);
   const [invoiceBeforeExample, setInvoiceBeforeExample] = useState<Values | null>(null);
   const [recoveryFeedback, setRecoveryFeedback] = useState('');
+  const validation = hasAttemptedCheck ? checkInvoice(parseValues(values)) : null;
 
   function calculate(next = values) {
     setRecoveryFeedback('');
     const checked = checkInvoice(parseValues(next));
+    setHasAttemptedCheck(true);
     setResult(checked);
     if (checked.valid) setValues({ baseAmount: formatNumber(checked.baseAmount), vatRate: formatNumber(checked.vatRate), withholdingRate: formatNumber(checked.withholdingRate) });
     else {
@@ -42,6 +45,7 @@ export default function InvoiceCheck() {
     if (!invoiceBeforeExample) return;
     setValues(invoiceBeforeExample);
     setResult(null);
+    setHasAttemptedCheck(false);
     setIsExample(false);
     setInvoiceBeforeExample(null);
     setRecoveryFeedback('Datos de factura recuperados. Vuelve a comprobar la factura para actualizar los resultados.');
@@ -57,7 +61,7 @@ export default function InvoiceCheck() {
       }}>
         <legend>Tu base y los porcentajes de esta factura</legend>
         {fields.map(({ key, label, hint }) => {
-          const error = result && !result.valid ? result.errors[key] : undefined;
+          const error = validation && !validation.valid ? validation.errors[key] : undefined;
           const fieldId = `${id}-${key}`;
           return (
             <label key={key} htmlFor={fieldId}>
@@ -87,7 +91,8 @@ export default function InvoiceCheck() {
       {invoiceBeforeExample ? <p className={styles.note} id={`${id}-recovery-hint`}>Conservamos en esta página los datos anteriores al primer ejemplo. Recuperarlos sustituye los cambios que ves ahora y deja el resultado pendiente de comprobar. La copia se pierde al salir o recargar la página.</p> : null}
       <div role="status" aria-label="Recuperación de los datos de factura" aria-live="polite" aria-atomic="true">{recoveryFeedback ? <p>{recoveryFeedback}</p> : null}</div>
       <div role="status" aria-label="Comprobación de una factura" aria-live="polite" aria-atomic="true">
-        {result && !result.valid ? <p>Revisa los campos indicados para comprobar la factura.</p> : null}
+        {validation && !validation.valid ? <p>Revisa los campos indicados para comprobar la factura.</p> : null}
+        {!result && validation?.valid ? <p>Datos modificados. Pulsa «Comprobar esta factura» para actualizar el resultado.</p> : null}
         {result?.valid ? (
           <div className={styles.result}>
             {isExample ? <p><strong>Base y porcentajes ficticios; no son tipos recomendados para tu actividad.</strong></p> : null}

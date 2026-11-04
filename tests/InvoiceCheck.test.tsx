@@ -35,7 +35,8 @@ describe('editable single invoice check', () => {
     await calculate();
     expect(result()).toHaveTextContent('Base y porcentajes ficticios');
     fireEvent.change(screen.getByRole('textbox', { name: labels[0] }), { target: { value: '2000' } });
-    expect(result()).toBeEmptyDOMElement();
+    expect(result()).toHaveTextContent('Datos modificados. Pulsa «Comprobar esta factura» para actualizar el resultado.');
+    expect(within(result()).queryByText('Importe a cobrar con estos datos')).not.toBeInTheDocument();
     fireEvent.keyDown(screen.getByRole('textbox', { name: labels[0] }), { key: 'Enter' });
     expect(result()).toHaveTextContent('= 2120,00');
     expect(result()).not.toHaveTextContent('porcentajes ficticios');
@@ -61,7 +62,9 @@ describe('editable single invoice check', () => {
     await example();
     const base = screen.getByRole('textbox', { name: labels[0] });
     fireEvent.change(base, { target: { value } });
-    expect(result()).toBeEmptyDOMElement();
+    expect(result()).toHaveTextContent('Revisa los campos indicados para comprobar la factura.');
+    expect(base).toHaveAttribute('aria-invalid', 'true');
+    expect(within(result()).queryByText('Importe a cobrar con estos datos')).not.toBeInTheDocument();
     await calculate();
     expect(base).toHaveValue(value);
     expect(base).toHaveAttribute('aria-invalid', 'true');
