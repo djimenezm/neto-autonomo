@@ -16,6 +16,12 @@ const fields = [
   { key: 'hoursPerProject', label: (group: number) => `Horas por servicio del grupo ${group}`, hint: 'Todo el tiempo de uno: preparación, reuniones, ejecución y revisiones. 1,5 significa una hora y media.' },
 ] as const;
 
+function checkPortfolio(rows: Row[], monthlyBilling: number, billableHours: number) {
+  return planMonthlyPortfolio({ monthlyBilling, billableHours, groups: rows.map((row): PortfolioGroupInput => ({
+    quantity: parseSpanishNumber(row.quantity), pricePerProject: parseSpanishNumber(row.pricePerProject), hoursPerProject: parseSpanishNumber(row.hoursPerProject),
+  })) });
+}
+
 function PortfolioEditor({ monthlyBilling, billableHours }: Reference) {
   const id = useId();
   const nextId = useRef(2);
@@ -23,11 +29,13 @@ function PortfolioEditor({ monthlyBilling, billableHours }: Reference) {
   const focusAfterChange = useRef<number | null>(null);
   const [rows, setRows] = useState<Row[]>([{ id: 1, quantity: '', pricePerProject: '', hoursPerProject: '' }]);
   const [plan, setPlan] = useState<ReturnType<typeof planMonthlyPortfolio> | null>(null);
+  const [hasAttemptedCheck, setHasAttemptedCheck] = useState(false);
   const [isExample, setIsExample] = useState(false);
   const [changeMessage, setChangeMessage] = useState('');
   const [combinationBeforeExample, setCombinationBeforeExample] = useState<Row[] | null>(null);
   const [recoveryFeedback, setRecoveryFeedback] = useState('');
   const [removedGroup, setRemovedGroup] = useState<RemovedGroup | null>(null);
+  const validation = hasAttemptedCheck ? checkPortfolio(rows, monthlyBilling, billableHours) : null;
 
   useEffect(() => {
     if (focusAfterChange.current !== null) {
@@ -37,9 +45,8 @@ function PortfolioEditor({ monthlyBilling, billableHours }: Reference) {
   }, [rows]);
 
   function check(nextRows = rows) {
-    const result = planMonthlyPortfolio({ monthlyBilling, billableHours, groups: nextRows.map((row): PortfolioGroupInput => ({
-      quantity: parseSpanishNumber(row.quantity), pricePerProject: parseSpanishNumber(row.pricePerProject), hoursPerProject: parseSpanishNumber(row.hoursPerProject),
-    })) });
+    const result = checkPortfolio(nextRows, monthlyBilling, billableHours);
+    setHasAttemptedCheck(true);
     setPlan(result);
     setChangeMessage('');
     setRecoveryFeedback('');
@@ -78,6 +85,7 @@ function PortfolioEditor({ monthlyBilling, billableHours }: Reference) {
     focusAfterChange.current = combinationBeforeExample[0].id;
     setRows(combinationBeforeExample);
     setPlan(null);
+    setHasAttemptedCheck(false);
     setIsExample(false);
     setChangeMessage('');
     setCombinationBeforeExample(null);
@@ -105,7 +113,7 @@ function PortfolioEditor({ monthlyBilling, billableHours }: Reference) {
             <legend>Grupo {index + 1} de servicios iguales</legend>
             <div className={styles.fields}>
               {fields.map(({ key, label, hint }) => {
-                const error = plan && !plan.valid ? plan.errors.rows[index]?.[key] : undefined;
+                const error = validation && !validation.valid ? validation.errors.rows[index]?.[key] : undefined;
                 const inputId = `${id}-${row.id}-${key}`;
                 return (
                   <label key={key} htmlFor={inputId}>
@@ -155,7 +163,8 @@ function PortfolioEditor({ monthlyBilling, billableHours }: Reference) {
       </div>
       <div role="status" aria-label="Recuperación de la combinación" aria-live="polite" aria-atomic="true">{recoveryFeedback ? <p>{recoveryFeedback}</p> : null}</div>
       <div role="status" aria-label="Plan de servicios combinados" aria-live="polite" aria-atomic="true">
-        {plan && !plan.valid ? <p>{plan.errors.monthlyBilling ?? plan.errors.billableHours ?? plan.errors.groups ?? 'Revisa los campos indicados antes de comprobar la combinación.'}</p> : null}
+        {validation && !validation.valid ? <p>{validation.errors.monthlyBilling ?? validation.errors.billableHours ?? validation.errors.groups ?? 'Revisa los campos indicados antes de comprobar la combinación.'}</p> : null}
+        {!plan && validation?.valid ? <p>Datos modificados. Pulsa «Comprobar combinación» para actualizar el resultado.</p> : null}
         {plan?.valid ? (
           <div className={styles.result}>
             {isExample ? <p><strong>Precios, cantidades y horas ficticios; se usa la referencia mensual de arriba.</strong></p> : null}

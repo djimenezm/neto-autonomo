@@ -48,6 +48,45 @@ Los espacios publicitarios están preparados, pero `lib/ads.ts` exige `NEXT_PUBL
 
 ## Revisión local antes de publicar
 
+### Mantener los avisos pendientes al combinar servicios (4 de noviembre de 2026)
+
+Publicación autorizada el 5 de noviembre de 2026. Después de comprobar una combinación
+incompleta, editar un dato retiraba también los avisos de otros campos
+y grupos pendientes, porque los errores dependían del plan eliminado.
+
+Tras el primer intento explícito, los avisos se derivan de las filas
+actuales con el mismo parseo y motor. Corregir un dato conserva los demás
+errores, sin mover el foco ni normalizar el texto mientras se escribe.
+Añadir, quitar y deshacer una eliminación mantienen este criterio; cada
+error corresponde al grupo y posición actuales, conservando sus IDs.
+Antes del primer intento no se muestran errores de campos pendientes.
+
+Las cifras se retiran al editar o cambiar los grupos. Si los datos ya
+son válidos, se indica «Datos modificados. Pulsa «Comprobar combinación»
+para actualizar el resultado.» hasta comprobar con clic o Enter. Solo
+la comprobación válida normaliza las entradas y muestra resultados.
+El ejemplo se comprueba explícitamente; recuperar la combinación completa
+reinicia avisos y resultado. La clave de referencia mensual sigue igual.
+
+Validación: siete casos nuevos y 60 pruebas correctas en seis archivos,
+con máximo dos workers y sin avisos React. Se cubren errores independientes,
+precio cero válido, cantidades y horas inválidas, precisión, Enter,
+índices y foco tras añadir/quitar/deshacer, recuperación completa, cambio
+de referencia, límite de ocho e integración con la calculadora principal.
+Las expectativas anteriores se adaptan al aviso pendiente y los errores
+actuales, manteniendo la ausencia de cifras antiguas. ESLint, TypeScript
+y compilación correctos.
+
+En navegador local, corregir una cantidad entre dos grupos vacíos conserva
+los otros cinco avisos. Quitar y recuperar el primer grupo mantiene los
+errores del segundo. Completar servicios ficticios de 1000 EUR y 11 h
+deja el resultado pendiente hasta Enter; editar vuelve a retirar las cifras.
+Vista de 320 px sin desbordamiento, pantalla normal restaurada y consola
+sin errores. Los datos de prueba son ficticios.
+
+Se publica mediante la conexión Git existente. No cambian fórmulas, límites, cálculo principal, enlace
+compartido ni eventos. Anuncios, piloto y seguimientos intactos.
+
 ### Mantener los avisos pendientes al valorar un encargo (4 de noviembre de 2026)
 
 Publicación autorizada el 4 de noviembre de 2026. Después de comprobar un encargo vacío,

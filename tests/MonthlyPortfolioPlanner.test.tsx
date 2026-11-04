@@ -46,7 +46,8 @@ describe('monthly portfolio editor', () => {
     expect(screen.getByRole('status', status)).toHaveTextContent('4200,00');
     expect(screen.getByRole('status', status)).toHaveTextContent('quedan 12 h');
     fireEvent.change(field(2, 'hours'), { target: { value: '50' } });
-    expect(screen.getByRole('status', status)).toBeEmptyDOMElement();
+    expect(screen.getByRole('status', status)).toHaveTextContent('Datos modificados. Pulsa «Comprobar combinación»');
+    expect(screen.getByRole('status', status)).not.toHaveTextContent('Facturación prevista sin IVA');
     await user.type(field(2, 'hours'), '{Enter}');
     expect(screen.getByRole('status', status)).toHaveTextContent('faltan 6 h de capacidad');
     expect(screen.getByRole('status', status)).toHaveTextContent('supera el objetivo en 50,59');
@@ -58,7 +59,8 @@ describe('monthly portfolio editor', () => {
     render(<Planner {...reference} />);
     await user.click(screen.getByRole('button', { name: 'Probar dos servicios ficticios' }));
     await user.click(screen.getByRole('button', { name: 'Quitar grupo 1' }));
-    expect(screen.getByRole('status', status)).toBeEmptyDOMElement();
+    expect(screen.getByRole('status', status)).toHaveTextContent('Datos modificados. Pulsa «Comprobar combinación»');
+    expect(screen.getByRole('status', status)).not.toHaveTextContent('Facturación prevista sin IVA');
     expect(field(1, 'quantity')).toHaveValue('1');
     expect(field(1, 'price')).toHaveValue('1800');
     expect(field(1, 'hours')).toHaveValue('32');

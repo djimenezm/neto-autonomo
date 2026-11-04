@@ -40,7 +40,8 @@ async function writePersonal() {
 function expectConsumed(group: number) {
   expect(undoButton()).not.toBeInTheDocument();
   expect(field(group, 'quantity')).toHaveFocus();
-  expect(result()).toBeEmptyDOMElement();
+  expect(within(result()).queryByText('Facturación prevista sin IVA')).not.toBeInTheDocument();
+  expect(result().querySelector('dl')).toBeNull();
   expect(changes()).toHaveTextContent(/Vuelve a comprobar/);
 }
 
@@ -74,7 +75,8 @@ describe('undo the latest deleted group of monthly services', () => {
     expect(groups()).toEqual([{ ...personal[0], price: ' 75,005 ' }, deleted, { ...personal[2], hours: '' }]);
     expect(field(2, 'quantity')).toHaveAttribute('id', deletedId);
     expectConsumed(2);
-    expect(field(2, 'quantity')).toHaveAttribute('aria-invalid', 'false');
+    expect(field(2, 'quantity')).toHaveAttribute('aria-invalid', 'true');
+    expect(field(3, 'hours')).toHaveAttribute('aria-invalid', 'true');
     await check();
     expect(field(2, 'quantity')).toHaveFocus();
     expect(field(2, 'quantity')).toHaveAttribute('aria-invalid', 'true');
