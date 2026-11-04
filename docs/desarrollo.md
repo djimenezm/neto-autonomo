@@ -48,6 +48,45 @@ Los espacios publicitarios están preparados, pero `lib/ads.ts` exige `NEXT_PUBL
 
 ## Revisión local antes de publicar
 
+### Mantener los avisos pendientes al valorar un encargo (4 de noviembre de 2026)
+
+Publicación autorizada el 4 de noviembre de 2026. Después de comprobar un encargo vacío,
+escribir únicamente el precio hacía desaparecer también el aviso de horas
+pendientes, porque editar retiraba los datos comprobados y sus errores.
+
+Tras el primer intento explícito, los avisos usan el precio y las horas
+actuales junto con la referencia mensual actual. Corregir un dato conserva
+los errores que sigan correspondiendo al otro, sin mover el foco. Se
+mantienen los mínimos existentes: aquí precio y horas cero son inválidos.
+
+Editar sigue retirando el resultado. Completar datos válidos muestra
+«Datos modificados. Pulsa «Comprobar encargos» para actualizar el resultado.»
+hasta comprobar de nuevo. Se conservan las cadenas originales incluso
+tras comprobar: el redondeo de resultados sigue perteneciendo al motor.
+El ejemplo se comprueba explícitamente; recuperar precio y horas reinicia
+los avisos y deja el resultado pendiente con la referencia mensual actual.
+
+El resultado continúa derivándose de los últimos datos comprobados y de
+las referencias actuales. No se introduce una clave de reinicio ni se
+congela un objetivo anterior; cambiar la referencia no borra las entradas.
+
+Validación: seis casos nuevos y 73 pruebas correctas en cinco archivos,
+con máximo dos workers y sin avisos React. Cubren correcciones por separado,
+ceros inválidos, texto crudo y precisión, retirada/recomprobación con Enter,
+ejemplo y recuperación, cambios de referencia e integración con resultado,
+resumen, GET y eventos. Tres expectativas anteriores pasan de estado vacío
+a aviso pendiente y ausencia de las cifras. ESLint, TypeScript y
+compilación correctos.
+
+En navegador local, escribir 600 tras comprobar vacío mantiene el error
+de horas. Completar 20 h no muestra cifras hasta comprobar con Enter;
+precio cero vuelve a señalar su error y retira el resultado. Se revisa
+la vista de 320 px sin desbordamiento y se restaura la pantalla normal.
+Consola sin errores. Precio y horas de prueba ficticios.
+
+Se publica mediante la conexión Git existente. No cambian reglas, fórmulas, límites, cálculo principal,
+enlace compartido ni eventos. Anuncios, piloto y seguimientos intactos.
+
 ### Mantener los avisos pendientes al comprobar una factura (4 de noviembre de 2026)
 
 Publicación autorizada el 4 de noviembre de 2026. Corregir la base de una factura retiraba

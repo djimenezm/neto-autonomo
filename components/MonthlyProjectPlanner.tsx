@@ -13,30 +13,33 @@ const fields = [
   { key: 'hoursPerProject', label: 'Horas totales por encargo', hint: 'Incluye preparación, reuniones, ejecución, revisiones y cierre de ese cliente. Cuenta cada hora una sola vez.' },
 ] as const;
 
+function checkProject(values: Values, monthlyBilling: number, billableHours: number) {
+  return estimateProjectCapacity({
+    monthlyBilling, billableHours,
+    pricePerProject: parseSpanishNumber(values.pricePerProject),
+    hoursPerProject: parseSpanishNumber(values.hoursPerProject),
+  });
+}
+
 export default function MonthlyProjectPlanner({ monthlyBilling, billableHours, headingLevel: Heading = 'h3' }: { monthlyBilling: number; billableHours: number; headingLevel?: 'h3' | 'h4' }) {
   const id = useId();
   const [values, setValues] = useState<Values>({ pricePerProject: '', hoursPerProject: '' });
   const [checkedValues, setCheckedValues] = useState<Values | null>(null);
+  const [hasAttemptedCheck, setHasAttemptedCheck] = useState(false);
   const [isExample, setIsExample] = useState(false);
   const [offerBeforeExample, setOfferBeforeExample] = useState<Values | null>(null);
   const [recoveryFeedback, setRecoveryFeedback] = useState('');
   const inputsRef = useRef<Partial<Record<keyof Values, HTMLInputElement | null>>>({});
   // Derive from the current reference as well as the last explicit submission,
   // so a changed monthly target cannot leave an old capacity check visible.
-  const estimate = checkedValues ? estimateProjectCapacity({
-    monthlyBilling, billableHours,
-    pricePerProject: parseSpanishNumber(checkedValues.pricePerProject),
-    hoursPerProject: parseSpanishNumber(checkedValues.hoursPerProject),
-  }) : null;
+  const estimate = checkedValues ? checkProject(checkedValues, monthlyBilling, billableHours) : null;
+  const validation = hasAttemptedCheck ? checkProject(values, monthlyBilling, billableHours) : null;
 
   function check(nextValues = values) {
     setRecoveryFeedback('');
     setCheckedValues(nextValues);
-    const result = estimateProjectCapacity({
-      monthlyBilling, billableHours,
-      pricePerProject: parseSpanishNumber(nextValues.pricePerProject),
-      hoursPerProject: parseSpanishNumber(nextValues.hoursPerProject),
-    });
+    setHasAttemptedCheck(true);
+    const result = checkProject(nextValues, monthlyBilling, billableHours);
     if (!result.valid) {
       const firstInvalid = fields.find(({ key }) => result.errors[key]);
       if (firstInvalid) inputsRef.current[firstInvalid.key]?.focus();
@@ -47,6 +50,7 @@ export default function MonthlyProjectPlanner({ monthlyBilling, billableHours, h
     if (!offerBeforeExample) return;
     setValues(offerBeforeExample);
     setCheckedValues(null);
+    setHasAttemptedCheck(false);
     setIsExample(false);
     setOfferBeforeExample(null);
     setRecoveryFeedback('Datos del encargo recuperados. Vuelve a comprobarlos con la referencia mensual actual.');
@@ -66,7 +70,7 @@ export default function MonthlyProjectPlanner({ monthlyBilling, billableHours, h
       }}>
         <legend>El encargo que quieres valorar</legend>
         {fields.map(({ key, label, hint }) => {
-          const error = estimate && !estimate.valid ? estimate.errors[key] : undefined;
+          const error = validation && !validation.valid ? validation.errors[key] : undefined;
           return (
             <label key={key}>
               <span id={`${id}-${key}-label`}>{label}</span>
@@ -107,7 +111,8 @@ export default function MonthlyProjectPlanner({ monthlyBilling, billableHours, h
       {offerBeforeExample ? <p className={styles.note} id={`${id}-recovery-hint`}>Conservamos en esta página el precio y las horas anteriores al primer ejemplo. Recuperarlos sustituye los cambios que ves ahora y deja el resultado pendiente de comprobar con la referencia mensual actual. La copia se pierde al salir o recargar la página.</p> : null}
       <div role="status" aria-label="Comprobación de encargos" aria-live="polite" aria-atomic="true">
         {recoveryFeedback ? <p>{recoveryFeedback}</p> : null}
-        {estimate && !estimate.valid ? <p>Revisa los datos indicados y la referencia mensual antes de comprobar el plan.</p> : null}
+        {validation && !validation.valid ? <p>Revisa los datos indicados y la referencia mensual antes de comprobar el plan.</p> : null}
+        {!estimate && validation?.valid ? <p>Datos modificados. Pulsa «Comprobar encargos» para actualizar el resultado.</p> : null}
         {estimate?.valid ? (
           <div className={styles.result}>
             {isExample ? <p><strong>Precio y horas del encargo ficticios; se usa la referencia mensual de arriba.</strong></p> : null}

@@ -39,7 +39,8 @@ describe('monthly project capacity planner', () => {
     expect(result).toHaveTextContent('faltan 50 horas');
 
     fireEvent.change(screen.getByRole('textbox', { name: 'Horas totales por encargo' }), { target: { value: '40' } });
-    expect(result).toBeEmptyDOMElement();
+    expect(result).toHaveTextContent('Datos modificados. Pulsa «Comprobar encargos» para actualizar el resultado.');
+    expect(within(result).queryByRole('heading', { name: 'Qué supone este encargo' })).not.toBeInTheDocument();
   });
 
   it('shows the offer hourly price without inventing a reference when monthly capacity is zero', async () => {
@@ -68,7 +69,8 @@ describe('monthly project capacity planner', () => {
     expect(result).toHaveTextContent('no reserva hueco en tu agenda');
     expect(result).not.toHaveTextContent('Las horas previstas superan este límite');
     fireEvent.change(screen.getByRole('textbox', { name: 'Precio por encargo sin IVA (EUR)' }), { target: { value: '25' } });
-    expect(result).toBeEmptyDOMElement();
+    expect(result).toHaveTextContent('Datos modificados. Pulsa «Comprobar encargos» para actualizar el resultado.');
+    expect(within(result).queryByRole('heading', { name: 'Qué supone este encargo' })).not.toBeInTheDocument();
   });
 
   it('explains a price that does not cover a hundredth of an hour instead of suggesting free work', async () => {
@@ -103,7 +105,8 @@ describe('monthly project capacity planner', () => {
     expect(screen.getByRole('status')).toHaveTextContent('Cabe por horas, sin holgura');
     const effort = screen.getByRole('textbox', { name: 'Horas totales por encargo' });
     fireEvent.change(effort, { target: { value: '60' } });
-    expect(screen.getByRole('status')).toBeEmptyDOMElement();
+    expect(screen.getByRole('status')).toHaveTextContent('Datos modificados. Pulsa «Comprobar encargos» para actualizar el resultado.');
+    expect(screen.queryByRole('heading', { name: 'Qué supone este encargo' })).not.toBeInTheDocument();
     await userEvent.click(screen.getByRole('button', { name: 'Comprobar encargos' }));
     expect(screen.getByRole('status')).toHaveTextContent('Ese volumen no cabe: faltan 40 horas');
     expect(screen.getByRole('status')).toHaveTextContent('2049,41');
