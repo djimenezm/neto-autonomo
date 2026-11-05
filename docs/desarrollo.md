@@ -48,6 +48,46 @@ Los espacios publicitarios están preparados, pero `lib/ads.ts` exige `NEXT_PUBL
 
 ## Revisión local antes de publicar
 
+### Mantener los avisos pendientes del comparador mensual (5 de noviembre de 2026)
+
+Publicación autorizada el 5 de noviembre de 2026. Después de comparar gastos y horas vacíos,
+corregir los gastos retiraba también el aviso de horas pendientes. Los
+errores dependían de la comparación que se elimina al editar.
+
+Tras el primer intento explícito, la validación usa los valores actuales
+con el mismo parseo y motor. Corregir un campo conserva los errores del otro,
+sin mover el foco ni normalizar el texto mientras se escribe. Los gastos
+cero siguen siendo válidos; las horas requieren un entero positivo seguro,
+sin introducir un límite nuevo.
+
+Editar retira cifras y enlace de la alternativa. Datos válidos muestran
+«Datos modificados. Pulsa «Comparar escenarios» para actualizar la comparación
+y su enlace.» hasta comparar con clic o Enter. Solo comparar correctamente
+normaliza los gastos y genera resultados y enlace con los valores comprobados.
+
+Cargar los datos de partida y recuperar la alternativa reinician los avisos
+sin comparar automáticamente. Se mantienen la primera copia con textos crudos,
+el criterio de datos de partida y la clave de reinicio al cambiar la referencia.
+La comparación continúa derivándose de los valores comprobados y la referencia;
+la validación actual no es una fuente de cifras ni enlaces visibles.
+
+Validación: seis casos nuevos y 34 pruebas correctas en cinco archivos,
+con máximo dos workers y sin avisos React. Cubren corrección independiente,
+ceros y horas enteras, precisión, Enter, retirada del enlace, carga, recuperación,
+referencias equivalentes o cambiadas e integración con resumen, formulario GET,
+URL y eventos. La expectativa anterior conserva ausencia de cifras y enlace
+junto al aviso pendiente. ESLint, TypeScript y compilación correctos.
+
+En navegador local, corregir gastos a 450 EUR mantiene el error de horas.
+Completar 60 h deja la comparación pendiente; Enter produce 3122,94 EUR/mes
+y 52,05 EUR/h en la alternativa ficticia y su enlace lleva gastos 450 y horas 60.
+Cargar la partida reinicia los avisos y no ofrece enlace; recuperar devuelve
+el texto 450,555 y las 60 h sin normalizar ni comparar. Vista de 320 px sin
+desbordamiento, pantalla normal restaurada y consola sin errores.
+
+Se publica mediante la conexión Git existente. No cambian fórmulas, límites, cálculo principal, enlace
+compartido, eventos ni almacenamiento. Anuncios, piloto y seguimientos intactos.
+
 ### Mantener los avisos pendientes al comprobar una rebaja (5 de noviembre de 2026)
 
 Publicación autorizada el 5 de noviembre de 2026. Tras comprobar los cuatro campos vacíos,

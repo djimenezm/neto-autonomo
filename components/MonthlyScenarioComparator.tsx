@@ -14,6 +14,12 @@ const fields = [
 ] as const;
 type Values = Record<keyof MonthlyAlternative, string>;
 
+function checkAlternative(reference: CalculatorInput, values: Values) {
+  return compareMonthlyScenarios(reference, {
+    monthlyExpenses: parseSpanishNumber(values.monthlyExpenses), billableHours: parseSpanishNumber(values.billableHours),
+  });
+}
+
 function describeDifference(amount: number, unit: string) {
   return amount === 0 ? `sin cambios (${formatCurrency(0)}${unit})` : `${amount > 0 ? 'sube' : 'baja'} ${formatCurrency(Math.abs(amount))}${unit}`;
 }
@@ -22,19 +28,18 @@ function ComparisonEditor({ reference }: { reference: CalculatorInput }) {
   const id = useId();
   const [values, setValues] = useState<Values>({ monthlyExpenses: '', billableHours: '' });
   const [checked, setChecked] = useState<Values | null>(null);
+  const [hasAttemptedComparison, setHasAttemptedComparison] = useState(false);
   const [alternativeBeforeLoad, setAlternativeBeforeLoad] = useState<Values | null>(null);
   const [usesStartingValues, setUsesStartingValues] = useState(false);
   const [recoveryFeedback, setRecoveryFeedback] = useState('');
   const refs = useRef<Partial<Record<keyof Values, HTMLInputElement | null>>>({});
-  const comparison = checked ? compareMonthlyScenarios(reference, {
-    monthlyExpenses: parseSpanishNumber(checked.monthlyExpenses), billableHours: parseSpanishNumber(checked.billableHours),
-  }) : null;
+  const comparison = checked ? checkAlternative(reference, checked) : null;
+  const validation = hasAttemptedComparison ? checkAlternative(reference, values) : null;
 
   function compare(next = values) {
     setRecoveryFeedback('');
-    const result = compareMonthlyScenarios(reference, {
-      monthlyExpenses: parseSpanishNumber(next.monthlyExpenses), billableHours: parseSpanishNumber(next.billableHours),
-    });
+    const result = checkAlternative(reference, next);
+    setHasAttemptedComparison(true);
     if (result.valid) {
       const normalized = { monthlyExpenses: formatNumber(result.alternativeInput.monthlyExpenses), billableHours: String(result.alternativeInput.billableHours) };
       setValues(normalized);
@@ -54,6 +59,7 @@ function ComparisonEditor({ reference }: { reference: CalculatorInput }) {
     }
     setValues({ monthlyExpenses: formatNumber(reference.monthlyExpenses), billableHours: String(reference.billableHours) });
     setChecked(null);
+    setHasAttemptedComparison(false);
     setUsesStartingValues(true);
     setRecoveryFeedback('');
   }
@@ -62,6 +68,7 @@ function ComparisonEditor({ reference }: { reference: CalculatorInput }) {
     if (!alternativeBeforeLoad) return;
     setValues(alternativeBeforeLoad);
     setChecked(null);
+    setHasAttemptedComparison(false);
     setAlternativeBeforeLoad(null);
     setUsesStartingValues(false);
     setRecoveryFeedback('Alternativa anterior recuperada. Vuelve a comparar los escenarios para actualizar los resultados.');
@@ -85,7 +92,7 @@ function ComparisonEditor({ reference }: { reference: CalculatorInput }) {
       }}>
         <legend>Los dos datos que quieres comparar</legend>
         {fields.map(({ key, label, hint }) => {
-          const error = comparison && !comparison.valid ? comparison.errors[key] : undefined;
+          const error = validation && !validation.valid ? validation.errors[key] : undefined;
           return (
             <label key={key}>
               <span id={`${id}-${key}-label`}>{label}</span>
@@ -107,7 +114,8 @@ function ComparisonEditor({ reference }: { reference: CalculatorInput }) {
       {alternativeBeforeLoad ? <p className={styles.note} id={`${id}-recovery-hint`}>Conservamos en esta página los gastos y las horas anteriores a la primera carga de datos de partida. Recuperarlos sustituye los cambios que ves ahora y deja la comparación y su enlace pendientes de comprobar. La copia se pierde al salir, recargar o cambiar el cálculo de referencia.</p> : null}
       <div role="status" aria-label="Comparación de escenarios" aria-live="polite" aria-atomic="true">
         {recoveryFeedback ? <p>{recoveryFeedback}</p> : null}
-        {comparison && !comparison.valid ? <p>Revisa los campos indicados antes de comparar.</p> : null}
+        {validation && !validation.valid ? <p>Revisa los campos indicados antes de comparar.</p> : null}
+        {!comparison && validation?.valid ? <p>Datos modificados. Pulsa «Comparar escenarios» para actualizar la comparación y su enlace.</p> : null}
         {comparison?.valid ? (
           <div className={styles.result}>
             <div className={styles.cards}>

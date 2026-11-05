@@ -1,0 +1,204 @@
+import { fireEvent, render, screen, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import Comparator from '@/components/MonthlyScenarioComparator';
+import CalculatorForm from '@/components/CalculatorForm';
+import { monthlyScenarioInput as reference } from '@/lib/monthlyScenarioExample';
+
+const costLabel = 'Gastos deducibles del escenario alternativo (EUR/mes)';
+const hoursLabel = 'Horas facturables del escenario alternativo (mes)';
+const costs = () => screen.getByRole('textbox', { name: costLabel }) as HTMLInputElement;
+const hours = () => screen.getByRole('textbox', { name: hoursLabel }) as HTMLInputElement;
+const result = () => screen.getByRole('status', { name: 'Comparación de escenarios' });
+const compare = () => userEvent.click(screen.getByRole('button', { name: 'Comparar escenarios' }));
+const load = () => userEvent.click(screen.getByRole('button', { name: 'Cargar los datos de partida' }));
+const recover = () => userEvent.click(screen.getByRole('button', { name: 'Recuperar mi alternativa anterior' }));
+const pending = () => screen.queryByText('Datos modificados. Pulsa «Comparar escenarios» para actualizar la comparación y su enlace.');
+const change = (input: HTMLElement, value: string) => fireEvent.change(input, { target: { value } });
+const alternativeLink = () => screen.queryByRole('link', { name: 'Abrir la alternativa en la calculadora' });
+function expectNoComparison() {
+  expect(result().querySelector('dl')).toBeNull();
+  expect(alternativeLink()).not.toBeInTheDocument();
+}
+function alternativeUrl() {
+  return new URL(screen.getByRole('link', { name: 'Abrir la alternativa en la calculadora' }).getAttribute('href')!, window.location.href);
+}
+
+describe('current validation while correcting an alternative monthly scenario', () => {
+  beforeEach(() => { window.va = vi.fn(); window.gtag = vi.fn(); });
+  afterEach(() => vi.restoreAllMocks());
+
+  it('leaves initial inputs quiet and retains the hours error after correcting only costs without moving the editing focus', async () => {
+    const user = userEvent.setup();
+    render(<Comparator reference={reference} />);
+    await user.type(costs(), '450');
+    expect(costs()).toHaveAttribute('aria-invalid', 'false');
+    expect(hours()).toHaveAttribute('aria-invalid', 'false');
+    expect(pending()).not.toBeInTheDocument();
+    await user.clear(costs());
+    await compare();
+    expect(costs()).toHaveFocus();
+    expect(costs()).toHaveAttribute('aria-invalid', 'true');
+    expect(hours()).toHaveAttribute('aria-invalid', 'true');
+    await user.type(costs(), '450');
+    expect(costs()).toHaveFocus();
+    expect(costs()).toHaveAttribute('aria-invalid', 'false');
+    expect(hours()).toHaveAccessibleName(hoursLabel);
+    expect(hours()).toHaveAccessibleDescription(/Horas enteras que prevés vender/);
+    expect(hours()).toHaveAccessibleDescription(/entero de horas mayor que cero/);
+    await user.type(hours(), '60');
+    expect(hours()).toHaveFocus();
+    expect(hours()).toHaveAttribute('aria-invalid', 'false');
+    expect(hours()).not.toHaveAccessibleDescription(/Indica un número entero/);
+    expect(pending()).toBeVisible();
+    expectNoComparison();
+  });
+
+  it('accepts zero costs and positive whole hours above 744 while rejecting zero or fractional hours without generating a link', async () => {
+    render(<Comparator reference={reference} />);
+    change(costs(), '0');
+    change(hours(), '0');
+    await compare();
+    expect(costs()).toHaveAttribute('aria-invalid', 'false');
+    expect(hours()).toHaveFocus();
+    expect(hours()).toHaveAttribute('aria-invalid', 'true');
+    change(hours(), '1,5');
+    expect(hours()).toHaveFocus();
+    expect(hours()).toHaveAttribute('aria-invalid', 'true');
+    expectNoComparison();
+    change(hours(), '1000');
+    expect(hours()).toHaveAttribute('aria-invalid', 'false');
+    expect(pending()).toBeVisible();
+    expectNoComparison();
+    await compare();
+    expect(alternativeUrl().searchParams.get('monthlyExpenses')).toBe('0');
+    expect(alternativeUrl().searchParams.get('billableHours')).toBe('1000');
+    expect(pending()).not.toBeInTheDocument();
+  });
+
+  it('preserves raw costs through failed comparison and correction, normalizing and renewing the alternative link only on explicit comparison', async () => {
+    render(<Comparator reference={reference} />);
+    change(costs(), ' 450,555 € ');
+    change(hours(), '1,5');
+    await compare();
+    expect(costs()).toHaveValue(' 450,555 € ');
+    expect(hours()).toHaveFocus();
+    change(hours(), '60');
+    expect(hours()).toHaveFocus();
+    expect(costs()).toHaveValue(' 450,555 € ');
+    expect(pending()).toBeVisible();
+    expectNoComparison();
+    fireEvent.keyDown(hours(), { key: 'Enter' });
+    expect(costs()).toHaveValue('450,56');
+    expect(alternativeUrl().searchParams.get('monthlyExpenses')).toBe('450.56');
+    expect(alternativeUrl().searchParams.get('billableHours')).toBe('60');
+    change(costs(), '500,005');
+    expect(costs()).toHaveValue('500,005');
+    expect(pending()).toBeVisible();
+    expectNoComparison();
+    await compare();
+    expect(costs()).toHaveValue('500,01');
+    expect(alternativeUrl().searchParams.get('monthlyExpenses')).toBe('500.01');
+    expect(pending()).not.toBeInTheDocument();
+  });
+
+  it('resets validation and checked links on starting-value loads and restores the independent first raw alternative quietly', async () => {
+    render(<Comparator reference={reference} />);
+    const originalCosts = ' 450,,555 € ';
+    const originalHours = ' 1,5 ';
+    change(costs(), originalCosts);
+    change(hours(), originalHours);
+    await compare();
+    expect(costs()).toHaveAttribute('aria-invalid', 'true');
+    expect(hours()).toHaveAttribute('aria-invalid', 'true');
+    await load();
+    expect(costs()).toHaveValue('300');
+    expect(hours()).toHaveValue('80');
+    expect(pending()).not.toBeInTheDocument();
+    expectNoComparison();
+    change(hours(), '0');
+    expect(hours()).toHaveAttribute('aria-invalid', 'false');
+    await load();
+    await compare();
+    expect(alternativeLink()).toBeVisible();
+    await load();
+    expect(pending()).not.toBeInTheDocument();
+    expectNoComparison();
+    await recover();
+    expect(costs()).toHaveValue(originalCosts);
+    expect(hours()).toHaveValue(originalHours);
+    expect(costs()).toHaveFocus();
+    expect(costs()).toHaveAttribute('aria-invalid', 'false');
+    expect(hours()).toHaveAttribute('aria-invalid', 'false');
+    change(costs(), '0');
+    expect(hours()).toHaveAttribute('aria-invalid', 'false');
+    expect(pending()).not.toBeInTheDocument();
+    fireEvent.keyDown(hours(), { key: 'Enter' });
+    expect(hours()).toHaveFocus();
+    expect(hours()).toHaveAttribute('aria-invalid', 'true');
+    expectNoComparison();
+  });
+
+  it('retains errors and recovery for an equivalent reference but resets the editor when the reference changes', async () => {
+    const { rerender } = render(<Comparator reference={reference} />);
+    change(costs(), '450');
+    change(hours(), '60');
+    await compare();
+    expect(alternativeLink()).toBeVisible();
+    await load();
+    change(hours(), '0');
+    await compare();
+    expect(hours()).toHaveAttribute('aria-invalid', 'true');
+    rerender(<Comparator reference={{ ...reference }} />);
+    expect(hours()).toHaveValue('0');
+    expect(hours()).toHaveAttribute('aria-invalid', 'true');
+    expect(screen.getByRole('button', { name: 'Recuperar mi alternativa anterior' })).toBeInTheDocument();
+    rerender(<Comparator reference={{ ...reference, targetNet: 2500 }} />);
+    expect(costs()).toHaveValue('');
+    expect(hours()).toHaveValue('');
+    expect(costs()).toHaveAttribute('aria-invalid', 'false');
+    expect(hours()).toHaveAttribute('aria-invalid', 'false');
+    expect(screen.queryByRole('button', { name: 'Recuperar mi alternativa anterior' })).not.toBeInTheDocument();
+    expect(pending()).not.toBeInTheDocument();
+    expectNoComparison();
+  });
+
+  it('keeps the main summary, GET, URL and events unchanged while producing only an explicitly checked alternative path', async () => {
+    const storageRead = vi.spyOn(Storage.prototype, 'getItem');
+    const storageWrite = vi.spyOn(Storage.prototype, 'setItem');
+    const storageRemove = vi.spyOn(Storage.prototype, 'removeItem');
+    const fetch = vi.spyOn(globalThis, 'fetch');
+    render(<CalculatorForm initiallySubmitted initialValues={{ targetNet: '2000', monthlyExpenses: '300', billableHours: '80', irpfMode: 'manual', irpfRate: '15', selfEmployedFeeMode: 'manual', selfEmployedFee: '320' }} initialShareUrl="https://www.cuantofacturar.es/?targetNet=2000#calculadora" />);
+    const summary = screen.getByRole('textbox', { name: 'Resumen detallado para compartir' }) as HTMLTextAreaElement;
+    const originalSummary = summary.value;
+    const previousUrl = window.location.href;
+    const form = screen.getByRole('form', { name: 'Calculadora de facturación' }) as HTMLFormElement;
+    const originalData = [...new FormData(form).entries()];
+    const submit = vi.fn();
+    form.addEventListener('submit', submit);
+    await userEvent.click(screen.getByText('Comparar cambios en mis gastos y horas'));
+    change(costs(), '450');
+    await compare();
+    expect(hours()).toHaveAttribute('aria-invalid', 'true');
+    change(hours(), '60');
+    expect(pending()).toBeVisible();
+    expectNoComparison();
+    expect(fireEvent.keyDown(hours(), { key: 'Enter' })).toBe(false);
+    expect(Object.fromEntries(alternativeUrl().searchParams)).toMatchObject({ targetNet: '2000', monthlyExpenses: '450', billableHours: '60', irpfMode: 'manual', irpfRate: '15', selfEmployedFeeMode: 'manual', selfEmployedFee: '320' });
+    change(costs(), '-1');
+    expect(costs()).toHaveAttribute('aria-invalid', 'true');
+    expectNoComparison();
+    expect(screen.getByRole('heading', { name: 'Tu referencia mensual para presupuestar' })).toBeVisible();
+    expect(summary).toHaveValue(originalSummary);
+    expect([...new FormData(form).entries()]).toEqual(originalData);
+    for (const input of within(screen.getByRole('group', { name: 'Los dos datos que quieres comparar' })).getAllByRole('textbox')) expect(input).not.toHaveAttribute('name');
+    expect(submit).not.toHaveBeenCalled();
+    expect(window.location.href).toBe(previousUrl);
+    expect(storageRead).not.toHaveBeenCalled();
+    expect(storageWrite).not.toHaveBeenCalled();
+    expect(storageRemove).not.toHaveBeenCalled();
+    expect(fetch).not.toHaveBeenCalled();
+    expect(window.va).not.toHaveBeenCalled();
+    expect(window.gtag).not.toHaveBeenCalled();
+  });
+});

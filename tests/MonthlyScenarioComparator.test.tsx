@@ -38,7 +38,8 @@ describe('monthly scenario comparator', () => {
     expect(screen.getByRole('status')).toHaveTextContent('sube 14,89');
     expect(screen.getByRole('link', { name: 'Abrir la alternativa en la calculadora' })).toHaveAttribute('href', expect.stringContaining('billableHours=60'));
     fireEvent.change(screen.getByRole('textbox', { name: hoursLabel }), { target: { value: '80' } });
-    expect(screen.getByRole('status')).toBeEmptyDOMElement();
+    expect(screen.getByRole('status')).toHaveTextContent('Datos modificados. Pulsa «Comparar escenarios»');
+    expect(screen.getByRole('status').querySelector('dl')).toBeNull();
     expect(screen.queryByRole('link', { name: 'Abrir la alternativa en la calculadora' })).not.toBeInTheDocument();
   });
 
