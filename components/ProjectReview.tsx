@@ -29,14 +29,17 @@ export default function ProjectReview() {
   const refs = useRef<Partial<Record<keyof Values, HTMLInputElement | null>>>({});
   const [values, setValues] = useState<Values>({ hourlyReference: '', finalPrice: '', plannedHours: '', actualHours: '' });
   const [checked, setChecked] = useState<Values | null>(null);
+  const [hasAttemptedReview, setHasAttemptedReview] = useState(false);
   const [isExample, setIsExample] = useState(false);
   const [reviewBeforeExample, setReviewBeforeExample] = useState<Values | null>(null);
   const [recoveryFeedback, setRecoveryFeedback] = useState('');
   const review = checked ? reviewProject(parseValues(checked)) : null;
+  const validation = hasAttemptedReview ? reviewProject(parseValues(values)) : null;
 
   function calculate(next = values) {
     setRecoveryFeedback('');
     const result = reviewProject(parseValues(next));
+    setHasAttemptedReview(true);
     const normalized = result.valid ? {
       hourlyReference: formatNumber(result.hourlyReference),
       finalPrice: formatNumber(result.finalPrice),
@@ -55,6 +58,7 @@ export default function ProjectReview() {
     if (!reviewBeforeExample) return;
     setValues(reviewBeforeExample);
     setChecked(null);
+    setHasAttemptedReview(false);
     setIsExample(false);
     setReviewBeforeExample(null);
     setRecoveryFeedback('Revisión anterior recuperada. Vuelve a revisar el encargo para actualizar los resultados.');
@@ -71,7 +75,7 @@ export default function ProjectReview() {
       }}>
         <legend>Precio y tiempo del encargo terminado</legend>
         {fields.map(({ key, label, hint }) => {
-          const error = review && !review.valid ? review.errors[key] : undefined;
+          const error = validation && !validation.valid ? validation.errors[key] : undefined;
           return (
             <label key={key}>
               <span id={`${id}-${key}-label`}>{label}</span>
@@ -100,7 +104,8 @@ export default function ProjectReview() {
       {reviewBeforeExample ? <p className={styles.note} id={`${id}-recovery-hint`}>Conservamos en esta página la revisión anterior al primer ejemplo. Recuperarla sustituye los cambios que ves ahora y deja el resultado pendiente de revisar. La copia se pierde al salir o recargar la página.</p> : null}
       <div role="status" aria-label="Recuperación de la revisión" aria-live="polite" aria-atomic="true">{recoveryFeedback ? <p>{recoveryFeedback}</p> : null}</div>
       <div role="status" aria-label="Revisión del encargo" aria-live="polite" aria-atomic="true">
-        {review && !review.valid ? <p>Revisa los campos indicados para comparar el encargo.</p> : null}
+        {validation && !validation.valid ? <p>Revisa los campos indicados para comparar el encargo.</p> : null}
+        {!review && validation?.valid ? <p>Datos modificados. Pulsa «Revisar encargo» para actualizar el resultado.</p> : null}
         {review?.valid ? (
           <div className={styles.result}>
             {isExample ? <p><strong>Ejemplo ficticio; no es una tarifa recomendada.</strong></p> : null}

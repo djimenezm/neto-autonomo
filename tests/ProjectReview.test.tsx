@@ -30,7 +30,8 @@ describe('completed project review editor', () => {
     expect(screen.getByRole('status', status)).toHaveTextContent('33,33');
     expect(screen.getByRole('status', status)).toHaveTextContent('80,00');
     fireEvent.change(screen.getByRole('textbox', { name: labels[3] }), { target: { value: '6' } });
-    expect(screen.getByRole('status', status)).toBeEmptyDOMElement();
+    expect(screen.getByRole('status', status)).toHaveTextContent('Datos modificados. Pulsa «Revisar encargo»');
+    expect(screen.getByRole('status', status).querySelector('dl')).toBeNull();
     await user.click(screen.getByRole('button', { name: 'Revisar encargo' }));
     expect(screen.getByRole('status', status)).toHaveTextContent('66,67');
     expect(screen.getByRole('status', status)).toHaveTextContent('-2 h');
