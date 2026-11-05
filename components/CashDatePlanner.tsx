@@ -20,6 +20,13 @@ const fields = [
 ] as const;
 const blankRow = (id: number): Row => ({ id, date: '', kind: '', amount: '' });
 
+function checkCashPlan(values: Values) {
+  return checkCashDates({
+    initialBalance: parseSpanishNumber(values.initialBalance),
+    movements: values.rows.map((row) => ({ date: row.date, kind: row.kind, amount: parseSpanishNumber(row.amount) })),
+  });
+}
+
 function readPlanFile(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -38,12 +45,15 @@ export default function CashDatePlanner() {
   const fileOperation = useRef(0);
   const [values, setValues] = useState<Values>({ initialBalance: '', rows: Array.from({ length: INITIAL_ROW_COUNT }, (_, index) => blankRow(index)) });
   const [estimate, setEstimate] = useState<ReturnType<typeof checkCashDates> | null>(null);
+  const [hasAttemptedCheck, setHasAttemptedCheck] = useState(false);
   const [isExample, setIsExample] = useState(false);
   const [fileFeedback, setFileFeedback] = useState<{ text: string; error: boolean; download?: boolean } | null>(null);
   const [planBeforeReplacement, setPlanBeforeReplacement] = useState<PlanBackup | null>(null);
   const [recoveryFeedback, setRecoveryFeedback] = useState<string | null>(null);
   const [removedMovement, setRemovedMovement] = useState<RemovedMovement | null>(null);
   const [movementFeedback, setMovementFeedback] = useState('');
+  const validation = hasAttemptedCheck ? checkCashPlan(values) : null;
+  const initialError = validation && !validation.valid ? validation.errors.initialBalance : undefined;
 
   function setControl(key: string, node: HTMLInputElement | HTMLSelectElement | null) {
     controls.current[key] = node;
@@ -77,10 +87,8 @@ export default function CashDatePlanner() {
     invalidateFileRead();
     setRecoveryFeedback(null);
     setMovementFeedback('');
-    const result = checkCashDates({
-      initialBalance: parseSpanishNumber(next.initialBalance),
-      movements: next.rows.map((row) => ({ date: row.date, kind: row.kind, amount: parseSpanishNumber(row.amount) })),
-    });
+    const result = checkCashPlan(next);
+    setHasAttemptedCheck(true);
     setEstimate(result);
     if (result.valid) {
       setValues({ initialBalance: formatNumber(result.initialBalance), rows: next.rows.map((row, index) => ({ ...row, amount: formatNumber(result.movements[index].amount) })) });
@@ -135,6 +143,7 @@ export default function CashDatePlanner() {
     setValues(planBeforeReplacement.values);
     setIsExample(planBeforeReplacement.isExample);
     setEstimate(null);
+    setHasAttemptedCheck(false);
     setPlanBeforeReplacement(null);
     setRecoveryFeedback('Plan anterior recuperado. Vuelve a comprobar los vencimientos para actualizar los saldos.');
   }
@@ -202,10 +211,10 @@ export default function CashDatePlanner() {
         <span id={`${id}-initial-label`}>Saldo antes del primer movimiento (EUR)</span>
         <NumericTextInput ref={(node) => setControl('initialBalance', node)} inputMode="decimal" value={values.initialBalance}
           onValueChange={(nextValue) => { setValues({ ...values, initialBalance: nextValue }); clearResult(); }}
-          aria-labelledby={`${id}-initial-label`} aria-invalid={Boolean(estimate && !estimate.valid && estimate.errors.initialBalance)}
-          aria-describedby={`${id}-initial-hint${estimate && !estimate.valid && estimate.errors.initialBalance ? ` ${id}-initial-error` : ''}`} />
+          aria-labelledby={`${id}-initial-label`} aria-invalid={Boolean(initialError)}
+          aria-describedby={`${id}-initial-hint${initialError ? ` ${id}-initial-error` : ''}`} />
         <small id={`${id}-initial-hint`}>El saldo al empezar, antes de la fecha más antigua que introduzcas. Puede ser cero o negativo.</small>
-        {estimate && !estimate.valid && estimate.errors.initialBalance ? <small className="field-error" id={`${id}-initial-error`}>{estimate.errors.initialBalance}</small> : null}
+        {initialError ? <small className="field-error" id={`${id}-initial-error`}>{initialError}</small> : null}
       </label>
       {values.rows.map((row, index) => (
         <fieldset className={styles.movement} key={row.id} aria-describedby={`${id}-method`}>
@@ -213,7 +222,7 @@ export default function CashDatePlanner() {
           <div className={styles.fields}>
             {fields.map(({ key, label }) => {
               const controlId = `${id}-${row.id}-${key}`;
-              const error = estimate && !estimate.valid ? estimate.errors.rows[index]?.[key] : undefined;
+              const error = validation && !validation.valid ? validation.errors.rows[index]?.[key] : undefined;
               const common = {
                 id: controlId,
                 'aria-invalid': Boolean(error),
@@ -286,7 +295,8 @@ export default function CashDatePlanner() {
       </div>
       {planBeforeReplacement?.source === 'example' ? recoveryHint : null}
       <div role="status" aria-label="Caja por fechas" aria-live="polite" aria-atomic="true">
-        {estimate && !estimate.valid ? <p>Revisa los campos indicados. {estimate.errors.movements}</p> : null}
+        {validation && !validation.valid ? <p>Revisa los campos indicados. {validation.errors.movements}</p> : null}
+        {!estimate && validation?.valid ? <p>Datos modificados. Pulsa «Comprobar vencimientos» para actualizar los saldos.</p> : null}
         {estimate?.valid ? (
           <div className={styles.result}>
             {isExample ? <p><strong>Fechas, saldo y movimientos ficticios; no son datos de una cuenta real.</strong></p> : null}

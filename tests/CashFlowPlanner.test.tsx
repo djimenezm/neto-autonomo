@@ -42,7 +42,9 @@ describe('cash flow planner', () => {
     render(<Planner />);
     await user.click(screen.getByRole('button', { name: 'Probar tres meses ficticios' }));
     fireEvent.change(field('Cobros', 2), { target: { value: '0' } });
-    expect(screen.getByRole('status', status)).toBeEmptyDOMElement();
+    expect(screen.getByRole('status', status)).toHaveTextContent('Datos modificados. Pulsa «Comprobar plan de caja»');
+    expect(within(screen.getByRole('status', status)).queryByRole('table')).not.toBeInTheDocument();
+    expect(screen.getByRole('status', status)).not.toHaveTextContent('Saldo al cierre del tercer mes');
     fireEvent.change(field('Cobros', 3), { target: { value: '5400' } });
     await user.type(field('Cobros', 3), '{Enter}');
     const result = screen.getByRole('status', status);

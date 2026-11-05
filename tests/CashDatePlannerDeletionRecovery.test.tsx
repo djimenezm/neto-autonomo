@@ -39,7 +39,8 @@ const upload = (text = encodedPlan()) => userEvent.upload(screen.getByLabelText(
 function expectConsumed(row: number) {
   expect(undoButton()).not.toBeInTheDocument();
   expect(field('Fecha', row)).toHaveFocus();
-  expect(result()).toBeEmptyDOMElement();
+  expect(within(result()).queryByRole('table')).not.toBeInTheDocument();
+  expect(within(result()).queryByText('Saldo tras la última fecha')).not.toBeInTheDocument();
   expect(screen.queryByRole('button', { name: 'Guardar este plan en un archivo' })).not.toBeInTheDocument();
   expect(notice()).toHaveTextContent('Vuelve a comprobar');
 }

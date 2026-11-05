@@ -56,7 +56,8 @@ describe('save and reopen cash date plans', () => {
     expect(JSON.parse(text)).not.toHaveProperty('finalBalance');
     expect(screen.getByRole('status', { name: 'Descarga del plan' })).toHaveTextContent('Archivo del plan generado');
     fireEvent.change(initial(), { target: { value: '2000' } });
-    expect(result()).toBeEmptyDOMElement();
+    expect(result()).toHaveTextContent('Datos modificados. Pulsa «Comprobar vencimientos»');
+    expect(within(result()).queryByRole('table')).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Guardar este plan en un archivo' })).not.toBeInTheDocument();
     expect(window.va).not.toHaveBeenCalled(); expect(window.gtag).not.toHaveBeenCalled();
   });
@@ -109,7 +110,10 @@ describe('save and reopen cash date plans', () => {
       Object.defineProperty(pending[0], 'result', { value: encoded.text });
       pending[0].dispatchEvent(new ProgressEvent('load'));
     });
-    expect(initial()).toHaveValue('2000'); expect(result()).toBeEmptyDOMElement(); expect(feedback()).toBeEmptyDOMElement();
+    expect(initial()).toHaveValue('2000');
+    expect(result()).toHaveTextContent('Datos modificados. Pulsa «Comprobar vencimientos»');
+    expect(within(result()).queryByRole('table')).not.toBeInTheDocument();
+    expect(feedback()).toBeEmptyDOMElement();
   });
 
   it('reports a failed download without losing the checked plan', async () => {

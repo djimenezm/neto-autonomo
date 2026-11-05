@@ -48,6 +48,88 @@ Los espacios publicitarios están preparados, pero `lib/ads.ts` exige `NEXT_PUBL
 
 ## Revisión local antes de publicar
 
+### Mantener los avisos pendientes de caja por fechas (5 de noviembre de 2026)
+
+Publicación autorizada el 5 de noviembre de 2026. Tras comprobar los tres movimientos
+vacíos, corregir el saldo retiraba también sus nueve avisos pendientes
+de fecha, tipo e importe. Todos dependían del resultado eliminado al editar.
+
+Una validación pura con el mismo parseo y motor usa los datos actuales
+tras el primer intento explícito. Corregir un control conserva los errores
+de los demás; añadir, eliminar y deshacer mantienen este criterio por fila
+y posición actuales, con los mismos IDs y reglas de foco. Antes del primer
+intento no se muestran avisos de campos pendientes.
+
+Editar sigue retirando saldos, tabla y opción de guardar. Datos válidos
+muestran «Datos modificados. Pulsa «Comprobar vencimientos» para actualizar
+los saldos.» hasta comprobar con clic o Enter. Solo el resultado explícito
+válido habilita la tabla y la descarga, y normaliza los importes.
+
+Ejemplos y archivos válidos pasan por la comprobación explícita. Recuperar
+el plan completo restaura sus cadenas y reinicia los avisos. No se alteran
+la primera copia, la cancelación de lecturas pendientes, el archivo generado,
+el límite de veinte filas ni la recuperación de una eliminación. Un archivo
+inválido conserva datos, avisos y copias del plan actual.
+
+Validación: siete casos nuevos y 101 pruebas correctas en nueve archivos,
+con máximo dos workers y sin avisos React. Cubren los diez errores iniciales,
+correcciones independientes, saldo negativo e importes cero, precisión,
+Enter, índices e IDs al eliminar/deshacer, recuperación completa, archivos
+inválidos y lecturas tardías. Las expectativas anteriores conservan ausencia
+de tabla y descarga con el aviso actual. ESLint, TypeScript y compilación
+correctos. Se publica junto a la mejora del plan de tres meses.
+
+En navegador local, saldo cero conserva nueve errores; elegir Pago y escribir
+cero retira solo esos dos avisos. Deshacer recupera la fila y sus errores
+actuales. En el ejemplo ficticio, 1800,005 EUR queda sin normalizar hasta
+Enter y luego se convierte en 1800,01 EUR, con saldo final de 699,99 EUR.
+Recuperar el borrador reinicia avisos y saldos. Vista de 320 px sin
+desbordamiento, pantalla normal restaurada y consola sin errores.
+
+Se publica mediante la conexión Git existente. No cambian fórmulas, orden supuesto de pagos y cobros,
+formulario GET, eventos ni almacenamiento. Anuncios, piloto y seguimientos
+intactos. Las dos mejoras de caja se publican juntas.
+
+### Mantener los avisos pendientes del plan de tres meses (5 de noviembre de 2026)
+
+Publicación autorizada el 5 de noviembre de 2026. Tras comprobar el plan vacío, escribir
+el saldo inicial retiraba también los avisos de los seis cobros y pagos
+todavía pendientes. Los errores dependían del plan que se elimina al editar.
+
+Tras el primer intento explícito, los errores se derivan de los siete
+valores actuales con el mismo parseo y motor. Corregir un campo conserva
+los avisos que siguen correspondiendo a los otros meses, sin mover el
+foco ni normalizar el texto mientras se escribe. Antes del primer intento
+no se señalan campos pendientes.
+
+Editar sigue retirando tabla y saldos. Completar datos válidos muestra
+«Datos modificados. Pulsa «Comprobar plan de caja» para actualizar los
+saldos.» hasta comprobar con clic o Enter. La normalización se mantiene
+solo en una comprobación válida. El saldo inicial puede ser negativo;
+los cobros y pagos permiten cero explícito y rechazan blancos o negativos.
+
+El ejemplo se comprueba de forma explícita. Recuperar los tres meses
+restaura las cadenas originales y reinicia avisos y resultados. Se conserva
+la primera copia personal, incluso con importes incompletos, y no se crea
+una copia de recuperación al cargar solamente ejemplos sin datos propios.
+
+Validación: seis casos nuevos y 44 pruebas correctas en cinco archivos,
+con máximo dos workers y sin avisos React. Cubren errores independientes
+por mes, foco y descripciones accesibles, ceros y negativos, precisión,
+retirada de saldos, Enter, recuperación y ausencia de envíos o persistencia.
+La expectativa anterior de estado vacío pasa a comprobar el aviso pendiente
+y la ausencia de tabla y saldos. ESLint, TypeScript y compilación correctos.
+
+En navegador local, corregir el saldo inicial a cero conserva los seis
+avisos mensuales. Un saldo ficticio de -100,005 EUR y seis movimientos
+cero queda pendiente hasta Enter; se normaliza a -100,01 EUR y produce
+ese mismo saldo final. Editar retira las cifras; corregir un cobro no
+oculta el error de un pago de otro mes. El ejemplo y la recuperación
+conservan el texto crudo y reinician la validación como antes. Vista de
+320 px sin desbordamiento, pantalla normal restaurada y consola sin errores.
+
+Se publica mediante la conexión Git existente. No cambian fórmulas, límites, formulario GET, eventos ni almacenamiento. Anuncios, piloto y seguimientos intactos.
+
 ### Mantener los avisos pendientes al combinar servicios (4 de noviembre de 2026)
 
 Publicación autorizada el 5 de noviembre de 2026. Después de comprobar una combinación

@@ -13,19 +13,26 @@ const fields = [
   { key: 'payments', label: 'Pagos previstos', hint: 'Todo lo que saldrá de la cuenta ese mes: actividad, cuota, impuestos y retiradas personales. Cuenta cada salida una vez.' },
 ] as const;
 
+function checkCash(values: Values) {
+  return planCash({ initialBalance: parseSpanishNumber(values.initialBalance), months: values.months.map((month) => ({ receipts: parseSpanishNumber(month.receipts), payments: parseSpanishNumber(month.payments) })) });
+}
+
 export default function CashFlowPlanner() {
   const id = useId();
   const refs = useRef<Record<string, HTMLInputElement | null>>({});
   const [values, setValues] = useState<Values>({ initialBalance: '', months: Array.from({ length: CASH_PLAN_MONTHS }, () => ({ receipts: '', payments: '' })) });
   const [plan, setPlan] = useState<ReturnType<typeof planCash> | null>(null);
+  const [hasAttemptedCheck, setHasAttemptedCheck] = useState(false);
   const [isExample, setIsExample] = useState(false);
   const [planBeforeExample, setPlanBeforeExample] = useState<Values | null>(null);
   const [recoveryFeedback, setRecoveryFeedback] = useState('');
-  const initialError = plan && !plan.valid ? plan.errors.initialBalance : undefined;
+  const validation = hasAttemptedCheck ? checkCash(values) : null;
+  const initialError = validation && !validation.valid ? validation.errors.initialBalance : undefined;
 
   function check(next = values) {
     setRecoveryFeedback('');
-    const result = planCash({ initialBalance: parseSpanishNumber(next.initialBalance), months: next.months.map((month) => ({ receipts: parseSpanishNumber(month.receipts), payments: parseSpanishNumber(month.payments) })) });
+    const result = checkCash(next);
+    setHasAttemptedCheck(true);
     setPlan(result);
     if (result.valid) {
       setValues({ initialBalance: formatNumber(result.initialBalance), months: result.months.map((month) => ({ receipts: formatNumber(month.receipts), payments: formatNumber(month.payments) })) });
@@ -52,6 +59,7 @@ export default function CashFlowPlanner() {
     if (!planBeforeExample) return;
     setValues(planBeforeExample);
     setPlan(null);
+    setHasAttemptedCheck(false);
     setIsExample(false);
     setPlanBeforeExample(null);
     setRecoveryFeedback('Plan de tres meses recuperado. Vuelve a comprobarlo para actualizar los saldos.');
@@ -76,7 +84,7 @@ export default function CashFlowPlanner() {
             <legend>Mes {index + 1}</legend>
             <div className={styles.fields}>
               {fields.map(({ key, label, hint }) => {
-                const error = plan && !plan.valid ? plan.errors.rows[index]?.[key] : undefined;
+                const error = validation && !validation.valid ? validation.errors.rows[index]?.[key] : undefined;
                 const fieldId = `${id}-${index}-${key}`;
                 return (
                   <label key={key}>
@@ -101,7 +109,8 @@ export default function CashFlowPlanner() {
       {planBeforeExample ? <p className={styles.note} id={`${id}-recovery-hint`}>Conservamos en esta página el saldo y los importes anteriores al primer ejemplo. Recuperarlos sustituye los cambios que ves ahora y deja los saldos pendientes de comprobar. La copia se pierde al salir o recargar la página.</p> : null}
       <div role="status" aria-label="Recuperación del plan de tres meses" aria-live="polite" aria-atomic="true">{recoveryFeedback ? <p>{recoveryFeedback}</p> : null}</div>
       <div role="status" aria-label="Plan de caja de tres meses" aria-live="polite" aria-atomic="true">
-        {plan && !plan.valid ? <p>{plan.errors.months ?? 'Revisa los campos indicados; escribe cero donde no preveas movimientos.'}</p> : null}
+        {validation && !validation.valid ? <p>{validation.errors.months ?? 'Revisa los campos indicados; escribe cero donde no preveas movimientos.'}</p> : null}
+        {!plan && validation?.valid ? <p>Datos modificados. Pulsa «Comprobar plan de caja» para actualizar los saldos.</p> : null}
         {plan?.valid ? (
           <div className={styles.result}>
             {isExample ? <p><strong>Saldos, cobros y pagos ficticios; no son datos de una cuenta real.</strong></p> : null}

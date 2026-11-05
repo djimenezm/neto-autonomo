@@ -49,7 +49,8 @@ describe('cash date planner', () => {
     const initial = screen.getByLabelText('Saldo antes del primer movimiento (EUR)');
     await user.clear(initial);
     await user.paste(pasted);
-    expect(status()).toBeEmptyDOMElement();
+    expect(status()).toHaveTextContent('Revisa los campos indicados');
+    expect(within(status()).queryByRole('table')).not.toBeInTheDocument();
     await check();
     expect(initial).toHaveAttribute('aria-invalid', 'true');
     expect(initial).toHaveFocus();
@@ -61,7 +62,8 @@ describe('cash date planner', () => {
   it('clears edited results and groups a same-date receipt after its payments even when its closing is positive', async () => {
     render(<Planner />); await example();
     fireEvent.change(field('Fecha', 2), { target: { value: '2026-11-05' } });
-    expect(status()).toBeEmptyDOMElement();
+    expect(status()).toHaveTextContent('Datos modificados. Pulsa «Comprobar vencimientos»');
+    expect(within(status()).queryByRole('table')).not.toBeInTheDocument();
     await userEvent.type(field('Importe (EUR)', 2), '{Enter}');
     const row = within(status()).getByRole('rowheader', { name: '05/11/2026' }).closest('tr')!;
     expect(row).toHaveTextContent('-800,00'); expect(row).toHaveTextContent('1600,00');
@@ -77,7 +79,8 @@ describe('cash date planner', () => {
   it('adds and removes rows while clearing old results and keeping focus in the remaining controls', async () => {
     render(<Planner />); await example();
     await userEvent.click(screen.getByRole('button', { name: 'Añadir movimiento' }));
-    expect(status()).toBeEmptyDOMElement();
+    expect(status()).toHaveTextContent('Revisa los campos indicados');
+    expect(within(status()).queryByRole('table')).not.toBeInTheDocument();
     expect(field('Fecha', 4)).toHaveFocus();
     await userEvent.click(screen.getByRole('button', { name: 'Eliminar movimiento 2' }));
     expect(screen.getAllByRole('combobox')).toHaveLength(3);
