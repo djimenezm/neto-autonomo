@@ -48,6 +48,47 @@ Los espacios publicitarios están preparados, pero `lib/ads.ts` exige `NEXT_PUBL
 
 ## Revisión local antes de publicar
 
+### Mantener los avisos pendientes al comprobar una rebaja (5 de noviembre de 2026)
+
+Publicación autorizada el 5 de noviembre de 2026. Tras comprobar los cuatro campos vacíos,
+escribir la tarifa retiraba también los avisos de rebaja, horas facturadas
+y capacidad todavía pendientes. Los errores dependían del resultado que
+se elimina al editar.
+
+Tras el primer intento explícito, los avisos se derivan de los valores
+actuales con el mismo parseo y motor. Corregir un campo conserva los errores
+de los demás, sin mover el foco ni normalizar el texto. Se mantiene también
+la dependencia entre tarifa y horas para un importe de partida mínimo.
+Antes del primer intento no se muestran errores de campos pendientes.
+
+Editar retira las cifras. Completar datos válidos muestra «Datos modificados.
+Pulsa «Comprobar rebaja de tarifa» para actualizar el resultado.» hasta
+comprobar con clic o Enter. Solo la comprobación válida normaliza y muestra
+la comparación. El ejemplo activa la comprobación; recuperar la comparación
+anterior reinicia avisos y resultados conservando las cadenas originales.
+
+Se mantienen rebaja cero, capacidad cero y rebaja del 100 % como valores
+válidos. Tarifa y horas de partida cero siguen siendo inválidas. La carga
+que supera la capacidad y la tarifa que queda en cero continúan siendo
+escenarios explicados por el resultado, sin cambiar las reglas del motor.
+
+Validación: seis casos nuevos y 42 pruebas correctas en cinco archivos,
+con máximo dos workers y sin avisos React. Cubren errores independientes,
+ceros y límites, dependencia tarifa por horas, precisión, retirada de cifras,
+Enter, recuperación y ausencia de envíos o almacenamiento. La expectativa
+anterior conserva la ausencia de cifras y comprueba el aviso pendiente.
+ESLint, TypeScript y compilación correctos.
+
+En navegador local, tarifa 40 conserva los tres errores restantes. El
+ejemplo ficticio con capacidad 100 queda pendiente hasta Enter y calcula
+36 EUR/h, 88,89 h necesarias y 11,11 h restantes. La rebaja del 100 % se
+acepta y explica que la tarifa cero no recupera la facturación. Recuperar
+restaura el borrador y reinicia los avisos. Vista de 320 px sin desbordamiento,
+pantalla normal restaurada y consola sin errores.
+
+Se publica mediante la conexión Git existente. No cambian fórmulas, límites, cálculo principal, enlace
+compartido, eventos ni almacenamiento. Anuncios, piloto y seguimientos intactos.
+
 ### Mantener los avisos pendientes de caja por fechas (5 de noviembre de 2026)
 
 Publicación autorizada el 5 de noviembre de 2026. Tras comprobar los tres movimientos

@@ -15,18 +15,25 @@ const fields = [
 ] as const;
 type Values = Record<keyof RateDiscountInput, string>;
 
+function checkDiscount(values: Values) {
+  return compareRateDiscount({ hourlyRate: parseSpanishNumber(values.hourlyRate), discountPercent: parseSpanishNumber(values.discountPercent), currentHours: parseSpanishNumber(values.currentHours), capacityHours: parseSpanishNumber(values.capacityHours) });
+}
+
 export default function RateDiscountPlanner() {
   const id = useId();
   const refs = useRef<Partial<Record<keyof Values, HTMLInputElement | null>>>({});
   const [values, setValues] = useState<Values>({ hourlyRate: '', discountPercent: '', currentHours: '', capacityHours: '' });
   const [result, setResult] = useState<ReturnType<typeof compareRateDiscount> | null>(null);
+  const [hasAttemptedCheck, setHasAttemptedCheck] = useState(false);
   const [isExample, setIsExample] = useState(false);
   const [comparisonBeforeExample, setComparisonBeforeExample] = useState<Values | null>(null);
   const [recoveryFeedback, setRecoveryFeedback] = useState('');
+  const validation = hasAttemptedCheck ? checkDiscount(values) : null;
 
   function calculate(next = values) {
     setRecoveryFeedback('');
-    const estimate = compareRateDiscount({ hourlyRate: parseSpanishNumber(next.hourlyRate), discountPercent: parseSpanishNumber(next.discountPercent), currentHours: parseSpanishNumber(next.currentHours), capacityHours: parseSpanishNumber(next.capacityHours) });
+    const estimate = checkDiscount(next);
+    setHasAttemptedCheck(true);
     setResult(estimate);
     if (estimate.valid) setValues({ hourlyRate: formatNumber(estimate.hourlyRate), discountPercent: formatNumber(estimate.discountPercent), currentHours: formatNumber(estimate.currentHours), capacityHours: formatNumber(estimate.capacityHours) });
     else {
@@ -39,6 +46,7 @@ export default function RateDiscountPlanner() {
     if (!comparisonBeforeExample) return;
     setValues(comparisonBeforeExample);
     setResult(null);
+    setHasAttemptedCheck(false);
     setIsExample(false);
     setComparisonBeforeExample(null);
     setRecoveryFeedback('Comparación anterior recuperada. Vuelve a comprobar la rebaja para actualizar los resultados.');
@@ -54,7 +62,7 @@ export default function RateDiscountPlanner() {
       }}>
         <legend>Tu tarifa, la rebaja y tu capacidad</legend>
         {fields.map(({ key, label, hint }) => {
-          const error = result && !result.valid ? result.errors[key] : undefined;
+          const error = validation && !validation.valid ? validation.errors[key] : undefined;
           return (
             <label key={key}>
               <span id={`${id}-${key}-label`}>{label}</span>
@@ -83,7 +91,8 @@ export default function RateDiscountPlanner() {
       {comparisonBeforeExample ? <p className={styles.note} id={`${id}-recovery-hint`}>Conservamos en esta página la comparación anterior al primer ejemplo. Recuperarla sustituye los cambios que ves ahora y deja el resultado pendiente de comprobar. La copia se pierde al salir o recargar la página.</p> : null}
       <div role="status" aria-label="Recuperación de la comparación" aria-live="polite" aria-atomic="true">{recoveryFeedback ? <p>{recoveryFeedback}</p> : null}</div>
       <div role="status" aria-label="Rebaja de tarifa y capacidad" aria-live="polite" aria-atomic="true">
-        {result && !result.valid ? <p>Revisa los datos indicados antes de comparar la rebaja.</p> : null}
+        {validation && !validation.valid ? <p>Revisa los datos indicados antes de comparar la rebaja.</p> : null}
+        {!result && validation?.valid ? <p>Datos modificados. Pulsa «Comprobar rebaja de tarifa» para actualizar el resultado.</p> : null}
         {result?.valid ? (
           <div className={styles.result}>
             {isExample ? <p><strong>Tarifa, rebaja y horas ficticias; no son una recomendación de precio.</strong></p> : null}

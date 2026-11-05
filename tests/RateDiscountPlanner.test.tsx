@@ -36,7 +36,8 @@ describe('rate discount planner', () => {
     expect(result()).toHaveTextContent('3200,04');
     expect(result()).toHaveTextContent('No cabe en esa capacidad: faltan 8,89 h');
     fireEvent.change(capacity(), { target: { value: '100' } });
-    expect(result()).toBeEmptyDOMElement();
+    expect(result()).toHaveTextContent('Datos modificados. Pulsa «Comprobar rebaja de tarifa»');
+    expect(within(result()).queryByText('Tarifa tras la rebaja, redondeada')).not.toBeInTheDocument();
     fireEvent.keyDown(capacity(), { key: 'Enter' });
     expect(result()).toHaveTextContent('Cabe por horas; quedarían 11,11 h');
     expect(result()).toHaveTextContent('Vender esas horas adicionales sigue siendo un supuesto');
