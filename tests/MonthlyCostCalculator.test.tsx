@@ -196,7 +196,7 @@ describe('MonthlyCostCalculator', () => {
     expect(screen.queryByText('Ver cómo se reparte el coste anual')).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /usar estos datos en mi tarifa/i })).not.toBeInTheDocument();
     expect(screen.getByRole('textbox', { name: /software y herramientas/i })).toHaveAttribute('aria-invalid', 'true');
-    expect(screen.getByRole('alert')).toHaveTextContent(/importe/i);
+    expect(screen.getByText('Introduce importes de pago válidos, iguales o mayores que cero.')).toHaveAttribute('role', 'alert');
     expect(window.va).not.toHaveBeenCalled();
     expect(window.gtag).not.toHaveBeenCalled();
   });

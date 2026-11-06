@@ -48,6 +48,40 @@ Los espacios publicitarios están preparados, pero `lib/ads.ts` exige `NEXT_PUBL
 
 ## Revisión local antes de publicar
 
+### Avisos junto a cada pago de costes (7 de noviembre de 2026)
+
+Publicación autorizada el 7 de noviembre de 2026. Un importe malformado en Software y otro
+negativo en Seguros retiraban los totales, pero ambos campos remitían a un
+único aviso genérico al final de la calculadora.
+
+Cada pago inválido muestra ahora el mensaje existente del motor junto a su
+importe. El campo conserva su nombre accesible y se asocia a ese mensaje
+mediante un identificador propio. Corregir un pago retira solo su aviso;
+los demás siguen visibles. Se conserva el aviso global para los errores
+generales y no se mueve el foco ni se normalizan las cadenas al editar.
+
+El aviso de pago de una cuota negativa se distingue del aviso de traslado
+de una cuota cero. Cero sigue siendo válido para sumar costes, pero no para
+abrir una tarifa con cuota manual. Los identificadores de los dos avisos
+son distintos y el error de traslado conserva su comportamiento anterior.
+
+Validación: seis casos nuevos y 54 pruebas correctas en seis archivos,
+con máximo dos workers y sin avisos React. Cubren errores simultáneos,
+corrección independiente, descripciones accesibles, foco, precisión,
+frecuencias, recuperación, pegado de varias celdas, totales, vista previa,
+GET e importación en la calculadora principal. Dos expectativas anteriores
+siguen comprobando el aviso global sin exigir que sea el único aviso.
+ESLint, TypeScript y compilación correctos.
+
+En navegador local, Software «1,,50» y Seguros «-1» tienen sus respectivos
+avisos. Corregir Software a 420 conserva el aviso de Seguros y el foco.
+Corregir Seguros a 360 devuelve la media de 480 EUR y el total de 5760 EUR
+anuales. Con 100 EUR deducibles, la vista previa mantiene 60 EUR no
+deducibles, 320 EUR de cuota y 80 horas. Consola local sin errores.
+
+Se publica mediante la conexión Git existente. No cambian fórmulas, validación, frecuencias, recuperación,
+traslado, GET, almacenamiento ni eventos. Anuncios, piloto y seguimientos intactos.
+
 ### Evitar el recorte silencioso de la reserva manual de IRPF (6 de noviembre de 2026)
 
 Publicación autorizada el 6 de noviembre de 2026. La validación admitía porcentajes menores

@@ -123,7 +123,7 @@ describe('prepare personal costs without retaining the example amounts', () => {
     expect(field('software')).toHaveValue(' 1,,50 ');
     expect(field('fee')).toHaveFocus();
     expect(field('software')).toHaveAttribute('aria-invalid', 'true');
-    expect(screen.getByRole('alert')).toHaveTextContent('Introduce importes de pago válidos');
+    expect(screen.getByText('Introduce importes de pago válidos, iguales o mayores que cero.')).toHaveAttribute('role', 'alert');
     expect(screen.queryByText('Media mensual antes de pagarte')).not.toBeInTheDocument();
     change(field('software'), '420');
     expect(deductible()).toHaveValue('200');

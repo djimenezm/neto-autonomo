@@ -149,7 +149,8 @@ export default function MonthlyCostCalculator() {
 
       <div className="monthly-cost-inputs">
         {costFields.map(({ key, label }) => {
-          const invalid = !costs.valid && Boolean(costs.errors[key]);
+          const paymentError = !costs.valid ? costs.errors[key] : undefined;
+          const invalid = Boolean(paymentError);
           const transferError = key === 'fee' ? feeTransferError : null;
 
           return (
@@ -167,10 +168,11 @@ export default function MonthlyCostCalculator() {
                       onValueChange={(nextValue) => updateValue(key, nextValue)}
                       aria-invalid={invalid || Boolean(transferError)}
                       aria-labelledby={`monthly-cost-${key}-label`}
-                      aria-describedby={invalid ? 'monthly-cost-error' : transferError ? 'monthly-cost-fee-error' : undefined}
+                      aria-describedby={invalid ? `monthly-cost-${key}-payment-error` : transferError ? 'monthly-cost-fee-error' : undefined}
                     />
                     <span aria-hidden="true">{key === 'fee' ? '€ / mes' : '€ / pago'}</span>
                   </span>
+                  {paymentError ? <small className="field-error" id={`monthly-cost-${key}-payment-error`} role="alert">{paymentError}</small> : null}
                   {transferError ? <small className="field-error" id="monthly-cost-fee-error" role="alert">{transferError}</small> : null}
                 </label>
                 {key !== 'fee' ? (
