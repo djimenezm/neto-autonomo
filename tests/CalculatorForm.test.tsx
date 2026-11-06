@@ -502,7 +502,7 @@ describe('CalculatorForm', () => {
     await user.click(screen.getByRole('button', { name: /calcular/i }));
 
     expect(irpfInput).toHaveValue(100);
-    expect(screen.getByText('El IRPF debe ser menor que 100.')).toBeInTheDocument();
+    expect(screen.getByText('La reserva de IRPF debe ser como máximo del 99 %.')).toBeInTheDocument();
     await waitFor(() => expect(irpfInput).toHaveFocus());
     expect(
       screen.queryByRole('heading', { name: /tu referencia mensual para presupuestar/i }),

@@ -48,6 +48,41 @@ Los espacios publicitarios están preparados, pero `lib/ads.ts` exige `NEXT_PUBL
 
 ## Revisión local antes de publicar
 
+### Evitar el recorte silencioso de la reserva manual de IRPF (6 de noviembre de 2026)
+
+Publicación autorizada el 6 de noviembre de 2026. La validación admitía porcentajes menores
+que 100, pero el campo, el normalizador y el motor tenían un máximo de 99.
+Un enlace con 99,9 % mostraba ese dato en el campo y calculaba con 99 %;
+al salir del campo o pegar el porcentaje también podía recortarse a 99.
+
+La validación compartida rechaza ahora los valores superiores a 99 y muestra
+«La reserva de IRPF debe ser como máximo del 99 %.». Es el límite existente
+de esta simulación, no una recomendación fiscal. El valor fuera de rango
+se conserva para corregirlo, sin recortarlo ni redondearlo al salir del campo,
+pegar, calcular con clic o pulsar Enter. Los extremos 0 y 99 siguen válidos;
+vacíos, texto malformado y negativos mantienen sus comprobaciones previas.
+
+El modo progresivo sigue ignorando el porcentaje manual oculto. La lectura
+de enlaces conserva la precisión original; si la reserva manual es inválida,
+el formulario muestra su error sin resultado y los metadatos y la ruta de
+imagen compartida usan la vista genérica. No se modifica el motor, su límite
+defensivo, el redondeo de valores válidos ni el máximo y paso del campo.
+
+Validación: siete casos nuevos y 99 pruebas correctas en seis archivos,
+con máximo dos workers y sin avisos React. Cubren Enter, blur, pegado,
+corrección, extremos, cambio de modo, GET, SSR, metadatos y ruta de imagen.
+La expectativa anterior de 100 se actualiza al mensaje del límite de 99.
+ESLint, TypeScript y compilación correctos.
+
+En navegador local se confirma primero la discrepancia 99,9 / 99. Tras el
+cambio, 99,9 queda visible con error, sin resultado y con metadatos genéricos.
+Pegar «99,9 %», salir del campo y pulsar Enter conserva el dato y el foco
+regresa al error. Corregir a 15 y calcular recupera el resultado y un enlace
+con el mismo porcentaje. Consola local sin errores.
+
+Se publica mediante la conexión Git existente. No cambian fórmulas, cuotas, criterios fiscales, estructura
+GET, almacenamiento ni código de conversión. Anuncios, piloto y seguimientos intactos.
+
 ### Conservar avisos pendientes al aplicar horas de la agenda (6 de noviembre de 2026)
 
 Publicación autorizada el 6 de noviembre de 2026. Tras intentar calcular con neto, horas y

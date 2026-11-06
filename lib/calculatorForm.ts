@@ -179,8 +179,8 @@ function getFieldError(field: FieldName, value: string) {
     return 'El neto mensual debe ser mayor que 0.';
   }
 
-  if (field === 'irpfRate' && parsedValue >= 100) {
-    return 'El IRPF debe ser menor que 100.';
+  if (field === 'irpfRate' && parsedValue > 99) {
+    return 'La reserva de IRPF debe ser como máximo del 99 %.';
   }
 
   if (parsedValue < 0) {
