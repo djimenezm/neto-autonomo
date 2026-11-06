@@ -13,19 +13,26 @@ const fields = [
 ] as const;
 type Values = Record<(typeof fields)[number]['key'], string>;
 
+function checkCalendar(monthlyBilling: number, values: Values) {
+  return planAnnualBilling({ monthlyBilling, activeMonths: parseSpanishNumber(values.activeMonths), hoursPerActiveMonth: parseSpanishNumber(values.hoursPerActiveMonth) });
+}
+
 function PlanEditor({ monthlyBilling }: { monthlyBilling: number }) {
   const id = useId();
   const refs = useRef<Partial<Record<keyof Values, HTMLInputElement | null>>>({});
   const [values, setValues] = useState<Values>({ activeMonths: '', hoursPerActiveMonth: '' });
   const [checked, setChecked] = useState<Values | null>(null);
+  const [hasAttemptedCheck, setHasAttemptedCheck] = useState(false);
   const [isExample, setIsExample] = useState(false);
   const [calendarBeforeExample, setCalendarBeforeExample] = useState<Values | null>(null);
   const [recoveryFeedback, setRecoveryFeedback] = useState('');
-  const plan = checked ? planAnnualBilling({ monthlyBilling, activeMonths: parseSpanishNumber(checked.activeMonths), hoursPerActiveMonth: parseSpanishNumber(checked.hoursPerActiveMonth) }) : null;
+  const plan = checked ? checkCalendar(monthlyBilling, checked) : null;
+  const validation = hasAttemptedCheck ? checkCalendar(monthlyBilling, values) : null;
 
   function calculate(next = values) {
     setRecoveryFeedback('');
-    const result = planAnnualBilling({ monthlyBilling, activeMonths: parseSpanishNumber(next.activeMonths), hoursPerActiveMonth: parseSpanishNumber(next.hoursPerActiveMonth) });
+    const result = checkCalendar(monthlyBilling, next);
+    setHasAttemptedCheck(true);
     const normalized = result.valid ? { activeMonths: String(result.activeMonths), hoursPerActiveMonth: formatNumber(result.hoursPerActiveMonth) } : next;
     setValues(normalized);
     setChecked(normalized);
@@ -39,6 +46,7 @@ function PlanEditor({ monthlyBilling }: { monthlyBilling: number }) {
     if (!calendarBeforeExample) return;
     setValues(calendarBeforeExample);
     setChecked(null);
+    setHasAttemptedCheck(false);
     setIsExample(false);
     setCalendarBeforeExample(null);
     setRecoveryFeedback('Calendario anterior recuperado. Vuelve a comprobar el plan anual para actualizar los resultados.');
@@ -55,7 +63,7 @@ function PlanEditor({ monthlyBilling }: { monthlyBilling: number }) {
       }}>
         <legend>Tu calendario de facturación</legend>
         {fields.map(({ key, label, hint }) => {
-          const error = plan && !plan.valid ? plan.errors[key] : undefined;
+          const error = validation && !validation.valid ? validation.errors[key] : undefined;
           return (
             <label key={key}>
               <span id={`${id}-${key}-label`}>{label}</span>
@@ -84,7 +92,8 @@ function PlanEditor({ monthlyBilling }: { monthlyBilling: number }) {
       {calendarBeforeExample ? <p className={styles.note} id={`${id}-recovery-hint`}>Conservamos en esta página los meses y las horas anteriores al primer ejemplo. Recuperarlos sustituye los cambios que ves ahora y deja el resultado pendiente de comprobar. La copia se pierde al salir, recargar o cambiar la referencia mensual.</p> : null}
       <div role="status" aria-label="Plan anual de facturación" aria-live="polite" aria-atomic="true">
         {recoveryFeedback ? <p>{recoveryFeedback}</p> : null}
-        {plan && !plan.valid ? <p>{plan.errors.monthlyBilling ?? 'Revisa los campos indicados antes de comprobar el plan.'}</p> : null}
+        {validation && !validation.valid ? <p>{validation.errors.monthlyBilling ?? 'Revisa los campos indicados antes de comprobar el plan.'}</p> : null}
+        {!plan && validation?.valid ? <p>Datos modificados. Pulsa «Comprobar plan anual» para actualizar el resultado.</p> : null}
         {plan?.valid ? (
           <div className={styles.result}>
             {isExample ? <p><strong>Calendario ficticio; se usa la referencia mensual indicada arriba.</strong></p> : null}

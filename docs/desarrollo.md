@@ -48,6 +48,44 @@ Los espacios publicitarios están preparados, pero `lib/ads.ts` exige `NEXT_PUBL
 
 ## Revisión local antes de publicar
 
+### Mantener los avisos pendientes del plan anual (5 de noviembre de 2026)
+
+Publicación autorizada el 6 de noviembre de 2026. Tras comprobar meses y horas vacíos,
+corregir los meses activos retiraba también el aviso de horas pendientes.
+Los errores dependían del plan que se elimina al editar.
+
+Tras el primer intento explícito, los avisos usan los valores actuales
+con el mismo parseo y motor. Corregir un campo conserva el error del otro,
+sin mover el foco ni normalizar el texto. Los errores de referencia mensual
+siguen en el aviso global y el plan visible continúa derivándose únicamente
+de los datos comprobados y la referencia mensual.
+
+Editar retira las cifras. Datos válidos muestran «Datos modificados. Pulsa
+«Comprobar plan anual» para actualizar el resultado.» hasta comprobar con
+clic o Enter. Solo una comprobación válida normaliza los campos. El ejemplo
+se comprueba explícitamente; recuperar el calendario reinicia avisos y
+resultados, conservando las cadenas originales de la primera copia.
+
+Se mantienen meses enteros entre 1 y 12, horas entre 0,01 y 744 y los mismos
+redondeos. Cambiar la referencia mensual conserva el reinicio completo del
+editor, incluida la copia del calendario, mediante su clave existente.
+
+Validación: seis casos nuevos y 44 pruebas correctas en cinco archivos,
+con máximo dos workers y sin avisos React. Cubren corrección independiente,
+límites, precisión, Enter, retirada de cifras, recuperación, referencia e
+integración con resumen, formulario GET, URL y eventos. La expectativa
+anterior mantiene ausencia de cifras y comprueba el aviso pendiente.
+ESLint, TypeScript y compilación correctos.
+
+En navegador local, escribir 10 meses conserva el error de horas. El
+ejemplo ficticio con 84 h por mes queda pendiente hasta Enter y muestra
+840 h anuales, 2681,66 EUR por mes activo y referencia de 31,93 EUR/h.
+Recuperar devuelve el calendario anterior y reinicia sus avisos. Vista
+de 320 px sin desbordamiento, pantalla normal restaurada y consola sin errores.
+
+Se publica mediante la conexión Git existente. No cambian fórmulas, límites, cálculo principal, enlace
+compartido, eventos ni almacenamiento. Anuncios, piloto y seguimientos intactos.
+
 ### Mantener los avisos pendientes al revisar un encargo terminado (5 de noviembre de 2026)
 
 Publicación autorizada el 5 de noviembre de 2026. Tras revisar los cuatro campos vacíos,

@@ -26,7 +26,8 @@ describe('annual billing planner', () => {
     expect(screen.getByRole('status', status)).toHaveTextContent('2681,66');
     expect(screen.getByRole('status', status)).toHaveTextContent('38,31');
     fireEvent.change(screen.getByRole('textbox', { name: hours }), { target: { value: '84' } });
-    expect(screen.getByRole('status', status)).toBeEmptyDOMElement();
+    expect(screen.getByRole('status', status)).toHaveTextContent('Datos modificados. Pulsa «Comprobar plan anual»');
+    expect(screen.getByRole('status', status).querySelector('dl')).toBeNull();
     await userEvent.click(screen.getByRole('button', { name: 'Comprobar plan anual' }));
     expect(screen.getByRole('status', status)).toHaveTextContent('31,93');
     expect(screen.getByRole('status', status)).not.toHaveTextContent('Calendario ficticio');
