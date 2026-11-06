@@ -9,15 +9,18 @@ import '@/app/globals.css';
 const resultKitCtaTrackingScript = `window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments)};(function(){if(window.__cuantoFacturarResultKitTracking)return;window.__cuantoFacturarResultKitTracking=true;document.addEventListener('click',function(event){var target=event.target&&event.target.closest?event.target.closest('[data-result-kit-cta]'):null;if(!target||event.__cuantoFacturarResultKitTracked)return;var data={source:target.getAttribute('data-result-kit-cta')||'result-card'};window.va('event',{name:'result_kit_cta_clicked',data:data});if(window.gtag){window.gtag('event','result_kit_cta_clicked',data);}});})();`;
 const googleAdsBootstrapScript = `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('consent','default',{ad_storage:'denied',analytics_storage:'denied',ad_user_data:'denied',ad_personalization:'denied',wait_for_update:500});gtag('js',new Date());gtag('config','${siteConfig.googleAdsId}');`;
 
-export default function App({ Component, pageProps }: AppProps) {
+export default function App({ Component, pageProps, router }: AppProps) {
+  // Returning to the calculator on its own page must preserve the current query and drafts.
+  const calculatorHref = router.pathname === '/' ? '#calculadora' : '/#calculadora';
+
   return (
     <div className={`font-root ${fontVariables}`}>
       <a className="skip-link" href="#contenido-principal">
         Saltar al contenido principal
       </a>
-      <Header />
+      <Header calculatorHref={calculatorHref} />
       <Component {...pageProps} />
-      <Footer />
+      <Footer calculatorHref={calculatorHref} />
       <AdSenseScript />
       <script
         defer

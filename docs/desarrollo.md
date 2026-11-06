@@ -48,6 +48,40 @@ Los espacios publicitarios están preparados, pero `lib/ads.ts` exige `NEXT_PUBL
 
 ## Revisión local antes de publicar
 
+### Volver a la calculadora sin reiniciar los datos (6 de noviembre de 2026)
+
+Publicación autorizada el 6 de noviembre de 2026. Desde un cálculo propio, «Calcular ahora»
+eliminaba los parámetros de la URL y devolvía los valores predeterminados.
+«Hacer el cálculo» y «Calculadora», en el pie, tenían el mismo destino.
+La recarga también descartaba los borradores de las ayudas.
+
+En portada, los tres accesos usan ahora el fragmento nativo `#calculadora`.
+Conservan la consulta vigente, los valores calculados, las ediciones pendientes
+y los borradores de la misma página. El montaje de Pages decide el destino
+por `router.pathname`; no captura una consulta antigua ni añade efectos,
+manejadores o navegación de Next. Desde las guías se mantiene `/#calculadora`,
+incluidos los componentes compartidos del App Router. Los enlaces de marca
+siguen llevando al inicio. Salir o recargar sigue descartando los borradores.
+
+Validación: cuatro casos nuevos y 37 pruebas correctas en cuatro archivos,
+con máximo dos workers y sin avisos React. Cubren HTML SSR de la portada
+vacía y precargada, guías, enlaces de cabecera y pie, parámetros creados al
+calcular, datos GET, borradores sin normalizar, cambios pendientes y ausencia
+de conversiones adicionales al volver. ESLint, TypeScript y compilación correctos.
+
+En navegador local se reproduce primero el reinicio de un neto de 1800 a
+1500 EUR. Tras corregirlo, los tres accesos conservan ese escenario y un
+encargo de 600 EUR y 30 horas. Después de recalcular con 1900 EUR, conservan
+la nueva consulta y un borrador de 650 EUR y 12,5 horas. Editar el neto a
+1901 EUR sin calcular y volver desde el pie mantiene la edición pendiente,
+sin mostrar el resultado anterior; regresar a 1900 EUR recupera la ayuda.
+El acceso desde la guía por hora llega a la portada. Consola local sin errores.
+
+Se publica mediante la conexión Git existente. No cambian fórmulas, validación, generación del enlace
+compartido, GET, caché ni almacenamiento. Definiciones y marcado de los
+scripts de anuncios, consentimiento y seguimiento sin cambios. Piloto y
+seguimientos intactos.
+
 ### Mantener los avisos pendientes del plan anual (5 de noviembre de 2026)
 
 Publicación autorizada el 6 de noviembre de 2026. Tras comprobar meses y horas vacíos,

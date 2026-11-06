@@ -1,4 +1,4 @@
-export default function Header() {
+export default function Header({ calculatorHref = '/#calculadora' }: { calculatorHref?: '#calculadora' | '/#calculadora' } = {}) {
   return (
     <header className="site-header">
       <div className="container header-inner">
@@ -14,7 +14,7 @@ export default function Header() {
           <a href="/cuanto-facturar-autonomo#elegir-herramienta">Herramientas</a>
           <a href="/cuanto-facturar-autonomo">Guía</a>
           <a className="nav-secondary" href="/tabla-cuanto-facturar-autonomo">Tabla</a>
-          <a className="nav-cta" href="/#calculadora">Calcular ahora <span aria-hidden="true">↗</span></a>
+          <a className="nav-cta" href={calculatorHref}>Calcular ahora <span aria-hidden="true">↗</span></a>
         </nav>
       </div>
     </header>

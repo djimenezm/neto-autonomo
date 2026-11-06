@@ -22,7 +22,7 @@ const footerGroups = [
   },
 ] as const;
 
-export default function Footer() {
+export default function Footer({ calculatorHref = '/#calculadora' }: { calculatorHref?: '#calculadora' | '/#calculadora' } = {}) {
   return (
     <footer className="site-footer">
       <div className="footer-invite-band">
@@ -31,7 +31,7 @@ export default function Footer() {
             <span className="footer-invite-kicker">Tu próxima cifra</span>
             <p>Calcula tu tarifa con criterio.</p>
           </div>
-          <a href="/#calculadora" className="footer-invite-link">Hacer el cálculo <span aria-hidden="true">↗</span></a>
+          <a href={calculatorHref} className="footer-invite-link">Hacer el cálculo <span aria-hidden="true">↗</span></a>
         </div>
       </div>
       <div className="container footer-shell">
@@ -58,7 +58,7 @@ export default function Footer() {
               <div className="footer-group" key={group.title}>
                 <p className="footer-group-title">{group.title}</p>
                 {group.links.map((link) => (
-                  <a href={link.href} key={link.href}>
+                  <a href={link.href === '/#calculadora' ? calculatorHref : link.href} key={link.href}>
                     {link.label}
                   </a>
                 ))}
