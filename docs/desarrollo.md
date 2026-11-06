@@ -48,6 +48,44 @@ Los espacios publicitarios están preparados, pero `lib/ads.ts` exige `NEXT_PUBL
 
 ## Revisión local antes de publicar
 
+### Explicar el pegado de varias celdas en las ayudas (7 de noviembre de 2026)
+
+Publicación autorizada el 7 de noviembre de 2026. El pegado de varias celdas ya se conservaba
+con marcadores y se rechazaba como número, pero su explicación solo estaba
+en el título del campo. Las pistas asociadas mediante `aria-describedby`
+dejaban esa explicación fuera de la descripción accesible.
+
+`NumericTextInput` muestra ahora «Has pegado varias celdas. Introduce un solo
+número.» junto al campo, antes de comprobar. Un identificador propio generado
+con `useId` añade el mensaje a las descripciones existentes sin sustituir
+pistas o errores del motor. Corregir el dato retira el mensaje y restaura
+las asociaciones anteriores. Se mantienen el título, el nombre, el foco,
+las referencias y el texto original con sus marcadores.
+
+No se añade estado ni un contenedor alrededor del input. Los manejadores
+y el pegado ordinario, incluida la selección y posición del cursor, siguen
+iguales. En costes, una cuadrícula mantiene input y unidad en la primera
+fila y el aviso debajo; no depende de la altura del mensaje ni de alturas
+fijas. El resto de las ayudas conserva su disposición existente.
+
+Validación: 69 pruebas correctas en ocho archivos, con máximo dos workers,
+sin avisos React ni de hidratación. Dos casos nuevos comprueban mensajes
+independientes y asociaciones SSR que sobreviven a la hidratación; seis
+integraciones cubren factura, pagos, horas y deducibles, deshacer movimientos,
+agenda dentro del cálculo principal y retención. Las expectativas anteriores
+mantienen también las pistas y errores del motor. ESLint, TypeScript y
+compilación correctos.
+
+En navegador local, pegar dos celdas con 1000 y 2000 muestra el aviso
+antes de comprobar la factura. Corregir uno de dos campos conserva el otro
+aviso; con base 1000, IVA 21 y retención 0, comprobar devuelve 1210 EUR.
+En costes, las unidades permanecen dentro de la fila del input y los avisos
+debajo, también a 320 px. Sin desbordamiento horizontal, vista normal
+restaurada y consola local sin errores.
+
+Se publica mediante la conexión Git existente. No cambian parseo, fórmulas, validación, GET, enlaces,
+almacenamiento ni eventos. Anuncios, piloto y seguimientos intactos.
+
 ### Avisos junto a cada pago de costes (7 de noviembre de 2026)
 
 Publicación autorizada el 7 de noviembre de 2026. Un importe malformado en Software y otro

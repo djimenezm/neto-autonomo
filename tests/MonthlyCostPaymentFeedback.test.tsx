@@ -19,7 +19,7 @@ function expectPaymentError(key: PaymentKey) {
   expect(input).toHaveAttribute('aria-invalid', 'true');
   expect(input).toHaveAccessibleName(labels[key]);
   expect(input.getAttribute('aria-describedby')?.split(/\s+/)).toContain(errorId);
-  expect(input).toHaveAccessibleDescription(paymentMessage);
+  expect(input).toHaveAccessibleDescription(expect.stringContaining(paymentMessage));
   expect(message).toBeVisible();
   expect(message).toHaveTextContent(paymentMessage);
   expect(message).toHaveAttribute('role', 'alert');

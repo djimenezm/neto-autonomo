@@ -388,6 +388,11 @@ select[aria-invalid='true'] {
   line-height: 1.5;
 }
 
+.numeric-paste-error {
+  margin: 0;
+  font-weight: 400;
+}
+
 .field-hint {
   margin: -0.15rem 0 0;
   color: var(--muted);
@@ -1082,19 +1087,22 @@ select[aria-invalid='true'] {
 
 .monthly-cost-input-wrap {
   position: relative;
-  display: block;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  row-gap: 0.4rem;
 }
 
 .monthly-cost-input-wrap input {
+  grid-area: 1 / 1;
   padding-right: 5.5rem;
   font-variant-numeric: tabular-nums;
 }
 
 .monthly-cost-input-wrap > span {
-  position: absolute;
-  top: 50%;
-  right: 0.8rem;
-  transform: translateY(-50%);
+  grid-area: 1 / 1;
+  align-self: center;
+  justify-self: end;
+  margin-right: 0.8rem;
   color: #52605b;
   font-size: 0.83rem;
   white-space: nowrap;

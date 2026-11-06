@@ -1,8 +1,11 @@
 import { createRef, useState, type ClipboardEventHandler, type KeyboardEventHandler, type Ref } from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { renderToString } from 'react-dom/server';
 import NumericTextInput from '@/components/NumericTextInput';
 import { parseSpanishNumber } from '@/lib/spanishNumber';
+
+const multicellHint = 'Has pegado varias celdas. Introduce un solo número.';
 
 function Editor({ initial = '', inputRef, onKeyDown, onPaste }: {
   initial?: string;
@@ -36,13 +39,16 @@ describe('controlled numeric text input', () => {
     await user.click(screen.getByRole('textbox', { name: 'Importe' }));
     await user.paste(text);
     expect(screen.getByRole('textbox', { name: 'Importe' })).toHaveAttribute('title', 'Has pegado varias celdas. Introduce un solo número.');
-    expect(screen.getByRole('textbox', { name: 'Importe' })).toHaveAccessibleDescription('Escribe un único importe.');
+    expect(screen.getByRole('textbox', { name: 'Importe' })).toHaveAccessibleDescription(`Escribe un único importe. ${multicellHint}`);
+    expect(screen.getByText(multicellHint)).toBeVisible();
+    expect(screen.getByText(multicellHint)).toHaveAttribute('role', 'alert');
     await user.click(screen.getByRole('status'));
     await user.click(screen.getByRole('textbox', { name: 'Importe' }));
     await user.keyboard('{Enter}');
     expect(screen.getByTestId('source-value').textContent).toBe(JSON.stringify(visible));
     expect(screen.getByRole('textbox', { name: 'Importe' })).toHaveValue(visible);
     expect(screen.getByRole('textbox', { name: 'Importe' })).toHaveAttribute('aria-invalid', 'true');
+    expect(screen.getByRole('textbox', { name: 'Importe' })).toHaveAccessibleDescription(expect.stringContaining(multicellHint));
     expect(screen.getByRole('status')).toHaveTextContent('Dato inválido');
   });
 
@@ -54,6 +60,7 @@ describe('controlled numeric text input', () => {
     await user.paste(text);
     expect(onPaste).toHaveBeenCalledOnce();
     expect(screen.getByRole('textbox', { name: 'Importe' })).toHaveAttribute('aria-invalid', 'false');
+    expect(screen.queryByText(multicellHint)).not.toBeInTheDocument();
     expect(screen.getByRole('status')).toHaveTextContent('Dato válido');
   });
 
@@ -63,8 +70,10 @@ describe('controlled numeric text input', () => {
     const input = screen.getByRole('textbox', { name: 'Importe' });
     await user.click(input);
     await user.paste('100\n200');
-    expect(input).toHaveAttribute('aria-describedby', 'amount-hint');
-    expect(input).toHaveAccessibleDescription('Escribe un único importe.');
+    const explanation = screen.getByText(multicellHint);
+    expect(input.getAttribute('aria-describedby')?.split(/\s+/)).toEqual(['amount-hint', explanation.id]);
+    expect(explanation.id).not.toBe('');
+    expect(input).toHaveAccessibleDescription(`Escribe un único importe. ${multicellHint}`);
     expect(input).toHaveAttribute('title', 'Has pegado varias celdas. Introduce un solo número.');
     await user.clear(input);
     await user.type(input, '100');
@@ -72,6 +81,7 @@ describe('controlled numeric text input', () => {
     expect(input).not.toHaveAttribute('aria-description');
     expect(input).toHaveAttribute('aria-describedby', 'amount-hint');
     expect(input).toHaveAttribute('aria-invalid', 'false');
+    expect(screen.queryByText(multicellHint)).not.toBeInTheDocument();
   });
 
   it('retains explicit descriptions and titles while marking copied cells', () => {
@@ -84,7 +94,7 @@ describe('controlled numeric text input', () => {
     const input = screen.getByRole('textbox', { name: 'Importe' });
     expect(input).toHaveAttribute('aria-invalid', 'true');
     expect(input).toHaveAttribute('title', 'Dato de planificación. Has pegado varias celdas. Introduce un solo número.');
-    expect(input).toHaveAccessibleDescription('Importe mensual.');
+    expect(input).toHaveAccessibleDescription(`Importe mensual. ${multicellHint}`);
     rerender(<>
       <p id="monthly-hint">Importe mensual.</p>
       <NumericTextInput aria-label="Importe" aria-invalid={false} aria-describedby="monthly-hint" title="Dato de planificación."
@@ -93,6 +103,53 @@ describe('controlled numeric text input', () => {
     expect(input).toHaveAttribute('aria-invalid', 'false');
     expect(input).toHaveAttribute('title', 'Dato de planificación.');
     expect(input).toHaveAccessibleDescription('Importe mensual.');
+    expect(screen.queryByText(multicellHint)).not.toBeInTheDocument();
+  });
+
+  it('keeps two visible explanations associated with their own input while preserving existing hint and error references', () => {
+    const onValueChange = vi.fn();
+    render(<>
+      <p id="first-hint">Primera referencia.</p>
+      <p id="first-error">Primer importe pendiente.</p>
+      <NumericTextInput aria-label="Primer importe" aria-describedby="first-hint first-error" value="10 ⇥ 20" onValueChange={onValueChange} />
+      <NumericTextInput aria-label="Segundo importe" value="30 ↵ 40" onValueChange={onValueChange} />
+    </>);
+    const first = screen.getByRole('textbox', { name: 'Primer importe' });
+    const second = screen.getByRole('textbox', { name: 'Segundo importe' });
+    const messages = screen.getAllByText(multicellHint);
+    expect(new Set(messages.map(message => message.id)).size).toBe(2);
+    const firstIds = first.getAttribute('aria-describedby')!.split(/\s+/);
+    const secondIds = second.getAttribute('aria-describedby')!.split(/\s+/);
+    expect(firstIds).toEqual(['first-hint', 'first-error', messages[0].id]);
+    expect(secondIds).toEqual([messages[1].id]);
+    expect(first).toHaveAccessibleDescription(`Primera referencia. Primer importe pendiente. ${multicellHint}`);
+    expect(second).toHaveAccessibleDescription(multicellHint);
+    expect(first).toHaveValue('10 ⇥ 20');
+    expect(second).toHaveValue('30 ↵ 40');
+    expect(onValueChange).not.toHaveBeenCalled();
+  });
+
+  it('retains separate server-rendered description bindings through hydration without changing raw values', () => {
+    const onValueChange = vi.fn();
+    const ui = <>
+      <p id="server-hint">Importe de la previsión.</p>
+      <NumericTextInput aria-label="Saldo inicial" aria-describedby="server-hint" value="100 ⇥ 200" onValueChange={onValueChange} />
+      <NumericTextInput aria-label="Cobro previsto" value="300 ↵ 400" onValueChange={onValueChange} />
+    </>;
+    const container = document.createElement('div');
+    container.innerHTML = renderToString(ui);
+    document.body.appendChild(container);
+    const before = [...container.querySelectorAll('input')].map(input => input.getAttribute('aria-describedby'));
+    const messages = within(container).getAllByText(multicellHint);
+    expect(new Set(messages.map(message => message.id)).size).toBe(2);
+    expect(within(container).getByRole('textbox', { name: 'Saldo inicial' })).toHaveAccessibleDescription(`Importe de la previsión. ${multicellHint}`);
+    expect(within(container).getByRole('textbox', { name: 'Cobro previsto' })).toHaveAccessibleDescription(multicellHint);
+
+    render(ui, { container, hydrate: true });
+    expect([...container.querySelectorAll('input')].map(input => input.getAttribute('aria-describedby'))).toEqual(before);
+    expect(within(container).getByRole('textbox', { name: 'Saldo inicial' })).toHaveValue('100 ⇥ 200');
+    expect(within(container).getByRole('textbox', { name: 'Cobro previsto' })).toHaveValue('300 ↵ 400');
+    expect(onValueChange).not.toHaveBeenCalled();
   });
 
   it('leaves ordinary paste replacement and caret placement to the native input', async () => {
