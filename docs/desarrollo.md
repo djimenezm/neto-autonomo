@@ -48,6 +48,40 @@ Los espacios publicitarios están preparados, pero `lib/ads.ts` exige `NEXT_PUBL
 
 ## Revisión local antes de publicar
 
+### Conservar avisos pendientes al aplicar horas de la agenda (6 de noviembre de 2026)
+
+Publicación autorizada el 6 de noviembre de 2026. Tras intentar calcular con neto, horas y
+cuota manual en cero, aplicar una agenda válida ocultaba también los avisos
+del neto y de la cuota, aunque esos dos campos seguían sin corregir.
+
+Los avisos de campos y el aviso global usan ahora los intentos de cálculo
+ya registrados: escenario precargado o contadores de comprobaciones válidas
+e inválidas. No se añade estado. Aplicar horas sigue retirando el resultado
+y el enlace visible, cierra la agenda y conserva el foco en horas; solo se
+retira el error corregido. Los demás permanecen hasta corregir sus campos.
+
+Antes del primer intento se mantiene el comportamiento anterior, incluidos
+los avisos inmediatos de pegado rechazado y horas no positivas. Corregir todos
+los datos tras aplicar horas no calcula automáticamente. Incluso al aplicar
+las mismas horas se exige volver a calcular y se conservan los borradores
+de las ayudas hasta esa comprobación explícita.
+
+Validación: 50 pruebas correctas en cinco archivos, con máximo dos workers
+y sin avisos React. Se añaden seis casos sobre intento inválido, escenario precargado,
+cálculo cliente previo, primer uso, pegado rechazado y aplicación de las mismas
+horas. Comprueban foco, descripciones accesibles, GET, historial, resumen,
+borradores y conversión única. ESLint, TypeScript y compilación correctos.
+
+En navegador local, aplicar 107 horas conserva los errores de neto y cuota;
+corregir el neto retira solo su aviso. Corregir la cuota no muestra el
+resultado hasta pulsar calcular. Aplicar otra vez las mismas 107 horas retira
+el resultado y, al recalcular, conserva el encargo de 600 EUR y 30 horas.
+Consola local sin errores.
+
+Se publica mediante la conexión Git existente. No cambian fórmulas, validación numérica, GET, generación del
+enlace, almacenamiento, efectos de foco ni código de conversión. Anuncios,
+piloto y seguimientos intactos.
+
 ### Volver a la calculadora sin reiniciar los datos (6 de noviembre de 2026)
 
 Publicación autorizada el 6 de noviembre de 2026. Desde un cálculo propio, «Calcular ahora»

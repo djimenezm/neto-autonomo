@@ -186,13 +186,15 @@ export default function CalculatorForm({
     ],
   );
 
+  // Applying agenda hours withdraws the result, but does not undo earlier validation attempts.
+  const hasAttemptedCalculation = initiallySubmitted || invalidSubmissionCount > 0 || validSubmissionCount > 0;
   const showFieldError = (field: FieldName) =>
-    (submitted || invalidPastedField === field) && Boolean(validationErrors[field]);
+    (hasAttemptedCalculation || invalidPastedField === field) && Boolean(validationErrors[field]);
   const parsedHours = parseNumericValue(billableHours);
   const hasValidationErrors = Object.keys(validationErrors).length > 0;
   const showHoursError =
     Boolean(validationErrors.billableHours) &&
-    (submitted || invalidPastedField === 'billableHours'
+    (hasAttemptedCalculation || invalidPastedField === 'billableHours'
       || (billableHours.trim() !== '' && Number.isFinite(parsedHours) && parsedHours <= 0));
 
   const calculationKey = getCalculationKey({
@@ -640,7 +642,7 @@ export default function CalculatorForm({
           </p>
         ) : null}
 
-        {submitted && hasValidationErrors && (
+        {hasAttemptedCalculation && hasValidationErrors && (
           <p className="form-message" role="alert">
             Revisa los campos marcados antes de calcular.
           </p>
