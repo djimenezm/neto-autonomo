@@ -48,6 +48,42 @@ Los espacios publicitarios están preparados, pero `lib/ads.ts` exige `NEXT_PUBL
 
 ## Revisión local antes de publicar
 
+### Conservar los rechazos de pegado por campo (7 de noviembre de 2026)
+
+Publicación autorizada el 7 de noviembre de 2026. El formulario principal guardaba una sola
+marca de pegado rechazado. Antes del primer cálculo, pegar varias celdas en
+neto y después en gastos dejaba ambos vacíos, pero ocultaba el aviso del neto.
+Tras un intento de cálculo, el primer campo perdía la explicación del pegado.
+
+Los rechazos se registran ahora por campo en un conjunto inmutable. Añadir
+otro rechazo conserva los anteriores; editar un campo o pegar un valor válido
+retira solo su marca. Las actualizaciones funcionales evitan sobrescribir
+marcas pendientes. El mensaje de pegado se aplica únicamente a campos que
+siguen teniendo un error en la validación activa.
+
+Los campos manuales ocultos siguen sin bloquear el modo progresivo o la
+cuota automática; conservan la explicación al volver a mostrarlos. Aplicar
+horas válidas desde la agenda resuelve ese campo sin ocultar los rechazos de
+neto o gastos. Se mantienen los contadores y el foco del primer error al
+calcular, así como el aviso global y la retirada del resultado anterior.
+
+Validación: seis casos nuevos y 52 pruebas correctas en cinco archivos,
+con máximo dos workers y sin avisos React. Cubren dos rechazos antes de
+calcular, razones tras comprobar, corrección mediante pegado español válido,
+modos inactivos, aplicación de horas y restauración del resumen y borradores
+al volver a los valores calculados, sin otro cálculo ni eventos adicionales.
+ESLint, TypeScript y compilación correctos.
+
+En navegador local se reproduce primero que el segundo rechazo oculta el
+primero. Tras corregirlo, neto y gastos conservan sus dos avisos inmediatos;
+corregir gastos retira solo el suyo. Corregir ambos antes del primer cálculo
+no genera un resultado automáticamente; Enter permite calcular y actualizar
+el enlace con esos valores. Consola local sin errores.
+
+Se publica mediante la conexión Git existente. No cambian parseo, normalización, fórmulas, criterio de
+validación, GET, historial, recuperación ni código de conversión. Anuncios,
+piloto y seguimientos intactos.
+
 ### Explicar el pegado de varias celdas en las ayudas (7 de noviembre de 2026)
 
 Publicación autorizada el 7 de noviembre de 2026. El pegado de varias celdas ya se conservaba

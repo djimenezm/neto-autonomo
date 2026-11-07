@@ -117,11 +117,16 @@ export default function CalculatorForm({
   const resultRegionRef = useRef<HTMLElement | null>(null);
   const lastFocusedSubmission = useRef(0);
   const hasTrackedCostImport = useRef(false);
-  const [invalidPastedField, setInvalidPastedField] = useState<FieldName | null>(null);
+  const [invalidPastedFields, setInvalidPastedFields] = useState<ReadonlySet<FieldName>>(() => new Set());
 
   function updateNumericValue(field: FieldName, value: string, setValue: (value: string) => void) {
     setValue(value);
-    if (invalidPastedField === field) setInvalidPastedField(null);
+    setInvalidPastedFields((current) => {
+      if (!current.has(field)) return current;
+      const next = new Set(current);
+      next.delete(field);
+      return next;
+    });
   }
 
   function handleNumericPaste(
@@ -135,7 +140,7 @@ export default function CalculatorForm({
       // Number inputs cannot retain malformed text. Clear the old number too,
       // so a rejected paste cannot silently leave a previous result shareable.
       setValue('');
-      setInvalidPastedField(field);
+      setInvalidPastedFields((current) => new Set(current).add(field));
     } else {
       updateNumericValue(field, normalizedValue, setValue);
     }
@@ -168,8 +173,10 @@ export default function CalculatorForm({
         irpfMode,
         selfEmployedFeeMode,
       );
-      if (invalidPastedField && errors[invalidPastedField]) {
-        errors[invalidPastedField] = 'El formato del dato pegado no es válido. Pega un solo número y revisa los separadores.';
+      for (const field of invalidPastedFields) {
+        if (errors[field]) {
+          errors[field] = 'El formato del dato pegado no es válido. Pega un solo número y revisa los separadores.';
+        }
       }
       return errors;
     },
@@ -182,19 +189,19 @@ export default function CalculatorForm({
       selfEmployedFee,
       irpfMode,
       selfEmployedFeeMode,
-      invalidPastedField,
+      invalidPastedFields,
     ],
   );
 
   // Applying agenda hours withdraws the result, but does not undo earlier validation attempts.
   const hasAttemptedCalculation = initiallySubmitted || invalidSubmissionCount > 0 || validSubmissionCount > 0;
   const showFieldError = (field: FieldName) =>
-    (hasAttemptedCalculation || invalidPastedField === field) && Boolean(validationErrors[field]);
+    (hasAttemptedCalculation || invalidPastedFields.has(field)) && Boolean(validationErrors[field]);
   const parsedHours = parseNumericValue(billableHours);
   const hasValidationErrors = Object.keys(validationErrors).length > 0;
   const showHoursError =
     Boolean(validationErrors.billableHours) &&
-    (hasAttemptedCalculation || invalidPastedField === 'billableHours'
+    (hasAttemptedCalculation || invalidPastedFields.has('billableHours')
       || (billableHours.trim() !== '' && Number.isFinite(parsedHours) && parsedHours <= 0));
 
   const calculationKey = getCalculationKey({
