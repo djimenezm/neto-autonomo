@@ -114,7 +114,7 @@ export default function CuantoFacturarAutonomo3000EurosPage() {
       name: siteConfig.name,
     },
     datePublished: '2026-04-26',
-    dateModified: '2026-11-01',
+    dateModified: '2026-11-07',
     accountablePerson: { '@type': 'Person', name: siteConfig.ownerName },
   };
 
@@ -211,7 +211,7 @@ export default function CuantoFacturarAutonomo3000EurosPage() {
 
       <section className="section" aria-labelledby="ejemplo-encargos">
         <div className="container text-block">
-          <p className="article-meta">Actualizada el <time dateTime="2026-11-01">1 de noviembre de 2026</time>. Responsable: {siteConfig.ownerName}.</p>
+          <p className="article-meta">Actualizada el <time dateTime="2026-11-07">7 de noviembre de 2026</time>. Responsable: {siteConfig.ownerName}.</p>
           <h2 id="ejemplo-encargos">Dos encargos pueden cubrir el importe y superar tu capacidad</h2>
           <p>
             Partimos de {formatEuro(exampleAssumptions.monthlyExpenses)} de gastos deducibles,
@@ -249,6 +249,9 @@ export default function CuantoFacturarAutonomo3000EurosPage() {
               horas libres, no reserva agenda ni fija fechas de entrega.
             </p>
             <p>
+              La tarifa media por hora del resultado se muestra redondeada a céntimos.
+              Al multiplicarla por tus horas, el total puede diferir del objetivo mensual.
+              {' '}
               Obtenemos la referencia repartiendo la facturación mensual entre las horas
               disponibles y aplicando esa proporción completa al encargo. Redondeamos al
               céntimo superior, sin multiplicar la tarifa por hora ya redondeada que ves en

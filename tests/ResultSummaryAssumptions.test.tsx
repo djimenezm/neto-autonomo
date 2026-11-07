@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import ResultCard from '@/components/ResultCard';
@@ -7,6 +7,7 @@ import { formatCurrency } from '@/lib/format';
 import { getScenarioPath } from '@/lib/monthlyScenarios';
 
 const base: CalculatorInput = { targetNet: 2000, monthlyExpenses: 300, monthlyNonDeductibleExpenses: 0, billableHours: 80, irpfMode: 'manual', irpfRate: 15, autonomousCommunity: 'common', selfEmployedFeeMode: 'manual', selfEmployedFee: 320, reducedFeePeriod: 'initial', hasIVA: true };
+const roundingNote = 'La tarifa por hora está redondeada a céntimos. Al multiplicarla por las horas, el total puede diferir del objetivo mensual. El comprobador de encargos usa la proporción mensual completa y redondea su referencia al céntimo superior.';
 
 function show(overrides: Partial<CalculatorInput> = {}) {
   const input = { ...base, ...overrides };
@@ -70,6 +71,32 @@ describe('the assumptions carried with the result summary', () => {
     expect(summary()).toMatch(/dos años naturales, revisa rendimientos y SMI de cada año/);
   });
 
+  it('explains beside the rounded hourly figure and in the shared summary why a one-hour project can need one cent more', async () => {
+    const user = userEvent.setup();
+    const { result } = show({ targetNet: 1500, monthlyExpenses: 150, billableHours: 80, irpfRate: 15, selfEmployedFee: 320 });
+    expect(result.billingWithoutVAT).toBe(2234.71);
+    expect(result.hourlyRate).toBe(27.93);
+    expect(screen.getByText('Facturación objetivo sin IVA').parentElement).toHaveTextContent(/2234,71\s*€/);
+    const hourlyCard = screen.getByText('Tarifa media por hora').closest<HTMLElement>('.result-item')!;
+    expect(within(hourlyCard).getByText(/27,93\s*€\/h/)).toBeVisible();
+    expect(within(hourlyCard).getByText(roundingNote)).toBeVisible();
+    const originalSummary = summary();
+    const lines = originalSummary.split('\n');
+    const hourlyLine = lines.indexOf(`Tarifa media orientativa: ${formatCurrency(27.93)}/h`);
+    expect(hourlyLine).toBeGreaterThan(-1);
+    expect(lines[hourlyLine + 1]).toBe(`Redondeo: ${roundingNote}`);
+    expect(lines.filter(value => value.startsWith('Redondeo:'))).toHaveLength(1);
+
+    await user.click(screen.getByText('Comprobar cuántos encargos necesito y si caben'));
+    await user.type(screen.getByRole('textbox', { name: 'Precio por encargo sin IVA (EUR)' }), '27,93');
+    await user.type(screen.getByRole('textbox', { name: 'Horas totales por encargo' }), '1');
+    await user.click(screen.getByRole('button', { name: 'Comprobar encargos' }));
+    expect(screen.getByText('Precio por hora del encargo').nextElementSibling).toHaveTextContent(/27,93\s*€\/h/);
+    expect(screen.getByText('Referencia para estas horas sin IVA').nextElementSibling).toHaveTextContent(/27,94\s*€/);
+    expect(screen.getByText(/El precio queda 0,01\s*€ por debajo de la referencia para estas horas\./)).toBeVisible();
+    expect(summary()).toBe(originalSummary);
+  });
+
   it('keeps the same assumption text in preview, clipboard and encoded channels while preserving their query contracts', async () => {
     const user = userEvent.setup();
     const writeText = vi.spyOn(navigator.clipboard, 'writeText').mockResolvedValue(undefined);
@@ -80,6 +107,7 @@ describe('the assumptions carried with the result summary', () => {
     expect(container.querySelector('.result-copy-preview')?.textContent).toBe(text);
     expect(text).toContain(`Gastos deducibles de actividad, sin cuota: ${formatCurrency(300)} al mes`);
     expect(text).toContain(`Otros costes no deducibles: ${formatCurrency(50)} al mes`);
+    expect(text).toContain(`Redondeo: ${roundingNote}`);
     const original = new URL(props.shareUrl);
     const links = [
       { name: 'WhatsApp', parameter: 'text', source: 'whatsapp', medium: 'social_share' },

@@ -27,6 +27,7 @@ type ResultCardProps = {
 };
 
 type CopyStatus = 'idle' | 'copied' | 'error';
+const hourlyRateRoundingNote = 'La tarifa por hora está redondeada a céntimos. Al multiplicarla por las horas, el total puede diferir del objetivo mensual. El comprobador de encargos usa la proporción mensual completa y redondea su referencia al céntimo superior.';
 type ResultKitCtaEvent = {
   nativeEvent?: Event & {
     __cuantoFacturarResultKitTracked?: boolean;
@@ -130,6 +131,7 @@ const ResultCard = forwardRef<HTMLElement, ResultCardProps>(function ResultCard(
         `Neto objetivo: ${formatCurrency(result.targetNet)} al mes`,
         `Facturación objetivo sin IVA: ${formatCurrency(result.billingWithoutVAT)} al mes`,
         `Tarifa media orientativa: ${formatCurrency(result.hourlyRate)}/h`,
+        `Redondeo: ${hourlyRateRoundingNote}`,
         `Horas facturables usadas: ${hoursBillable} al mes`,
         `Gastos deducibles de actividad, sin cuota: ${formatCurrency(result.monthlyExpenses)} al mes`,
         `Otros costes no deducibles: ${formatCurrency(result.monthlyNonDeductibleExpenses)} al mes`,
@@ -212,7 +214,7 @@ const ResultCard = forwardRef<HTMLElement, ResultCardProps>(function ResultCard(
       <p className="result-lead">
         Esta simulación sitúa tu objetivo en <strong>{formatCurrency(result.billingWithoutVAT)}</strong>{' '}
         al mes sin IVA y una referencia de <strong>{formatCurrency(result.hourlyRate)}/h</strong>.
-        Piensa en esta cifra como un suelo orientativo para no quedarte corto al poner precio.
+        Usa el objetivo mensual como referencia para preparar tus presupuestos.
       </p>
 
       <ReducedFeeNotice result={result} billableHours={hoursBillable} hasIVA={hasIVA} />
@@ -253,6 +255,7 @@ const ResultCard = forwardRef<HTMLElement, ResultCardProps>(function ResultCard(
         <div className="result-item result-item-full">
           <span>Tarifa media por hora</span>
           <strong>{formatCurrency(result.hourlyRate)}/h</strong>
+          <p className="result-summary">{hourlyRateRoundingNote}</p>
         </div>
       </div>
 
@@ -343,7 +346,7 @@ const ResultCard = forwardRef<HTMLElement, ResultCardProps>(function ResultCard(
 
       <p className="result-summary">
         Si quieres acercarte a un neto mensual de <strong>{formatCurrency(result.targetNet)}</strong>,
-        con las <strong>{hoursBillable}</strong> horas facturables que has indicado, la referencia quedaría
+        con las <strong>{hoursBillable}</strong> horas facturables que has indicado, la referencia media redondeada quedaría
         en <strong>{formatCurrency(result.hourlyRate)}/h</strong>. Si tus presupuestos actuales se
         quedan por debajo de esa cifra, es una buena señal para revisar precio, alcance o número de
         horas antes de aceptar el trabajo.

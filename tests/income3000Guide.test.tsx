@@ -25,7 +25,7 @@ describe('3000-euro goal and capacity guide', () => {
     const document = new DOMParser().parseFromString(renderToStaticMarkup(<Guide />), 'text/html');
     const schemas = [...document.querySelectorAll('script[type="application/ld+json"]')].map((script) => JSON.parse(script.textContent!));
     expect(schemas.map((schema) => schema['@type'])).toEqual(['Article', 'BreadcrumbList', 'FAQPage']);
-    expect(schemas[0].dateModified).toBe('2026-11-01');
+    expect(schemas[0].dateModified).toBe('2026-11-07');
     expect(document.querySelector('time')?.getAttribute('datetime')).toBe(schemas[0].dateModified);
     expect(schemas[2].mainEntity).toHaveLength(5);
     for (const item of schemas[2].mainEntity) {

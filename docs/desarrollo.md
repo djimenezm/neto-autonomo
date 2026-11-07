@@ -48,6 +48,41 @@ Los espacios publicitarios están preparados, pero `lib/ads.ts` exige `NEXT_PUBL
 
 ## Revisión local antes de publicar
 
+### Aclarar el redondeo de la tarifa por hora (7 de noviembre de 2026)
+
+Publicación autorizada el 7 de noviembre de 2026. La tarifa media del resultado se muestra
+redondeada a céntimos, pero se presentaba como un suelo sin explicar por qué
+el comprobador de encargos podía pedir un céntimo más por una hora.
+
+Con neto de 1500 EUR, gastos de 150 EUR, 80 horas, reserva manual del 15 %
+y cuota manual de 320 EUR, el resultado es 2234,71 EUR al mes y 27,93 EUR/h.
+Multiplicar esa tarifa visible por 80 da 2234,40 EUR. El comprobador conserva
+la proporción mensual completa: para una hora, la referencia al céntimo
+superior es 27,94 EUR. No se cambia ninguno de esos cálculos.
+
+La tarjeta de tarifa explica ahora que multiplicar la cifra redondeada por
+las horas puede diferir del objetivo mensual y distingue el redondeo del
+comprobador. La misma nota forma parte del resumen, antes de sus horas, y
+acompaña la copia y los canales compartidos. El texto inicial deja de llamar
+suelo a la media redondeada y remite al objetivo mensual. La guía de 3.000 EUR
+amplía su párrafo existente; su fecha visible y estructurada pasan al 7 de
+noviembre de 2026.
+
+Validación: 58 pruebas correctas en cinco archivos, con máximo dos workers.
+Un caso nuevo conecta las cifras del resultado con el encargo de una hora,
+su referencia de 27,94 EUR y la diferencia de 0,01 EUR. También comprueba
+la nota junto a la tarifa y en el resumen; el caso multicanal existente
+verifica que se transporta sin alterar el escenario ni generar eventos.
+ESLint, TypeScript y compilación correctos.
+
+En navegador local se confirma la nota junto a 27,93 EUR/h, en el resumen y
+en la guía. Un encargo de 27,93 EUR y una hora conserva la referencia de
+27,94 EUR; el cálculo principal y su enlace no se modifican. Consola del
+resultado sin errores. Es una comprobación ficticia, no una sesión de usuario.
+
+Se publica mediante la conexión Git existente. No cambian fórmulas, redondeos, validación, URL, borradores,
+eventos ni configuración. Anuncios, piloto y seguimientos intactos.
+
 ### Conservar los rechazos de pegado por campo (7 de noviembre de 2026)
 
 Publicación autorizada el 7 de noviembre de 2026. El formulario principal guardaba una sola
