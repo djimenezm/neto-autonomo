@@ -7,6 +7,7 @@ import { availableMonthlyHours, billableHoursExamples, monthlyBillingExample } f
 import { estimateBillableHours, exampleHoursPlan } from '@/lib/billableHoursPlan';
 import { formatCurrency, formatNumber } from '@/lib/format';
 import { getSiteUrl, siteConfig } from '@/lib/site';
+import styles from './hoursGuide.module.css';
 
 const route = '/horas-facturables-freelance';
 const title = 'Horas facturables freelance: cuántas puedes vender al mes';
@@ -134,7 +135,7 @@ export default function HorasFacturablesFreelancePage() {
   };
 
   return (
-    <main id="contenido-principal">
+    <main id="contenido-principal" className={styles.guide}>
       <script
         id="horas-facturables-article-schema"
         type="application/ld+json"

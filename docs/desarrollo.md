@@ -48,6 +48,35 @@ Los espacios publicitarios están preparados, pero `lib/ads.ts` exige `NEXT_PUBL
 
 ## Revisión local antes de publicar
 
+### Mostrar los destinos de la guía de horas bajo la cabecera (7 de noviembre de 2026)
+
+Publicación autorizada el 7 de noviembre de 2026. El enlace «Estimar mis horas con una agenda
+anual» del selector llegaba a `#agenda-anual-title` con el título pegado al
+borde superior de la pantalla. La cabecera fija ocultaba casi sus dos líneas:
+el título empezaba en 0 px y la cabecera terminaba en 74,6 px en escritorio.
+Esta guía no tenía la separación de anclas de las otras guías.
+
+Un módulo CSS de la página aplica `scroll-margin-top: 7rem` a los encabezados
+h2 y h3 con ID y a las secciones con ID dentro de esta guía. La clase se añade
+solo a su main. Cubre la agenda anual, las tres agendas y las preguntas
+frecuentes, sin añadir espacio al flujo normal ni modificar el desplazamiento
+de otras páginas. No se cambia contenido, fecha editorial, enlaces ni JavaScript.
+
+Validación: siete pruebas existentes correctas en dos archivos del selector
+y la evidencia de horas; ESLint, TypeScript y compilación correctos. La
+comprobación visual reproduce el fallo antes del cambio y sigue el enlace
+real del selector después, sin sustituirlo por un desplazamiento manual.
+
+En escritorio el título de la agenda queda a 112 px, bajo la cabecera de
+74,6 px. A 320 px de ancho sigue a 112 px, bajo una cabecera de 105 px; su
+título completo se lee y no hay desbordamiento horizontal (305 px de contenido
+y de ancho disponible). También se comprueban el ancla de las tres agendas y
+la sección de preguntas frecuentes en móvil. Consola sin errores. Se restaura
+la ventana habitual y se deja abierta la agenda local.
+
+Se publica mediante la conexión Git existente. No cambian fórmulas, formularios, datos, foco, eventos ni
+configuración. Anuncios, piloto y seguimientos intactos.
+
 ### Aclarar el redondeo de la tarifa por hora (7 de noviembre de 2026)
 
 Publicación autorizada el 7 de noviembre de 2026. La tarifa media del resultado se muestra
