@@ -13,14 +13,17 @@ function NetEditor({ reference }: { reference: NetPreviewReference }) {
   const input = useRef<HTMLInputElement>(null);
   const [value, setValue] = useState('');
   const [estimate, setEstimate] = useState<ReturnType<typeof estimateMonthlyNet> | null>(null);
+  const [hasAttemptedCheck, setHasAttemptedCheck] = useState(false);
   const [isExample, setIsExample] = useState(false);
   const [billingBeforeExample, setBillingBeforeExample] = useState<string | null>(null);
   const [recoveryFeedback, setRecoveryFeedback] = useState('');
-  const error = estimate && !estimate.valid ? estimate.errors.monthlyBilling : undefined;
+  const validation = hasAttemptedCheck ? estimateMonthlyNet(reference, parseSpanishNumber(value)) : null;
+  const error = validation && !validation.valid ? validation.errors.monthlyBilling : undefined;
 
   function check(nextValue = value) {
     setRecoveryFeedback('');
     const result = estimateMonthlyNet(reference, parseSpanishNumber(nextValue));
+    setHasAttemptedCheck(true);
     setEstimate(result);
     if (result.valid) setValue(formatNumber(result.monthlyBilling));
     else input.current?.focus();
@@ -30,6 +33,7 @@ function NetEditor({ reference }: { reference: NetPreviewReference }) {
     if (billingBeforeExample === null) return;
     setValue(billingBeforeExample);
     setEstimate(null);
+    setHasAttemptedCheck(false);
     setIsExample(false);
     setBillingBeforeExample(null);
     setRecoveryFeedback('Facturación anterior recuperada. Vuelve a estimar el neto para actualizar los resultados.');
@@ -75,7 +79,8 @@ function NetEditor({ reference }: { reference: NetPreviewReference }) {
       {billingBeforeExample !== null ? <p className={styles.note} id={`${id}-recovery-hint`}>Conservamos en esta página el importe anterior al primer ejemplo. Recuperarlo sustituye los cambios que ves ahora y deja el neto pendiente de estimar. La copia se pierde al salir, recargar o cambiar los costes, la cuota, el objetivo o los supuestos de IRPF de referencia.</p> : null}
       <div role="status" aria-label="Neto según facturación" aria-live="polite" aria-atomic="true">
         {recoveryFeedback ? <p>{recoveryFeedback}</p> : null}
-        {estimate && !estimate.valid ? <p>{estimate.errors.reference ?? 'Revisa la facturación indicada antes de estimar el neto.'}</p> : null}
+        {validation && !validation.valid ? <p>{validation.errors.reference ?? 'Revisa la facturación indicada antes de estimar el neto.'}</p> : null}
+        {!estimate && validation?.valid ? <p>Datos modificados. Pulsa «Estimar neto con esta facturación» para actualizar el resultado.</p> : null}
         {estimate?.valid ? (
           <div className={styles.result}>
             {isExample ? <p><strong>Facturación ficticia; conservamos los costes, cuota y criterio de IRPF indicados arriba.</strong></p> : null}

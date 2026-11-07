@@ -28,7 +28,8 @@ describe('monthly net preview', () => {
     expect(screen.getByRole('status', status)).toHaveTextContent('1598,00');
     expect(screen.getByRole('status', status)).toHaveTextContent('402,00');
     fireEvent.change(screen.getByRole('textbox', { name: label }), { target: { value: '3500' } });
-    expect(screen.getByRole('status', status)).toBeEmptyDOMElement();
+    expect(screen.getByRole('status', status)).toHaveTextContent('Datos modificados. Pulsa «Estimar neto con esta facturación» para actualizar el resultado.');
+    expect(screen.queryByText('Neto orientativo con estos supuestos')).not.toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: 'Estimar neto con esta facturación' }));
     expect(screen.getByRole('status', status)).toHaveTextContent('2448,00');
     expect(screen.getByRole('status', status)).toHaveTextContent('448,00');

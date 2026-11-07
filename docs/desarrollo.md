@@ -48,6 +48,41 @@ Los espacios publicitarios están preparados, pero `lib/ads.ts` exige `NEXT_PUBL
 
 ## Revisión local antes de publicar
 
+### Conservar los avisos al editar la facturación prevista (7 de noviembre de 2026)
+
+Publicación autorizada el 7 de noviembre de 2026. La estimación de neto retiraba sus cifras
+al editar la facturación, pero también borraba la validación y dejaba el
+estado vacío. Se reproduce con -100 EUR, estimar y corregir a -10 EUR: el
+campo dejaba de marcarse como inválido aunque seguía siendo negativo.
+
+La ayuda conserva ahora si se ha intentado estimar y valida el importe
+actual a partir de ese momento. Un negativo, un dato malformado o un campo
+vacío mantienen el aviso y su descripción asociada, sin mover el foco al
+editar. Al corregirlo se retira el error y se indica que hay que pulsar
+«Estimar neto con esta facturación» para actualizar el resultado. Las cifras
+siguen apareciendo solo después de comprobar, con clic o Enter.
+
+El ejemplo activa la comprobación; recuperar la facturación anterior reinicia
+el intento y muestra su instrucción habitual sin recuperar cifras antiguas.
+Cambiar los supuestos sigue creando un editor nuevo. Se conservan la primera
+copia, los valores sin normalizar hasta comprobar y la aceptación de cero.
+
+Validación: 46 pruebas correctas en cinco archivos, con máximo dos workers
+y sin avisos React. Cuatro casos nuevos cubren errores persistentes, edición
+pendiente, cero con signo, precisión española, recuperación y referencia nueva.
+La integración conserva cálculo principal, resumen, GET, URL y eventos, sin
+almacenamiento ni peticiones. ESLint, TypeScript y compilación correctos.
+
+En navegador local se confirma el error tras pasar de -100 a -10, su retirada
+al escribir 3500 y el estado pendiente antes de Enter. Al estimar se conservan
+los 2448 EUR netos del ejemplo. Editar de nuevo retira las cifras, y recuperar
+tras probar 2500 conserva el importe anterior de 3600 sin recalcularlo. Consola
+sin errores. Son comprobaciones ficticias, no sesiones de usuarios.
+
+Se publica mediante la conexión Git existente. No cambian motor, redondeos, supuestos, formulario principal,
+resumen compartido, eventos ni configuración. Anuncios, piloto y seguimientos
+intactos.
+
 ### Mostrar los destinos de la guía de horas bajo la cabecera (7 de noviembre de 2026)
 
 Publicación autorizada el 7 de noviembre de 2026. El enlace «Estimar mis horas con una agenda
