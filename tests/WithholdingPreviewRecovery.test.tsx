@@ -46,7 +46,9 @@ describe('recover a withholding percentage and retain the fictional origin until
     expect(result()).toHaveTextContent('Retención ficticia del 15 %');
 
     write('7');
-    expect(result()).toBeEmptyDOMElement();
+    expect(result()).toHaveTextContent('Datos modificados. Pulsa «Comprobar importe a cobrar» para actualizar el resultado.');
+    expect(result()).not.toHaveTextContent('Retención ficticia');
+    expect(result().querySelector('dl')).toBeNull();
     write('15');
     await check();
     expect(result()).toHaveTextContent('Importe a cobrar con este supuesto');

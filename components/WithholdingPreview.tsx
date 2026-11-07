@@ -14,15 +14,18 @@ function PreviewEditor({ baseAmount, vatAmount, context }: Props) {
   const input = useRef<HTMLInputElement>(null);
   const [rate, setRate] = useState('');
   const [checked, setChecked] = useState<{ rate: string; isExample: boolean } | null>(null);
+  const [hasAttemptedCheck, setHasAttemptedCheck] = useState(false);
   const [rateBeforeExample, setRateBeforeExample] = useState<string | null>(null);
   const [recoveryFeedback, setRecoveryFeedback] = useState('');
   const result = checked ? previewWithholding({ baseAmount, vatAmount, withholdingRate: parseSpanishNumber(checked.rate) }) : null;
-  const fieldError = result && !result.valid && result.field === 'withholdingRate' ? result.error : undefined;
+  const validation = hasAttemptedCheck ? previewWithholding({ baseAmount, vatAmount, withholdingRate: parseSpanishNumber(rate) }) : null;
+  const fieldError = validation && !validation.valid && validation.field === 'withholdingRate' ? validation.error : undefined;
 
   function check(nextRate = rate, isExample = checked?.isExample ?? false) {
     setRecoveryFeedback('');
     const estimate = previewWithholding({ baseAmount, vatAmount, withholdingRate: parseSpanishNumber(nextRate) });
     const normalizedRate = estimate.valid ? formatNumber(estimate.rateUsed) : nextRate;
+    setHasAttemptedCheck(true);
     setRate(normalizedRate);
     setChecked({ rate: normalizedRate, isExample });
     if (!estimate.valid && estimate.field === 'withholdingRate') input.current?.focus();
@@ -32,6 +35,7 @@ function PreviewEditor({ baseAmount, vatAmount, context }: Props) {
     if (rateBeforeExample === null) return;
     setRate(rateBeforeExample);
     setChecked(null);
+    setHasAttemptedCheck(false);
     setRateBeforeExample(null);
     setRecoveryFeedback('Retención anterior recuperada. Vuelve a comprobar el importe a cobrar para actualizar los resultados.');
     input.current?.focus();
@@ -72,7 +76,8 @@ function PreviewEditor({ baseAmount, vatAmount, context }: Props) {
       {rateBeforeExample !== null ? <p className={styles.note} id={`${id}-recovery-hint`}>Conservamos en esta página el porcentaje anterior al primer ejemplo. Recuperarlo sustituye los cambios que ves ahora y deja el importe a cobrar pendiente de comprobar. La copia se pierde al salir, recargar o cambiar la base, el IVA o la referencia (ejemplo o resultado mensual).</p> : null}
       <div role="status" aria-label="Importe a cobrar con retención" aria-live="polite" aria-atomic="true">
         {recoveryFeedback ? <p>{recoveryFeedback}</p> : null}
-        {result && !result.valid ? <p>{result.error}</p> : null}
+        {validation && !validation.valid ? <p>{validation.error}</p> : null}
+        {!result && validation?.valid ? <p>Datos modificados. Pulsa «Comprobar importe a cobrar» para actualizar el resultado.</p> : null}
         {result?.valid ? (
           <div className={styles.result}>
             {checked?.isExample ? <p><strong>Retención ficticia del 15 %; no es una recomendación para tu actividad.</strong></p> : null}

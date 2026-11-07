@@ -48,6 +48,42 @@ Los espacios publicitarios están preparados, pero `lib/ads.ts` exige `NEXT_PUBL
 
 ## Revisión local antes de publicar
 
+### Conservar los avisos al editar la retención del cobro (8 de noviembre de 2026)
+
+Publicación autorizada el 8 de noviembre de 2026. La ayuda de importe a cobrar retiraba el
+resultado y el error al editar la retención. Se reproduce con -1 %, comprobar
+y cambiar a -2 %: el campo dejaba de marcarse como inválido, aunque seguía
+fuera del intervalo permitido, y el estado quedaba vacío.
+
+La ayuda conserva ahora si se ha intentado comprobar y valida el porcentaje
+actual desde ese momento. Los datos inválidos mantienen el aviso asociado
+al campo y el mensaje de estado, sin mover el foco al editar. Si la edición
+es válida, aparece la indicación de pulsar «Comprobar importe a cobrar» para
+actualizar el resultado. Las cifras siguen dependiendo exclusivamente de la
+comprobación explícita mediante clic o Enter.
+
+El ejemplo activa el intento; recuperar la retención anterior lo reinicia
+y no restaura cifras antiguas. Se mantienen la primera copia exacta, la
+etiqueta ficticia al recomprobar el 15 % sin editar, el reinicio por base,
+IVA o contexto y la aceptación de retenciones del 0 % al 100 %.
+
+Validación: 35 pruebas correctas en cinco archivos, con máximo dos workers
+y sin avisos React. Cuatro casos nuevos cubren negativos, porcentajes mayores
+que 100 y datos malformados, descripciones y foco, edición pendiente, límites
+y precisión española, recuperación y referencia nueva. La integración conserva
+GET, URL, resumen y eventos, sin almacenamiento ni peticiones. ESLint,
+TypeScript y compilación correctos.
+
+En navegador local se confirma que -1 % a -2 % conserva el error; corregir
+a 7 % deja el cobro pendiente hasta Enter. Con la base ficticia de 2234,71 EUR
+y el IVA de 469,29 EUR se mantienen 156,43 EUR de retención y 2547,57 EUR de
+cobro. El ejemplo conserva su origen al recomprobar y permite recuperar el
+0 % anterior. Resumen principal y URL iguales; consola sin errores.
+
+Se publica mediante la conexión Git existente. No cambian fórmulas, redondeos, referencia, formulario principal,
+resumen compartido, eventos ni configuración. Anuncios, piloto y seguimientos
+intactos. Las comprobaciones son ficticias, no sesiones de usuarios.
+
 ### Conservar los avisos al editar la facturación prevista (7 de noviembre de 2026)
 
 Publicación autorizada el 7 de noviembre de 2026. La estimación de neto retiraba sus cifras

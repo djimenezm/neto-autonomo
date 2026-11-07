@@ -27,7 +27,8 @@ describe('withholding preview', () => {
     expect(screen.getByRole('status', status)).toHaveTextContent('− 150,00');
     expect(screen.getByRole('status', status)).toHaveTextContent('= 1060,00');
     fireEvent.change(screen.getByRole('textbox', { name: label }), { target: { value: '0' } });
-    expect(screen.getByRole('status', status)).toBeEmptyDOMElement();
+    expect(screen.getByRole('status', status)).toHaveTextContent('Datos modificados. Pulsa «Comprobar importe a cobrar» para actualizar el resultado.');
+    expect(screen.queryByText('Importe a cobrar con este supuesto')).not.toBeInTheDocument();
   });
 
   it('accepts Spanish decimals and Enter, displaying the exact rounded rate used', async () => {
