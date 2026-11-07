@@ -180,7 +180,7 @@ const ResultCard = forwardRef<HTMLElement, ResultCardProps>(function ResultCard(
     const xUrl = buildTrackedUrl('x', 'social_share');
     const emailUrl = buildTrackedUrl('email', 'share_link');
     const whatsappText = `${resultSummary}\n\nCalculadora: ${whatsappUrl}`;
-    const xText = `${resultSummary}\n\nCalculadora: ${xUrl}`;
+    const xText = `Tarifa media orientativa en Cuánto Facturar. Abre el cálculo principal y sus supuestos en el enlace.\n\nCalculadora: ${xUrl}`;
     const emailBody = `${resultSummary}\n\nCalculadora: ${emailUrl}`;
 
     return {
@@ -305,8 +305,8 @@ const ResultCard = forwardRef<HTMLElement, ResultCardProps>(function ResultCard(
           <div className="result-share-copy">
             <strong>Haz que el cálculo trabaje por ti</strong>
             <p>
-              Comparte el resumen detallado con el enlace de la calculadora al final. Así la otra
-              persona ve primero los números y luego puede abrir el escenario precargado.
+              Copia el resumen detallado con el enlace o compártelo por WhatsApp y correo.
+              En X se prepara un texto breve con el enlace al cálculo.
             </p>
             <p id="result-share-scope">
               El enlace conserva el cálculo principal, pero no los datos que hayas introducido

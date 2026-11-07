@@ -48,6 +48,41 @@ Los espacios publicitarios están preparados, pero `lib/ads.ts` exige `NEXT_PUBL
 
 ## Revisión local antes de publicar
 
+### Preparar un texto breve al compartir en X (8 de noviembre de 2026)
+
+Publicación autorizada el 8 de noviembre de 2026. El enlace de X enviaba el resumen detallado
+completo al compositor. En un escenario habitual el resumen ocupa 813
+caracteres antes del enlace; con su etiqueta y una URL contabilizada a 23,
+el texto alcanza 851, por encima de los 280 de una publicación normal.
+
+Fuentes oficiales consultadas: [límite de publicaciones de X](https://help.x.com/en/using-x/how-to-post)
+y [cómputo de caracteres y URL](https://docs.x.com/fundamentals/counting-characters).
+La documentación distingue el límite normal y los mensajes largos de pago;
+las URL cuentan como 23 con independencia de su longitud original.
+
+X prepara ahora una introducción breve fija y el enlace íntegro al escenario.
+No se recortan parámetros ni supuestos para acortar la URL. El prefijo de
+115 caracteres, incluida la etiqueta del enlace, más la URL equivale a 138
+caracteres ponderados; su longitud no depende de importes o modalidad fiscal.
+La explicación de opciones indica que X prepara texto breve y enlace, mientras
+la copia, WhatsApp y correo conservan el resumen detallado.
+
+Validación: 44 pruebas correctas en tres archivos, con máximo dos workers y
+sin avisos React; ESLint, TypeScript y compilación correctos. Un caso nuevo
+recorre escenarios manual, prórroga reducida y progresivo autonómico. Comprueba
+la cota conservadora de dos unidades por carácter fuera de la URL más 23
+(253, inferior a 280), el escenario reconstruido desde todos los parámetros
+y la conservación del resumen completo en los otros canales y la copia.
+
+En navegador local se confirma el exceso anterior y el nuevo texto de X
+leyendo su enlace, sin abrirlo. La URL del escenario de X, el resumen visible
+y los enlaces de WhatsApp y correo coinciden exactamente con los anteriores.
+Consola sin errores. No se abre un compositor externo ni se publica nada.
+
+Se publica mediante la conexión Git existente. No cambian cálculos, supuestos, datos de las ayudas, URL del
+escenario, parámetros de atribución, atributos o código de eventos ni
+configuración. Anuncios, piloto y seguimientos intactos.
+
 ### Conservar los avisos al editar la retención del cobro (8 de noviembre de 2026)
 
 Publicación autorizada el 8 de noviembre de 2026. La ayuda de importe a cobrar retiraba el

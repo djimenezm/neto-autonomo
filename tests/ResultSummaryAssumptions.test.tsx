@@ -5,9 +5,11 @@ import ResultCard from '@/components/ResultCard';
 import { calculateFreelanceBilling, type CalculatorInput } from '@/lib/calculator';
 import { formatCurrency } from '@/lib/format';
 import { getScenarioPath } from '@/lib/monthlyScenarios';
+import { calculateValidSharedResult, readCalculatorQuery } from '@/lib/calculatorQuery';
 
 const base: CalculatorInput = { targetNet: 2000, monthlyExpenses: 300, monthlyNonDeductibleExpenses: 0, billableHours: 80, irpfMode: 'manual', irpfRate: 15, autonomousCommunity: 'common', selfEmployedFeeMode: 'manual', selfEmployedFee: 320, reducedFeePeriod: 'initial', hasIVA: true };
 const roundingNote = 'La tarifa por hora está redondeada a céntimos. Al multiplicarla por las horas, el total puede diferir del objetivo mensual. El comprobador de encargos usa la proporción mensual completa y redondea su referencia al céntimo superior.';
+const xIntroduction = 'Tarifa media orientativa en Cuánto Facturar. Abre el cálculo principal y sus supuestos en el enlace.';
 
 function show(overrides: Partial<CalculatorInput> = {}) {
   const input = { ...base, ...overrides };
@@ -97,7 +99,7 @@ describe('the assumptions carried with the result summary', () => {
     expect(summary()).toBe(originalSummary);
   });
 
-  it('keeps the same assumption text in preview, clipboard and encoded channels while preserving their query contracts', async () => {
+  it('keeps the detailed assumptions in preview, clipboard, WhatsApp and email while X carries the brief introduction and the same scenario', async () => {
     const user = userEvent.setup();
     const writeText = vi.spyOn(navigator.clipboard, 'writeText').mockResolvedValue(undefined);
     const fetch = vi.spyOn(globalThis, 'fetch');
@@ -122,7 +124,7 @@ describe('the assumptions carried with the result summary', () => {
       expect(link).toHaveAttribute('data-share-channel', source);
       const body = new URL(href).searchParams.get(parameter)!;
       const [carrierText, calculator] = body.split('\n\nCalculadora: ');
-      expect(carrierText).toBe(text);
+      expect(carrierText).toBe(name === 'X' ? xIntroduction : text);
       if (name === 'Email') expect(body).toBe(detailed());
       const encoded = new URL(calculator);
       expect(encoded.origin).toBe(original.origin);
@@ -141,6 +143,59 @@ describe('the assumptions carried with the result summary', () => {
     expect(screen.queryByRole('button', { name: /Copiar resumen|Resumen copiado/ })).not.toBeInTheDocument();
     expect(detailed().split('\n\nCalculadora: ')[0]).toBe(text);
     for (const { name } of links) expect(screen.getByRole('link', { name })).toHaveAttribute('href', hrefs[name]);
+    expect(window.location.href).toBe(previousUrl);
+    expect(fetch).not.toHaveBeenCalled();
+    expect(window.va).not.toHaveBeenCalled();
+    expect(window.gtag).not.toHaveBeenCalled();
+  });
+
+  it('keeps the X text within a conservative post budget and every scenario parameter intact while retaining the full summary elsewhere', async () => {
+    const user = userEvent.setup();
+    const writeText = vi.spyOn(navigator.clipboard, 'writeText').mockResolvedValue(undefined);
+    const fetch = vi.spyOn(globalThis, 'fetch');
+    const previousUrl = window.location.href;
+    const scenarios: Partial<CalculatorInput>[] = [
+      { targetNet: 1500, monthlyExpenses: 150, billableHours: 80 },
+      { targetNet: 1200, monthlyNonDeductibleExpenses: 50, selfEmployedFeeMode: 'reduced', reducedFeePeriod: 'extended', hasIVA: false },
+      { targetNet: 2500, monthlyExpenses: 450, monthlyNonDeductibleExpenses: 75, billableHours: 60, irpfMode: 'progressive', autonomousCommunity: 'madrid', selfEmployedFeeMode: 'auto' },
+    ];
+    for (const overrides of scenarios) {
+      const { props, result, unmount } = show(overrides);
+      const fullSummary = summary();
+      const xLink = screen.getByRole('link', { name: 'X' });
+      const intent = new URL(xLink.getAttribute('href')!);
+      const body = intent.searchParams.get('text')!;
+      const [introduction, calculator] = body.split('\n\nCalculadora: ');
+      expect(introduction).toBe(xIntroduction);
+      expect(introduction).not.toBe(fullSummary);
+      const prefix = body.slice(0, body.length - calculator.length);
+      // Each non-URL code unit may count twice; an intact shared URL counts as 23.
+      expect(2 * prefix.length + 23).toBeLessThanOrEqual(280);
+      const shared = new URL(calculator);
+      const original = new URL(props.shareUrl);
+      expect(shared.origin).toBe(original.origin);
+      expect(shared.pathname).toBe(original.pathname);
+      expect(shared.hash).toBe(original.hash);
+      for (const [key, value] of original.searchParams) expect(shared.searchParams.get(key)).toBe(value);
+      expect(shared.searchParams.get('utm_source')).toBe('x');
+      expect(shared.searchParams.get('utm_medium')).toBe('social_share');
+      expect(shared.searchParams.get('utm_campaign')).toBe('shared_calculator_result');
+      const reconstructed = readCalculatorQuery(key => shared.searchParams.get(key) ?? undefined);
+      expect(calculateValidSharedResult(reconstructed)).toEqual(result);
+      expect(xLink).toHaveAttribute('data-share-channel', 'x');
+      expect(screen.getByText('Copia el resumen detallado con el enlace o compártelo por WhatsApp y correo. En X se prepara un texto breve con el enlace al cálculo.')).toBeVisible();
+
+      expect(fullSummary).toContain(`Redondeo: ${roundingNote}`);
+      expect(fullSummary).toContain('Criterio de IRPF:');
+      const whatsapp = new URL(screen.getByRole('link', { name: 'WhatsApp' }).getAttribute('href')!).searchParams.get('text')!;
+      const email = new URL(screen.getByRole('link', { name: 'Email' }).getAttribute('href')!).searchParams.get('body')!;
+      expect(whatsapp.split('\n\nCalculadora: ')[0]).toBe(fullSummary);
+      expect(email).toBe(detailed());
+      writeText.mockClear();
+      await user.click(screen.getByRole('button', { name: 'Copiar resumen' }));
+      expect(writeText).toHaveBeenCalledExactlyOnceWith(fullSummary);
+      unmount();
+    }
     expect(window.location.href).toBe(previousUrl);
     expect(fetch).not.toHaveBeenCalled();
     expect(window.va).not.toHaveBeenCalled();
