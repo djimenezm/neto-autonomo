@@ -48,6 +48,41 @@ Los espacios publicitarios están preparados, pero `lib/ads.ts` exige `NEXT_PUBL
 
 ## Revisión local antes de publicar
 
+### Explicar el redondeo del IVA mensual frente a una factura (8 de noviembre de 2026)
+
+Publicación autorizada el 8 de noviembre de 2026. La referencia mensual calcula el IVA sobre
+su base interna antes de redondearla; el comprobador de una factura convierte
+primero la base introducida a céntimos. Copiar la base visible y mantener
+21 % de IVA y la misma retención puede producir un céntimo de diferencia.
+Son dos contratos de simulación existentes, no un fallo fiscal demostrado.
+
+Con neto de 1500 EUR, gastos de 150,03 EUR, 80 horas, reserva manual del 15 %
+y cuota manual de 320 EUR, el mensual muestra base de 2234,74 EUR e IVA de
+469,29 EUR. Sin retención, conserva un cobro de 2704,03 EUR. Una factura
+con esa base visible, 21 % y retención cero da IVA de 469,30 EUR y cobro de
+2704,04 EUR. No se cambia ninguna fórmula ni esas cantidades.
+
+La ayuda mensual de cobro añade una nota sobre el orden del redondeo solo
+cuando su contexto es mensual y tiene IVA positivo. No aparece en el ejemplo
+independiente ni con IVA cero. La guía por hora incluye la misma explicación
+junto al contraste entre factura y referencia mensual; su fecha visible y
+Article pasan al 8 de noviembre de 2026. Los ejemplos y las ocho FAQ se mantienen.
+
+Validación: 24 pruebas correctas en seis archivos, con máximo dos workers
+y sin avisos React. Un caso nuevo usa el motor real y ambos comprobadores
+para verificar el céntimo de diferencia y las exclusiones de la nota. Las
+pruebas de guía comprueban la explicación inicial y la fecha; ESLint,
+TypeScript y compilación correctos.
+
+En navegador local se compara el mismo caso antes y después: siguen los
+2704,03 EUR mensuales y los 2704,04 EUR de factura. Se verifica la nota en
+la ayuda y la guía actualizada, con resumen compartido y URL principal iguales.
+Consolas sin errores. Son comprobaciones ficticias, no sesiones de usuarios.
+
+Se publica mediante la conexión Git existente. No cambian motor, redondeos, validación, supuestos, estado,
+referencias, resumen compartido, eventos ni configuración. Anuncios, piloto
+y seguimientos intactos.
+
 ### Preparar un texto breve al compartir en X (8 de noviembre de 2026)
 
 Publicación autorizada el 8 de noviembre de 2026. El enlace de X enviaba el resumen detallado

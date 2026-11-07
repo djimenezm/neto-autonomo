@@ -3,9 +3,12 @@ import userEvent from '@testing-library/user-event';
 import Preview from '@/components/WithholdingPreview';
 import CalculatorForm from '@/components/CalculatorForm';
 import { withholdingExample } from '@/lib/withholdingPreview';
+import { calculateFreelanceBilling } from '@/lib/calculator';
+import { checkInvoice } from '@/lib/invoiceCheck';
 
 const label = 'Retención que quieres comprobar (%)';
 const status = { name: 'Importe a cobrar con retención' };
+const vatRoundingNote = 'Conservamos el IVA estimado del resultado mensual, calculado con la base antes de redondearla. Al comprobar una factura con la misma base visible, IVA del 21 % y la misma retención, el IVA y el importe a cobrar pueden diferir un céntimo por el orden del redondeo.';
 
 describe('withholding preview', () => {
   beforeEach(() => { window.va = vi.fn(); window.gtag = vi.fn(); });
@@ -47,6 +50,30 @@ describe('withholding preview', () => {
     rerender(<Preview baseAmount={2000} vatAmount={420} context="monthly" />);
     expect(screen.getByRole('textbox', { name: label })).toHaveValue('');
     expect(screen.getByRole('status', status)).toBeEmptyDOMElement();
+  });
+
+  it('explains the preserved monthly VAT when the same visible base produces a one-cent difference in a separate invoice check', async () => {
+    const user = userEvent.setup();
+    const monthly = calculateFreelanceBilling({ targetNet: 1500, monthlyExpenses: 150.03, monthlyNonDeductibleExpenses: 0, billableHours: 80, irpfMode: 'manual', irpfRate: 15, selfEmployedFeeMode: 'manual', selfEmployedFee: 320, hasIVA: true });
+    expect(monthly.billingWithoutVAT).toBe(2234.74);
+    expect(monthly.estimatedVAT).toBe(469.29);
+    const invoice = checkInvoice({ baseAmount: monthly.billingWithoutVAT, vatRate: 21, withholdingRate: 0 });
+    expect(invoice).toMatchObject({ valid: true, baseAmount: 2234.74, vatAmount: 469.30, receivableAmount: 2704.04 });
+    const { rerender } = render(<Preview baseAmount={monthly.billingWithoutVAT} vatAmount={monthly.estimatedVAT} context="monthly" />);
+    expect(screen.getByText(vatRoundingNote)).toBeVisible();
+    await user.type(screen.getByRole('textbox', { name: label }), '0{Enter}');
+    expect(screen.getByRole('status', status)).toHaveTextContent('= 2704,03');
+    expect(screen.getByText('IVA añadido en esta referencia').nextElementSibling).toHaveTextContent('469,29');
+
+    for (const scenario of [
+      { context: 'example' as const, vatAmount: monthly.estimatedVAT, receipt: '2704,03' },
+      { context: 'monthly' as const, vatAmount: 0, receipt: '2234,74' },
+    ]) {
+      rerender(<Preview baseAmount={monthly.billingWithoutVAT} vatAmount={scenario.vatAmount} context={scenario.context} />);
+      expect(screen.queryByText(vatRoundingNote)).not.toBeInTheDocument();
+      await user.type(screen.getByRole('textbox', { name: label }), '0{Enter}');
+      expect(screen.getByRole('status', status)).toHaveTextContent(`= ${scenario.receipt}`);
+    }
   });
 
   it('uses the real monthly result and keeps its summary, GET fields and tracking intact', async () => {

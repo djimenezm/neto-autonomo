@@ -18,8 +18,10 @@ describe('worked withholding explanation', () => {
     const doc = new DOMParser().parseFromString(renderToStaticMarkup(<HourlyGuide />), 'text/html');
     expect(doc.body.textContent).toContain('1060,00');
     expect(doc.body.textContent).toContain('no se vuelve a restar del neto objetivo');
+    expect(doc.body.textContent).toContain('Conservamos el IVA estimado del resultado mensual, calculado con la base antes de redondearla.');
+    expect(doc.body.textContent).toContain('el IVA y el importe a cobrar pueden diferir un céntimo por el orden del redondeo.');
     const schemas = [...doc.querySelectorAll('script[type="application/ld+json"]')].map((script) => JSON.parse(script.textContent!));
-    expect(schemas[0].dateModified).toBe('2026-10-28');
+    expect(schemas[0].dateModified).toBe('2026-11-08');
     expect(schemas[2].mainEntity).toHaveLength(8);
   });
 

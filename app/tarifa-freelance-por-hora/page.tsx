@@ -137,7 +137,7 @@ export default function TarifaFreelancePorHoraPage() {
       name: siteConfig.name,
     },
     datePublished: '2026-04-22',
-    dateModified: '2026-10-28',
+    dateModified: '2026-11-08',
     accountablePerson: { '@type': 'Person', name: siteConfig.ownerName },
   };
 
@@ -255,7 +255,7 @@ export default function TarifaFreelancePorHoraPage() {
           <p className="scenario-note">
             Método: simulación aritmética con el mismo motor de la calculadora, no una encuesta de
             precios. Responsable del sitio: <Link href="/aviso-legal">{siteConfig.ownerName}</Link>.
-            {' '}Actualizada el <time dateTime="2026-10-28">28 de octubre de 2026</time>.
+            {' '}Actualizada el <time dateTime="2026-11-08">8 de noviembre de 2026</time>.
           </p>
         </div>
       </section>
@@ -451,6 +451,11 @@ export default function TarifaFreelancePorHoraPage() {
               base, tipos y casos en que no se repercute. Esta comprobación solo aplica los porcentajes que escribas.
             </p>
             <p>Si lo que quieres contrastar es toda tu referencia mensual, abre «Ver cómo se reparte la facturación» y después «Comprobar el cobro si hay retención» en el resultado de la calculadora. Esa ayuda conserva la base y el IVA del resultado mensual.</p>
+            <p>
+              Conservamos el IVA estimado del resultado mensual, calculado con la base antes de redondearla.
+              Al comprobar una factura con la misma base visible, IVA del 21 % y la misma retención,
+              el IVA y el importe a cobrar pueden diferir un céntimo por el orden del redondeo.
+            </p>
             <p>
               En esa ayuda del resultado mensual puedes probar el 15 % ficticio y volver al porcentaje
               que habías escrito con «Recuperar mi retención anterior», incluso si era cero o estaba

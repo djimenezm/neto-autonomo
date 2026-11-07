@@ -50,6 +50,13 @@ function PreviewEditor({ baseAmount, vatAmount, context }: Props) {
       <p>{context === 'monthly'
         ? 'Suponemos que toda esta base mensual lleva el mismo porcentaje de retención. No representa una factura concreta ni una mezcla de clientes con retenciones distintas.'
         : 'Comprobamos una sola base con el IVA del ejemplo. El porcentaje de retención que escribas es un supuesto; esta ayuda no decide si corresponde aplicarlo.'}</p>
+      {context === 'monthly' && vatAmount > 0 ? (
+        <p className={styles.note}>
+          Conservamos el IVA estimado del resultado mensual, calculado con la base antes de redondearla.
+          Al comprobar una factura con la misma base visible, IVA del 21 % y la misma retención,
+          el IVA y el importe a cobrar pueden diferir un céntimo por el orden del redondeo.
+        </p>
+      ) : null}
       <noscript><p>La ayuda interactiva necesita JavaScript. Puedes consultar el <a href="/tarifa-freelance-por-hora#ejemplo-cobro">ejemplo de base, IVA, retención e importe a cobrar</a>.</p></noscript>
       <label className={styles.field}>
         <span id={`${id}-label`}>Retención que quieres comprobar (%)</span>
