@@ -1,7 +1,7 @@
 'use client';
 
 import { forwardRef, useMemo, useRef, useState, type ReactNode } from 'react';
-import { AUTONOMOUS_COMMUNITY_LABELS, type CalculationResult } from '@/lib/calculator';
+import { AUTONOMOUS_COMMUNITY_LABELS, type CalculationResult, type CalculatorInput } from '@/lib/calculator';
 import { formatCurrency, formatNumber } from '@/lib/format';
 import BillingBreakdown from '@/components/BillingBreakdown';
 import MonthlyNetPreview from '@/components/MonthlyNetPreview';
@@ -21,6 +21,7 @@ type ResultCardProps = {
   result: CalculationResult;
   hoursBillable: number;
   hasIVA: boolean;
+  comparisonReference?: CalculatorInput;
   enableCopy?: boolean;
   enableShareCopy?: boolean;
   shareUrl?: string;
@@ -119,7 +120,7 @@ function trackResultKitCtaClicked(event?: ResultKitCtaEvent) {
 }
 
 const ResultCard = forwardRef<HTMLElement, ResultCardProps>(function ResultCard(
-  { result, hoursBillable, hasIVA, enableCopy = true, enableShareCopy = false, shareUrl },
+  { result, hoursBillable, hasIVA, comparisonReference, enableCopy = true, enableShareCopy = false, shareUrl },
   ref,
 ) {
   const [copyStatus, setCopyStatus] = useState<CopyStatus>('idle');
@@ -304,7 +305,7 @@ const ResultCard = forwardRef<HTMLElement, ResultCardProps>(function ResultCard(
 
       <details className={breakdownStyles.disclosure}>
         <summary>Comparar cambios en mis gastos y horas</summary>
-        <MonthlyScenarioComparator reference={inputFromResult(result, hoursBillable, hasIVA)} />
+        <MonthlyScenarioComparator reference={comparisonReference ?? inputFromResult(result, hoursBillable, hasIVA)} />
         <a href="/tabla-cuanto-facturar-autonomo#comparar-escenarios">Ver un ejemplo de comparación de escenarios</a>
       </details>
 

@@ -2,6 +2,7 @@ import { fireEvent, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import Comparator from '@/components/MonthlyScenarioComparator';
 import CalculatorForm from '@/components/CalculatorForm';
+import { readCalculatorQuery } from '@/lib/calculatorQuery';
 import { monthlyScenarioInput } from '@/lib/monthlyScenarioExample';
 
 const costLabel = 'Gastos deducibles del escenario alternativo (EUR/mes)';
@@ -78,5 +79,34 @@ describe('monthly scenario comparator', () => {
     expect(screen.getByRole('spinbutton', { name: /Horas facturables al mes/ })).toHaveValue(80);
     expect(window.va).not.toHaveBeenCalled();
     expect(window.gtag).not.toHaveBeenCalled();
+  });
+
+  it('keeps the precision of a shared scenario when only its hours change', async () => {
+    const user = userEvent.setup();
+    const shared = new URL('https://www.cuantofacturar.es/?targetNet=1855.38&monthlyExpenses=150.001&billableHours=80&irpfMode=manual&irpfRate=14.999&selfEmployedFeeMode=auto#calculadora');
+    render(<CalculatorForm
+      initiallySubmitted
+      initialValues={readCalculatorQuery((key) => shared.searchParams.get(key) ?? undefined)}
+      initialShareUrl={shared.href}
+    />);
+    const mainBilling = screen.getByText('Facturación objetivo sin IVA').nextElementSibling;
+    expect(mainBilling).toHaveTextContent('2713,66');
+
+    await user.click(screen.getByText('Comparar cambios en mis gastos y horas'));
+    await user.click(screen.getByRole('button', { name: 'Cargar los datos de partida' }));
+    expect(screen.getByRole('textbox', { name: costLabel })).toHaveValue('150,001');
+    const hours = screen.getByRole('textbox', { name: hoursLabel });
+    await user.clear(hours);
+    await user.type(hours, '60{Enter}');
+
+    const comparison = within(screen.getByRole('status', { name: 'Comparación de escenarios' }));
+    const [startingBilling, alternativeBilling] = comparison.getAllByText('Facturación sin IVA/mes');
+    expect(startingBilling.nextElementSibling?.textContent).toBe(mainBilling?.textContent);
+    expect(alternativeBilling.nextElementSibling?.textContent).toBe(mainBilling?.textContent);
+    const link = comparison.getByRole<HTMLAnchorElement>('link', { name: 'Abrir la alternativa en la calculadora' });
+    const alternative = new URL(link.href);
+    expect(alternative.searchParams.get('monthlyExpenses')).toBe('150.001');
+    expect(alternative.searchParams.get('irpfRate')).toBe('14.999');
+    expect(alternative.searchParams.get('billableHours')).toBe('60');
   });
 });

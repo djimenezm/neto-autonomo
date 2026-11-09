@@ -7,6 +7,7 @@ import BillableHoursPlanner from '@/components/BillableHoursPlanner';
 import {
   AUTONOMOUS_COMMUNITY_LABELS,
   type AutonomousCommunity,
+  type CalculatorInput,
   calculateFreelanceBilling,
   type IrpfMode,
   type ReducedFeePeriod,
@@ -215,10 +216,10 @@ export default function CalculatorForm({
   const calculatedKey = calculatedValues ? getCalculationKey(calculatedValues) : null;
   const resultIsCurrent = calculatedKey === calculationKey;
 
-  const result = useMemo(() => {
+  const calculation = useMemo(() => {
     if (!calculatedValues) return null;
 
-    return calculateFreelanceBilling({
+    const input: CalculatorInput = {
       targetNet: parseNumericValue(calculatedValues.targetNet),
       monthlyExpenses: parseNumericValue(calculatedValues.monthlyExpenses),
       monthlyNonDeductibleExpenses: parseNumericValue(calculatedValues.monthlyNonDeductibleExpenses),
@@ -230,7 +231,15 @@ export default function CalculatorForm({
       selfEmployedFee: parseNumericValue(calculatedValues.selfEmployedFee),
       selfEmployedFeeMode: calculatedValues.selfEmployedFeeMode,
       reducedFeePeriod: calculatedValues.reducedFeePeriod,
-    });
+    };
+    const result = calculateFreelanceBilling(input);
+    const comparisonReference: CalculatorInput = {
+      ...input,
+      // Keep the existing defaults for parameters inactive in the chosen modes.
+      irpfRate: result.irpfMode === 'manual' ? input.irpfRate : result.irpfRate,
+      selfEmployedFee: result.selfEmployedFeeMode === 'manual' ? input.selfEmployedFee : result.selfEmployedFee,
+    };
+    return { result, comparisonReference };
   }, [calculatedValues]);
 
   useEffect(() => {
@@ -678,13 +687,14 @@ export default function CalculatorForm({
       {/* Preserve drafts against transient edits without exposing a stale result.
           A confirmed different scenario starts fresh helpers, as before. */}
       <Activity mode={submitted && !hasValidationErrors && resultIsCurrent ? 'visible' : 'hidden'}>
-        {result && calculatedValues ? (
+        {calculation ? (
           <ResultCard
             key={calculatedKey}
             ref={setResultRegionRef}
-            result={result}
-            hoursBillable={parseNumericValue(calculatedValues.billableHours)}
-            hasIVA={calculatedValues.hasIVA}
+            result={calculation.result}
+            hoursBillable={calculation.comparisonReference.billableHours}
+            hasIVA={calculation.comparisonReference.hasIVA}
+            comparisonReference={calculation.comparisonReference}
             enableCopy={enableResultCopy}
             enableShareCopy={enableResultShareCopy}
             shareUrl={shareUrl}

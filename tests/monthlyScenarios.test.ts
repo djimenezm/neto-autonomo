@@ -1,4 +1,5 @@
 import { calculateFreelanceBilling, type CalculatorInput } from '@/lib/calculator';
+import { calculateValidSharedResult, readCalculatorQuery } from '@/lib/calculatorQuery';
 import { compareMonthlyScenarios, getScenarioPath, inputFromResult } from '@/lib/monthlyScenarios';
 import { monthlyScenarioInput, monthlyScenarioExamples } from '@/lib/monthlyScenarioExample';
 
@@ -45,6 +46,23 @@ describe('monthly scenario comparison', () => {
     expect(url.searchParams.get('billableHours')).toBe('60');
     expect(url.searchParams.get('targetNet')).toBe('2000');
     expect(url.hash).toBe('#calculadora');
+  });
+
+  it('retains the precise starting expenses when only the hours change', () => {
+    const reference = { ...monthlyScenarioInput, monthlyExpenses: 128.074 };
+    const comparison = compareMonthlyScenarios(reference, { monthlyExpenses: 128.074, billableHours: 60 });
+    if (!comparison.valid) throw new Error('Expected valid alternative');
+
+    expect(comparison.current.billingWithoutVAT).toBe(2801.02);
+    expect(comparison.proposed.billingWithoutVAT).toBe(2801.02);
+    expect(comparison.billingDifference).toBe(0);
+    expect(comparison.alternativeInput.monthlyExpenses).toBe(128.074);
+
+    const url = new URL(getScenarioPath(comparison.alternativeInput), 'https://www.cuantofacturar.es');
+    expect(url.searchParams.get('monthlyExpenses')).toBe('128.074');
+    expect(url.searchParams.get('billableHours')).toBe('60');
+    const reopened = readCalculatorQuery((key) => url.searchParams.get(key) ?? undefined);
+    expect(calculateValidSharedResult(reopened)).toEqual(comparison.proposed);
   });
 
   it.each(['manual', 'auto', 'reduced'] as const)('preserves progressive IRPF, region and %s contribution mode in a round trip', (selfEmployedFeeMode) => {

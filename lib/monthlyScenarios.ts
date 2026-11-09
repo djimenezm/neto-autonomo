@@ -32,7 +32,12 @@ export function compareMonthlyScenarios(reference: CalculatorInput, alternative:
   }
   if (Object.keys(errors).length) return { valid: false, errors } as const;
 
-  const alternativeInput = { ...reference, monthlyExpenses: cents / 100, billableHours: alternative.billableHours };
+  const alternativeInput = {
+    ...reference,
+    // Starting expenses may carry extra decimals from a shared calculation.
+    monthlyExpenses: alternative.monthlyExpenses === reference.monthlyExpenses ? reference.monthlyExpenses : cents / 100,
+    billableHours: alternative.billableHours,
+  };
   const current = calculateFreelanceBilling(reference);
   const proposed = calculateFreelanceBilling(alternativeInput);
   return {
