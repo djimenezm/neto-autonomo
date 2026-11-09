@@ -17,7 +17,7 @@ function decimalNumber(integer: string, fraction: string, grouping?: keyof typeo
   return (digits || '0') + (fraction ? '.' + fraction : '');
 }
 
-export function parseSpanishNumber(value: string) {
+export function parseSpanishNumber(value: string, expectedUnit?: 'EUR' | '%') {
   let text = value.normalize('NFKC').replace(/\u2212/g, '-').trim();
   // A copied table row or column is not one number. Keep outer whitespace,
   // but never join cells by deleting tabs, line breaks or interior currency.
@@ -31,6 +31,11 @@ export function parseSpanishNumber(value: string) {
   const prefix = text.match(PREFIX_UNIT);
   const suffix = text.match(SUFFIX_UNIT);
   if (prefix && suffix) return Number.NaN;
+  const unit = prefix ?? suffix;
+  if (expectedUnit && unit) {
+    const token = unit[0].trim().toUpperCase();
+    if (token !== expectedUnit && !(expectedUnit === 'EUR' && token === '€')) return Number.NaN;
+  }
   if (prefix) text = text.slice(prefix[0].length);
   if (suffix) text = text.slice(0, -suffix[0].length);
   if (!sign && /^[+-]/.test(text)) {

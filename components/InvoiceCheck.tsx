@@ -14,8 +14,24 @@ const fields = [
 ] as const;
 type Values = Record<keyof InvoiceCheckInput, string>;
 
-function parseValues(values: Values): InvoiceCheckInput {
-  return { baseAmount: parseSpanishNumber(values.baseAmount), vatRate: parseSpanishNumber(values.vatRate), withholdingRate: parseSpanishNumber(values.withholdingRate) };
+function checkInvoiceValues(values: Values) {
+  const input = {
+    baseAmount: parseSpanishNumber(values.baseAmount, 'EUR'),
+    vatRate: parseSpanishNumber(values.vatRate, '%'),
+    withholdingRate: parseSpanishNumber(values.withholdingRate, '%'),
+  };
+  const checked = checkInvoice(input);
+  if (!checked.valid) {
+    for (const { key } of fields) {
+      // A number that only parses without the unit check has a mismatched unit.
+      if (Number.isNaN(input[key]) && Number.isFinite(parseSpanishNumber(values[key]))) {
+        checked.errors[key] = key === 'baseAmount'
+          ? 'Introduce la base en euros. Puedes usar € o EUR. El comprobador no convierte divisas.'
+          : 'Escribe un porcentaje con % o solo el número. Quita el símbolo o código de moneda.';
+      }
+    }
+  }
+  return checked;
 }
 
 export default function InvoiceCheck() {
@@ -27,11 +43,11 @@ export default function InvoiceCheck() {
   const [isExample, setIsExample] = useState(false);
   const [invoiceBeforeExample, setInvoiceBeforeExample] = useState<Values | null>(null);
   const [recoveryFeedback, setRecoveryFeedback] = useState('');
-  const validation = hasAttemptedCheck ? checkInvoice(parseValues(values)) : null;
+  const validation = hasAttemptedCheck ? checkInvoiceValues(values) : null;
 
   function calculate(next = values) {
     setRecoveryFeedback('');
-    const checked = checkInvoice(parseValues(next));
+    const checked = checkInvoiceValues(next);
     setHasAttemptedCheck(true);
     setResult(checked);
     if (checked.valid) setValues({ baseAmount: formatNumber(checked.baseAmount), vatRate: formatNumber(checked.vatRate), withholdingRate: formatNumber(checked.withholdingRate) });

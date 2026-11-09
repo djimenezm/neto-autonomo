@@ -81,6 +81,42 @@ describe('current validation while correcting an invoice check', () => {
     expect(pending()).not.toBeInTheDocument();
   });
 
+  it('rejects pasted currencies and percentages in the wrong fields until each unit is corrected', async () => {
+    const user = userEvent.setup();
+    render(<InvoiceCheck />);
+    async function paste(key: keyof Values, value: string) {
+      const input = field(key);
+      await user.clear(input);
+      await user.click(input);
+      await user.paste(value);
+    }
+    const mismatched = { baseAmount: '1.000,00 USD', vatRate: '21 €', withholdingRate: 'EUR 15' };
+    await paste('baseAmount', mismatched.baseAmount);
+    await paste('vatRate', mismatched.vatRate);
+    await paste('withholdingRate', mismatched.withholdingRate);
+    await check();
+    expect(current()).toEqual(mismatched);
+    expect(field('baseAmount')).toHaveFocus();
+    expect(field('baseAmount')).toHaveAccessibleDescription(/Introduce la base en euros/);
+    expect(field('vatRate')).toHaveAccessibleDescription(/Quita el símbolo o código de moneda/);
+    expect(field('withholdingRate')).toHaveAccessibleDescription(/Quita el símbolo o código de moneda/);
+    expect(invalidFields()).toHaveLength(3);
+    expectNoReceipt();
+
+    await paste('baseAmount', '100 %');
+    expect(field('baseAmount')).toHaveAccessibleDescription(/Introduce la base en euros/);
+    await paste('baseAmount', 'eur 1.000,00');
+    expect(invalidFields()).toHaveLength(2);
+    await paste('vatRate', '21 %');
+    expect(invalidFields()).toEqual([field('withholdingRate')]);
+    await paste('withholdingRate', '15％');
+    expect(invalidFields()).toHaveLength(0);
+    expect(pending()).toBeVisible();
+    expectNoReceipt();
+    await user.keyboard('{Enter}');
+    expect(within(result()).getByText('Importe a cobrar con estos datos').nextElementSibling).toHaveTextContent('= 1060,00');
+  });
+
   it('keeps valid tax inputs and raw precision while the base is invalid, normalizing only after an explicit successful check', async () => {
     render(<InvoiceCheck />);
     const raw = { baseAmount: '0', vatRate: '21,005', withholdingRate: '7,125' };
