@@ -46,6 +46,7 @@ export type CalculationResult = {
   preTaxProfit: number;
   estimatedNetReturnsForContributions: number;
   annualEstimatedNetReturnsForContributions: number;
+  estimatedContributionBracket: { lowerExclusive: number | null; upperInclusive: number | null };
   estimatedContributionBase: number;
   estimatedSelfEmployedFee: number;
   reducedContributionBase: number;
@@ -164,15 +165,19 @@ const SELF_EMPLOYED_BRACKETS_2026 = [
 ];
 
 function estimateSelfEmployedContribution(monthlyNetReturns: number) {
-  const bracket =
-    SELF_EMPLOYED_BRACKETS_2026.find((currentBracket) => monthlyNetReturns <= currentBracket.maxNetReturn) ??
-    SELF_EMPLOYED_BRACKETS_2026[SELF_EMPLOYED_BRACKETS_2026.length - 1];
+  const matchingIndex = SELF_EMPLOYED_BRACKETS_2026.findIndex((bracket) => monthlyNetReturns <= bracket.maxNetReturn);
+  const index = matchingIndex === -1 ? SELF_EMPLOYED_BRACKETS_2026.length - 1 : matchingIndex;
+  const bracket = SELF_EMPLOYED_BRACKETS_2026[index];
   const contributionBase = bracket.minBase;
   const fee = contributionBase * SELF_EMPLOYED_CONTRIBUTION_RATE;
 
   return {
     contributionBase,
     fee,
+    bracket: {
+      lowerExclusive: SELF_EMPLOYED_BRACKETS_2026[index - 1]?.maxNetReturn ?? null,
+      upperInclusive: Number.isFinite(bracket.maxNetReturn) ? bracket.maxNetReturn : null,
+    },
   };
 }
 
@@ -287,7 +292,7 @@ export function calculateFreelanceBilling({
   const annualEstimatedIRPF = irpfMode === 'manual' ? annualPreTaxProfit * safeIrpfRate : progressiveAnnualIRPF;
   const preTaxProfit = annualPreTaxProfit / 12;
   const estimatedNetReturnsForContributions = preTaxProfit * (1 - GENERAL_EXPENSE_REDUCTION);
-  const { contributionBase, fee: estimatedSelfEmployedFee } = estimateSelfEmployedContribution(
+  const { contributionBase, fee: estimatedSelfEmployedFee, bracket: estimatedContributionBracket } = estimateSelfEmployedContribution(
     estimatedNetReturnsForContributions,
   );
   const annualEstimatedNetReturnsForContributions = annualPreTaxProfit * (1 - GENERAL_EXPENSE_REDUCTION);
@@ -329,6 +334,7 @@ export function calculateFreelanceBilling({
     preTaxProfit: roundToTwo(preTaxProfit),
     estimatedNetReturnsForContributions: roundToTwo(estimatedNetReturnsForContributions),
     annualEstimatedNetReturnsForContributions: roundToTwo(annualEstimatedNetReturnsForContributions),
+    estimatedContributionBracket,
     estimatedContributionBase: roundToTwo(contributionBase),
     estimatedSelfEmployedFee: roundToTwo(estimatedSelfEmployedFee),
     reducedContributionBase: roundToTwo(REDUCED_SELF_EMPLOYED_BASE),

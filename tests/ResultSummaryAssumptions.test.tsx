@@ -37,6 +37,7 @@ describe('the assumptions carried with the result summary', () => {
     expect(summary()).toContain(`Cuota de autónomos aplicada: ${formatCurrency(320)} al mes`);
     expect(line('Modalidad de cuota:')).toBe('Modalidad de cuota: manual indicada');
     expect(summary()).not.toMatch(/Comunidad|SMI|prórroga/i);
+    expect(screen.queryByText(/El tramo aplicado corresponde/)).not.toBeInTheDocument();
   });
 
   it('distinguishes the progressive regional estimate and automatic fee from an elected fixed percentage', () => {
@@ -52,12 +53,32 @@ describe('the assumptions carried with the result summary', () => {
     expect(summary()).not.toMatch(/SMI|prórroga/i);
   });
 
+  it.each([
+    { targetNet: 600, irpfRate: 0, returns: 558, fee: '205,88 €', range: 'hasta 670,00 €' },
+    { targetNet: 2158.78, irpfRate: 1.1, returns: 2030, fee: '380,88 €', range: 'más de 1850,00 € y hasta 2030,00 €' },
+    { targetNet: 2158.79, irpfRate: 1.1, returns: 2030, fee: '401,47 €', range: 'más de 2030,00 € y hasta 2330,00 €', showRounding: true },
+    { targetNet: 7000, irpfRate: 0, returns: 6510, fee: '607,35 €', range: 'más de 6000,00 €' },
+  ])('explains the applied automatic fee bracket for $targetNet net', ({ targetNet, irpfRate, returns, fee, range, showRounding }) => {
+    const { result } = show({ targetNet, irpfRate, monthlyExpenses: 150, selfEmployedFeeMode: 'auto' });
+    expect(result.estimatedNetReturnsForContributions).toBe(returns);
+    const feeCard = screen.getByText('Cuota de autónomos aplicada').closest<HTMLElement>('.result-item')!;
+    expect(feeCard).toHaveTextContent(fee);
+    const bracket = within(feeCard).getByText(/El tramo aplicado corresponde/);
+    expect(bracket).toHaveTextContent(`El tramo aplicado corresponde a rendimientos mensuales de ${range}.`);
+    if (showRounding) {
+      expect(bracket).toHaveTextContent('Los rendimientos se muestran como 2030,00 €, aunque antes de redondear superan el límite inferior del tramo.');
+    } else {
+      expect(bracket).not.toHaveTextContent('antes de redondear');
+    }
+  });
+
   it('identifies the initial reduced fee without applying the extension income test to the initial period', () => {
     const { result } = show({ selfEmployedFeeMode: 'reduced', reducedFeePeriod: 'initial' });
     expect(result.reducedFeeExtensionEligible).toBe(false);
     expect(line('Modalidad de cuota:')).toBe('Modalidad de cuota: cuota reducida inicial simulada (MEI incluido)');
     expect(summary()).toContain(`Cuota de autónomos aplicada: ${formatCurrency(result.selfEmployedFee)} al mes`);
     expect(summary()).not.toMatch(/SMI|rendimientos|prórroga/i);
+    expect(screen.queryByText(/El tramo aplicado corresponde/)).not.toBeInTheDocument();
   });
 
   it.each([{ targetNet: 1200, below: true }, { targetNet: 2000, below: false }])('carries the annual extension comparison without claiming a right to it: $below', ({ targetNet, below }) => {

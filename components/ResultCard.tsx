@@ -124,6 +124,11 @@ const ResultCard = forwardRef<HTMLElement, ResultCardProps>(function ResultCard(
 ) {
   const [copyStatus, setCopyStatus] = useState<CopyStatus>('idle');
   const autonomousCommunityLabel = AUTONOMOUS_COMMUNITY_LABELS[result.autonomousCommunity];
+  const { lowerExclusive, upperInclusive } = result.estimatedContributionBracket;
+  const contributionBracketRange = [
+    lowerExclusive === null ? null : `más de ${formatCurrency(lowerExclusive)}`,
+    upperInclusive === null ? null : `hasta ${formatCurrency(upperInclusive)}`,
+  ].filter(Boolean).join(' y ');
   const resultSummary = useMemo(
     () =>
       [
@@ -243,6 +248,15 @@ const ResultCard = forwardRef<HTMLElement, ResultCardProps>(function ResultCard(
         <div className="result-item">
           <span>Cuota de autónomos aplicada</span>
           <strong>{formatCurrency(result.selfEmployedFee)}</strong>
+          {result.selfEmployedFeeMode === 'auto' ? (
+            <p className="result-summary">
+              El tramo aplicado corresponde a rendimientos mensuales de {contributionBracketRange}.
+              {result.estimatedNetReturnsForContributions === lowerExclusive ? (
+                <> Los rendimientos se muestran como {formatCurrency(result.estimatedNetReturnsForContributions)},
+                  aunque antes de redondear superan el límite inferior del tramo.</>
+              ) : null}
+            </p>
+          ) : null}
         </div>
 
         {result.monthlyNonDeductibleExpenses > 0 && (
