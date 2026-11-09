@@ -12,7 +12,7 @@ type Row = { id: number; date: string; kind: CashMovementInput['kind']; amount: 
 type Values = { initialBalance: string; rows: Row[] };
 type PlanBackup = { values: Values; isExample: boolean; source: 'example' | 'file' };
 type RemovedMovement = { row: Row; index: number };
-const INITIAL_ROW_COUNT = 3;
+const INITIAL_ROW_COUNT = 1;
 const fields = [
   { key: 'date', label: 'Fecha' },
   { key: 'kind', label: 'Tipo' },

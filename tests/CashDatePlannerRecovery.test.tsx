@@ -23,7 +23,6 @@ function currentValues() {
 }
 
 async function enterPartialPlan() {
-  await userEvent.click(screen.getByRole('button', { name: 'Añadir movimiento' }));
   fireEvent.change(initial(), { target: { value: ' -1.234,50 € ' } });
   const rows = [
     { date: '2026-12-20', kind: 'receipt', amount: '2.400,005 €' },
@@ -31,6 +30,8 @@ async function enterPartialPlan() {
     { date: '', kind: '', amount: '1,,50' },
     { date: '2027-01-03', kind: 'receipt', amount: '' },
   ];
+  const add = screen.getByRole('button', { name: 'Añadir movimiento' });
+  for (let index = 1; index < rows.length; index++) await userEvent.click(add);
   rows.forEach((row, index) => {
     fireEvent.change(field('Fecha', index + 1), { target: { value: row.date } });
     fireEvent.change(field('Tipo', index + 1), { target: { value: row.kind } });

@@ -11,6 +11,10 @@ const result = () => screen.getByRole('status', { name: 'Caja por fechas' });
 const fileStatus = () => screen.getByRole('status', { name: 'Archivo del plan' });
 const check = () => userEvent.click(screen.getByRole('button', { name: 'Comprobar vencimientos' }));
 const add = () => userEvent.click(screen.getByRole('button', { name: 'Añadir movimiento' }));
+function addMovements(count: number) {
+  const button = screen.getByRole('button', { name: 'Añadir movimiento' });
+  for (let index = 0; index < count; index++) fireEvent.click(button);
+}
 const remove = (row: number) => userEvent.click(screen.getByRole('button', { name: `Eliminar movimiento ${row}` }));
 const undo = () => userEvent.click(screen.getByRole('button', { name: 'Deshacer la última eliminación' }));
 const example = () => userEvent.click(screen.getByRole('button', { name: 'Probar las fechas ficticias' }));
@@ -51,6 +55,7 @@ describe('current validation while correcting cash movements by date', () => {
   it('retains nine movement errors after fixing the initial balance and corrects date, type and amount without moving focus', async () => {
     const user = userEvent.setup();
     render(<Planner />);
+    addMovements(2);
     expect(invalidControls()).toHaveLength(0);
     await check();
     expect(invalidControls()).toHaveLength(10);
@@ -79,6 +84,7 @@ describe('current validation while correcting cash movements by date', () => {
 
   it('accepts a negative starting balance and deliberate zero amounts while keeping negative movement amounts invalid', async () => {
     render(<Planner />);
+    addMovements(2);
     writePersonal('-100');
     change(field('Importe (EUR)', 1), '-1');
     await check();
@@ -104,6 +110,7 @@ describe('current validation while correcting cash movements by date', () => {
 
   it('normalizes precision only on explicit checking and withdraws the old table and download until Enter recomputes them', async () => {
     render(<Planner />);
+    addMovements(2);
     writePersonal(' 100,005 € ');
     expect(initial()).toHaveValue(' 100,005 € ');
     expect(rows()).toEqual(personal);
@@ -128,7 +135,7 @@ describe('current validation while correcting cash movements by date', () => {
 
   it('validates added rows at their current indices and restores raw errors and stable IDs when undoing a deletion', async () => {
     render(<Planner />);
-    await remove(3);
+    await add();
     change(initial(), '0');
     writeRow(1, { date: '2026-11-10', kind: 'receipt', amount: '10' });
     const unfinished = { date: '', kind: 'payment', amount: ' 1,,25 ' };
@@ -157,7 +164,7 @@ describe('current validation while correcting cash movements by date', () => {
 
   it('keeps structural edits quiet before checking and resets validation when the full plan is recovered from the example', async () => {
     render(<Planner />);
-    await add();
+    addMovements(3);
     const original = rows();
     await remove(2);
     await undo();
@@ -185,7 +192,7 @@ describe('current validation while correcting cash movements by date', () => {
   it('checks a valid file explicitly, retains current errors for invalid files and ignores a pending read after a later edit', async () => {
     render(<Planner />);
     await check();
-    expect(invalidControls()).toHaveLength(10);
+    expect(invalidControls()).toHaveLength(4);
     await upload();
     await waitFor(() => expect(fileStatus()).toHaveTextContent('Plan abierto con 1 movimiento.'));
     expect(invalidControls()).toHaveLength(0);
@@ -221,6 +228,7 @@ describe('current validation while correcting cash movements by date', () => {
     const fetch = vi.spyOn(globalThis, 'fetch');
     const previousUrl = window.location.href;
     render(<Planner />);
+    addMovements(2);
     expect(fireEvent.keyDown(initial(), { key: 'Enter' })).toBe(false);
     expect(invalidControls()).toHaveLength(10);
     writePersonal('0');

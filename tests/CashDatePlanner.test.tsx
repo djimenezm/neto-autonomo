@@ -12,8 +12,8 @@ describe('cash date planner', () => {
 
   it('starts empty with unnamed controls and focuses each first invalid field', async () => {
     render(<Planner />);
-    expect(document.querySelectorAll('input:not([type="file"])')).toHaveLength(7);
-    expect(screen.getAllByRole('combobox')).toHaveLength(3);
+    expect(document.querySelectorAll('input:not([type="file"])')).toHaveLength(3);
+    expect(screen.getAllByRole('combobox')).toHaveLength(1);
     for (const input of document.querySelectorAll('input,select')) { expect(input).toHaveValue(''); expect(input).not.toHaveAttribute('name'); }
     expect(document.querySelector('form')).toBeNull();
     await check();
@@ -92,10 +92,8 @@ describe('cash date planner', () => {
     expect(field('Fecha', 1)).toHaveFocus();
   });
 
-  it('accepts negative initial balances and Spanish half-cent amounts and normalizes the inputs', async () => {
+  it('checks a single movement from the empty planner and normalizes Spanish half-cent amounts', async () => {
     render(<Planner />);
-    await userEvent.click(screen.getByRole('button', { name: 'Eliminar movimiento 3' }));
-    await userEvent.click(screen.getByRole('button', { name: 'Eliminar movimiento 2' }));
     await userEvent.type(screen.getByLabelText('Saldo antes del primer movimiento (EUR)'), '-1,005');
     fireEvent.change(field('Fecha', 1), { target: { value: '2026-11-05' } });
     await userEvent.selectOptions(field('Tipo', 1), 'receipt');
@@ -110,7 +108,7 @@ describe('cash date planner', () => {
   it('prevents adding more than twenty movements and allows adding again after removing one', async () => {
     render(<Planner />);
     const add = screen.getByRole('button', { name: 'Añadir movimiento' });
-    for (let i = 3; i < 20; i++) fireEvent.click(add);
+    for (let i = 1; i < 20; i++) fireEvent.click(add);
     expect(screen.getAllByRole('combobox')).toHaveLength(20);
     expect(screen.getByRole('button', { name: 'Añadir movimiento' })).toBeDisabled();
     await userEvent.click(screen.getByRole('button', { name: 'Eliminar movimiento 20' }));

@@ -86,7 +86,7 @@ describe('recover the draft replaced by a valid cash-date file', () => {
     const previousUrl = window.location.href;
     render(<Planner />);
     const add = screen.getByRole('button', { name: 'Añadir movimiento' });
-    for (let row = 4; row <= 20; row++) fireEvent.click(add);
+    for (let row = 2; row <= 20; row++) fireEvent.click(add);
     const original: Values = {
       initialBalance: ' -1.234,005 € ',
       rows: Array.from({ length: 20 }, (_, index) => ({
@@ -124,6 +124,7 @@ describe('recover the draft replaced by a valid cash-date file', () => {
 
   it('keeps the first file backup through files, edits, checks and examples, then starts a fresh recovery cycle', async () => {
     render(<Planner />);
+    await userEvent.click(screen.getByRole('button', { name: 'Añadir movimiento' }));
     fireEvent.change(initial(), { target: { value: ' 0,005 ' } });
     fireEvent.change(field('Importe (EUR)', 2), { target: { value: '1,,25' } });
     const original = currentValues();
@@ -187,7 +188,7 @@ describe('recover the draft replaced by a valid cash-date file', () => {
     fireEvent.change(initial(), { target: { value: '' } });
     await userEvent.click(screen.getByRole('button', { name: 'Añadir movimiento' }));
     const structuralDraft = currentValues();
-    expect(structuralDraft.rows).toHaveLength(4);
+    expect(structuralDraft.rows).toHaveLength(2);
     await open();
     await restore();
     expect(currentValues()).toEqual(structuralDraft);

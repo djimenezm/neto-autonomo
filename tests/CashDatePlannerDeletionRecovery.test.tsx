@@ -27,6 +27,8 @@ const personal = [
   { date: '2026-12-03', kind: 'payment', amount: '50' },
 ];
 function writePersonal() {
+  const add = screen.getByRole('button', { name: 'Añadir movimiento' });
+  for (let index = 1; index < personal.length; index++) fireEvent.click(add);
   change(initial(), '100');
   personal.forEach((row, index) => writeRow(index + 1, row));
 }
@@ -118,7 +120,7 @@ describe('undo the latest deleted cash-date movement', () => {
   it('respects the twenty-row cap and discards undo when adding a new movement changes the structure', async () => {
     render(<Planner />);
     const add = screen.getByRole('button', { name: 'Añadir movimiento' });
-    for (let count = 4; count <= 20; count++) fireEvent.click(add);
+    for (let count = 2; count <= 20; count++) fireEvent.click(add);
     expect(add).toBeDisabled();
     writeRow(20, { date: '2026-12-20', kind: 'payment', amount: ' 123,005 ' });
     await remove(20);

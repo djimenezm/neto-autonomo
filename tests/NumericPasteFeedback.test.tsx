@@ -132,6 +132,9 @@ describe('visible multicell explanations in real numeric helpers', () => {
   it('restores the raw deleted movement with its own explanation while the surviving movement keeps the right message after renumbering', async () => {
     const user = userEvent.setup();
     render(<CashDatePlanner />);
+    const add = screen.getByRole('button', { name: 'Añadir movimiento' });
+    await user.click(add);
+    await user.click(add);
     const amount = (row: number) => textbox(`Importe (EUR) del movimiento ${row}`);
     change(textbox('Saldo antes del primer movimiento (EUR)'), '100');
     for (let row = 1; row <= 3; row++) {
