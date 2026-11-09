@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
-  getNormalizedPastedValue,
+  readCalculatorPaste,
   normalizeFieldValue,
   validateForm,
 } from '@/lib/calculatorForm';
@@ -32,7 +32,7 @@ describe('positive calculator amounts after cent rounding', () => {
       for (const value of belowHalfCent) {
         expect(normalizeFieldValue(field, value)).toBe(value);
       }
-      expect(getNormalizedPastedValue(field, '0,004 €')).toBe('0.004');
+      expect(readCalculatorPaste(field, '0,004 €').value).toBe('0.004');
     }
   });
 

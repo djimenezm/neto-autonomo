@@ -100,11 +100,23 @@ export function normalizeFieldValue(field: FieldName, value: string) {
   }
 }
 
-export function getNormalizedPastedValue(field: FieldName, value: string) {
-  const parsedValue = parseSpanishNumber(value);
-  return Number.isFinite(parsedValue)
-    ? normalizeFieldValue(field, String(parsedValue))
-    : null;
+export function readCalculatorPaste(field: FieldName, text: string) {
+  const expectedUnit = field === 'billableHours' ? 'none' : field === 'irpfRate' ? '%' : 'EUR';
+  const parsedValue = parseSpanishNumber(text, expectedUnit);
+  if (Number.isFinite(parsedValue)) {
+    return { value: normalizeFieldValue(field, String(parsedValue)), error: null } as const;
+  }
+
+  if (!Number.isFinite(parseSpanishNumber(text))) {
+    return { value: null, error: 'El formato del dato pegado no es válido. Pega un solo número y revisa los separadores.' } as const;
+  }
+
+  const error = expectedUnit === 'none'
+    ? 'Pega solo el número de horas, sin moneda ni porcentaje.'
+    : expectedUnit === '%'
+      ? 'Pega un porcentaje con % o solo el número. Quita el símbolo o código de moneda.'
+      : 'Pega un importe en euros. Puedes usar € o EUR.';
+  return { value: null, error } as const;
 }
 
 export function buildCalculatorUrl(values: CalculatorFormValues, currentUrl: string) {

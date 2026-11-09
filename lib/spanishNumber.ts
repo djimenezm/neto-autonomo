@@ -17,7 +17,7 @@ function decimalNumber(integer: string, fraction: string, grouping?: keyof typeo
   return (digits || '0') + (fraction ? '.' + fraction : '');
 }
 
-export function parseSpanishNumber(value: string, expectedUnit?: 'EUR' | '%') {
+export function parseSpanishNumber(value: string, expectedUnit?: 'EUR' | '%' | 'none') {
   let text = value.normalize('NFKC').replace(/\u2212/g, '-').trim();
   // A copied table row or column is not one number. Keep outer whitespace,
   // but never join cells by deleting tabs, line breaks or interior currency.

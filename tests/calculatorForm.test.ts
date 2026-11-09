@@ -3,7 +3,7 @@ import {
   buildCalculatorUrl,
   DEFAULT_FORM_VALUES,
   getCalculationKey,
-  getNormalizedPastedValue,
+  readCalculatorPaste,
   normalizeFieldValue,
   parseFormNumber,
   type FieldName,
@@ -40,8 +40,8 @@ describe('calculator form values', () => {
 
   it('keeps invalid values visible and normalizes valid Spanish currency', () => {
     expect(normalizeFieldValue('monthlyExpenses', 'importe incorrecto')).toBe('importe incorrecto');
-    expect(getNormalizedPastedValue('monthlyExpenses', '2.500,50 €')).toBe('2500.5');
-    expect(getNormalizedPastedValue('monthlyExpenses', 'no es un número')).toBeNull();
+    expect(readCalculatorPaste('monthlyExpenses', '2.500,50 €').value).toBe('2500.5');
+    expect(readCalculatorPaste('monthlyExpenses', 'no es un número').value).toBeNull();
     expect(validateForm({ ...numericValues, billableHours: '1,5' }, 'progressive', 'auto'))
       .toHaveProperty('billableHours');
   });
@@ -54,7 +54,7 @@ describe('calculator form values', () => {
     ['irpfRate', '15,005 %', '15'],
     ['billableHours', '80,005', '80.005'],
   ])('preserves the decimal magnitude when pasting %s = %s', (field, pasted, expected) => {
-    expect(getNormalizedPastedValue(field, pasted)).toBe(expected);
+    expect(readCalculatorPaste(field, pasted).value).toBe(expected);
   });
 
   it.each<[FieldName, string, string | null]>([
@@ -63,14 +63,14 @@ describe('calculator form values', () => {
     ['billableHours', '1,5', '1.5'],
     ['irpfRate', '100,005 %', '100.005'],
   ])('keeps invalid numeric pastes available for validation: %s = %s', (field, pasted, expected) => {
-    expect(getNormalizedPastedValue(field, pasted)).toBe(expected);
+    expect(readCalculatorPaste(field, pasted).value).toBe(expected);
   });
 
   it('treats native decimal points as decimals while keeping Spanish clipboard grouping', () => {
     expect(parseFormNumber('1.005')).toBe(1.005);
     expect(normalizeFieldValue('monthlyExpenses', '1.005')).toBe('1.01');
-    expect(getNormalizedPastedValue('monthlyExpenses', '1.005')).toBe('1005');
-    expect(getNormalizedPastedValue('monthlyExpenses', '1.005,50 €')).toBe('1005.5');
+    expect(readCalculatorPaste('monthlyExpenses', '1.005').value).toBe('1005');
+    expect(readCalculatorPaste('monthlyExpenses', '1.005,50 €').value).toBe('1005.5');
     expect(parseFormNumber('')).toBeNaN();
     expect(parseFormNumber('1e309')).toBeNaN();
     expect(validateForm({ ...numericValues, billableHours: '80.005' }, 'progressive', 'auto'))

@@ -17,14 +17,14 @@ async function paste(user: User, key: keyof typeof labels, text: string) {
 async function submit() {
   await act(async () => { fireEvent.submit(form()); });
 }
-function expectRejected(key: keyof typeof labels) {
+function expectRejected(key: keyof typeof labels, reason = message) {
   const input = field(key);
   expect(input).toHaveValue(null);
   expect(input).toHaveAccessibleName(labels[key]);
   expect(input).toHaveAttribute('aria-invalid', 'true');
-  expect(input).toHaveAccessibleDescription(expect.stringContaining(message));
+  expect(input).toHaveAccessibleDescription(expect.stringContaining(reason));
   const error = input.getAttribute('aria-describedby')?.split(/\s+/)
-    .map(id => document.getElementById(id)).find(node => node?.textContent === message);
+    .map(id => document.getElementById(id)).find(node => node?.textContent === reason);
   expect(error).toBeVisible();
   expect(error).toHaveAttribute('role', 'alert');
 }
@@ -41,6 +41,45 @@ describe('independent rejected pastes in the main calculator', () => {
     window.gtag = vi.fn();
   });
   afterEach(() => vi.restoreAllMocks());
+
+  it('rejects units incompatible with each field and shares only the corrected calculation', async () => {
+    const user = userEvent.setup();
+    render(<CalculatorForm initialValues={reference} initiallySubmitted />);
+    const originalUrl = window.location.href;
+    const amountError = 'Pega un importe en euros. Puedes usar € o EUR.';
+    const wrongUnits = [
+      ['net', 'USD 1,800.50', amountError],
+      ['expenses', '15 %', amountError],
+      ['other', 'CHF 20', amountError],
+      ['fee', '£320', amountError],
+      ['hours', '80 %', 'Pega solo el número de horas, sin moneda ni porcentaje.'],
+      ['irpf', '15 €', 'Pega un porcentaje con % o solo el número. Quita el símbolo o código de moneda.'],
+    ] as const;
+    for (const [key, text, reason] of wrongUnits) {
+      await paste(user, key, text);
+      expectRejected(key, reason);
+    }
+    expectNoResult();
+    await submit();
+    expect(field('net')).toHaveFocus();
+    expect(window.location.href).toBe(originalUrl);
+
+    await paste(user, 'net', '1.800,50 €');
+    expect(field('net')).toHaveAttribute('aria-invalid', 'false');
+    for (const [key, , reason] of wrongUnits.slice(1)) expectRejected(key, reason);
+    await paste(user, 'expenses', '250 EUR');
+    await paste(user, 'other', '0');
+    await paste(user, 'fee', '320 €');
+    await paste(user, 'hours', '80');
+    await paste(user, 'irpf', '15 %');
+    expectNoResult();
+    await submit();
+    expect(screen.getByRole('heading', { name: 'Tu referencia mensual para presupuestar' })).toBeVisible();
+    const query = new URL(window.location.href).searchParams;
+    expect(query.get('targetNet')).toBe('1800.5');
+    expect(query.get('billableHours')).toBe('80');
+    expect(query.get('irpfRate')).toBe('15');
+  });
 
   it('retains both immediate explanations before the first submission and removes only the edited field mark', async () => {
     const user = userEvent.setup();

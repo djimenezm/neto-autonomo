@@ -18,9 +18,9 @@ import {
   type CalculatorFormValues,
   type FieldName,
   getCalculationKey,
-  getNormalizedPastedValue,
   normalizeFieldValue,
   parseFormNumber as parseNumericValue,
+  readCalculatorPaste,
   validateForm,
 } from '@/lib/calculatorForm';
 import { ANNUAL_SMI_2026, REDUCED_FEE_2026 } from '@/lib/reducedFee2026';
@@ -117,13 +117,13 @@ export default function CalculatorForm({
   const resultRegionRef = useRef<HTMLElement | null>(null);
   const lastFocusedSubmission = useRef(0);
   const hasTrackedCostImport = useRef(false);
-  const [invalidPastedFields, setInvalidPastedFields] = useState<ReadonlySet<FieldName>>(() => new Set());
+  const [pasteErrors, setPasteErrors] = useState<ReadonlyMap<FieldName, string>>(() => new Map());
 
   function updateNumericValue(field: FieldName, value: string, setValue: (value: string) => void) {
     setValue(value);
-    setInvalidPastedFields((current) => {
+    setPasteErrors((current) => {
       if (!current.has(field)) return current;
-      const next = new Set(current);
+      const next = new Map(current);
       next.delete(field);
       return next;
     });
@@ -134,15 +134,15 @@ export default function CalculatorForm({
     field: FieldName,
     setValue: (value: string) => void,
   ) {
-    const normalizedValue = getNormalizedPastedValue(field, event.clipboardData.getData('text'));
+    const { value, error } = readCalculatorPaste(field, event.clipboardData.getData('text'));
     event.preventDefault();
-    if (normalizedValue === null) {
+    if (error !== null) {
       // Number inputs cannot retain malformed text. Clear the old number too,
       // so a rejected paste cannot silently leave a previous result shareable.
       setValue('');
-      setInvalidPastedFields((current) => new Set(current).add(field));
+      setPasteErrors((current) => new Map(current).set(field, error));
     } else {
-      updateNumericValue(field, normalizedValue, setValue);
+      updateNumericValue(field, value, setValue);
     }
   }
 
@@ -173,9 +173,9 @@ export default function CalculatorForm({
         irpfMode,
         selfEmployedFeeMode,
       );
-      for (const field of invalidPastedFields) {
+      for (const [field, message] of pasteErrors) {
         if (errors[field]) {
-          errors[field] = 'El formato del dato pegado no es válido. Pega un solo número y revisa los separadores.';
+          errors[field] = message;
         }
       }
       return errors;
@@ -189,19 +189,19 @@ export default function CalculatorForm({
       selfEmployedFee,
       irpfMode,
       selfEmployedFeeMode,
-      invalidPastedFields,
+      pasteErrors,
     ],
   );
 
   // Applying agenda hours withdraws the result, but does not undo earlier validation attempts.
   const hasAttemptedCalculation = initiallySubmitted || invalidSubmissionCount > 0 || validSubmissionCount > 0;
   const showFieldError = (field: FieldName) =>
-    (hasAttemptedCalculation || invalidPastedFields.has(field)) && Boolean(validationErrors[field]);
+    (hasAttemptedCalculation || pasteErrors.has(field)) && Boolean(validationErrors[field]);
   const parsedHours = parseNumericValue(billableHours);
   const hasValidationErrors = Object.keys(validationErrors).length > 0;
   const showHoursError =
     Boolean(validationErrors.billableHours) &&
-    (hasAttemptedCalculation || invalidPastedFields.has('billableHours')
+    (hasAttemptedCalculation || pasteErrors.has('billableHours')
       || (billableHours.trim() !== '' && Number.isFinite(parsedHours) && parsedHours <= 0));
 
   const calculationKey = getCalculationKey({
@@ -446,7 +446,7 @@ export default function CalculatorForm({
           )}
         </label>
         <BillableHoursPlanner onApply={(hours) => {
-          setBillableHours(String(hours));
+          updateNumericValue('billableHours', String(hours), setBillableHours);
           setAppliedHours(hours);
           setSubmitted(false);
           setShareUrl('');
