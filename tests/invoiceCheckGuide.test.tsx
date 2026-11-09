@@ -10,6 +10,7 @@ describe('single invoice check in the hourly guide', () => {
     expect(document.getElementById('ejemplo-cobro')).not.toBeNull();
     expect(document.getElementById('comprobar-cobro')).not.toBeNull();
     const editor = document.getElementById('comprobar-factura')!;
+    expect(screen.getByRole('link', { name: 'Comprobar base, IVA y retención' })).toHaveAttribute('href', `#${editor.id}`);
     const fields = within(editor).getAllByRole('textbox');
     expect(fields).toHaveLength(3);
     expect(fields.every((field) => (field as HTMLInputElement).value === '' && !field.hasAttribute('name'))).toBe(true);

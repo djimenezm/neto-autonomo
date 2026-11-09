@@ -213,7 +213,7 @@ export default function TarifaFreelancePorHoraPage() {
               <Link href={getExampleUrl(targetNet)} className="primary-button">
                 Ajustar este ejemplo a mis datos
               </Link>
-              <a href="#ejemplo-cobro" className="link-button">Comprobar base, IVA y retención</a>
+              <a href="#comprobar-factura" className="link-button">Comprobar base, IVA y retención</a>
               <a href="#descuento-tarifa" className="link-button">Comprobar una rebaja de tarifa</a>
             </div>
           </div>
@@ -425,7 +425,7 @@ export default function TarifaFreelancePorHoraPage() {
           </p>
           <div id="comprobar-factura" className={styles.invoiceCheck}>
             <h3 id="comprobar-cobro">Comprueba una factura con tu base y tus porcentajes</h3>
-            <p>Prepara la base sin IVA, antes de retención, y los porcentajes que correspondan a tu caso. Los tres campos empiezan vacíos; el ejemplo anterior no se aplica automáticamente a tus datos.</p>
+            <InvoiceCheck />
             <p>
               Si ya has escrito tus datos, puedes probar la factura ficticia de 1000 EUR y volver
               con «Recuperar mis datos de factura». Se recuperan los tres campos anteriores al
@@ -433,7 +433,6 @@ export default function TarifaFreelancePorHoraPage() {
               cambios actuales y retira el resultado: pulsa «Comprobar esta factura» para
               calcularlo de nuevo. La copia se pierde al salir o recargar la página.
             </p>
-            <InvoiceCheck />
             <p>
               Otro supuesto ficticio: {formatEuro(invoiceGuideExample.baseAmount)} de base con
               {' '}{formatNumber(invoiceGuideExample.vatRate)} % de IVA y
