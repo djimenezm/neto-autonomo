@@ -9,6 +9,18 @@ import styles from './WithholdingPreview.module.css';
 
 type Props = { baseAmount: number; vatAmount: number; context: 'monthly' | 'example' };
 
+function checkWithholdingRate(baseAmount: number, vatAmount: number, value: string) {
+  const withholdingRate = parseSpanishNumber(value, '%');
+  const estimate = previewWithholding({ baseAmount, vatAmount, withholdingRate });
+
+  if (!estimate.valid && estimate.field === 'withholdingRate'
+    && Number.isNaN(withholdingRate) && Number.isFinite(parseSpanishNumber(value))) {
+    return { ...estimate, error: 'Escribe un porcentaje con % o solo el número. Quita el símbolo o código de moneda.' };
+  }
+
+  return estimate;
+}
+
 function PreviewEditor({ baseAmount, vatAmount, context }: Props) {
   const id = useId();
   const input = useRef<HTMLInputElement>(null);
@@ -17,13 +29,13 @@ function PreviewEditor({ baseAmount, vatAmount, context }: Props) {
   const [hasAttemptedCheck, setHasAttemptedCheck] = useState(false);
   const [rateBeforeExample, setRateBeforeExample] = useState<string | null>(null);
   const [recoveryFeedback, setRecoveryFeedback] = useState('');
-  const result = checked ? previewWithholding({ baseAmount, vatAmount, withholdingRate: parseSpanishNumber(checked.rate) }) : null;
-  const validation = hasAttemptedCheck ? previewWithholding({ baseAmount, vatAmount, withholdingRate: parseSpanishNumber(rate) }) : null;
+  const result = checked ? checkWithholdingRate(baseAmount, vatAmount, checked.rate) : null;
+  const validation = hasAttemptedCheck ? checkWithholdingRate(baseAmount, vatAmount, rate) : null;
   const fieldError = validation && !validation.valid && validation.field === 'withholdingRate' ? validation.error : undefined;
 
   function check(nextRate = rate, isExample = checked?.isExample ?? false) {
     setRecoveryFeedback('');
-    const estimate = previewWithholding({ baseAmount, vatAmount, withholdingRate: parseSpanishNumber(nextRate) });
+    const estimate = checkWithholdingRate(baseAmount, vatAmount, nextRate);
     const normalizedRate = estimate.valid ? formatNumber(estimate.rateUsed) : nextRate;
     setHasAttemptedCheck(true);
     setRate(normalizedRate);

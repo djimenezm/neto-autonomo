@@ -51,7 +51,7 @@ describe('recurring-cost guide', () => {
     expect(table.textContent).toContain('700,00');
     expect(section.textContent).toContain('todos los pagos antes de cualquier cobro');
     expect(section.textContent).toContain('saldo mínimo real podría ser mayor');
-    expect(section.querySelectorAll('input:not([type="file"])')).toHaveLength(7);
+    expect(section.querySelectorAll('input:not([type="file"])')).toHaveLength(3);
     expect(section.querySelector('input[type="file"]')?.getAttribute('accept')).toBe('.json,application/json');
     expect(section.querySelector('#guardar-plan-caja')?.textContent).toBe('Conserva el plan para revisarlo otro día');
     expect(section.textContent).toContain('Antes de probar por primera vez las fechas ficticias');
@@ -61,7 +61,7 @@ describe('recurring-cost guide', () => {
     expect(section.textContent).toContain('Después de recuperarla, pulsa «Comprobar vencimientos» para actualizar los saldos');
     expect(section.textContent).toContain('Esta copia se pierde al salir o recargar; usa el archivo para conservar un plan comprobado');
     expect(section.textContent).toContain('Si el archivo no es válido, el plan actual se mantiene');
-    expect(section.querySelectorAll('select')).toHaveLength(3);
+    expect(section.querySelectorAll('select')).toHaveLength(1);
     expect(section.querySelector('form')).toBeNull();
     expect(section.querySelectorAll('[name]')).toHaveLength(0);
     expect(document.querySelector('a[href="#vencimientos-caja"]')?.textContent).toBe('Revisar cobros y pagos por fecha');

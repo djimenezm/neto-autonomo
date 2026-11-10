@@ -85,6 +85,41 @@ describe('current feedback while editing a monthly net forecast', () => {
     expect(screen.queryByText(pendingText)).not.toBeInTheDocument();
   });
 
+  it('rejects pasted foreign currency and percentages until the forecast is entered in euros', async () => {
+    const user = userEvent.setup();
+    render(<Preview reference={reference} />);
+    await user.click(field());
+    await user.paste('2500 USD');
+    await user.click(screen.getByRole('button', { name: 'Estimar neto con esta facturación' }));
+
+    const unitError = /Introduce la facturación en euros/;
+    expect(field()).toHaveFocus();
+    expect(field()).toHaveValue('2500 USD');
+    expect(field()).toHaveAttribute('aria-invalid', 'true');
+    expect(field()).toHaveAccessibleDescription(unitError);
+    expectNoEstimate();
+
+    await user.clear(field());
+    await user.paste('15 %');
+    await user.keyboard('{Enter}');
+    expect(field()).toHaveFocus();
+    expect(field()).toHaveValue('15 %');
+    expect(field()).toHaveAttribute('aria-invalid', 'true');
+    expect(field()).toHaveAccessibleDescription(unitError);
+    expectNoEstimate();
+
+    for (const valid of ['2.500,00 €', 'EUR 2.500,00']) {
+      await user.clear(field());
+      await user.paste(valid);
+      expect(field()).toHaveAttribute('aria-invalid', 'false');
+      expect(status()).toHaveTextContent(pendingText);
+      expectNoEstimate();
+      await user.keyboard('{Enter}');
+      expect(field()).toHaveValue('2500');
+      expect(status()).toHaveTextContent('1598,00');
+    }
+  });
+
   it('resets attempted validation when recovering the raw forecast and when a changed reference starts a new editor', async () => {
     const { rerender } = render(<Preview reference={reference} />);
     const raw = ' -10,125 ';

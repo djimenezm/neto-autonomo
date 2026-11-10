@@ -80,6 +80,39 @@ describe('current feedback while editing a withholding percentage', () => {
     expect(result()).not.toHaveTextContent('Retención ficticia');
   });
 
+  it('rejects pasted currency until the withholding is entered as a percentage', async () => {
+    const user = userEvent.setup();
+    render(<Preview {...reference} />);
+    await user.click(field());
+    await user.paste('15 €');
+    await user.click(screen.getByRole('button', { name: 'Comprobar importe a cobrar' }));
+
+    const unitError = /Quita el símbolo o código de moneda/;
+    expect(field()).toHaveFocus();
+    expect(field()).toHaveValue('15 €');
+    expect(field()).toHaveAttribute('aria-invalid', 'true');
+    expect(field()).toHaveAccessibleDescription(unitError);
+    expectNoReceipt();
+
+    await user.clear(field());
+    await user.paste('USD 15');
+    await user.keyboard('{Enter}');
+    expect(field()).toHaveFocus();
+    expect(field()).toHaveValue('USD 15');
+    expect(field()).toHaveAttribute('aria-invalid', 'true');
+    expect(field()).toHaveAccessibleDescription(unitError);
+    expectNoReceipt();
+
+    await user.clear(field());
+    await user.paste('15 %');
+    expect(field()).toHaveAttribute('aria-invalid', 'false');
+    expect(result()).toHaveTextContent(pendingText);
+    expectNoReceipt();
+    await user.keyboard('{Enter}');
+    expect(field()).toHaveValue('15');
+    expect(result()).toHaveTextContent('= 1060,00');
+  });
+
   it('resets attempted validation on raw recovery or a changed reference while an equivalent reference retains the draft', async () => {
     const { rerender } = render(<Preview {...reference} />);
     const raw = ' -1,125 % ';

@@ -8,6 +8,20 @@ import { formatCurrency, formatNumber } from '@/lib/format';
 import { parseSpanishNumber } from '@/lib/spanishNumber';
 import styles from './MonthlyNetPreview.module.css';
 
+function estimateNetFromText(reference: NetPreviewReference, value: string) {
+  const monthlyBilling = parseSpanishNumber(value, 'EUR');
+  const estimate = estimateMonthlyNet(reference, monthlyBilling);
+
+  if (!estimate.valid && Number.isNaN(monthlyBilling) && Number.isFinite(parseSpanishNumber(value))) {
+    return {
+      ...estimate,
+      errors: { ...estimate.errors, monthlyBilling: 'Introduce la facturación en euros. Puedes usar € o EUR.' },
+    };
+  }
+
+  return estimate;
+}
+
 function NetEditor({ reference }: { reference: NetPreviewReference }) {
   const id = useId();
   const input = useRef<HTMLInputElement>(null);
@@ -17,12 +31,12 @@ function NetEditor({ reference }: { reference: NetPreviewReference }) {
   const [isExample, setIsExample] = useState(false);
   const [billingBeforeExample, setBillingBeforeExample] = useState<string | null>(null);
   const [recoveryFeedback, setRecoveryFeedback] = useState('');
-  const validation = hasAttemptedCheck ? estimateMonthlyNet(reference, parseSpanishNumber(value)) : null;
+  const validation = hasAttemptedCheck ? estimateNetFromText(reference, value) : null;
   const error = validation && !validation.valid ? validation.errors.monthlyBilling : undefined;
 
   function check(nextValue = value) {
     setRecoveryFeedback('');
-    const result = estimateMonthlyNet(reference, parseSpanishNumber(nextValue));
+    const result = estimateNetFromText(reference, nextValue);
     setHasAttemptedCheck(true);
     setEstimate(result);
     if (result.valid) setValue(formatNumber(result.monthlyBilling));
