@@ -104,6 +104,50 @@ describe('current validation while correcting the three-month cash plan', () => 
     expectNoBalances();
   });
 
+  it('rejects mismatched units independently in the balance, receipts and payments', async () => {
+    const user = userEvent.setup();
+    const euroMessage = 'Introduce un importe en euros. Puedes usar € o EUR.';
+    render(<Planner />);
+    write({ initialBalance: '100', months: zeroMonths() });
+    await check();
+    expect(within(result()).getByText('Saldo al cierre del tercer mes').nextElementSibling).toHaveTextContent('100,00');
+
+    const receipts = field('receipts', 1);
+    const payments = field('payments', 2);
+    await user.click(initial());
+    initial().select();
+    await user.paste('100 USD');
+    expectNoBalances();
+    change(receipts, '15 %');
+    change(payments, '50 GBP');
+    await check();
+    expect(initial()).toHaveFocus();
+    expect(initial()).toHaveValue('100 USD');
+    expect(receipts).toHaveValue('15 %');
+    expect(payments).toHaveValue('50 GBP');
+    expect(invalidFields()).toEqual([initial(), receipts, payments]);
+    for (const input of [initial(), receipts, payments]) {
+      expect(input).toHaveAccessibleDescription(expect.stringContaining(euroMessage));
+    }
+    expectNoBalances();
+
+    change(initial(), '-100 EUR');
+    expect(invalidFields()).toEqual([receipts, payments]);
+    await check();
+    expect(receipts).toHaveFocus();
+    change(receipts, '15 €');
+    expect(invalidFields()).toEqual([payments]);
+    await check();
+    expect(payments).toHaveFocus();
+    change(payments, '50 EUR');
+    expect(invalidFields()).toHaveLength(0);
+    expect(pending()).toBeVisible();
+    expectNoBalances();
+
+    await check();
+    expect(within(result()).getByText('Saldo al cierre del tercer mes').nextElementSibling).toHaveTextContent('-135,00');
+  });
+
   it('keeps raw precision until an explicit check, withdraws the previous table on editing and recomputes only with Enter', async () => {
     render(<Planner />);
     const raw: Values = { initialBalance: ' 1,005 € ', months: [{ receipts: '0,105', payments: '0,015' }, { receipts: '0', payments: '0' }, { receipts: '0', payments: '0' }] };

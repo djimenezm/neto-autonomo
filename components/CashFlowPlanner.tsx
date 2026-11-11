@@ -12,9 +12,40 @@ const fields = [
   { key: 'receipts', label: 'Cobros previstos', hint: 'Dinero que esperas recibir en la cuenta ese mes, con IVA y retenciones ya reflejados cuando correspondan. Una factura sin cobrar no es una entrada.' },
   { key: 'payments', label: 'Pagos previstos', hint: 'Todo lo que saldrá de la cuenta ese mes: actividad, cuota, impuestos y retiradas personales. Cuenta cada salida una vez.' },
 ] as const;
+const euroUnitError = 'Introduce un importe en euros. Puedes usar € o EUR.';
+
+function hasMismatchedUnit(value: string, parsed: number) {
+  return Number.isNaN(parsed) && Number.isFinite(parseSpanishNumber(value));
+}
 
 function checkCash(values: Values) {
-  return planCash({ initialBalance: parseSpanishNumber(values.initialBalance), months: values.months.map((month) => ({ receipts: parseSpanishNumber(month.receipts), payments: parseSpanishNumber(month.payments) })) });
+  const input = {
+    initialBalance: parseSpanishNumber(values.initialBalance, 'EUR'),
+    months: values.months.map(({ receipts, payments }) => ({
+      receipts: parseSpanishNumber(receipts, 'EUR'),
+      payments: parseSpanishNumber(payments, 'EUR'),
+    })),
+  };
+  const checked = planCash(input);
+  if (checked.valid) return checked;
+
+  const { errors } = checked;
+  return {
+    ...checked,
+    errors: {
+      ...errors,
+      initialBalance: hasMismatchedUnit(values.initialBalance, input.initialBalance) ? euroUnitError : errors.initialBalance,
+      rows: errors.rows.map((rowErrors, index) => {
+        const nextErrors = { ...rowErrors };
+        for (const { key } of fields) {
+          if (hasMismatchedUnit(values.months[index][key], input.months[index][key])) {
+            nextErrors[key] = euroUnitError;
+          }
+        }
+        return nextErrors;
+      }),
+    },
+  };
 }
 
 export default function CashFlowPlanner() {
@@ -68,7 +99,7 @@ export default function CashFlowPlanner() {
 
   return (
     <div className={styles.planner}>
-      <p>Tú eliges a qué tres meses consecutivos corresponden Mes 1, Mes 2 y Mes 3. Usamos movimientos de la cuenta, no bases de facturas ni medias de gastos.</p>
+      <p>Tú eliges a qué tres meses consecutivos corresponden Mes 1, Mes 2 y Mes 3. Usamos movimientos de la cuenta, no bases de facturas ni medias de gastos. Puedes pegar importes con € o EUR.</p>
       <noscript><p>La ayuda necesita JavaScript. Puedes seguir la tabla del ejemplo ficticio de esta página.</p></noscript>
       <div onKeyDown={(event) => { if (event.key === 'Enter' && event.target instanceof HTMLInputElement) { event.preventDefault(); check(); } }}>
         <label className={styles.initial}>
