@@ -46,6 +46,25 @@ describe('net from a different monthly billing with fixed costs and contribution
     expect(estimateMonthlyNet(reference, 1.005)).toMatchObject({ valid: true, monthlyBilling: 1.01, estimatedIRPF: 0.51, estimatedNet: 0.5 });
   });
 
+  it.each([
+    [125, 5.004, 6.26],
+    [1_000_000, 5e-7, 0.01],
+  ])('rounds the reserve for %s EUR at %s percent only after applying the full rate', (billing, irpfRate, estimatedIRPF) => {
+    const reference = { ...monthlyNetExampleReference, monthlyExpenses: 0, selfEmployedFee: 0, irpfRate };
+    expect(estimateMonthlyNet(reference, billing)).toMatchObject({ valid: true, estimatedIRPF });
+  });
+
+  it.each([
+    [98.995, 298977.46, 295507.46],
+    [99, 300470, 297000],
+  ])('reproduces a calculation with a manual reserve of %s percent', (irpfRate, monthlyBilling, estimatedIRPF) => {
+    const original = calculateExample(3000, { irpfRate, monthlyExpenses: 150 });
+    expect(original.billingWithoutVAT).toBe(monthlyBilling);
+    expect(estimateMonthlyNet(netReferenceFromResult(original), monthlyBilling)).toMatchObject({
+      valid: true, estimatedIRPF, estimatedNet: 3000, netDifference: 0,
+    });
+  });
+
   it.each([Number.NaN, -1, Infinity, 1e14])('rejects invalid or unsafe billing: %s', (billing) => {
     const result = estimateMonthlyNet(monthlyNetExampleReference, billing);
     expect(result.valid).toBe(false);

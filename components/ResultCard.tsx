@@ -2,7 +2,7 @@
 
 import { forwardRef, useMemo, useRef, useState, type ReactNode } from 'react';
 import { AUTONOMOUS_COMMUNITY_LABELS, type CalculationResult, type CalculatorInput } from '@/lib/calculator';
-import { formatCurrency, formatNumber } from '@/lib/format';
+import { formatCurrency, formatNumber, formatPreciseNumber } from '@/lib/format';
 import BillingBreakdown from '@/components/BillingBreakdown';
 import MonthlyNetPreview from '@/components/MonthlyNetPreview';
 import MonthlyProjectPlanner from '@/components/MonthlyProjectPlanner';
@@ -145,7 +145,7 @@ const ResultCard = forwardRef<HTMLElement, ResultCardProps>(function ResultCard(
           ? `IVA simulado al 21 % (aparte del neto): ${formatCurrency(result.estimatedVAT)}`
           : 'IVA: no incluido en esta simulación',
         result.irpfMode === 'manual'
-          ? `Criterio de IRPF: reserva manual del ${formatNumber(result.irpfRate)} % sobre el beneficio de la simulación; no es retención de una factura.`
+          ? `Criterio de IRPF: reserva manual del ${formatPreciseNumber(result.irpfRate)} % sobre el beneficio de la simulación; no es retención de una factura.`
           : 'Criterio de IRPF: estimación progresiva simplificada.',
         `Reserva estimada de IRPF: ${formatCurrency(result.estimatedIRPF)} al mes`,
         `Cuota de autónomos aplicada: ${formatCurrency(result.selfEmployedFee)} al mes`,
@@ -399,7 +399,7 @@ const ResultCard = forwardRef<HTMLElement, ResultCardProps>(function ResultCard(
         {result.irpfMode === 'manual' ? (
           <>
             {' '}
-            En este escenario usamos un IRPF manual del <strong>{formatNumber(result.irpfRate)}%</strong> y un
+            En este escenario usamos un IRPF manual del <strong>{formatPreciseNumber(result.irpfRate)}%</strong> y un
             beneficio previo de <strong>{formatCurrency(result.preTaxProfit)}</strong>.
           </>
         ) : (

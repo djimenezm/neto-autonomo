@@ -16,6 +16,15 @@ function toHundredths(value: number) {
   return Math.round(Number(`${coefficient}e${Number(exponent) + 2}`));
 }
 
+function roundManualReserveCents(profitCents: number, percentage: number) {
+  const [coefficient, exponent = '0'] = String(percentage).split('e');
+  const decimalPlaces = coefficient.split('.')[1]?.length ?? 0;
+  const divisor = BigInt(10) ** BigInt(decimalPlaces - Number(exponent) + 2);
+  const numerator = BigInt(profitCents) * BigInt(coefficient.replace('.', ''));
+  // Round exact half-cents up without rounding the percentage or using a binary fraction.
+  return Number((numerator + divisor / BigInt(2)) / divisor);
+}
+
 export function estimateMonthlyNet(reference: NetPreviewReference, monthlyBilling: number) {
   const errors: { monthlyBilling?: string; reference?: string } = {};
   const billingCents = toHundredths(monthlyBilling);
@@ -23,7 +32,6 @@ export function estimateMonthlyNet(reference: NetPreviewReference, monthlyBillin
   const feeCents = toHundredths(reference.selfEmployedFee);
   const otherCostsCents = toHundredths(reference.monthlyNonDeductibleExpenses);
   const targetCents = toHundredths(reference.targetNet);
-  const rateTicks = toHundredths(reference.irpfRate);
   if (!Number.isFinite(monthlyBilling) || monthlyBilling < 0 || !Number.isSafeInteger(billingCents)) {
     errors.monthlyBilling = 'Indica una facturación mensual válida de cero o más euros, sin IVA.';
   }
@@ -38,15 +46,16 @@ export function estimateMonthlyNet(reference: NetPreviewReference, monthlyBillin
 
   const preTaxCents = billingCents - expensesCents - feeCents;
   const positiveProfitCents = Math.max(0, preTaxCents);
+  // Keep the existing limit for large inputs independently of the rate used below.
   if (!Number.isSafeInteger(positiveProfitCents * 12)
-    || (reference.irpfMode === 'manual' && !Number.isSafeInteger(positiveProfitCents * rateTicks))) {
+    || (reference.irpfMode === 'manual' && !Number.isSafeInteger(positiveProfitCents * toHundredths(reference.irpfRate)))) {
     errors.monthlyBilling = 'El importe es demasiado grande para estimar la reserva con precisión.';
     return { valid: false, errors } as const;
   }
   // Reuse the existing annual IRPF model. The contribution is a fixed scenario
   // assumption: no inverse contribution-band solver or new fiscal rules.
   const irpfCents = reference.irpfMode === 'manual'
-    ? Math.round(positiveProfitCents * rateTicks / 10000)
+    ? roundManualReserveCents(positiveProfitCents, reference.irpfRate)
     : toHundredths(calculateSimplifiedAnnualIRPF(positiveProfitCents * 12 / 100, reference.autonomousCommunity).annualIRPF / 12);
   const netCents = preTaxCents - irpfCents - otherCostsCents;
   const differenceCents = netCents - targetCents;

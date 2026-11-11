@@ -1,7 +1,8 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import Preview from '@/components/MonthlyNetPreview';
 import CalculatorForm from '@/components/CalculatorForm';
+import { readCalculatorQuery } from '@/lib/calculatorQuery';
 import { monthlyNetExampleReference as reference } from '@/lib/monthlyNetExample';
 
 const label = 'Facturación mensual prevista sin IVA (EUR)';
@@ -94,5 +95,31 @@ describe('monthly net preview', () => {
     expect(screen.getByRole('textbox', { name: label })).not.toHaveAttribute('name');
     expect(screen.getByRole('link', { name: 'Ver el ejemplo de neto según facturación' })).toHaveAttribute('href', '/tarifa-freelance-por-hora#neto-segun-facturacion');
     expect(window.va).not.toHaveBeenCalled(); expect(window.gtag).not.toHaveBeenCalled();
+  });
+
+  it('keeps the full manual reserve when estimating from a shared calculation', async () => {
+    const user = userEvent.setup();
+    const shared = new URL('https://www.cuantofacturar.es/?targetNet=3000&monthlyExpenses=150&billableHours=80&irpfMode=manual&irpfRate=15.005&selfEmployedFeeMode=manual&selfEmployedFee=320#calculadora');
+    render(<CalculatorForm
+      initiallySubmitted
+      initialValues={readCalculatorQuery((key) => shared.searchParams.get(key) ?? undefined)}
+      initialShareUrl={shared.href}
+    />);
+    expect(screen.getByText('Facturación objetivo sin IVA').nextElementSibling).toHaveTextContent('3999,62');
+
+    await user.click(screen.getByText('Estimar qué neto dejaría otra facturación'));
+    expect(screen.getByText(/IRPF: mantenemos tu reserva manual/)).toHaveTextContent('15,005 %');
+    const field = screen.getByRole('textbox', { name: label });
+    await user.type(field, '3999,62{Enter}');
+    const preview = within(screen.getByRole('status', status));
+    expect(preview.getByText('Reserva estimada de IRPF recalculada').nextElementSibling).toHaveTextContent('529,62');
+    expect(preview.getByText('Neto orientativo con estos supuestos').nextElementSibling).toHaveTextContent('3000,00');
+    expect(preview.getByText('Diferencia frente al neto objetivo').nextElementSibling).toHaveTextContent('0,00');
+    expect(preview.getByText('Coincide con tu objetivo mensual.')).toBeVisible();
+
+    await user.clear(field);
+    await user.type(field, '4500{Enter}');
+    expect(preview.getByText('Reserva estimada de IRPF recalculada').nextElementSibling).toHaveTextContent('604,70');
+    expect(preview.getByText('Neto orientativo con estos supuestos').nextElementSibling).toHaveTextContent('3425,30');
   });
 });

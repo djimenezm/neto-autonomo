@@ -324,7 +324,7 @@ export function calculateFreelanceBilling({
     reducedFeePeriod,
     irpfMode,
     autonomousCommunity,
-    irpfRate: roundToTwo(irpfMode === 'manual' ? safeIrpfRatePercent : effectiveIrpfRate),
+    irpfRate: irpfMode === 'manual' ? safeIrpfRatePercent : roundToTwo(effectiveIrpfRate),
     annualPreTaxProfit: roundToTwo(annualPreTaxProfit),
     annualEstimatedIRPF: roundToTwo(annualEstimatedIRPF),
     annualTaxableIrpfBase: roundToTwo(annualStateTaxableBase),

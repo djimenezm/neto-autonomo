@@ -4,7 +4,7 @@ import { useId, useRef, useState } from 'react';
 import NumericTextInput from '@/components/NumericTextInput';
 import { AUTONOMOUS_COMMUNITY_LABELS, type CalculatorInput } from '@/lib/calculator';
 import { compareMonthlyScenarios, getScenarioPath, type MonthlyAlternative } from '@/lib/monthlyScenarios';
-import { formatCurrency, formatNumber } from '@/lib/format';
+import { formatCurrency, formatNumber, formatPreciseNumber } from '@/lib/format';
 import { parseSpanishNumber } from '@/lib/spanishNumber';
 import styles from './MonthlyScenarioComparator.module.css';
 
@@ -13,7 +13,6 @@ const fields = [
   { key: 'billableHours', label: 'Horas facturables del escenario alternativo (mes)', hint: 'Horas enteras que prevés vender, después de descontar gestión y descansos.' },
 ] as const;
 type Values = Record<keyof MonthlyAlternative, string>;
-const preciseNumber = new Intl.NumberFormat('es-ES', { maximumSignificantDigits: 21 });
 
 function checkAlternative(reference: CalculatorInput, values: Values) {
   return compareMonthlyScenarios(reference, {
@@ -42,7 +41,7 @@ function ComparisonEditor({ reference }: { reference: CalculatorInput }) {
     const result = checkAlternative(reference, next);
     setHasAttemptedComparison(true);
     if (result.valid) {
-      const normalized = { monthlyExpenses: preciseNumber.format(result.alternativeInput.monthlyExpenses), billableHours: String(result.alternativeInput.billableHours) };
+      const normalized = { monthlyExpenses: formatPreciseNumber(result.alternativeInput.monthlyExpenses), billableHours: String(result.alternativeInput.billableHours) };
       setValues(normalized);
       setChecked(normalized);
     } else {
@@ -58,7 +57,7 @@ function ComparisonEditor({ reference }: { reference: CalculatorInput }) {
     if (!usesStartingValues && Object.values(values).some((value) => value.trim() !== '')) {
       setAlternativeBeforeLoad((previous) => previous ?? { ...values });
     }
-    setValues({ monthlyExpenses: preciseNumber.format(reference.monthlyExpenses), billableHours: String(reference.billableHours) });
+    setValues({ monthlyExpenses: formatPreciseNumber(reference.monthlyExpenses), billableHours: String(reference.billableHours) });
     setChecked(null);
     setHasAttemptedComparison(false);
     setUsesStartingValues(true);
@@ -84,7 +83,7 @@ function ComparisonEditor({ reference }: { reference: CalculatorInput }) {
       </p>
       <p>Se mantienen los costes no deducibles ({formatCurrency(reference.monthlyNonDeductibleExpenses ?? 0)}/mes), el IVA {reference.hasIVA ? 'activado' : 'desactivado'}, la comunidad de {AUTONOMOUS_COMMUNITY_LABELS[reference.autonomousCommunity ?? 'common']} y estos criterios:</p>
       <ul>
-        <li>IRPF: {reference.irpfMode === 'manual' ? `reserva manual del ${preciseNumber.format(reference.irpfRate)} %` : 'estimación progresiva del mismo motor'}.</li>
+        <li>IRPF: {reference.irpfMode === 'manual' ? `reserva manual del ${formatPreciseNumber(reference.irpfRate)} %` : 'estimación progresiva del mismo motor'}.</li>
         <li>Cuota: {reference.selfEmployedFeeMode === 'manual' ? `manual de ${formatCurrency(reference.selfEmployedFee)}/mes` : reference.selfEmployedFeeMode === 'reduced' ? `reducida, ${reference.reducedFeePeriod === 'extended' ? 'prórroga' : 'periodo inicial'}` : 'automática por rendimientos'}.</li>
       </ul>
       <noscript><p>La comparación interactiva necesita JavaScript. Puedes consultar el <a href="/tabla-cuanto-facturar-autonomo#comparar-escenarios">ejemplo de gastos y horas</a>.</p></noscript>

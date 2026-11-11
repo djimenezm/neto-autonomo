@@ -321,6 +321,8 @@ export default function TarifaFreelancePorHoraPage() {
             comprobación recorre la cuenta desde una facturación prevista: resta los mismos gastos
             deducibles y cuota, estima de nuevo la reserva de IRPF y descuenta los costes no deducibles.
             La cuota se mantiene como supuesto, aunque antes la hayas obtenido en modo automático.
+            Si elegiste una reserva manual, aplicamos el porcentaje con los decimales del cálculo
+            de partida y redondeamos a céntimos el importe de la reserva.
           </p>
           <h3>Ejemplo ficticio: se mantiene el coste, cambia lo facturado</h3>
           <p>

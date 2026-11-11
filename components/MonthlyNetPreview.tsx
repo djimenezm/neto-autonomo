@@ -4,7 +4,7 @@ import { useId, useRef, useState } from 'react';
 import NumericTextInput from '@/components/NumericTextInput';
 import { AUTONOMOUS_COMMUNITY_LABELS } from '@/lib/calculator';
 import { estimateMonthlyNet, type NetPreviewReference } from '@/lib/monthlyNet';
-import { formatCurrency, formatNumber } from '@/lib/format';
+import { formatCurrency, formatNumber, formatPreciseNumber } from '@/lib/format';
 import { parseSpanishNumber } from '@/lib/spanishNumber';
 import styles from './MonthlyNetPreview.module.css';
 
@@ -63,7 +63,7 @@ function NetEditor({ reference }: { reference: NetPreviewReference }) {
         {' '}El objetivo de comparación sigue siendo <strong>{formatCurrency(reference.targetNet)} netos al mes</strong>.
       </p>
       <p>{reference.irpfMode === 'manual'
-        ? `IRPF: mantenemos tu reserva manual del ${formatNumber(reference.irpfRate)} % sobre el beneficio positivo, no sobre la facturación.`
+        ? `IRPF: mantenemos tu reserva manual del ${formatPreciseNumber(reference.irpfRate)} % sobre el beneficio positivo, no sobre la facturación.`
         : `IRPF: usamos la misma estimación progresiva de la calculadora para ${AUTONOMOUS_COMMUNITY_LABELS[reference.autonomousCommunity]}; cambia la reserva al cambiar el beneficio.`}</p>
       <p>Proyectamos doce meses iguales. La cuota indicada permanece fija aunque proceda del modo automático o reducido; esta ayuda no recalcula cotizaciones ni comprueba el derecho a una reducción.</p>
       <noscript><p>La ayuda necesita JavaScript. Puedes consultar el <a href="/tarifa-freelance-por-hora#neto-segun-facturacion">ejemplo de neto según facturación</a>.</p></noscript>
@@ -110,7 +110,7 @@ function NetEditor({ reference }: { reference: NetPreviewReference }) {
             </dl>
             <p>{estimate.netDifference < 0 ? `Queda ${formatCurrency(-estimate.netDifference)} por debajo de tu objetivo mensual.` : estimate.netDifference > 0 ? `Queda ${formatCurrency(estimate.netDifference)} por encima de tu objetivo mensual.` : 'Coincide con tu objetivo mensual.'}</p>
             {estimate.estimatedNet < 0 ? <p className={styles.shortfall}><strong>Hay un déficit de {formatCurrency(-estimate.estimatedNet)} tras estas partidas.</strong> No es dinero disponible. Un beneficio negativo no genera una reserva de IRPF negativa ni una devolución en esta ayuda.</p> : null}
-            <p>La cuenta usa importes y reserva mensual redondeados a céntimos. Al partir de cifras ya redondeadas, reproducir el objetivo inicial puede dar un céntimo de diferencia. No suma IVA ni descuenta retenciones o anticipos del neto: no es un calendario de cobros.</p>
+            <p>Redondeamos los importes a céntimos. Si introduces la facturación que ves en el resultado inicial, puede haber pequeñas diferencias por ese redondeo. No suma IVA ni descuenta retenciones o anticipos del neto: no es un calendario de cobros.</p>
           </div>
         ) : null}
       </div>

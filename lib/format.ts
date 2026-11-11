@@ -9,3 +9,9 @@ export function formatCurrency(value: number) {
 export function formatNumber(value: number, maximumFractionDigits = 2) {
   return new Intl.NumberFormat('es-ES', { maximumFractionDigits }).format(value);
 }
+
+const preciseNumber = new Intl.NumberFormat('es-ES', { maximumSignificantDigits: 21 });
+
+export function formatPreciseNumber(value: number) {
+  return preciseNumber.format(value);
+}
