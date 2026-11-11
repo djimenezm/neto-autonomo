@@ -1,6 +1,7 @@
 import { render, screen, within } from '@testing-library/react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { calculateFreelanceBilling } from '@/lib/calculator';
+import { readCalculatorQuery } from '@/lib/calculatorQuery';
 import { ANNUAL_SMI_2026, isBelowAnnualSMI, reducedFeeSources } from '@/lib/reducedFee2026';
 import { reducedFeeExamples } from '@/lib/reducedFeeExamples';
 import ResultCard from '@/components/ResultCard';
@@ -73,6 +74,35 @@ describe('reduced fee and annual extension comparison', () => {
     expect(url.searchParams.get('irpfRate')).toBe('15');
     expect(url.searchParams.get('hasIVA')).toBe('yes');
     expect(url.hash).toBe('#calculadora');
+  });
+
+  it('keeps the original contribution bracket when opening the ordinary-fee link from a shared calculation', () => {
+    const shared = new URL('https://www.cuantofacturar.es/?targetNet=1553.6721&monthlyExpenses=150&billableHours=80&irpfMode=manual&irpfRate=15.005&selfEmployedFeeMode=reduced&reducedFeePeriod=extended#calculadora');
+    const { unmount } = render(<CalculatorForm
+      initiallySubmitted
+      initialValues={readCalculatorQuery((key) => shared.searchParams.get(key) ?? undefined)}
+      initialShareUrl={shared.href}
+    />);
+    const link = screen.getByRole('link', { name: 'Ver el mismo cálculo con cuota ordinaria' });
+    const ordinary = new URL(link.getAttribute('href')!, shared);
+    expect(Object.fromEntries(ordinary.searchParams)).toMatchObject({
+      targetNet: '1553.6721',
+      monthlyExpenses: '150',
+      billableHours: '80',
+      irpfMode: 'manual',
+      irpfRate: '15.005',
+      selfEmployedFeeMode: 'auto',
+    });
+    expect(ordinary.hash).toBe('#calculadora');
+
+    unmount();
+    render(<CalculatorForm
+      initiallySubmitted
+      initialValues={readCalculatorQuery((key) => ordinary.searchParams.get(key) ?? undefined)}
+      initialShareUrl={ordinary.href}
+    />);
+    expect(screen.getByText('Cuota de autónomos aplicada').nextElementSibling).toHaveTextContent('360,29');
+    expect(screen.getByText('Facturación objetivo sin IVA').nextElementSibling).toHaveTextContent('2338,25');
   });
 
   it('does not apply the extension warning to the initial period', () => {

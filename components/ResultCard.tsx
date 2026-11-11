@@ -124,6 +124,7 @@ const ResultCard = forwardRef<HTMLElement, ResultCardProps>(function ResultCard(
   ref,
 ) {
   const [copyStatus, setCopyStatus] = useState<CopyStatus>('idle');
+  const scenarioReference = comparisonReference ?? inputFromResult(result, hoursBillable, hasIVA);
   const autonomousCommunityLabel = AUTONOMOUS_COMMUNITY_LABELS[result.autonomousCommunity];
   const { lowerExclusive, upperInclusive } = result.estimatedContributionBracket;
   const contributionBracketRange = [
@@ -223,7 +224,7 @@ const ResultCard = forwardRef<HTMLElement, ResultCardProps>(function ResultCard(
         Usa el objetivo mensual como referencia para preparar tus presupuestos.
       </p>
 
-      <ReducedFeeNotice result={result} billableHours={hoursBillable} hasIVA={hasIVA} />
+      <ReducedFeeNotice result={result} reference={scenarioReference} />
 
       <div className="result-grid">
         <div className="result-item">
@@ -305,7 +306,7 @@ const ResultCard = forwardRef<HTMLElement, ResultCardProps>(function ResultCard(
 
       <details className={breakdownStyles.disclosure}>
         <summary>Comparar cambios en mis gastos y horas</summary>
-        <MonthlyScenarioComparator reference={comparisonReference ?? inputFromResult(result, hoursBillable, hasIVA)} />
+        <MonthlyScenarioComparator reference={scenarioReference} />
         <a href="/tabla-cuanto-facturar-autonomo#comparar-escenarios">Ver un ejemplo de comparación de escenarios</a>
       </details>
 

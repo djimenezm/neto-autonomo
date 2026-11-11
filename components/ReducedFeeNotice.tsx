@@ -1,11 +1,11 @@
-import type { CalculationResult } from '@/lib/calculator';
-import { getScenarioPath, inputFromResult } from '@/lib/monthlyScenarios';
+import type { CalculationResult, CalculatorInput } from '@/lib/calculator';
+import { getScenarioPath } from '@/lib/monthlyScenarios';
 import { formatCurrency } from '@/lib/format';
 import styles from './ReducedFeeNotice.module.css';
 
-export default function ReducedFeeNotice({ result, billableHours, hasIVA }: { result: CalculationResult; billableHours: number; hasIVA: boolean }) {
+export default function ReducedFeeNotice({ result, reference }: { result: CalculationResult; reference: CalculatorInput }) {
   if (result.selfEmployedFeeMode !== 'reduced' || result.reducedFeePeriod !== 'extended') return null;
-  const ordinaryPath = getScenarioPath({ ...inputFromResult(result, billableHours, hasIVA), selfEmployedFeeMode: 'auto' });
+  const ordinaryPath = getScenarioPath({ ...reference, selfEmployedFeeMode: 'auto' });
   return (
     <aside className={styles.notice} role="note" aria-label="Revisión de la prórroga de cuota reducida">
       <strong>Prórroga: compara importes anuales</strong>
