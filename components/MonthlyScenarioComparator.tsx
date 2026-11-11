@@ -9,15 +9,36 @@ import { parseSpanishNumber } from '@/lib/spanishNumber';
 import styles from './MonthlyScenarioComparator.module.css';
 
 const fields = [
-  { key: 'monthlyExpenses', label: 'Gastos deducibles del escenario alternativo (EUR/mes)', hint: 'El total mensual alternativo, no solo el incremento. No añadas aquí la cuota de autónomos ni costes no deducibles.' },
-  { key: 'billableHours', label: 'Horas facturables del escenario alternativo (mes)', hint: 'Horas enteras que prevés vender, después de descontar gestión y descansos.' },
+  {
+    key: 'monthlyExpenses',
+    label: 'Gastos deducibles del escenario alternativo (EUR/mes)',
+    hint: 'El total mensual alternativo, no solo el incremento. No añadas aquí la cuota de autónomos ni costes no deducibles.',
+    unitError: 'Introduce un importe en euros. Puedes usar € o EUR.',
+  },
+  {
+    key: 'billableHours',
+    label: 'Horas facturables del escenario alternativo (mes)',
+    hint: 'Horas enteras que prevés vender, después de descontar gestión y descansos.',
+    unitError: 'Escribe solo el número de horas, sin moneda ni porcentaje.',
+  },
 ] as const;
 type Values = Record<keyof MonthlyAlternative, string>;
 
 function checkAlternative(reference: CalculatorInput, values: Values) {
-  return compareMonthlyScenarios(reference, {
-    monthlyExpenses: parseSpanishNumber(values.monthlyExpenses), billableHours: parseSpanishNumber(values.billableHours),
-  });
+  const input = {
+    monthlyExpenses: parseSpanishNumber(values.monthlyExpenses, 'EUR'),
+    billableHours: parseSpanishNumber(values.billableHours, 'none'),
+  };
+  const checked = compareMonthlyScenarios(reference, input);
+  if (checked.valid) return checked;
+
+  const errors = { ...checked.errors };
+  for (const { key, unitError } of fields) {
+    if (Number.isNaN(input[key]) && Number.isFinite(parseSpanishNumber(values[key]))) {
+      errors[key] = unitError;
+    }
+  }
+  return { ...checked, errors };
 }
 
 function describeDifference(amount: number, unit: string) {

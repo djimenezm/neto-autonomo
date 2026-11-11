@@ -54,6 +54,42 @@ describe('current validation while correcting an alternative monthly scenario', 
     expectNoComparison();
   });
 
+  it('rejects mismatched expense and hour units independently before comparing', async () => {
+    const user = userEvent.setup();
+    const euroMessage = 'Introduce un importe en euros. Puedes usar € o EUR.';
+    const hourMessage = 'Escribe solo el número de horas, sin moneda ni porcentaje.';
+    render(<Comparator reference={reference} />);
+    await user.click(costs());
+    await user.paste('420 USD');
+    change(hours(), '60 €');
+
+    await compare();
+    expect(costs()).toHaveFocus();
+    expect(costs()).toHaveValue('420 USD');
+    expect(hours()).toHaveValue('60 €');
+    expect(costs()).toHaveAttribute('aria-invalid', 'true');
+    expect(hours()).toHaveAttribute('aria-invalid', 'true');
+    expect(costs()).toHaveAccessibleDescription(expect.stringContaining(euroMessage));
+    expect(hours()).toHaveAccessibleDescription(expect.stringContaining(hourMessage));
+    expectNoComparison();
+
+    change(costs(), 'EUR 420,00');
+    expect(costs()).toHaveValue('EUR 420,00');
+    expect(costs()).toHaveAttribute('aria-invalid', 'false');
+    expect(hours()).toHaveAccessibleDescription(expect.stringContaining(hourMessage));
+    await compare();
+    expect(hours()).toHaveFocus();
+    expectNoComparison();
+
+    change(hours(), '60');
+    expect(hours()).toHaveAttribute('aria-invalid', 'false');
+    expect(pending()).toBeVisible();
+    expectNoComparison();
+    await compare();
+    expect(costs()).toHaveValue('420');
+    expect(Object.fromEntries(alternativeUrl().searchParams)).toMatchObject({ monthlyExpenses: '420', billableHours: '60' });
+  });
+
   it('accepts zero costs and positive whole hours above 744 while rejecting zero or fractional hours without generating a link', async () => {
     render(<Comparator reference={reference} />);
     change(costs(), '0');
