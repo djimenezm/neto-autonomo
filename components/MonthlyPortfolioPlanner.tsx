@@ -2,7 +2,7 @@
 
 import { useEffect, useId, useRef, useState } from 'react';
 import NumericTextInput from '@/components/NumericTextInput';
-import { examplePortfolioGroups, MAX_PORTFOLIO_GROUPS, planMonthlyPortfolio, type PortfolioGroupInput } from '@/lib/projectPortfolio';
+import { examplePortfolioGroups, MAX_PORTFOLIO_GROUPS, planMonthlyPortfolio } from '@/lib/projectPortfolio';
 import { formatCurrency, formatNumber } from '@/lib/format';
 import { parseSpanishNumber } from '@/lib/spanishNumber';
 import styles from './MonthlyPortfolioPlanner.module.css';
@@ -11,15 +11,42 @@ type Row = { id: number; quantity: string; pricePerProject: string; hoursPerProj
 type RemovedGroup = { row: Row; index: number };
 type Reference = { monthlyBilling: number; billableHours: number };
 const fields = [
-  { key: 'quantity', label: (group: number) => `Cantidad del grupo ${group}`, hint: 'Número de servicios iguales que prevés completar y facturar este mes.' },
-  { key: 'pricePerProject', label: (group: number) => `Precio por servicio del grupo ${group} sin IVA (EUR)`, hint: 'Precio de uno, no del grupo completo. Puedes indicar cero para trabajo gratuito.' },
-  { key: 'hoursPerProject', label: (group: number) => `Horas por servicio del grupo ${group}`, hint: 'Todo el tiempo de uno: preparación, reuniones, ejecución y revisiones. 1,5 significa una hora y media.' },
+  {
+    key: 'quantity', label: (group: number) => `Cantidad del grupo ${group}`,
+    hint: 'Número de servicios iguales que prevés completar y facturar este mes.',
+    unitError: 'Escribe solo el número de servicios, sin moneda ni porcentaje.',
+  },
+  {
+    key: 'pricePerProject', label: (group: number) => `Precio por servicio del grupo ${group} sin IVA (EUR)`,
+    hint: 'Precio de uno, no del grupo completo. Puedes indicar cero para trabajo gratuito.',
+    unitError: 'Introduce el precio en euros. Puedes usar € o EUR.',
+  },
+  {
+    key: 'hoursPerProject', label: (group: number) => `Horas por servicio del grupo ${group}`,
+    hint: 'Todo el tiempo de uno: preparación, reuniones, ejecución y revisiones. 1,5 significa una hora y media.',
+    unitError: 'Escribe solo el número de horas, sin moneda ni porcentaje.',
+  },
 ] as const;
 
 function checkPortfolio(rows: Row[], monthlyBilling: number, billableHours: number) {
-  return planMonthlyPortfolio({ monthlyBilling, billableHours, groups: rows.map((row): PortfolioGroupInput => ({
-    quantity: parseSpanishNumber(row.quantity), pricePerProject: parseSpanishNumber(row.pricePerProject), hoursPerProject: parseSpanishNumber(row.hoursPerProject),
-  })) });
+  const groups = rows.map((row) => ({
+    quantity: parseSpanishNumber(row.quantity, 'none'),
+    pricePerProject: parseSpanishNumber(row.pricePerProject, 'EUR'),
+    hoursPerProject: parseSpanishNumber(row.hoursPerProject, 'none'),
+  }));
+  const checked = planMonthlyPortfolio({ monthlyBilling, billableHours, groups });
+  if (checked.valid) return checked;
+
+  const rowErrors = checked.errors.rows.map((errors, index) => {
+    const updated = { ...errors };
+    for (const { key, unitError } of fields) {
+      if (Number.isNaN(groups[index][key]) && Number.isFinite(parseSpanishNumber(rows[index][key]))) {
+        updated[key] = unitError;
+      }
+    }
+    return updated;
+  });
+  return { ...checked, errors: { ...checked.errors, rows: rowErrors } };
 }
 
 function PortfolioEditor({ monthlyBilling, billableHours }: Reference) {

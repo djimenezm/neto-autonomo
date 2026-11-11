@@ -92,6 +92,40 @@ describe('current validation across edits to combined monthly services', () => {
     expect(pending()).not.toBeInTheDocument();
   });
 
+  it('rejects incompatible units in their own group before multiplying services', async () => {
+    const user = userEvent.setup();
+    render(<Planner {...reference} />);
+    const firstGroup = { quantity: '1', price: '1800', hours: '32' };
+    const wrongUnits = { quantity: '30 %', price: '800 USD', hours: '12 €' };
+    writeGroup(1, firstGroup);
+    await add();
+    writeGroup(2, { ...wrongUnits, price: '' });
+    await user.click(field(2, 'price'));
+    await user.paste(wrongUnits.price);
+    await check();
+
+    expect(groups()).toEqual([firstGroup, wrongUnits]);
+    expect(invalidFields()).toEqual([field(2, 'quantity'), field(2, 'price'), field(2, 'hours')]);
+    expect(field(2, 'quantity')).toHaveFocus();
+    expect(field(2, 'quantity')).toHaveAccessibleDescription(/número de servicios, sin moneda ni porcentaje/);
+    expect(field(2, 'price')).toHaveAccessibleDescription(/precio en euros/);
+    expect(field(2, 'hours')).toHaveAccessibleDescription(/número de horas, sin moneda ni porcentaje/);
+    expectNoPlan();
+
+    change(2, 'quantity', '3');
+    expect(invalidFields()).toEqual([field(2, 'price'), field(2, 'hours')]);
+    expectNoPlan();
+    change(2, 'price', 'EUR 800,00');
+    change(2, 'hours', '12');
+    expect(pending()).toBeVisible();
+    expectNoPlan();
+
+    await user.type(field(2, 'hours'), '{Enter}');
+    expect(within(result()).getByText('Facturación prevista sin IVA').nextElementSibling).toHaveTextContent('4200,00');
+    expect(within(result()).getByText('Horas necesarias para la combinación').nextElementSibling).toHaveTextContent('68 h');
+    expect(result()).toHaveTextContent('Cabe por horas; quedan 32 h');
+  });
+
   it('validates newly added rows and current indices after deletion, restoring raw data and current errors on undo without restoring a plan', async () => {
     render(<Planner {...reference} />);
     await add();
