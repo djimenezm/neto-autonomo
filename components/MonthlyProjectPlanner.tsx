@@ -9,16 +9,34 @@ import styles from './MonthlyProjectPlanner.module.css';
 
 type Values = { pricePerProject: string; hoursPerProject: string };
 const fields = [
-  { key: 'pricePerProject', label: 'Precio por encargo sin IVA (EUR)', hint: 'Precio completo de un encargo, no la suma de varios.' },
-  { key: 'hoursPerProject', label: 'Horas totales por encargo', hint: 'Incluye preparación, reuniones, ejecución, revisiones y cierre de ese cliente. Cuenta cada hora una sola vez.' },
+  {
+    key: 'pricePerProject', label: 'Precio por encargo sin IVA (EUR)',
+    hint: 'Precio completo de un encargo, no la suma de varios.',
+    unitError: 'Introduce el precio en euros. Puedes usar € o EUR.',
+  },
+  {
+    key: 'hoursPerProject', label: 'Horas totales por encargo',
+    hint: 'Incluye preparación, reuniones, ejecución, revisiones y cierre de ese cliente. Cuenta cada hora una sola vez.',
+    unitError: 'Escribe solo el número de horas, sin moneda ni porcentaje.',
+  },
 ] as const;
 
 function checkProject(values: Values, monthlyBilling: number, billableHours: number) {
-  return estimateProjectCapacity({
+  const input = {
     monthlyBilling, billableHours,
-    pricePerProject: parseSpanishNumber(values.pricePerProject),
-    hoursPerProject: parseSpanishNumber(values.hoursPerProject),
-  });
+    pricePerProject: parseSpanishNumber(values.pricePerProject, 'EUR'),
+    hoursPerProject: parseSpanishNumber(values.hoursPerProject, 'none'),
+  };
+  const checked = estimateProjectCapacity(input);
+  if (checked.valid) return checked;
+
+  const errors = { ...checked.errors };
+  for (const { key, unitError } of fields) {
+    if (Number.isNaN(input[key]) && Number.isFinite(parseSpanishNumber(values[key]))) {
+      errors[key] = unitError;
+    }
+  }
+  return { ...checked, errors };
 }
 
 export default function MonthlyProjectPlanner({ monthlyBilling, billableHours, headingLevel: Heading = 'h3' }: { monthlyBilling: number; billableHours: number; headingLevel?: 'h3' | 'h4' }) {

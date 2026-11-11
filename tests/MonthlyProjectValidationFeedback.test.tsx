@@ -77,6 +77,38 @@ describe('current feedback while correcting a fixed-price project', () => {
     expect(within(result()).getByText('Encargos completos para alcanzar el importe').nextElementSibling).toHaveTextContent('5');
   });
 
+  it('rejects incompatible price and hour units until the corrected offer is checked again', async () => {
+    const user = userEvent.setup();
+    render(<Planner {...reference} />);
+    write({ pricePerProject: '600', hoursPerProject: '20' });
+    await check();
+    expect(within(result()).getByRole('heading', { name: 'Qué supone este encargo' })).toBeVisible();
+
+    await user.clear(field('pricePerProject'));
+    await user.paste('600 USD');
+    change('hoursPerProject', '20 €');
+    await check();
+    expect(current()).toEqual({ pricePerProject: '600 USD', hoursPerProject: '20 €' });
+    expect(invalidFields()).toHaveLength(2);
+    expect(field('pricePerProject')).toHaveFocus();
+    expect(field('pricePerProject')).toHaveAccessibleDescription(/precio en euros/);
+    expect(field('hoursPerProject')).toHaveAccessibleDescription(/número de horas, sin moneda ni porcentaje/);
+    expectNoResult();
+
+    change('pricePerProject', 'EUR 600,00');
+    expect(field('pricePerProject')).toHaveAttribute('aria-invalid', 'false');
+    expect(field('hoursPerProject')).toHaveAttribute('aria-invalid', 'true');
+    expectNoResult();
+    change('hoursPerProject', '20');
+    expect(pending()).toBeVisible();
+    expectNoResult();
+
+    await user.type(field('hoursPerProject'), '{Enter}');
+    expect(within(result()).getByText('Precio por hora del encargo').nextElementSibling).toHaveTextContent('30,00');
+    expect(within(result()).getByText('Encargos completos para alcanzar el importe').nextElementSibling).toHaveTextContent('5');
+    expect(within(result()).getByText('Horas que requieren').nextElementSibling).toHaveTextContent('100 h');
+  });
+
   it('preserves raw precision through correction and successful checks, withdrawing old results until Enter recomputes them', async () => {
     render(<Planner {...reference} />);
     const raw = { pricePerProject: ' 600,005 € ', hoursPerProject: '20,005' };
