@@ -90,6 +90,49 @@ describe('current validation while correcting a daily-rate check', () => {
     expectNoResult();
   });
 
+  it('blocks incompatible units in all six fields, including a supplied optional price', async () => {
+    const user = userEvent.setup();
+    renderPlanner();
+    const wrongUnits = {
+      hourlyRate: '40 USD', sessionHours: '6 €', preparationHours: '1 %',
+      followUpHours: '1 GBP', serviceCosts: '90 %', proposedPrice: '350 USD',
+    };
+    write({ ...wrongUnits, proposedPrice: '' });
+    await user.click(field('proposedPrice'));
+    await user.paste(wrongUnits.proposedPrice);
+    await check();
+
+    expect(current()).toEqual(wrongUnits);
+    expect(invalidFields()).toHaveLength(6);
+    expect(field('hourlyRate')).toHaveFocus();
+    expect(field('hourlyRate')).toHaveAccessibleDescription(/referencia por hora en euros/);
+    for (const key of ['sessionHours', 'preparationHours', 'followUpHours'] as const) {
+      expect(field(key)).toHaveAccessibleDescription(/número de horas, sin moneda ni porcentaje/);
+    }
+    expect(field('serviceCosts')).toHaveAccessibleDescription(/costes en euros/);
+    expect(field('proposedPrice')).toHaveAccessibleDescription(/precio en euros o deja el campo vacío/);
+    expectNoResult();
+
+    const corrected = {
+      hourlyRate: 'EUR 40,00', sessionHours: '6', preparationHours: '1',
+      followUpHours: '1', serviceCosts: '90 €', proposedPrice: wrongUnits.proposedPrice,
+    };
+    write(corrected);
+    expect(invalidFields()).toEqual([field('proposedPrice')]);
+    expect(pending()).not.toBeInTheDocument();
+    await check();
+    expect(field('proposedPrice')).toHaveFocus();
+    expectNoResult();
+
+    change('proposedPrice', 'EUR 350,00');
+    expect(pending()).toBeVisible();
+    expectNoResult();
+    await check();
+    expect(within(result()).getByText('Referencia total: horas y costes').nextElementSibling).toHaveTextContent('410,00');
+    expect(within(result()).getByText('Por hora tras esos costes').nextElementSibling).toHaveTextContent('32,50');
+    expect(result()).toHaveTextContent('Faltan 60,00');
+  });
+
   it('keeps raw precision during invalid checks and live correction, normalizing only on a successful explicit check', async () => {
     renderPlanner();
     const raw = { hourlyRate: ' 50,005 € ', sessionHours: '25', preparationHours: '1,005', followUpHours: '0', serviceCosts: ' 1,005 ', proposedPrice: '' };

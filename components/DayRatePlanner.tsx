@@ -7,26 +7,61 @@ import { formatCurrency, formatNumber } from '@/lib/format';
 import { parseSpanishNumber } from '@/lib/spanishNumber';
 import styles from './DayRatePlanner.module.css';
 
+const hoursUnitError = 'Escribe solo el número de horas, sin moneda ni porcentaje.';
 const fields = [
-  { key: 'hourlyRate', label: 'Tu referencia por hora sin IVA (EUR)', hint: 'La que has calculado con tus costes y horas mensuales. Redondeamos los importes a céntimos.' },
-  { key: 'sessionHours', label: 'Horas de jornada con el cliente', hint: 'La sesión o el bloque de trabajo que estás ofreciendo, hasta 24 horas.' },
-  { key: 'preparationHours', label: 'Horas de preparación de este servicio', hint: 'Trabajo específico para este cliente fuera de la jornada. Usa 0 si ya está incluido.' },
-  { key: 'followUpHours', label: 'Horas de cierre y seguimiento', hint: 'Documentación o revisión posterior fuera de la jornada. Usa 0 si ya está incluido.' },
-  { key: 'serviceCosts', label: 'Costes específicos que debe cubrir el precio (EUR)', hint: 'Solo costes de este servicio que aún no estén cubiertos por tu referencia por hora. Usa 0 si no hay. No se calcula su deducibilidad ni el IVA recuperable.' },
-  { key: 'proposedPrice', label: 'Precio que estás valorando sin IVA (EUR, opcional)', hint: 'Déjalo vacío si solo quieres obtener la referencia para la jornada.' },
+  {
+    key: 'hourlyRate', label: 'Tu referencia por hora sin IVA (EUR)',
+    hint: 'La que has calculado con tus costes y horas mensuales. Redondeamos los importes a céntimos.',
+    unitError: 'Introduce la referencia por hora en euros. Puedes usar € o EUR.',
+  },
+  {
+    key: 'sessionHours', label: 'Horas de jornada con el cliente',
+    hint: 'La sesión o el bloque de trabajo que estás ofreciendo, hasta 24 horas.',
+    unitError: hoursUnitError,
+  },
+  {
+    key: 'preparationHours', label: 'Horas de preparación de este servicio',
+    hint: 'Trabajo específico para este cliente fuera de la jornada. Usa 0 si ya está incluido.',
+    unitError: hoursUnitError,
+  },
+  {
+    key: 'followUpHours', label: 'Horas de cierre y seguimiento',
+    hint: 'Documentación o revisión posterior fuera de la jornada. Usa 0 si ya está incluido.',
+    unitError: hoursUnitError,
+  },
+  {
+    key: 'serviceCosts', label: 'Costes específicos que debe cubrir el precio (EUR)',
+    hint: 'Solo costes de este servicio que aún no estén cubiertos por tu referencia por hora. Usa 0 si no hay. No se calcula su deducibilidad ni el IVA recuperable.',
+    unitError: 'Introduce los costes en euros. Puedes usar € o EUR.',
+  },
+  {
+    key: 'proposedPrice', label: 'Precio que estás valorando sin IVA (EUR, opcional)',
+    hint: 'Déjalo vacío si solo quieres obtener la referencia para la jornada.',
+    unitError: 'Introduce el precio en euros o deja el campo vacío.',
+  },
 ] as const;
 type Values = Record<keyof DayRateInput, string>;
 const emptyValues: Values = { hourlyRate: '', sessionHours: '', preparationHours: '', followUpHours: '', serviceCosts: '', proposedPrice: '' };
 
 function checkDayRate(values: Values) {
-  return estimateDayRate({
-    hourlyRate: parseSpanishNumber(values.hourlyRate),
-    sessionHours: parseSpanishNumber(values.sessionHours),
-    preparationHours: parseSpanishNumber(values.preparationHours),
-    followUpHours: parseSpanishNumber(values.followUpHours),
-    serviceCosts: parseSpanishNumber(values.serviceCosts),
-    proposedPrice: values.proposedPrice.trim() ? parseSpanishNumber(values.proposedPrice) : undefined,
-  });
+  const input = {
+    hourlyRate: parseSpanishNumber(values.hourlyRate, 'EUR'),
+    sessionHours: parseSpanishNumber(values.sessionHours, 'none'),
+    preparationHours: parseSpanishNumber(values.preparationHours, 'none'),
+    followUpHours: parseSpanishNumber(values.followUpHours, 'none'),
+    serviceCosts: parseSpanishNumber(values.serviceCosts, 'EUR'),
+    proposedPrice: values.proposedPrice.trim() ? parseSpanishNumber(values.proposedPrice, 'EUR') : undefined,
+  };
+  const checked = estimateDayRate(input);
+  if (checked.valid) return checked;
+
+  const errors = { ...checked.errors };
+  for (const { key, unitError } of fields) {
+    if (Number.isNaN(input[key]) && Number.isFinite(parseSpanishNumber(values[key]))) {
+      errors[key] = unitError;
+    }
+  }
+  return { ...checked, errors };
 }
 
 export default function DayRatePlanner({ example, costExample }: { example: DayRateInput; costExample?: DayRateInput }) {
