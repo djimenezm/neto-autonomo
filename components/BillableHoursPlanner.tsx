@@ -8,11 +8,28 @@ import { formatNumber } from '@/lib/format';
 import { parseSpanishNumber } from '@/lib/spanishNumber';
 import styles from './BillableHoursPlanner.module.css';
 
+const hoursUnitError = 'Escribe solo el número de horas, sin moneda ni porcentaje.';
 const fields = [
-  { key: 'daysPerWeek', label: 'Días de trabajo por semana', hint: 'Tu jornada habitual, incluidos días parciales.' },
-  { key: 'hoursPerDay', label: 'Horas de trabajo por día', hint: 'Todas las horas de trabajo, también las que no cobras.' },
-  { key: 'nonBillableHoursPerWeek', label: 'Horas no facturables por semana', hint: 'Gestión, captación, formación y reserva para huecos. Cuenta cada hora una sola vez.' },
-  { key: 'weeksOff', label: 'Semanas sin actividad al año', hint: 'Vacaciones, festivos y otras ausencias, expresados en semanas. Usa decimales si necesitas.' },
+  {
+    key: 'daysPerWeek', label: 'Días de trabajo por semana',
+    hint: 'Tu jornada habitual, incluidos días parciales.',
+    unitError: 'Escribe solo el número de días, sin moneda ni porcentaje.',
+  },
+  {
+    key: 'hoursPerDay', label: 'Horas de trabajo por día',
+    hint: 'Todas las horas de trabajo, también las que no cobras.',
+    unitError: hoursUnitError,
+  },
+  {
+    key: 'nonBillableHoursPerWeek', label: 'Horas no facturables por semana',
+    hint: 'Gestión, captación, formación y reserva para huecos. Cuenta cada hora una sola vez.',
+    unitError: hoursUnitError,
+  },
+  {
+    key: 'weeksOff', label: 'Semanas sin actividad al año',
+    hint: 'Vacaciones, festivos y otras ausencias, expresados en semanas. Usa decimales si necesitas.',
+    unitError: 'Escribe solo el número de semanas, sin moneda ni porcentaje.',
+  },
 ] as const;
 
 type Values = Record<keyof BillableHoursPlan, string>;
@@ -20,12 +37,22 @@ const emptyValues: Values = { daysPerWeek: '', hoursPerDay: '', nonBillableHours
 type Estimate = ReturnType<typeof estimateBillableHours>;
 
 function checkAgenda(values: Values): Estimate {
-  return estimateBillableHours({
-    daysPerWeek: parseSpanishNumber(values.daysPerWeek),
-    hoursPerDay: parseSpanishNumber(values.hoursPerDay),
-    nonBillableHoursPerWeek: parseSpanishNumber(values.nonBillableHoursPerWeek),
-    weeksOff: parseSpanishNumber(values.weeksOff),
-  });
+  const plan = {
+    daysPerWeek: parseSpanishNumber(values.daysPerWeek, 'none'),
+    hoursPerDay: parseSpanishNumber(values.hoursPerDay, 'none'),
+    nonBillableHoursPerWeek: parseSpanishNumber(values.nonBillableHoursPerWeek, 'none'),
+    weeksOff: parseSpanishNumber(values.weeksOff, 'none'),
+  };
+  const checked = estimateBillableHours(plan);
+  if (checked.valid) return checked;
+
+  const errors = { ...checked.errors };
+  for (const { key, unitError } of fields) {
+    if (Number.isNaN(plan[key]) && Number.isFinite(parseSpanishNumber(values[key]))) {
+      errors[key] = unitError;
+    }
+  }
+  return { ...checked, errors };
 }
 
 export default function BillableHoursPlanner({ onApply }: { onApply: (hours: number) => void }) {
@@ -144,8 +171,8 @@ export default function BillableHoursPlanner({ onApply }: { onApply: (hours: num
               Capacidad media: <strong>{formatNumber(estimate.monthlyBillableHours, 1)} h/mes</strong>
             </p>
             <p>
-              ({formatNumber(52)} − {formatNumber(parseSpanishNumber(values.weeksOff))}) semanas
-              {' '}× ({formatNumber(estimate.weeklyWorkHours)} − {formatNumber(parseSpanishNumber(values.nonBillableHoursPerWeek))}) h/semana
+              ({formatNumber(52)} − {formatNumber(parseSpanishNumber(values.weeksOff, 'none'))}) semanas
+              {' '}× ({formatNumber(estimate.weeklyWorkHours)} − {formatNumber(parseSpanishNumber(values.nonBillableHoursPerWeek, 'none'))}) h/semana
               {' '}= {formatNumber(estimate.annualBillableHours)} h/año; entre 12 meses.
             </p>
             <p>

@@ -85,6 +85,47 @@ describe('current agenda validation after an explicit estimation attempt', () =>
     expectUnestimated();
   });
 
+  it('rejects currency and percentage units in all agenda fields before allowing hours to be applied', async () => {
+    const user = userEvent.setup();
+    const onApply = vi.fn();
+    render(<Planner onApply={onApply} />);
+    await toggle();
+    write(valid);
+    await estimate();
+    expect(applyButton()).toBeVisible();
+
+    const wrongUnits = { daysPerWeek: '5 %', hoursPerDay: '8 €', nonBillableHoursPerWeek: '12 USD', weeksOff: '6 %' };
+    await user.clear(field('hoursPerDay'));
+    await user.paste(wrongUnits.hoursPerDay);
+    change('daysPerWeek', wrongUnits.daysPerWeek);
+    change('nonBillableHoursPerWeek', wrongUnits.nonBillableHoursPerWeek);
+    change('weeksOff', wrongUnits.weeksOff);
+    await estimate();
+
+    expect(current()).toEqual(wrongUnits);
+    expect(invalidFields()).toHaveLength(4);
+    expect(field('daysPerWeek')).toHaveFocus();
+    expect(field('daysPerWeek')).toHaveAccessibleDescription(/número de días, sin moneda ni porcentaje/);
+    expect(field('hoursPerDay')).toHaveAccessibleDescription(/número de horas, sin moneda ni porcentaje/);
+    expect(field('nonBillableHoursPerWeek')).toHaveAccessibleDescription(/número de horas, sin moneda ni porcentaje/);
+    expect(field('weeksOff')).toHaveAccessibleDescription(/número de semanas, sin moneda ni porcentaje/);
+    expectUnestimated();
+
+    change('daysPerWeek', valid.daysPerWeek);
+    expect(invalidFields()).toHaveLength(3);
+    expect(field('weeksOff')).toHaveAccessibleDescription(/número de semanas, sin moneda ni porcentaje/);
+    expectUnestimated();
+    write(valid);
+    expect(pending()).toBeVisible();
+    expectUnestimated();
+    expect(onApply).not.toHaveBeenCalled();
+
+    await user.type(field('weeksOff'), '{Enter}');
+    expect(screen.getByText(/Capacidad media:/)).toHaveTextContent('107,3 h/mes');
+    await user.click(screen.getByRole('button', { name: 'Usar 107 horas al mes' }));
+    expect(onApply).toHaveBeenCalledExactlyOnceWith(107);
+  });
+
   it('removes a previous capacity immediately on an invalid edit and waits for estimation after correction before applying', async () => {
     const onApply = vi.fn();
     render(<Planner onApply={onApply} />);
