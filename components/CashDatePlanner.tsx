@@ -19,12 +19,31 @@ const fields = [
   { key: 'amount', label: 'Importe (EUR)' },
 ] as const;
 const blankRow = (id: number): Row => ({ id, date: '', kind: '', amount: '' });
+const euroUnitError = 'Introduce un importe en euros. Puedes usar € o EUR.';
+
+function hasMismatchedUnit(value: string, parsed: number) {
+  return Number.isNaN(parsed) && Number.isFinite(parseSpanishNumber(value));
+}
 
 function checkCashPlan(values: Values) {
-  return checkCashDates({
-    initialBalance: parseSpanishNumber(values.initialBalance),
-    movements: values.rows.map((row) => ({ date: row.date, kind: row.kind, amount: parseSpanishNumber(row.amount) })),
-  });
+  const input = {
+    initialBalance: parseSpanishNumber(values.initialBalance, 'EUR'),
+    movements: values.rows.map(({ date, kind, amount }) => ({ date, kind, amount: parseSpanishNumber(amount, 'EUR') })),
+  };
+  const checked = checkCashDates(input);
+  if (checked.valid) return checked;
+
+  const { errors } = checked;
+  return {
+    ...checked,
+    errors: {
+      ...errors,
+      initialBalance: hasMismatchedUnit(values.initialBalance, input.initialBalance) ? euroUnitError : errors.initialBalance,
+      rows: errors.rows.map((rowErrors, index) => hasMismatchedUnit(values.rows[index].amount, input.movements[index].amount)
+        ? { ...rowErrors, amount: euroUnitError }
+        : rowErrors),
+    },
+  };
 }
 
 function readPlanFile(file: File): Promise<string> {
@@ -281,7 +300,7 @@ export default function CashDatePlanner() {
         añadir un movimiento, sustituir el plan, salir o recargar la página la descarta.
       </p> : null}
       <div role="status" aria-label="Eliminación de movimientos" aria-live="polite" aria-atomic="true">{movementFeedback ? <p>{movementFeedback}</p> : null}</div>
-      <p>Incluye de 1 a {MAX_CASH_MOVEMENTS} movimientos. Todos deben tener fecha, tipo e importe; usa 0 si el importe es cero o elimina la fila que no necesites. No se añaden movimientos recurrentes automáticamente.</p>
+      <p>Incluye de 1 a {MAX_CASH_MOVEMENTS} movimientos. Todos deben tener fecha, tipo e importe; usa 0 si el importe es cero o elimina la fila que no necesites. Puedes pegar importes con € o EUR. No se añaden movimientos recurrentes automáticamente.</p>
       <div className={styles.actions}>
         <button type="button" className="primary-button" onClick={() => calculate()}>Comprobar vencimientos</button>
         <button type="button" className="link-button" onClick={() => {

@@ -108,6 +108,40 @@ describe('current validation while correcting cash movements by date', () => {
     expectNoBalances();
   });
 
+  it('rejects non-euro units in the balance and movement while retaining both drafts', async () => {
+    const user = userEvent.setup();
+    const euroMessage = 'Introduce un importe en euros. Puedes usar € o EUR.';
+    render(<Planner />);
+    await user.click(initial());
+    await user.paste('100 USD');
+    writeRow(1, { date: '2026-11-20', kind: 'receipt', amount: '15 %' });
+    const amount = field('Importe (EUR)', 1);
+
+    await check();
+    expect(initial()).toHaveFocus();
+    expect(initial()).toHaveValue('100 USD');
+    expect(amount).toHaveValue('15 %');
+    expect(initial()).toHaveAccessibleDescription(expect.stringContaining(euroMessage));
+    expect(amount).toHaveAccessibleDescription(euroMessage);
+    expect(invalidControls()).toHaveLength(2);
+    expectNoBalances();
+
+    change(initial(), '-100 EUR');
+    expect(initial()).toHaveAttribute('aria-invalid', 'false');
+    expect(amount).toHaveAttribute('aria-invalid', 'true');
+    await check();
+    expect(amount).toHaveFocus();
+    expectNoBalances();
+
+    change(amount, '15 €');
+    expect(invalidControls()).toHaveLength(0);
+    expect(pending()).toBeVisible();
+    expectNoBalances();
+    await check();
+    expect(within(result()).getByText('Saldo tras la última fecha').nextElementSibling).toHaveTextContent('-85,00');
+    expect(screen.getByRole('button', { name: 'Guardar este plan en un archivo' })).toBeVisible();
+  });
+
   it('normalizes precision only on explicit checking and withdraws the old table and download until Enter recomputes them', async () => {
     render(<Planner />);
     addMovements(2);
