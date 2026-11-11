@@ -97,6 +97,47 @@ describe('current validation while correcting a rate-discount comparison', () =>
     expectNoComparison();
   });
 
+  it('rejects swapped units until all four fields are corrected and checked again', async () => {
+    const user = userEvent.setup();
+    render(<Planner />);
+    write(valid);
+    await check();
+    expect(within(result()).getByText('Tarifa tras la rebaja, redondeada')).toBeVisible();
+
+    const wrongUnits = { hourlyRate: '40 USD', discountPercent: '10 EUR', currentHours: '80 €', capacityHours: '80 %' };
+    await user.clear(field('hourlyRate'));
+    await user.paste(wrongUnits.hourlyRate);
+    change('discountPercent', wrongUnits.discountPercent);
+    change('currentHours', wrongUnits.currentHours);
+    change('capacityHours', wrongUnits.capacityHours);
+    await check();
+
+    expect(current()).toEqual(wrongUnits);
+    expect(invalidFields()).toHaveLength(4);
+    expect(field('hourlyRate')).toHaveFocus();
+    expect(field('hourlyRate')).toHaveAccessibleDescription(/tarifa en euros/);
+    expect(field('discountPercent')).toHaveAccessibleDescription(/Introduce un porcentaje/);
+    expect(field('currentHours')).toHaveAccessibleDescription(/número de horas, sin moneda ni porcentaje/);
+    expect(field('capacityHours')).toHaveAccessibleDescription(/número de horas, sin moneda ni porcentaje/);
+    expectNoComparison();
+
+    change('hourlyRate', 'EUR 40,00');
+    expect(field('hourlyRate')).toHaveAttribute('aria-invalid', 'false');
+    expect(invalidFields()).toHaveLength(3);
+    expect(field('discountPercent')).toHaveAccessibleDescription(/Introduce un porcentaje/);
+    expectNoComparison();
+    change('discountPercent', '10 %');
+    change('currentHours', '80');
+    change('capacityHours', '80');
+    expect(pending()).toBeVisible();
+    expectNoComparison();
+
+    await user.type(field('capacityHours'), '{Enter}');
+    expect(within(result()).getByText('Tarifa tras la rebaja, redondeada').nextElementSibling).toHaveTextContent('36,00');
+    expect(within(result()).getByText('Horas para recuperar el valor de partida').nextElementSibling).toHaveTextContent('88,89 h');
+    expect(result()).toHaveTextContent('No cabe en esa capacidad: faltan 8,89 h');
+  });
+
   it('keeps raw precision during invalid checks and correction, normalizing all four inputs only on a successful check', async () => {
     render(<Planner />);
     const raw = { hourlyRate: ' 37,165 € ', discountPercent: '12,345', currentHours: '8,235', capacityHours: '745' };

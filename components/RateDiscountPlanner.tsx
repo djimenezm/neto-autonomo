@@ -7,16 +7,48 @@ import { formatCurrency, formatNumber } from '@/lib/format';
 import { parseSpanishNumber } from '@/lib/spanishNumber';
 import styles from './RateDiscountPlanner.module.css';
 
+const hoursUnitError = 'Escribe solo el número de horas, sin moneda ni porcentaje.';
 const fields = [
-  { key: 'hourlyRate', label: 'Tarifa actual por hora sin IVA (EUR)', hint: 'La tarifa de partida para los servicios que comparas, antes de la rebaja.' },
-  { key: 'discountPercent', label: 'Rebaja que quieres comprobar (%)', hint: 'Entre 0 y 100. Redondeamos el porcentaje a dos decimales y después la nueva tarifa a céntimos.' },
-  { key: 'currentHours', label: 'Horas facturadas en el mes de partida', hint: 'Solo las horas que se cobran a la tarifa de partida. No añadas aquí preparación o cierre que no se facturen a esa tarifa.' },
-  { key: 'capacityHours', label: 'Capacidad mensual para facturar horas (horas)', hint: 'Total de horas que puedes facturar en estos servicios, incluidas las que ya vendes. Descuenta gestión, preparación no facturada, descansos y otros servicios. No son horas libres adicionales ni ventas confirmadas.' },
+  {
+    key: 'hourlyRate', label: 'Tarifa actual por hora sin IVA (EUR)',
+    hint: 'La tarifa de partida para los servicios que comparas, antes de la rebaja.',
+    unitError: 'Introduce la tarifa en euros. Puedes usar € o EUR.',
+  },
+  {
+    key: 'discountPercent', label: 'Rebaja que quieres comprobar (%)',
+    hint: 'Entre 0 y 100. Redondeamos el porcentaje a dos decimales y después la nueva tarifa a céntimos.',
+    unitError: 'Introduce un porcentaje. Puedes usar el símbolo %.',
+  },
+  {
+    key: 'currentHours', label: 'Horas facturadas en el mes de partida',
+    hint: 'Solo las horas que se cobran a la tarifa de partida. No añadas aquí preparación o cierre que no se facturen a esa tarifa.',
+    unitError: hoursUnitError,
+  },
+  {
+    key: 'capacityHours', label: 'Capacidad mensual para facturar horas (horas)',
+    hint: 'Total de horas que puedes facturar en estos servicios, incluidas las que ya vendes. Descuenta gestión, preparación no facturada, descansos y otros servicios. No son horas libres adicionales ni ventas confirmadas.',
+    unitError: hoursUnitError,
+  },
 ] as const;
 type Values = Record<keyof RateDiscountInput, string>;
 
 function checkDiscount(values: Values) {
-  return compareRateDiscount({ hourlyRate: parseSpanishNumber(values.hourlyRate), discountPercent: parseSpanishNumber(values.discountPercent), currentHours: parseSpanishNumber(values.currentHours), capacityHours: parseSpanishNumber(values.capacityHours) });
+  const input = {
+    hourlyRate: parseSpanishNumber(values.hourlyRate, 'EUR'),
+    discountPercent: parseSpanishNumber(values.discountPercent, '%'),
+    currentHours: parseSpanishNumber(values.currentHours, 'none'),
+    capacityHours: parseSpanishNumber(values.capacityHours, 'none'),
+  };
+  const checked = compareRateDiscount(input);
+  if (checked.valid) return checked;
+
+  const errors = { ...checked.errors };
+  for (const { key, unitError } of fields) {
+    if (Number.isNaN(input[key]) && Number.isFinite(parseSpanishNumber(values[key]))) {
+      errors[key] = unitError;
+    }
+  }
+  return { ...checked, errors };
 }
 
 export default function RateDiscountPlanner() {
