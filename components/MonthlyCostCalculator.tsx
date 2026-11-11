@@ -21,6 +21,7 @@ type CostDraft = { values: CostValues; periods: CostPeriods; deductibleExpenses:
 
 const emptyValues: CostValues = { fee: '', advisor: '', software: '', insurance: '', other: '', hours: '' };
 const monthlyPeriods: CostPeriods = { advisor: 'monthly', software: 'monthly', insurance: 'monthly', other: 'monthly' };
+const euroUnitError = 'Introduce un importe en euros. Puedes usar € o EUR.';
 
 const initialValues: CostValues = {
   fee: String(recurringCostsExample.fee),
@@ -32,7 +33,11 @@ const initialValues: CostValues = {
 };
 
 function parseCost(value: string) {
-  return value.trim() === '' ? 0 : parseSpanishNumber(value);
+  return value.trim() === '' ? 0 : parseSpanishNumber(value, 'EUR');
+}
+
+function hasMismatchedUnit(value: string, parsed: number) {
+  return Number.isNaN(parsed) && Number.isFinite(parseSpanishNumber(value));
 }
 
 export default function MonthlyCostCalculator() {
@@ -58,27 +63,37 @@ export default function MonthlyCostCalculator() {
     feeInput.current.focus({ preventScroll: true });
     feeInput.current.scrollIntoView?.({ block: 'center', behavior: 'instant' });
   }, [draftActionCount]);
-  const costs = estimateRecurringCosts({
+  const payments = {
     fee: parseCost(values.fee),
+    advisor: parseCost(values.advisor),
+    software: parseCost(values.software),
+    insurance: parseCost(values.insurance),
+    other: parseCost(values.other),
+  };
+  const costs = estimateRecurringCosts({
+    fee: payments.fee,
     expenses: {
-      advisor: { amount: parseCost(values.advisor), period: periods.advisor },
-      software: { amount: parseCost(values.software), period: periods.software },
-      insurance: { amount: parseCost(values.insurance), period: periods.insurance },
-      other: { amount: parseCost(values.other), period: periods.other },
+      advisor: { amount: payments.advisor, period: periods.advisor },
+      software: { amount: payments.software, period: periods.software },
+      insurance: { amount: payments.insurance, period: periods.insurance },
+      other: { amount: payments.other, period: periods.other },
     },
   });
-  const hours = parseSpanishNumber(values.hours);
+  const hours = parseSpanishNumber(values.hours, 'none');
   const fee = costs.valid ? costs.monthlyFee : 0;
   const validHours = Number.isFinite(hours) && hours > 0;
   const transferHoursValid = validHours && Number.isInteger(hours);
+  const hoursUnitError = hasMismatchedUnit(values.hours, hours)
+    ? 'Escribe solo el número de horas, sin moneda ni porcentaje.'
+    : null;
   const hoursError = !validHours && (values.hours.trim() !== '' || transferAttempted)
-    ? 'Indica un número válido de horas mayor que cero.'
+    ? hoursUnitError ?? 'Indica un número válido de horas mayor que cero.'
     : transferAttempted && validHours && !Number.isInteger(hours)
       ? 'Usa un número entero de horas mayor que cero para trasladar este cálculo.'
       : null;
   const monthlyTotal = costs.valid ? costs.monthlyTotal : 0;
   const otherCosts = costs.valid ? costs.monthlyOtherCosts : 0;
-  const parsedDeductibleAmount = parseSpanishNumber(deductibleExpenses);
+  const parsedDeductibleAmount = parseSpanishNumber(deductibleExpenses, 'EUR');
   const deductibleCents = roundCostToCents(parsedDeductibleAmount);
   const otherCostCents = roundCostToCents(otherCosts);
   const deductibleAmount = deductibleCents / 100;
@@ -92,9 +107,10 @@ export default function MonthlyCostCalculator() {
   const feeTransferError = transferAttempted && costs.valid && fee <= 0
     ? 'Indica una cuota mensual mayor que cero para trasladar este cálculo.'
     : null;
-  const deductibleError = transferAttempted && costs.valid && !validDeductibleAmount
+  const deductibleUnitError = hasMismatchedUnit(deductibleExpenses, parsedDeductibleAmount) ? euroUnitError : null;
+  const deductibleError = deductibleUnitError ?? (transferAttempted && costs.valid && !validDeductibleAmount
     ? `Indica un importe deducible entre 0 y ${formatEuro(otherCosts)}.`
-    : null;
+    : null);
 
   function updateValue(key: keyof CostValues, value: string) {
     setValues((current) => ({ ...current, [key]: value }));
@@ -128,6 +144,7 @@ export default function MonthlyCostCalculator() {
       <h2>Calcula tus costes fijos</h2>
       <p className="card-intro">
         Los valores iniciales son un ejemplo ficticio editable. Escribe el importe de cada pago y elige su frecuencia.
+        Puedes escribir los importes en euros con € o EUR.
         La cuota sigue siendo mensual. Cambiar la frecuencia no cambia el importe escrito.
         Redondeamos cada pago a céntimos antes de aplicar su frecuencia.
       </p>
@@ -149,7 +166,9 @@ export default function MonthlyCostCalculator() {
 
       <div className="monthly-cost-inputs">
         {costFields.map(({ key, label }) => {
-          const paymentError = !costs.valid ? costs.errors[key] : undefined;
+          const paymentError = hasMismatchedUnit(values[key], payments[key])
+            ? euroUnitError
+            : !costs.valid ? costs.errors[key] : undefined;
           const invalid = Boolean(paymentError);
           const transferError = key === 'fee' ? feeTransferError : null;
 

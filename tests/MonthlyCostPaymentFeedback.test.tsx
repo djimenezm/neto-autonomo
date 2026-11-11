@@ -12,16 +12,16 @@ const deductible = () => screen.getByRole('textbox', { name: 'Gastos deducibles,
 const change = (input: HTMLElement, value: string) => fireEvent.change(input, { target: { value } });
 const paymentMessage = 'Revisa el importe y la frecuencia de este gasto.';
 const feeTransferMessage = 'Indica una cuota mensual mayor que cero para trasladar este cálculo.';
-function expectPaymentError(key: PaymentKey) {
+function expectPaymentError(key: PaymentKey, text = paymentMessage) {
   const input = field(key);
   const errorId = `monthly-cost-${key}-payment-error`;
   const message = document.getElementById(errorId);
   expect(input).toHaveAttribute('aria-invalid', 'true');
   expect(input).toHaveAccessibleName(labels[key]);
   expect(input.getAttribute('aria-describedby')?.split(/\s+/)).toContain(errorId);
-  expect(input).toHaveAccessibleDescription(expect.stringContaining(paymentMessage));
+  expect(input).toHaveAccessibleDescription(expect.stringContaining(text));
   expect(message).toBeVisible();
-  expect(message).toHaveTextContent(paymentMessage);
+  expect(message).toHaveTextContent(text);
   expect(message).toHaveAttribute('role', 'alert');
   expect(input.closest('label')).toContainElement(message);
 }
@@ -90,6 +90,57 @@ describe('monthly payment errors are explained beside their own inputs', () => {
     expect(screen.getByText('Al año según las frecuencias').nextElementSibling).toHaveTextContent('5760,00');
     expect(deductible()).toHaveValue('100');
     expect(screen.getByRole('status', { name: 'Datos que se trasladarán a la tarifa' })).toHaveTextContent('100,00');
+    expect(Object.fromEntries(new FormData(container.querySelector('form')!))).toEqual({ source: 'monthly-costs', monthlyExpenses: '100.00', monthlyNonDeductibleExpenses: '60.00', billableHours: '80', selfEmployedFeeMode: 'manual', selfEmployedFee: '320.00' });
+  });
+
+  it('rejects mismatched units and restores totals and transfer after correction', async () => {
+    const user = userEvent.setup();
+    const euroMessage = 'Introduce un importe en euros. Puedes usar € o EUR.';
+    const preview = { name: 'Datos que se trasladarán a la tarifa' };
+    const { container } = render(<MonthlyCostCalculator />);
+    change(deductible(), '100');
+    await user.click(field('software'));
+    field('software').select();
+    await user.paste('420 USD');
+    change(field('insurance'), '15 %');
+
+    expect(field('software')).toHaveValue('420 USD');
+    expect(field('insurance')).toHaveValue('15 %');
+    expectPaymentError('software', euroMessage);
+    expectPaymentError('insurance', euroMessage);
+    expectCostsUnavailable();
+
+    change(field('software'), 'EUR 420,00');
+    expect(field('software')).toHaveAttribute('aria-invalid', 'false');
+    expectPaymentError('insurance', euroMessage);
+    expectCostsUnavailable();
+    change(field('insurance'), '360 €');
+    expect(field('insurance')).toHaveAttribute('aria-invalid', 'false');
+    expect(screen.getByText('Media mensual antes de pagarte').parentElement).toHaveTextContent('480,00');
+    expect(screen.getByText('Al año según las frecuencias').nextElementSibling).toHaveTextContent('5760,00');
+    expect(screen.getByRole('status', preview)).toBeVisible();
+
+    change(field('hours'), '80 €');
+    change(deductible(), '100 %');
+    expect(field('hours')).toHaveValue('80 €');
+    expect(deductible()).toHaveValue('100 %');
+    expect(field('hours')).toHaveAccessibleDescription(expect.stringContaining('Escribe solo el número de horas, sin moneda ni porcentaje.'));
+    expect(deductible()).toHaveAccessibleDescription(expect.stringContaining(euroMessage));
+    expect(screen.getByText('Media mensual antes de pagarte').parentElement).toHaveTextContent('480,00');
+    expect(screen.queryByText('Por hora facturable')).not.toBeInTheDocument();
+    expect(screen.queryByRole('status', preview)).not.toBeInTheDocument();
+
+    const transfer = screen.getByRole('button', { name: 'Usar estos datos en mi tarifa' });
+    await user.click(transfer);
+    expect(field('hours')).toHaveFocus();
+    change(field('hours'), '80');
+    expect(screen.getByText('Por hora facturable').nextElementSibling).toHaveTextContent('6,00');
+    expect(screen.queryByRole('status', preview)).not.toBeInTheDocument();
+    await user.click(transfer);
+    expect(deductible()).toHaveFocus();
+    change(deductible(), '100,00 €');
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    expect(screen.getByRole('status', preview)).toHaveTextContent('100,00');
     expect(Object.fromEntries(new FormData(container.querySelector('form')!))).toEqual({ source: 'monthly-costs', monthlyExpenses: '100.00', monthlyNonDeductibleExpenses: '60.00', billableHours: '80', selfEmployedFeeMode: 'manual', selfEmployedFee: '320.00' });
   });
 
