@@ -46,13 +46,21 @@ export const DEFAULT_FORM_VALUES: CalculatorFormValues = {
 
 // Number inputs and shared URLs use a decimal point, without thousands grouping.
 // Clipboard text is parsed separately as Spanish notation before entering this state.
-export function parseFormNumber(value: string) {
+export function parseFormNumber(value: string, expectedUnit?: 'EUR' | '%' | 'none') {
   if (/^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:e[+-]?\d+)?$/i.test(value.trim())) {
     const parsedValue = Number(value);
     return Number.isFinite(parsedValue) ? parsedValue : Number.NaN;
   }
 
-  return parseSpanishNumber(value);
+  return parseSpanishNumber(value, expectedUnit);
+}
+
+function getFieldUnit(field: FieldName) {
+  return field === 'billableHours' ? 'none' : field === 'irpfRate' ? '%' : 'EUR';
+}
+
+export function parseCalculatorFieldNumber(field: FieldName, value: string) {
+  return parseFormNumber(value, getFieldUnit(field));
 }
 
 // Compare the inputs that affect the displayed calculation, independently of
@@ -81,7 +89,7 @@ function formatNormalizedNumber(value: number, maximumFractionDigits = 2) {
 }
 
 export function normalizeFieldValue(field: FieldName, value: string) {
-  const parsedValue = parseFormNumber(value);
+  const parsedValue = parseCalculatorFieldNumber(field, value);
 
   if (!Number.isFinite(parsedValue) || getFieldError(field, value)) {
     return value.trim() === '' ? '' : value;
@@ -101,7 +109,7 @@ export function normalizeFieldValue(field: FieldName, value: string) {
 }
 
 export function readCalculatorPaste(field: FieldName, text: string) {
-  const expectedUnit = field === 'billableHours' ? 'none' : field === 'irpfRate' ? '%' : 'EUR';
+  const expectedUnit = getFieldUnit(field);
   const parsedValue = parseSpanishNumber(text, expectedUnit);
   if (Number.isFinite(parsedValue)) {
     return { value: normalizeFieldValue(field, String(parsedValue)), error: null } as const;
@@ -140,7 +148,7 @@ export function buildCalculatorUrl(values: CalculatorFormValues, currentUrl: str
 }
 
 function getFieldError(field: FieldName, value: string) {
-  const parsedValue = parseFormNumber(value);
+  const parsedValue = parseCalculatorFieldNumber(field, value);
 
   if (value.trim() === '') {
     switch (field) {
@@ -160,6 +168,16 @@ function getFieldError(field: FieldName, value: string) {
   }
 
   if (!Number.isFinite(parsedValue)) {
+    if (Number.isFinite(parseFormNumber(value))) {
+      switch (getFieldUnit(field)) {
+        case 'none':
+          return 'Introduce solo el número de horas, sin moneda ni porcentaje.';
+        case '%':
+          return 'Introduce un porcentaje sin símbolo ni código de moneda.';
+        case 'EUR':
+          return 'Introduce un importe en euros. Puedes usar € o EUR al pegarlo.';
+      }
+    }
     switch (field) {
       case 'billableHours':
         return 'Introduce un número válido de horas.';
@@ -234,7 +252,7 @@ export function validateForm(
     const error = getFieldError(field, values[field]);
 
     if (field === 'selfEmployedFee' && selfEmployedFeeMode === 'manual' && !error) {
-      const parsedValue = parseFormNumber(values[field]);
+      const parsedValue = parseCalculatorFieldNumber(field, values[field]);
 
       if (parsedValue <= 0) {
         nextErrors[field] = 'La cuota manual debe ser mayor que 0.';

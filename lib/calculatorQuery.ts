@@ -1,6 +1,7 @@
 import { calculateFreelanceBilling, type CalculationResult } from '@/lib/calculator';
 import {
   DEFAULT_FORM_VALUES,
+  parseCalculatorFieldNumber,
   parseFormNumber,
   validateForm,
   type CalculatorFormValues,
@@ -39,7 +40,7 @@ function getAllowedValue<T extends string>(value: string | undefined, allowedVal
 export function readCalculatorQuery(getValue: (key: string) => string | undefined): CalculatorFormValues {
   function readNumber(field: FieldName) {
     const raw = getValue(field) ?? DEFAULT_FORM_VALUES[field];
-    const parsed = parseFormNumber(raw);
+    const parsed = parseCalculatorFieldNumber(field, raw);
     // Keep invalid text for the form's errors. Canonical numbers also remain
     // visible in native number inputs when a URL contains Spanish notation.
     return Number.isFinite(parsed) ? String(parsed) : raw;

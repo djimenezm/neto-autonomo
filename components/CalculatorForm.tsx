@@ -353,7 +353,7 @@ export default function CalculatorForm({
             value={targetNet}
             onChange={(event) => updateNumericValue('targetNet', event.target.value, setTargetNet)}
             onPaste={(event) => handleNumericPaste(event, 'targetNet', setTargetNet)}
-            onBlur={(event) => setTargetNet(normalizeFieldValue('targetNet', event.target.value))}
+            onBlur={() => setTargetNet(normalizeFieldValue('targetNet', targetNet))}
             aria-invalid={showFieldError('targetNet')}
             aria-labelledby="target-net-label"
             aria-describedby={`calculator-amount-format-hint${showFieldError('targetNet') ? ' target-net-error' : ''}`}
@@ -377,8 +377,8 @@ export default function CalculatorForm({
             onPaste={(event) =>
               handleNumericPaste(event, 'monthlyExpenses', setMonthlyExpenses)
             }
-            onBlur={(event) =>
-              setMonthlyExpenses(normalizeFieldValue('monthlyExpenses', event.target.value))
+            onBlur={() =>
+              setMonthlyExpenses(normalizeFieldValue('monthlyExpenses', monthlyExpenses))
             }
             aria-invalid={showFieldError('monthlyExpenses')}
             aria-labelledby="monthly-expenses-label"
@@ -405,9 +405,9 @@ export default function CalculatorForm({
             onPaste={(event) =>
               handleNumericPaste(event, 'monthlyNonDeductibleExpenses', setMonthlyNonDeductibleExpenses)
             }
-            onBlur={(event) =>
+            onBlur={() =>
               setMonthlyNonDeductibleExpenses(
-                normalizeFieldValue('monthlyNonDeductibleExpenses', event.target.value),
+                normalizeFieldValue('monthlyNonDeductibleExpenses', monthlyNonDeductibleExpenses),
               )
             }
             aria-invalid={showFieldError('monthlyNonDeductibleExpenses')}
@@ -440,7 +440,7 @@ export default function CalculatorForm({
               handleNumericPaste(event, 'billableHours', setBillableHours);
               setAppliedHours(null);
             }}
-            onBlur={(event) => setBillableHours(normalizeFieldValue('billableHours', event.target.value))}
+            onBlur={() => setBillableHours(normalizeFieldValue('billableHours', billableHours))}
             aria-invalid={showHoursError}
             aria-labelledby="billable-hours-label"
             aria-describedby={`billable-hours-hint${showHoursError ? ' billable-hours-error' : ''}`}
@@ -522,7 +522,7 @@ export default function CalculatorForm({
               value={irpfRate}
               onChange={(event) => updateNumericValue('irpfRate', event.target.value, setIrpfRate)}
               onPaste={(event) => handleNumericPaste(event, 'irpfRate', setIrpfRate)}
-              onBlur={(event) => setIrpfRate(normalizeFieldValue('irpfRate', event.target.value))}
+              onBlur={() => setIrpfRate(normalizeFieldValue('irpfRate', irpfRate))}
               aria-invalid={showFieldError('irpfRate')}
               aria-labelledby="irpf-rate-label"
               aria-describedby={`irpf-rate-hint${showFieldError('irpfRate') ? ' irpf-rate-error' : ''}`}
@@ -594,8 +594,8 @@ export default function CalculatorForm({
               onPaste={(event) =>
                 handleNumericPaste(event, 'selfEmployedFee', setSelfEmployedFee)
               }
-              onBlur={(event) =>
-                setSelfEmployedFee(normalizeFieldValue('selfEmployedFee', event.target.value))
+              onBlur={() =>
+                setSelfEmployedFee(normalizeFieldValue('selfEmployedFee', selfEmployedFee))
               }
               aria-invalid={showFieldError('selfEmployedFee')}
               aria-labelledby="self-employed-fee-label"

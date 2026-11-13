@@ -59,6 +59,7 @@ describe('shared result image and calculator values', () => {
     ['targetNet', '0'], ['targetNet', '2,,50'],
     ['monthlyExpenses', '-1'], ['monthlyExpenses', '1,,50'],
     ['irpfRate', '100'], ['selfEmployedFee', '0'],
+    ['targetNet', '1800 USD'], ['billableHours', '100 €'], ['irpfRate', '15 EUR'],
   ])('uses a generic image instead of adjusting an invalid active %s=%j', async (field, value) => {
     expectGeneric(await imageText(new URLSearchParams({ ...manual, [field]: value })));
   });

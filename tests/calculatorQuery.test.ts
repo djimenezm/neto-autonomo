@@ -37,6 +37,19 @@ describe('calculator query values and result validation', () => {
     });
   });
 
+  it.each([
+    ['targetNet', '1800 USD'],
+    ['monthlyExpenses', '250 %'],
+    ['monthlyNonDeductibleExpenses', '60 GBP'],
+    ['billableHours', '100 €'],
+    ['irpfRate', '15 EUR'],
+    ['selfEmployedFee', '320 GBP'],
+  ] as const)('preserves the rejected value for %s=%j and blocks the shared result', (field, raw) => {
+    const values = read({ ...manual, [field]: raw });
+    expect(values[field]).toBe(raw);
+    expect(calculateValidSharedResult(values)).toBeNull();
+  });
+
   it('retains existing enum fallbacks and the exact no-IVA convention', () => {
     expect(read({
       irpfMode: 'unknown', autonomousCommunity: '', selfEmployedFeeMode: 'unknown',

@@ -2,6 +2,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import CalculatorForm from '@/components/CalculatorForm';
+import { readCalculatorQuery } from '@/lib/calculatorQuery';
 import { formatCurrency } from '@/lib/format';
 
 describe('CalculatorForm', () => {
@@ -78,6 +79,38 @@ describe('CalculatorForm', () => {
     expect(screen.getByText(/costes no deducibles cubiertos/i)).toBeInTheDocument();
     expect(window.va).toHaveBeenCalledWith('event', { name: 'monthly_costs_tariff_calculated' });
     expect(window.location.search).toContain('monthlyNonDeductibleExpenses=60');
+  });
+
+  it('retains unit errors from a shared link on blur until the corresponding fields are corrected', async () => {
+    const user = userEvent.setup();
+    const query = new URLSearchParams({ targetNet: '1800 USD', billableHours: '100 €', irpfMode: 'manual', irpfRate: '15 EUR' });
+    render(<CalculatorForm initiallySubmitted enableResultShareCopy initialValues={readCalculatorQuery((key) => query.get(key) ?? undefined)} />);
+    const net = screen.getByRole('spinbutton', { name: /neto mensual deseado/i });
+    const hours = screen.getByRole('spinbutton', { name: /horas facturables al mes/i });
+    const reserve = screen.getByRole('spinbutton', { name: /reserva de irpf para la simulación/i });
+    const resultHeading = { name: /tu referencia mensual para presupuestar/i };
+    const calculate = screen.getByRole('button', { name: /calcular mi tarifa/i });
+
+    await user.click(net);
+    await user.click(hours);
+    expect(net).toHaveAccessibleDescription(/Introduce un importe en euros/);
+    expect(hours).toHaveAccessibleDescription(/solo el número de horas, sin moneda ni porcentaje/);
+    expect(reserve).toHaveAccessibleDescription(/un porcentaje sin símbolo ni código de moneda/);
+    expect(screen.queryByRole('heading', resultHeading)).not.toBeInTheDocument();
+
+    await user.type(net, '1800');
+    expect(net).toHaveAttribute('aria-invalid', 'false');
+    expect(hours).toHaveAttribute('aria-invalid', 'true');
+    expect(reserve).toHaveAttribute('aria-invalid', 'true');
+    await user.type(hours, '100');
+    await user.type(reserve, '15');
+    expect(screen.queryByRole('heading', resultHeading)).not.toBeInTheDocument();
+    await user.click(calculate);
+    expect(screen.getByRole('heading', resultHeading)).toBeVisible();
+    const shared = new URL(window.location.href);
+    expect(shared.searchParams.get('targetNet')).toBe('1800');
+    expect(shared.searchParams.get('billableHours')).toBe('100');
+    expect(shared.searchParams.get('irpfRate')).toBe('15');
   });
 
   it('renders a server-submitted result without the copy button when requested', () => {

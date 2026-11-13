@@ -65,6 +65,7 @@ describe('home calculator query', () => {
 
   it.each([
     { targetNet: '' }, { targetNet: '0' }, { monthlyExpenses: '1,,50' }, { billableHours: '80.5' },
+    { targetNet: '1800 USD', billableHours: '100 €', irpfMode: 'manual', irpfRate: '15 EUR' },
   ])('uses generic metadata for invalid values without changing submission or tracking flags: %j', async (query) => {
     const response = await getServerSideProps({ query, res: { setHeader: vi.fn() } } as unknown as Parameters<typeof getServerSideProps>[0]);
     if (!('props' in response)) throw new Error('Expected calculator props.');
