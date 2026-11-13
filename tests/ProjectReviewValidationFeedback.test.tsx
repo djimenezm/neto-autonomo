@@ -83,6 +83,40 @@ describe('current validation while correcting a completed-project review', () =>
     expectNoReview();
   });
 
+  it('rejects incompatible units until the corrected project is reviewed again', async () => {
+    const user = userEvent.setup();
+    render(<Review />);
+    await example();
+    expect(within(result()).getByText('Ingreso por hora con el tiempo real')).toBeVisible();
+
+    const wrongUnits = { hourlyReference: '40 USD', finalPrice: '400 %', plannedHours: '8 €', actualHours: '12 %' };
+    write({ ...wrongUnits, actualHours: '' });
+    await user.click(field('actualHours'));
+    await user.paste(wrongUnits.actualHours);
+    await check();
+
+    expect(current()).toEqual(wrongUnits);
+    expect(invalidFields()).toHaveLength(4);
+    expect(field('hourlyReference')).toHaveFocus();
+    expect(field('hourlyReference')).toHaveAccessibleDescription(/referencia por hora en euros/);
+    expect(field('finalPrice')).toHaveAccessibleDescription(/precio en euros/);
+    expect(field('plannedHours')).toHaveAccessibleDescription(/número de horas, sin moneda ni porcentaje/);
+    expect(field('actualHours')).toHaveAccessibleDescription(/número de horas, sin moneda ni porcentaje/);
+    expectNoReview();
+
+    write({ ...valid, hourlyReference: 'EUR 40,00', finalPrice: '400 €', actualHours: wrongUnits.actualHours });
+    expect(invalidFields()).toEqual([field('actualHours')]);
+    expect(pending()).not.toBeInTheDocument();
+    expectNoReview();
+    change('actualHours', '12');
+    expect(pending()).toBeVisible();
+    expectNoReview();
+
+    await user.type(field('actualHours'), '{Enter}');
+    expect(within(result()).getByText('Ingreso por hora con el tiempo real').nextElementSibling).toHaveTextContent('33,33');
+    expect(within(result()).getByText('Precio pactado menos ese importe').nextElementSibling).toHaveTextContent('-80,00');
+  });
+
   it('preserves raw precision through a failed review and correction, normalizing all values only on successful review', async () => {
     render(<Review />);
     const raw = { hourlyReference: ' 40,005 € ', finalPrice: '400,005', plannedHours: '8,125', actualHours: '' };

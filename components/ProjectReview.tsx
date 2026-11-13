@@ -7,21 +7,48 @@ import { formatCurrency, formatNumber } from '@/lib/format';
 import { parseSpanishNumber } from '@/lib/spanishNumber';
 import styles from './ProjectReview.module.css';
 
+const hoursUnitError = 'Escribe solo el número de horas, sin moneda ni porcentaje.';
 const fields = [
-  { key: 'hourlyReference', label: 'Tu referencia por hora sin IVA (EUR)', hint: 'Usa tu referencia de la calculadora o de la ficha, con tus costes y horas facturables previstos.' },
-  { key: 'finalPrice', label: 'Precio final pactado sin IVA (EUR)', hint: 'Incluye los cambios de precio acordados. Usa cero si el trabajo fue gratuito. No presupone que ya se haya cobrado.' },
-  { key: 'plannedHours', label: 'Horas previstas del encargo', hint: 'La estimación al preparar el presupuesto, con preparación, reuniones y revisiones incluidas.' },
-  { key: 'actualHours', label: 'Horas reales registradas', hint: 'Todo el tiempo dedicado a ese cliente, también las revisiones sin precio adicional. Usa horas decimales: 1,5 es una hora y media.' },
+  {
+    key: 'hourlyReference', label: 'Tu referencia por hora sin IVA (EUR)',
+    hint: 'Usa tu referencia de la calculadora o de la ficha, con tus costes y horas facturables previstos.',
+    unitError: 'Introduce la referencia por hora en euros. Puedes usar € o EUR.',
+  },
+  {
+    key: 'finalPrice', label: 'Precio final pactado sin IVA (EUR)',
+    hint: 'Incluye los cambios de precio acordados. Usa cero si el trabajo fue gratuito. No presupone que ya se haya cobrado.',
+    unitError: 'Introduce el precio en euros. Puedes usar € o EUR.',
+  },
+  {
+    key: 'plannedHours', label: 'Horas previstas del encargo',
+    hint: 'La estimación al preparar el presupuesto, con preparación, reuniones y revisiones incluidas.',
+    unitError: hoursUnitError,
+  },
+  {
+    key: 'actualHours', label: 'Horas reales registradas',
+    hint: 'Todo el tiempo dedicado a ese cliente, también las revisiones sin precio adicional. Usa horas decimales: 1,5 es una hora y media.',
+    unitError: hoursUnitError,
+  },
 ] as const;
 type Values = Record<keyof ProjectReviewInput, string>;
 
-function parseValues(values: Values): ProjectReviewInput {
-  return {
-    hourlyReference: parseSpanishNumber(values.hourlyReference),
-    finalPrice: parseSpanishNumber(values.finalPrice),
-    plannedHours: parseSpanishNumber(values.plannedHours),
-    actualHours: parseSpanishNumber(values.actualHours),
+function checkReview(values: Values) {
+  const input = {
+    hourlyReference: parseSpanishNumber(values.hourlyReference, 'EUR'),
+    finalPrice: parseSpanishNumber(values.finalPrice, 'EUR'),
+    plannedHours: parseSpanishNumber(values.plannedHours, 'none'),
+    actualHours: parseSpanishNumber(values.actualHours, 'none'),
   };
+  const checked = reviewProject(input);
+  if (checked.valid) return checked;
+
+  const errors = { ...checked.errors };
+  for (const { key, unitError } of fields) {
+    if (Number.isNaN(input[key]) && Number.isFinite(parseSpanishNumber(values[key]))) {
+      errors[key] = unitError;
+    }
+  }
+  return { ...checked, errors };
 }
 
 export default function ProjectReview() {
@@ -33,12 +60,12 @@ export default function ProjectReview() {
   const [isExample, setIsExample] = useState(false);
   const [reviewBeforeExample, setReviewBeforeExample] = useState<Values | null>(null);
   const [recoveryFeedback, setRecoveryFeedback] = useState('');
-  const review = checked ? reviewProject(parseValues(checked)) : null;
-  const validation = hasAttemptedReview ? reviewProject(parseValues(values)) : null;
+  const review = checked ? checkReview(checked) : null;
+  const validation = hasAttemptedReview ? checkReview(values) : null;
 
   function calculate(next = values) {
     setRecoveryFeedback('');
-    const result = reviewProject(parseValues(next));
+    const result = checkReview(next);
     setHasAttemptedReview(true);
     const normalized = result.valid ? {
       hourlyReference: formatNumber(result.hourlyReference),
