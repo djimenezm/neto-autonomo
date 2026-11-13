@@ -1083,7 +1083,8 @@ select[aria-invalid='true'] {
 .cost-calculator-shell .calculator-form > .radio-group,
 .cost-calculator-shell .calculator-form > button,
 .cost-calculator-shell .calculator-form > .form-note,
-.cost-calculator-shell .calculator-form > .form-message {
+.cost-calculator-shell .calculator-form > .form-message,
+.cost-calculator-shell .calculator-form > .calculator-error-summary {
   grid-column: 1 / -1;
 }
 
@@ -1713,7 +1714,8 @@ select[aria-invalid='true'] {
     scroll-margin-top: 8rem;
   }
 
-  #calculadora {
+  #calculadora,
+  .calculator-form input[aria-invalid='true'] {
     scroll-margin-top: 8rem;
   }
 
