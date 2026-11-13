@@ -8,13 +8,35 @@ import { parseSpanishNumber } from '@/lib/spanishNumber';
 import styles from './AnnualBillingPlanner.module.css';
 
 const fields = [
-  { key: 'activeMonths', label: 'Meses completos con facturación en el año', hint: 'Entre 1 y 12. Repartimos la misma facturación entre esos meses; no modelamos meses parciales.' },
-  { key: 'hoursPerActiveMonth', label: 'Horas facturables en cada mes activo', hint: 'Horas vendibles de un mes con actividad, después de gestión y descansos. No uses aquí una media anual que ya incluya meses sin trabajar.' },
+  {
+    key: 'activeMonths', label: 'Meses completos con facturación en el año',
+    hint: 'Entre 1 y 12. Repartimos la misma facturación entre esos meses; no modelamos meses parciales.',
+    unitError: 'Escribe solo el número de meses, sin moneda ni porcentaje.',
+  },
+  {
+    key: 'hoursPerActiveMonth', label: 'Horas facturables en cada mes activo',
+    hint: 'Horas vendibles de un mes con actividad, después de gestión y descansos. No uses aquí una media anual que ya incluya meses sin trabajar.',
+    unitError: 'Escribe solo el número de horas, sin moneda ni porcentaje.',
+  },
 ] as const;
 type Values = Record<(typeof fields)[number]['key'], string>;
 
 function checkCalendar(monthlyBilling: number, values: Values) {
-  return planAnnualBilling({ monthlyBilling, activeMonths: parseSpanishNumber(values.activeMonths), hoursPerActiveMonth: parseSpanishNumber(values.hoursPerActiveMonth) });
+  const input = {
+    monthlyBilling,
+    activeMonths: parseSpanishNumber(values.activeMonths, 'none'),
+    hoursPerActiveMonth: parseSpanishNumber(values.hoursPerActiveMonth, 'none'),
+  };
+  const plan = planAnnualBilling(input);
+  if (plan.valid) return plan;
+
+  const errors = { ...plan.errors };
+  for (const { key, unitError } of fields) {
+    if (Number.isNaN(input[key]) && Number.isFinite(parseSpanishNumber(values[key]))) {
+      errors[key] = unitError;
+    }
+  }
+  return { ...plan, errors };
 }
 
 function PlanEditor({ monthlyBilling }: { monthlyBilling: number }) {

@@ -83,6 +83,37 @@ describe('current validation while correcting the annual billing calendar', () =
     expect(within(result()).getByText('Horas facturables de todo el año').nextElementSibling).toHaveTextContent('8928 h');
   });
 
+  it('rejects units pasted into months and hours until the corrected calendar is checked', async () => {
+    const user = userEvent.setup();
+    render(<Planner monthlyBilling={1200} />);
+    await example();
+    expect(within(result()).getByText('Facturación por cada mes activo')).toBeVisible();
+
+    await user.clear(months());
+    await user.paste('10 %');
+    change(hours(), '70 €');
+    await check();
+    expect(months()).toHaveValue('10 %');
+    expect(hours()).toHaveValue('70 €');
+    expect(months()).toHaveFocus();
+    expect(months()).toHaveAttribute('aria-invalid', 'true');
+    expect(hours()).toHaveAttribute('aria-invalid', 'true');
+    expect(months()).toHaveAccessibleDescription(/número de meses, sin moneda ni porcentaje/);
+    expect(hours()).toHaveAccessibleDescription(/número de horas, sin moneda ni porcentaje/);
+    expectNoPlan();
+
+    change(months(), '10');
+    expect(months()).toHaveAttribute('aria-invalid', 'false');
+    expect(hours()).toHaveAttribute('aria-invalid', 'true');
+    expectNoPlan();
+    change(hours(), '70');
+    expect(pending()).toBeVisible();
+    expectNoPlan();
+    await user.type(hours(), '{Enter}');
+    expect(within(result()).getByText('Facturación por cada mes activo').nextElementSibling).toHaveTextContent('1440,00');
+    expect(within(result()).getByText('Horas facturables de todo el año').nextElementSibling).toHaveTextContent('700 h');
+  });
+
   it('preserves raw precision through failed checking and correction, normalizing hours only when Enter checks a valid calendar', async () => {
     render(<Planner monthlyBilling={1200} />);
     change(months(), '10,5');
