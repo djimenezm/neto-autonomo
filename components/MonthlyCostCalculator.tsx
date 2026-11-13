@@ -275,6 +275,7 @@ export default function MonthlyCostCalculator() {
             className="monthly-cost-transfer"
             action="/#calculadora"
             method="get"
+            rel="noopener"
             noValidate
             onSubmit={(event) => {
               if (!canTransfer) {
@@ -346,6 +347,17 @@ export default function MonthlyCostCalculator() {
             <button type="submit" className="primary-button" aria-describedby="monthly-cost-transfer-scenario">
               Usar estos datos en mi tarifa
             </button>
+            <button
+              type="submit"
+              className="link-button"
+              formTarget="_blank"
+              aria-describedby="monthly-cost-transfer-scenario monthly-cost-new-tab-hint"
+            >
+              Abrir mi tarifa en otra pestaña
+            </button>
+            <p className="form-note" id="monthly-cost-new-tab-hint">
+              Podrás volver a esta pestaña para ajustar los pagos y sus frecuencias sin volver a introducirlos.
+            </p>
           </form>
         </div>
       )}

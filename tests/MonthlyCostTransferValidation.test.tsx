@@ -116,6 +116,29 @@ describe('accessible correction of the monthly cost transfer', () => {
     expect(screen.getByRole('alert')).toHaveTextContent('Indica un importe deducible entre 0 y 160,00');
   });
 
+  it('uses the same validation and transfer data when opening a separate tab', async () => {
+    render(<MonthlyCostCalculator />);
+    const openTariff = screen.getByRole<HTMLButtonElement>('button', { name: 'Abrir mi tarifa en otra pestaña' });
+    const form = openTariff.form!;
+    const onSubmit = vi.fn((event: Event) => event.preventDefault());
+    form.addEventListener('submit', onSubmit);
+
+    await userEvent.click(openTariff);
+    expect(deductible()).toHaveFocus();
+    expect(deductible()).toHaveAttribute('aria-invalid', 'true');
+    change(deductible(), '100');
+
+    await userEvent.click(openTariff);
+    expect(onSubmit).toHaveBeenCalledTimes(2);
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    expect(openTariff).toHaveAttribute('formtarget', '_blank');
+    expect(openTariff).toHaveAccessibleDescription(/ajustar los pagos y sus frecuencias/);
+    expect(screen.getByRole('button', { name: 'Usar estos datos en mi tarifa' })).not.toHaveAttribute('formtarget');
+    expect(form).toHaveAttribute('action', '/#calculadora');
+    expect(new FormData(form, openTariff).get('monthlyExpenses')).toBe('100.00');
+    expect(deductible()).toHaveValue('100');
+  });
+
   it('updates the deductible limit after a payment change while preserving its raw draft and the active field', async () => {
     const user = userEvent.setup();
     const { container } = render(<MonthlyCostCalculator />);

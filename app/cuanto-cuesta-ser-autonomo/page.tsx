@@ -214,6 +214,7 @@ export default function CuantoCuestaSerAutonomoPage() {
           <p>El total anual se obtiene de los pagos, antes de redondear la media mensual. Por ejemplo, 100 EUR anuales son {formatNumber(100 / 12, 2)} EUR al mes al mostrar dos decimales; multiplicar esa cifra redondeada por 12 da 99,96 EUR. Conservamos los 100 EUR en el total anual para no perder esos céntimos.</p>
           <p>Al trasladar los datos a la tarifa, la cuota mensual va por separado. En el ejemplo, los otros {formatCurrency(costExample.monthlyOtherCosts)} mensuales se reparten según el importe deducible que indiques. El reparto se redondea a céntimos y se muestra antes de abrir la calculadora de tarifa: comprueba el deducible y el resto no deducible que vas a trasladar. No añadas la cuota otra vez ni repitas un mismo recibo en dos categorías.</p>
           <p>El traslado abre un cálculo nuevo con tus costes mensuales, horas y cuota manual; no recupera un escenario anterior. Antes de calcular, revisa el neto mensual deseado, el criterio de IRPF, la comunidad y la opción de IVA.</p>
+          <p>Usa «Abrir mi tarifa en otra pestaña» si quieres conservar el desglose para hacer ajustes. Vuelve a la pestaña de costes para editar los pagos o las frecuencias y abrir una nueva estimación.</p>
           <p>Para observar cómo se mueve el saldo, prepara el <Link href="#plan-caja">plan de cobros y pagos de tres meses</Link>. Introduce el pago anual en el mes en que saldrá de la cuenta, sin repartirlo de nuevo entre doce.</p>
         </div>
       </section>
