@@ -393,6 +393,34 @@ select[aria-invalid='true'] {
   font-weight: 400;
 }
 
+.calculator-error-summary {
+  border: 1px solid #c2412d;
+  border-radius: 12px;
+  padding: 0.85rem 1rem;
+  background: #fff7f5;
+}
+
+.calculator-error-summary ul {
+  margin: 0.25rem 0 0;
+  padding-inline-start: 1.2rem;
+}
+
+.calculator-error-summary button {
+  min-height: 2rem;
+  padding: 0.15rem 0;
+  border: 0;
+  background: transparent;
+  color: var(--accent-dark);
+  font: inherit;
+  text-align: start;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.calculator-form input[aria-invalid='true'] {
+  scroll-margin-top: 7rem;
+}
+
 .field-hint {
   margin: -0.15rem 0 0;
   color: var(--muted);

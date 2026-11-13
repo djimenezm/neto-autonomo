@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import CalculatorForm from '@/components/CalculatorForm';
@@ -81,7 +81,7 @@ describe('CalculatorForm', () => {
     expect(window.location.search).toContain('monthlyNonDeductibleExpenses=60');
   });
 
-  it('retains unit errors from a shared link on blur until the corresponding fields are corrected', async () => {
+  it('lets users jump to the remaining unit errors from a shared link', async () => {
     const user = userEvent.setup();
     const query = new URLSearchParams({ targetNet: '1800 USD', billableHours: '100 €', irpfMode: 'manual', irpfRate: '15 EUR' });
     render(<CalculatorForm initiallySubmitted enableResultShareCopy initialValues={readCalculatorQuery((key) => query.get(key) ?? undefined)} />);
@@ -90,20 +90,39 @@ describe('CalculatorForm', () => {
     const reserve = screen.getByRole('spinbutton', { name: /reserva de irpf para la simulación/i });
     const resultHeading = { name: /tu referencia mensual para presupuestar/i };
     const calculate = screen.getByRole('button', { name: /calcular mi tarifa/i });
+    const summaryName = 'Campos pendientes de corregir';
+    const summary = screen.getByRole('list', { name: summaryName });
+    const previousUrl = window.location.href;
 
-    await user.click(net);
-    await user.click(hours);
+    expect(summary.compareDocumentPosition(net) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    const shortcuts = within(summary).getAllByRole('button');
+    expect(shortcuts.map((button) => button.textContent)).toEqual([
+      'Neto mensual deseado (EUR)',
+      'Horas facturables al mes',
+      'Reserva de IRPF para la simulación (%)',
+    ]);
+    expect(net).not.toHaveFocus();
+    await user.tab();
+    expect(shortcuts[0]).toHaveFocus();
+    await user.keyboard('{Enter}');
+    expect(net).toHaveFocus();
+    await user.click(shortcuts[2]);
+    expect(reserve).toHaveFocus();
+    expect(window.location.href).toBe(previousUrl);
     expect(net).toHaveAccessibleDescription(/Introduce un importe en euros/);
     expect(hours).toHaveAccessibleDescription(/solo el número de horas, sin moneda ni porcentaje/);
     expect(reserve).toHaveAccessibleDescription(/un porcentaje sin símbolo ni código de moneda/);
     expect(screen.queryByRole('heading', resultHeading)).not.toBeInTheDocument();
 
     await user.type(net, '1800');
+    expect(net).toHaveFocus();
+    expect(within(summary).getAllByRole('button')).toHaveLength(2);
     expect(net).toHaveAttribute('aria-invalid', 'false');
     expect(hours).toHaveAttribute('aria-invalid', 'true');
     expect(reserve).toHaveAttribute('aria-invalid', 'true');
     await user.type(hours, '100');
     await user.type(reserve, '15');
+    expect(screen.queryByRole('list', { name: summaryName })).not.toBeInTheDocument();
     expect(screen.queryByRole('heading', resultHeading)).not.toBeInTheDocument();
     await user.click(calculate);
     expect(screen.getByRole('heading', resultHeading)).toBeVisible();

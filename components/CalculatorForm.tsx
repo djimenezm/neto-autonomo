@@ -43,6 +43,16 @@ type CalculatorFormProps = {
 
 const googleAdsCalculatorConversion = `${siteConfig.googleAdsId}/${siteConfig.googleAdsCalculatorConversionLabel}`;
 
+const numericFieldLabels = {
+  targetNet: 'Neto mensual deseado (EUR)',
+  monthlyExpenses: 'Gastos mensuales deducibles (EUR)',
+  monthlyNonDeductibleExpenses: 'Gastos mensuales no deducibles (EUR)',
+  billableHours: 'Horas facturables al mes',
+  irpfRate: 'Reserva de IRPF para la simulación (%)',
+  selfEmployedFee: 'Cuota manual de autónomos (EUR)',
+} satisfies Record<FieldName, string>;
+const numericFields = Object.keys(numericFieldLabels) as FieldName[];
+
 declare global {
   interface Window {
     va?: (
@@ -339,12 +349,30 @@ export default function CalculatorForm({
         }}
         className="calculator-form"
       >
+        {hasAttemptedCalculation && hasValidationErrors && (
+          <div className="calculator-error-summary">
+            <p className="form-message" role="alert">Revisa los campos marcados antes de calcular.</p>
+            <ul aria-label="Campos pendientes de corregir">
+              {numericFields.filter((field) => validationErrors[field]).map((field) => (
+                <li key={field}>
+                  <button type="button" onClick={() => {
+                    const input = formRef.current?.querySelector<HTMLInputElement>(`input[name="${field}"]`);
+                    input?.focus({ preventScroll: true });
+                    input?.scrollIntoView?.({ block: 'start', behavior: 'instant' });
+                  }}>
+                    {numericFieldLabels[field]}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
         <p className="form-note" id="calculator-amount-format-hint">
           Al escribir importes, usa <strong>1500 sin separador de miles</strong>.
           {' '}Si copias una cifra, puedes pegarla como <strong>1.500,50 €</strong>.
         </p>
         <label>
-          <span id="target-net-label">Neto mensual deseado (EUR)</span>
+          <span id="target-net-label">{numericFieldLabels.targetNet}</span>
           <input
             name="targetNet"
             type="number"
@@ -366,7 +394,7 @@ export default function CalculatorForm({
         </label>
 
         <label>
-          <span id="monthly-expenses-label">Gastos mensuales deducibles (EUR)</span>
+          <span id="monthly-expenses-label">{numericFieldLabels.monthlyExpenses}</span>
           <input
             name="monthlyExpenses"
             type="number"
@@ -394,7 +422,7 @@ export default function CalculatorForm({
         </label>
 
         <label>
-          <span id="monthly-non-deductible-expenses-label">Gastos mensuales no deducibles (EUR)</span>
+          <span id="monthly-non-deductible-expenses-label">{numericFieldLabels.monthlyNonDeductibleExpenses}</span>
           <input
             name="monthlyNonDeductibleExpenses"
             type="number"
@@ -425,7 +453,7 @@ export default function CalculatorForm({
         </label>
 
         <label>
-          <span id="billable-hours-label">Horas facturables al mes</span>
+          <span id="billable-hours-label">{numericFieldLabels.billableHours}</span>
           <input
             name="billableHours"
             type="number"
@@ -512,7 +540,7 @@ export default function CalculatorForm({
 
         {irpfMode === 'manual' && (
           <label>
-            <span id="irpf-rate-label">Reserva de IRPF para la simulación (%)</span>
+            <span id="irpf-rate-label">{numericFieldLabels.irpfRate}</span>
             <input
               name="irpfRate"
               type="number"
@@ -583,7 +611,7 @@ export default function CalculatorForm({
 
         {selfEmployedFeeMode === 'manual' && (
           <label>
-            <span id="self-employed-fee-label">Cuota manual de autónomos (EUR)</span>
+            <span id="self-employed-fee-label">{numericFieldLabels.selfEmployedFee}</span>
             <input
               name="selfEmployedFee"
               type="number"
@@ -658,11 +686,6 @@ export default function CalculatorForm({
           </p>
         ) : null}
 
-        {hasAttemptedCalculation && hasValidationErrors && (
-          <p className="form-message" role="alert">
-            Revisa los campos marcados antes de calcular.
-          </p>
-        )}
       </form>
 
       {submitted && !hasValidationErrors && (
