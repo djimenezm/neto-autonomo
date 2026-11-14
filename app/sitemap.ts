@@ -27,7 +27,7 @@ const lastContentUpdates: Record<string, string> = {
   '/cuanto-facturar-autonomo-1500-euros': '2026-10-27',
   '/tarifa-freelance-por-hora': '2026-10-28',
   '/cuanto-facturar-autonomo': '2026-10-28',
-  '/kit-tarifa-autonomo': '2026-10-27',
+  '/kit-tarifa-autonomo': '2026-11-14',
   '/tarifa-diaria-freelance': '2026-10-27',
   '/cuanto-cuesta-ser-autonomo': '2026-10-31',
   '/cuanto-facturar-autonomo-3000-euros': '2026-11-01',

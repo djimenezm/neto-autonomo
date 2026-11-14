@@ -5,6 +5,7 @@ import { join } from 'node:path';
 import Footer from '@/components/Footer';
 import Header from '@/components/Header';
 import ProjectReview from '@/components/ProjectReview';
+import WorkLogProjection from '@/components/WorkLogProjection';
 import { formatCurrency, formatNumber } from '@/lib/format';
 import { projectReviewExample, reviewProject } from '@/lib/projectReview';
 import { workLogReview, workLogTotals, workLogWeeks } from '@/lib/workLogExample';
@@ -14,13 +15,14 @@ import styles from './kit.module.css';
 const route = '/kit-tarifa-autonomo';
 const title = 'Kit de tarifa para autónomos';
 const description =
-  'Ficha de tarifa, registro de cuatro semanas y comprobador de encargos terminados. Compara precio y horas reales, con ejemplos y descarga gratuita sin registro.';
+  'Registra cuatro semanas de trabajo y estima tus horas facturables al mes. Incluye ficha de tarifa y comprobador de encargos terminados, sin cuenta ni correo.';
+const updatedOn = '2026-11-14';
 
 const faqItems = [
   {
     question: '¿Qué incluye este kit de tarifa para autónomos?',
     answer:
-      'Incluye una ficha de supuestos de tarifa, un registro diario y resumen de cuatro semanas, una revisión de las horas previstas, un comprobador de precio y tiempo de encargos terminados y las listas de comprobación y guion de precio.',
+      'Incluye una ficha de supuestos de tarifa, un registro diario, una herramienta para proyectar cuatro semanas de horas registradas y un comprobador de precio y tiempo de encargos terminados.',
   },
   {
     question: '¿Necesito dejar mi correo para descargarlo?',
@@ -35,7 +37,7 @@ const faqItems = [
   {
     question: '¿Se guardan aquí los datos de la ficha o del comprobador?',
     answer:
-      'El sitio no recibe lo que escribas en tu copia descargada. Los valores del comprobador solo se mantienen en la memoria de la página mientras la uses: no se envían, no se guardan ni se añaden al enlace.',
+      'Los datos de la ficha quedan en tu copia descargada. Los valores de las herramientas solo se mantienen mientras usas la página. Apunta en tu ficha el resultado que quieras conservar.',
   },
   {
     question: '¿El ingreso por hora de un encargo es beneficio neto?',
@@ -102,7 +104,7 @@ export default function KitTarifaAutonomoPage() {
       name: siteConfig.name,
     },
     datePublished: '2026-04-26',
-    dateModified: '2026-10-27',
+    dateModified: updatedOn,
     accountablePerson: { '@type': 'Person', name: siteConfig.ownerName },
   };
 
@@ -169,7 +171,7 @@ export default function KitTarifaAutonomoPage() {
             <ul className="article-list">
               <li>Una ficha para conservar los datos y el resultado de tu cálculo.</li>
               <li>Un registro diario y resumen de cuatro semanas.</li>
-              <li>Una revisión de horas previstas frente al trabajo registrado.</li>
+              <li>Una herramienta para comparar tu previsión con las horas registradas.</li>
               <li>Un comprobador de precio y horas reales por encargo.</li>
               <li>Listas de comprobación y un guion para explicar el precio.</li>
             </ul>
@@ -251,6 +253,7 @@ export default function KitTarifaAutonomoPage() {
             Las otras {workLogTotals.total - workLogTotals.clientWork} h también son trabajo,
             aunque no generen una factura directa.
           </p>
+          <p><Link href="#revisar-horas" className="text-link">Ya tengo mis cuatro totales semanales</Link></p>
         </div>
       </section>
 
@@ -270,11 +273,9 @@ export default function KitTarifaAutonomoPage() {
             de un ejemplo. Cuatro semanas con una entrega excepcional, vacaciones o pocos encargos
             pueden no representar tu actividad anual. Amplía el registro y anota qué cambia.
           </div>
-          <p>
-            Con tus propios datos, revisa el campo de horas de la calculadora. Si prevés vender menos
-            horas que la capacidad estimada, usa la cifra menor. Conserva los otros supuestos si quieres
-            observar solo el efecto de cambiar las horas; guarda después la fecha y el nuevo cálculo.
-          </p>
+          <p>Introduce los cuatro totales semanales de tu ficha y las semanas que prevés estar sin actividad en un año. Si tu registro incluye vacaciones que ya descuentas en la previsión anual, toma cuatro semanas representativas de trabajo para evitar contarlas dos veces.</p>
+          <WorkLogProjection />
+          <p>Para ver el efecto de las horas sobre tu tarifa, abre el enlace que guardaste en la ficha, conserva los demás supuestos y cambia solo las horas. Apunta la fecha y el resultado para compararlos la próxima vez que revises tu registro.</p>
           <div className="guide-cta">
             <Link href="/#calculadora" className="primary-button">Recalcular con mis datos</Link>
             <Link href="/horas-facturables-freelance" className="text-link">Ver el método de horas y semanas sin actividad</Link>
@@ -351,7 +352,7 @@ export default function KitTarifaAutonomoPage() {
           <p className="scenario-note">
             Responsable del sitio: <Link href="/aviso-legal">{siteConfig.ownerName}</Link>.
             {' '}Método: ficha de trabajo propia con ejemplo hipotético, no un estudio de mercado.
-            {' '}Actualizado el <time dateTime="2026-10-27">27 de octubre de 2026</time>.
+            {' '}Actualizado el <time dateTime={updatedOn}>14 de noviembre de 2026</time>.
           </p>
         </div>
       </section>

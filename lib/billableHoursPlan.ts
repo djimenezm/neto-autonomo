@@ -23,6 +23,27 @@ function decimalParts(value: number) {
   };
 }
 
+function toScaledIntegers(values: readonly number[]) {
+  const parts = values.map(decimalParts);
+  const places = Math.max(0, ...parts.map((part) => part.places));
+  const ten = BigInt(10);
+  const unit = ten ** BigInt(places);
+  return { unit, places, scaled: parts.map((part) => part.units * ten ** BigInt(places - part.places)) };
+}
+
+export function projectRecordedHours(weeks: readonly [number, number, number, number], weeksOff: number) {
+  const { unit, places, scaled: [weekOne, weekTwo, weekThree, weekFour, off] } = toScaledIntegers([...weeks, weeksOff]);
+  const totalUnits = weekOne + weekTwo + weekThree + weekFour;
+  const annualUnits = totalUnits * (BigInt(52) * unit - off);
+  const annualHours = Number(`${annualUnits}e-${places * 2}`) / weeks.length;
+
+  return {
+    averageWeeklyHours: Number(`${totalUnits}e-${places}`) / weeks.length,
+    monthlyHours: annualHours / 12,
+    hoursToApply: Number(annualUnits / (BigInt(weeks.length * 12) * unit * unit)),
+  };
+}
+
 export function estimateBillableHours(plan: BillableHoursPlan) {
   const errors: BillableHoursPlanErrors = {};
   const limits = { daysPerWeek: 7, hoursPerDay: 24, weeksOff: 52 } as const;
@@ -43,13 +64,7 @@ export function estimateBillableHours(plan: BillableHoursPlan) {
 
   // Preserve the entered decimal precision. Binary arithmetic can make an exact
   // 42-hour month become 41.999… or reject a week with exactly zero capacity.
-  const parts = fields.map((field) => decimalParts(plan[field]));
-  const places = Math.max(0, ...parts.map((part) => part.places));
-  const ten = BigInt(10);
-  const unit = ten ** BigInt(places);
-  const [days, hours, nonBillableHours, weeksOff] = parts.map(
-    (part) => part.units * ten ** BigInt(places - part.places),
-  );
+  const { unit, places, scaled: [days, hours, nonBillableHours, weeksOff] } = toScaledIntegers(fields.map((field) => plan[field]));
   const weeklyWorkUnits = days * hours;
   const weeklyBillableUnits = weeklyWorkUnits - nonBillableHours * unit;
   if (weeklyBillableUnits < BigInt(0)) {

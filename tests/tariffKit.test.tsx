@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { render, screen, within } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import userEvent from '@testing-library/user-event';
 import Kit, { metadata } from '@/app/kit-tarifa-autonomo/page';
@@ -46,18 +46,20 @@ describe('the usable tariff worksheet', () => {
     const document = new DOMParser().parseFromString(renderToStaticMarkup(<Kit />), 'text/html');
     const schemas = [...document.querySelectorAll('script[type="application/ld+json"]')].map((script) => JSON.parse(script.textContent!));
     expect(schemas.map((schema) => schema['@type'])).toEqual(['Article', 'BreadcrumbList', 'FAQPage']);
-    expect(schemas[0].dateModified).toBe('2026-10-27');
+    expect(schemas[0].dateModified).toBe('2026-11-14');
     expect(schemas[0].mainEntityOfPage).toBe('https://www.cuantofacturar.es/kit-tarifa-autonomo');
     expect(schemas[2].mainEntity).toHaveLength(5);
     expect(document.querySelector('pre')?.textContent).toContain('RESUME LAS CUATRO SEMANAS');
-    expect(document.querySelectorAll('form')).toHaveLength(0);
+    const projection = document.querySelector('section[aria-labelledby="revisar-horas"] form');
+    expect(projection?.getAttribute('action')).toBeNull();
+    expect(projection?.querySelectorAll('input[name]')).toHaveLength(0);
     const reviewSection = document.querySelector('section[aria-labelledby="revision-encargo"]');
     expect(reviewSection?.textContent).toContain('33,33');
     expect(reviewSection?.textContent).toContain('80,00');
     expect(reviewSection?.querySelectorAll('table')).toHaveLength(1);
     expect(reviewSection?.querySelectorAll('input')).toHaveLength(4);
     expect(reviewSection?.querySelectorAll('input[name]')).toHaveLength(0);
-    expect(document.querySelector('time')?.getAttribute('datetime')).toBe('2026-10-27');
+    expect(document.querySelector('time')?.getAttribute('datetime')).toBe('2026-11-14');
     for (const question of schemas[2].mainEntity) {
       expect(document.body.textContent).toContain(question.name);
       expect(document.body.textContent).toContain(question.acceptedAnswer.text);
@@ -68,5 +70,35 @@ describe('the usable tariff worksheet', () => {
   it('makes the worksheet discoverable exactly where the hours guide asks the reader to keep a log', () => {
     render(<HoursGuide />);
     expect(screen.getByRole('link', { name: 'ficha y registro de cuatro semanas' })).toHaveAttribute('href', '/kit-tarifa-autonomo#registro-horas');
+  });
+
+  it('uses a complete log to compare with the previous estimate, preserving exact whole-hour boundaries', () => {
+    render(<Kit />);
+    const tool = within(screen.getByRole('form', { name: 'Proyecta tus horas a partir de cuatro semanas' }));
+    const hours = [6.43, 11.19, 11.19, 11.19].map((value, index) => ({
+      input: tool.getByRole('textbox', { name: `Semana ${index + 1} (horas)` }),
+      value: String(value).replace('.', ','),
+    }));
+    for (const { input, value } of hours) fireEvent.change(input, { target: { value } });
+    const weeksOff = tool.getByRole('textbox', { name: 'Semanas sin actividad al año' });
+    const previous = tool.getByRole('textbox', { name: /Horas de tu cálculo anterior/ });
+    const calculate = tool.getByRole('button', { name: 'Calcular mi previsión de horas' });
+    fireEvent.change(weeksOff, { target: { value: '1,6' } });
+    fireEvent.change(previous, { target: { value: '50' } });
+    fireEvent.click(calculate);
+    expect(tool.getByText('Horas enteras al mes para tu cálculo').nextElementSibling).toHaveTextContent('42 h');
+    expect(tool.getByRole('status')).toHaveTextContent('8 h menos al mes');
+
+    fireEvent.change(hours[0].input, { target: { value: '' } });
+    expect(tool.getByRole('status')).toBeEmptyDOMElement();
+    fireEvent.click(calculate);
+    expect(hours[0].input).toHaveFocus();
+    expect(hours[0].input).toHaveAttribute('aria-invalid', 'true');
+
+    fireEvent.change(hours[0].input, { target: { value: '0' } });
+    fireEvent.change(weeksOff, { target: { value: '52' } });
+    fireEvent.click(calculate);
+    expect(tool.getByText('Horas enteras al mes para tu cálculo').nextElementSibling).toHaveTextContent('0 h');
+    expect(tool.getByRole('status')).toHaveTextContent('Revisa el registro o las semanas de actividad');
   });
 });
