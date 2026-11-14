@@ -25,7 +25,7 @@ describe('3000-euro goal and capacity guide', () => {
     const document = new DOMParser().parseFromString(renderToStaticMarkup(<Guide />), 'text/html');
     const schemas = [...document.querySelectorAll('script[type="application/ld+json"]')].map((script) => JSON.parse(script.textContent!));
     expect(schemas.map((schema) => schema['@type'])).toEqual(['Article', 'BreadcrumbList', 'FAQPage']);
-    expect(schemas[0].dateModified).toBe('2026-11-07');
+    expect(schemas[0].dateModified).toBe('2026-11-14');
     expect(document.querySelector('time')?.getAttribute('datetime')).toBe(schemas[0].dateModified);
     expect(schemas[2].mainEntity).toHaveLength(5);
     for (const item of schemas[2].mainEntity) {
@@ -74,6 +74,9 @@ describe('3000-euro goal and capacity guide', () => {
     expect(section).toHaveTextContent('faltan 6 h');
     expect(section).toHaveTextContent('3400,00');
     expect(section).toHaveTextContent('749,41');
+    expect(section).toHaveTextContent('24 h libres');
+    expect(section).toHaveTextContent(/31,23\s*€\/h sin IVA/);
+    expect(section).toHaveTextContent('cambia la cantidad del primer grupo de 3 a 2');
     expect(region).toHaveAttribute('tabindex', '0');
     expect(section).toHaveTextContent('no copies el precio completo en todos los meses');
     expect(screen.getByRole('link', { name: 'combinación de servicios del mismo mes' })).toHaveAttribute('href', '#combinar-encargos');

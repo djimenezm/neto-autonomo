@@ -19,6 +19,20 @@ describe('monthly services portfolio', () => {
     expect(planMonthlyPortfolio({ monthlyBilling: 0.3, billableHours: 0.3, groups: [group, { ...group, quantity: 2 }] })).toMatchObject({ valid: true, plannedBilling: 0.3, plannedHours: 0.3, billingDifference: 0, remainingHours: 0, coversBilling: true, fitsHours: true });
   });
 
+  it('rounds the rate needed on free hours up to the cent only while there is a shortfall and capacity', () => {
+    expect(portfolioShortfallResult).toMatchObject({ valid: true, remainingHourlyRate: 31.23 });
+    expect(portfolioExampleResult).toMatchObject({ valid: true, remainingHourlyRate: null });
+    const input = { monthlyBilling: 0.3, billableHours: 0.6, groups: [{ quantity: 1, pricePerProject: 0.21, hoursPerProject: 0.3 }] };
+    expect(planMonthlyPortfolio(input)).toMatchObject({ valid: true, remainingHourlyRate: 0.3 });
+    expect(planMonthlyPortfolio({ ...input, billableHours: 0.3 })).toMatchObject({ valid: true, coversBilling: false, remainingHourlyRate: null });
+    expect(planMonthlyPortfolio({ ...input, billableHours: 0.2 })).toMatchObject({ valid: true, coversBilling: false, remainingHourlyRate: null });
+  });
+
+  it('keeps valid monthly totals when the required rate cannot be shown precisely', () => {
+    expect(planMonthlyPortfolio({ monthlyBilling: 1e13, billableHours: 0.02, groups: [{ quantity: 1, pricePerProject: 0, hoursPerProject: 0.01 }] }))
+      .toMatchObject({ valid: true, billingDifference: -1e13, remainingHours: 0.01, remainingHourlyRate: null });
+  });
+
   it('uses displayed precision before multiplying rather than rounding each total afterwards', () => {
     expect(planMonthlyPortfolio({ monthlyBilling: 0.33, billableHours: 3.03, groups: [{ quantity: 3, pricePerProject: 0.105, hoursPerProject: 1.005 }] })).toMatchObject({ valid: true, groups: [{ quantity: 3, pricePerProject: 0.11, hoursPerProject: 1.01, billing: 0.33, hours: 3.03 }], billingDifference: 0, remainingHours: 0 });
   });

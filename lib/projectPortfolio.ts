@@ -60,6 +60,17 @@ export function planMonthlyPortfolio(input: PortfolioInput) {
   if (errors.monthlyBilling || errors.billableHours || errors.groups || errors.rows.some((row) => Object.keys(row).length)) {
     return { valid: false, errors } as const;
   }
+  const missingCents = targetCents - totalCents;
+  const freeTicks = capacityTicks - totalTicks;
+  let remainingHourlyRate: number | null = null;
+  if (missingCents > 0 && freeTicks > 0) {
+    const divisor = BigInt(freeTicks);
+    const rateCents = (BigInt(missingCents) * BigInt(100) + divisor - BigInt(1)) / divisor;
+    if (rateCents <= BigInt(Number.MAX_SAFE_INTEGER)) {
+      const rate = Number(rateCents) / 100;
+      if (toHundredths(rate) === Number(rateCents)) remainingHourlyRate = rate;
+    }
+  }
   return {
     valid: true,
     monthlyBilling: targetCents / 100,
@@ -68,8 +79,9 @@ export function planMonthlyPortfolio(input: PortfolioInput) {
     plannedBilling: totalCents / 100,
     plannedHours: totalTicks / 100,
     billingDifference: (totalCents - targetCents) / 100,
-    remainingHours: (capacityTicks - totalTicks) / 100,
-    coversBilling: totalCents >= targetCents,
-    fitsHours: totalTicks <= capacityTicks,
+    remainingHours: freeTicks / 100,
+    remainingHourlyRate,
+    coversBilling: missingCents <= 0,
+    fitsHours: freeTicks >= 0,
   } as const;
 }

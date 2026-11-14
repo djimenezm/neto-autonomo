@@ -70,6 +70,22 @@ describe('monthly portfolio editor', () => {
     expect(screen.getByRole('status', status)).toHaveTextContent('quedan 48 h');
   });
 
+  it('shows the rate for the hours left and explains when the shortfall cannot fit in the month', async () => {
+    const user = userEvent.setup();
+    render(<Planner {...reference} />);
+    const output = screen.getByRole('status', status);
+    await user.click(screen.getByRole('button', { name: 'Probar dos servicios ficticios' }));
+    expect(output).not.toHaveTextContent('media de');
+    fireEvent.change(field(1, 'quantity'), { target: { value: '2' } });
+    await user.click(screen.getByRole('button', { name: 'Comprobar combinación' }));
+    expect(output).toHaveTextContent(/24 h libres.*31,23.*sin IVA/);
+
+    fireEvent.change(field(2, 'hours'), { target: { value: '56' } });
+    expect(output).not.toHaveTextContent('31,23');
+    await user.type(field(2, 'hours'), '{Enter}');
+    expect(output).toHaveTextContent('Falta facturación y el plan no deja horas libres para cubrirla.');
+  });
+
   it('accepts Spanish decimals and normalizes unit values before multiplication', async () => {
     const user = userEvent.setup();
     render(<Planner monthlyBilling={0.33} billableHours={3.03} />);

@@ -14,6 +14,7 @@ import styles from './capacityGuide.module.css';
 
 const route = '/cuanto-facturar-autonomo-3000-euros';
 const title = 'Cuánto facturar como autónomo para ganar 3000 euros netos';
+const updatedOn = '2026-11-14';
 const description =
   'Ejemplo para conservar 3000 euros netos: combina cuotas mensuales y proyectos de distintos precios y horas. Comprueba la facturación prevista y si cabe en tu mes.';
 
@@ -87,7 +88,9 @@ export default function CuantoFacturarAutonomo3000EurosPage() {
   const portfolio = portfolioExampleResult;
   const overloadedPortfolio = portfolioOverloadResult;
   const shortPortfolio = portfolioShortfallResult;
-  if (!regular.valid || !slower.valid || !portfolio.valid || !overloadedPortfolio.valid || !shortPortfolio.valid) throw new Error('Invalid editorial project-capacity example');
+  if (!regular.valid || !slower.valid || !portfolio.valid || !overloadedPortfolio.valid || !shortPortfolio.valid || shortPortfolio.remainingHourlyRate === null) {
+    throw new Error('Invalid editorial project-capacity example');
+  }
   if (regular.projectReferencePrice === null || regular.projectPriceDifference === null
     || slower.projectReferencePrice === null || slower.projectPriceDifference === null) {
     throw new Error('Invalid editorial single-project comparison');
@@ -114,7 +117,7 @@ export default function CuantoFacturarAutonomo3000EurosPage() {
       name: siteConfig.name,
     },
     datePublished: '2026-04-26',
-    dateModified: '2026-11-07',
+    dateModified: updatedOn,
     accountablePerson: { '@type': 'Person', name: siteConfig.ownerName },
   };
 
@@ -211,7 +214,7 @@ export default function CuantoFacturarAutonomo3000EurosPage() {
 
       <section className="section" aria-labelledby="ejemplo-encargos">
         <div className="container text-block">
-          <p className="article-meta">Actualizada el <time dateTime="2026-11-07">7 de noviembre de 2026</time>. Responsable: {siteConfig.ownerName}.</p>
+          <p className="article-meta">Actualizada el <time dateTime={updatedOn}>14 de noviembre de 2026</time>. Responsable: {siteConfig.ownerName}.</p>
           <h2 id="ejemplo-encargos">Dos encargos pueden cubrir el importe y superar tu capacidad</h2>
           <p>
             Partimos de {formatEuro(exampleAssumptions.monthlyExpenses)} de gastos deducibles,
@@ -373,6 +376,15 @@ export default function CuantoFacturarAutonomo3000EurosPage() {
             Con solo dos cuotas y el proyecto inicial, serían {formatEuro(shortPortfolio.plannedBilling)} y
             {' '}{shortPortfolio.plannedHours} h: caben por tiempo, pero faltan {formatEuro(-shortPortfolio.billingDifference)}
             {' '}para la facturación objetivo.
+          </p>
+          <h3>Cuánto tendrías que facturar en las horas que quedan</h3>
+          <p>
+            Divide los {formatEuro(-shortPortfolio.billingDifference)} pendientes entre las {formatNumber(shortPortfolio.remainingHours)} h libres.
+            Para cubrir la diferencia con esas horas, necesitarías una media de <strong>{formatEuro(shortPortfolio.remainingHourlyRate)}/h sin IVA</strong>, redondeada al céntimo superior.
+            Si prevés facturar menos de esas {formatNumber(shortPortfolio.remainingHours)} h, necesitarás una media más alta.
+          </p>
+          <p>
+            Para reproducir la cuenta, pulsa «Probar dos servicios ficticios», cambia la cantidad del primer grupo de 3 a 2 y pulsa «Comprobar combinación».
           </p>
           <p>
             Si pruebas los dos servicios ficticios, puedes volver a la combinación que tenías antes

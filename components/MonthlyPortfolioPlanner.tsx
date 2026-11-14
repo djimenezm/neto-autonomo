@@ -208,6 +208,15 @@ function PortfolioEditor({ monthlyBilling, billableHours }: Reference) {
             <p className={plan.fitsHours ? styles.fits : styles.shortfall}><strong>{plan.fitsHours
               ? plan.remainingHours === 0 ? 'Cabe por horas, sin holgura.' : `Cabe por horas; quedan ${formatNumber(plan.remainingHours)} h.`
               : `No cabe por horas: faltan ${formatNumber(-plan.remainingHours)} h de capacidad.`}</strong> La disponibilidad total no comprueba si las entregas coinciden en las mismas fechas.</p>
+            {!plan.coversBilling ? (
+              plan.remainingHourlyRate !== null ? (
+                <p>Para cubrir los {formatCurrency(-plan.billingDifference)} que faltan, las {formatNumber(plan.remainingHours)} h libres tendrían que facturarse a una media de <strong>{formatCurrency(plan.remainingHourlyRate)}/h sin IVA</strong>. Redondeamos al céntimo superior. Si facturas menos horas, la media necesaria sube.</p>
+              ) : (
+                <p>{plan.remainingHours <= 0
+                  ? 'Falta facturación y el plan no deja horas libres para cubrirla. Revisa los precios o el tiempo de los servicios previstos.'
+                  : 'El importe por hora necesario es demasiado grande para mostrarlo con precisión.'}</p>
+              )
+            ) : null}
           </div>
         ) : null}
       </div>
