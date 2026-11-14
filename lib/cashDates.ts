@@ -95,3 +95,13 @@ export const cashDatesExample: CashDatesInput = {
   ],
 };
 export const cashDatesExampleResult = checkCashDates(cashDatesExample);
+
+export const cashDatesAdvanceExample: CashDatesInput = {
+  initialBalance: cashDatesExample.initialBalance,
+  movements: [
+    { date: '2026-11-04', kind: 'receipt', amount: 800 },
+    cashDatesExample.movements[0],
+    { ...cashDatesExample.movements[1], amount: 1600 },
+    cashDatesExample.movements[2],
+  ],
+};

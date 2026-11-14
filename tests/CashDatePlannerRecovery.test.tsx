@@ -107,6 +107,26 @@ describe('recover the cash-date plan replaced by the first fictional example', (
     expectRecoveryFinished();
   });
 
+  it('compares an advance with the original dates and recovers the same draft after changing examples', async () => {
+    const user = userEvent.setup();
+    render(<Planner />);
+    fireEvent.change(initial(), { target: { value: '123,45' } });
+    await example();
+    expect(result()).toHaveTextContent(/−?\s*-?800,00/);
+
+    await user.click(screen.getByRole('button', { name: 'Probar el ejemplo con anticipo' }));
+    expect(result()).toHaveTextContent('Saldo mínimo con este orden supuesto0,00');
+    expect(result()).toHaveTextContent('Saldo tras la última fecha700,00');
+    fireEvent.change(field('Fecha', 1), { target: { value: '2026-11-05' } });
+    await user.click(screen.getByRole('button', { name: 'Comprobar vencimientos' }));
+    expect(result()).toHaveTextContent('Saldo mínimo con este orden supuesto-800,00');
+    expect(result()).toHaveTextContent('Saldo tras la última fecha700,00');
+
+    await restore();
+    expect(initial()).toHaveValue('123,45');
+    expectRecoveryFinished();
+  });
+
   it('keeps the backup when the current example is edited, extended or checked again', async () => {
     render(<Planner />);
     const original = await enterPartialPlan();

@@ -412,6 +412,7 @@ export default function CuantoFacturarAutonomo3000EurosPage() {
             {' '}ayuda a contar preparación y cierre. Este límite de horas no reserva fechas ni convierte una estimación en encargos vendidos.
           </p>
           <p>Comparamos importes sin IVA y no recalculamos el neto del volumen de encargos. La <a href="https://sede.agenciatributaria.gob.es/Sede/iva/regimenes-tributacion-iva/regimen-general.html">explicación del régimen general del IVA de la AEAT</a> distingue IVA repercutido y soportado deducible; esta ayuda no calcula esa liquidación.</p>
+          <p>Si tienes que pagar algo antes de cobrar el encargo, prueba <Link href="/cuanto-cuesta-ser-autonomo#anticipo-encargo">qué cambia en la caja al cobrar un anticipo</Link>.</p>
           <div className="guide-cta">
             <Link href="/#calculadora" className="primary-button">
               Calcular mi escenario

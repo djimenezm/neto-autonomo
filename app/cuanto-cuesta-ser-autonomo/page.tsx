@@ -6,7 +6,7 @@ import Header from '@/components/Header';
 import MonthlyCostCalculator from '@/components/MonthlyCostCalculator';
 import CashFlowPlanner from '@/components/CashFlowPlanner';
 import CashDatePlanner from '@/components/CashDatePlanner';
-import { cashDatesExampleResult, formatCashDate } from '@/lib/cashDates';
+import { cashDatesAdvanceExample, cashDatesExampleResult, checkCashDates, formatCashDate } from '@/lib/cashDates';
 import { cashPlanExampleResult, delayedCashPlanExampleResult, cashPlanSource } from '@/lib/cashPlan';
 import { estimateRecurringCosts, recurringCostsExample } from '@/lib/recurringCosts';
 import { formatCurrency, formatNumber } from '@/lib/format';
@@ -15,6 +15,7 @@ import styles from './costGuide.module.css';
 
 const route = '/cuanto-cuesta-ser-autonomo';
 const title = 'Cuánto cuesta ser autónomo cada mes';
+const updatedOn = '2026-11-14';
 const description =
   'Calcula costes mensuales y planifica cobros y pagos por fecha. Detecta déficits intermedios y guarda el plan en un archivo para volver a revisarlo.';
 
@@ -69,7 +70,8 @@ export default function CuantoCuestaSerAutonomoPage() {
   const cashExample = cashPlanExampleResult;
   const delayedCash = delayedCashPlanExampleResult;
   const datedCash = cashDatesExampleResult;
-  if (!cashExample.valid || !delayedCash.valid || !datedCash.valid) throw new Error('Invalid editorial cash-plan example');
+  const advanceCash = checkCashDates(cashDatesAdvanceExample);
+  if (!cashExample.valid || !delayedCash.valid || !datedCash.valid || !advanceCash.valid) throw new Error('Invalid editorial cash-plan example');
   const siteUrl = getSiteUrl();
   const pageUrl = new URL(route, siteUrl).toString();
 
@@ -80,7 +82,7 @@ export default function CuantoCuestaSerAutonomoPage() {
     description,
     inLanguage: 'es',
     url: pageUrl,
-    dateModified: '2026-10-31',
+    dateModified: updatedOn,
     accountablePerson: { '@type': 'Person', name: siteConfig.ownerName },
     mainEntity: {
       '@type': 'SoftwareApplication',
@@ -189,7 +191,7 @@ export default function CuantoCuestaSerAutonomoPage() {
 
       <section className="section" aria-labelledby="ejemplo-costes">
         <div className="container text-block">
-          <p className="article-meta">Actualizada el <time dateTime="2026-10-31">31 de octubre de 2026</time>. Responsable: {siteConfig.ownerName}.</p>
+          <p className="article-meta">Actualizada el <time dateTime={updatedOn}>14 de noviembre de 2026</time>. Responsable: {siteConfig.ownerName}.</p>
           <h2 id="ejemplo-costes">Un pago anual también pesa en tu tarifa mensual</h2>
           <p>Estos son los datos ficticios con los que empieza la calculadora. No son precios de mercado ni importes deducibles confirmados. Se supone un año completo, sin altas, bajas ni cambios de precio.</p>
           <div className="scenario-table-scroll" role="region" aria-label="Ejemplo de costes con varias frecuencias" tabIndex={0}>
@@ -287,6 +289,20 @@ export default function CuantoCuestaSerAutonomoPage() {
           </div>
           <p>Los cobros suman {formatCurrency(datedCash.totalReceipts)} y los pagos {formatCurrency(datedCash.totalPayments)}. El saldo final es {formatCurrency(datedCash.finalBalance)}, pero el mínimo es {formatCurrency(datedCash.minimumBalance)} el {formatCashDate(datedCash.firstNegativePoint!)}. Con {formatCurrency(datedCash.additionalInitialBalance)} adicionales al empezar, el mínimo de este supuesto sería cero. No basta con mirar el saldo final.</p>
           <p><strong>Si hay cobros y pagos el mismo día, se calculan los pagos primero.</strong> Aunque el día termine en positivo, puede haber un déficit en ese orden. Si el cobro llega antes, el saldo mínimo real podría ser mayor. Este supuesto no confirma las horas ni fechas de ejecución del banco.</p>
+          <h3 id="anticipo-encargo">Qué cambia si cobras un anticipo antes del primer pago</h3>
+          <p>Imagina que los {formatCurrency(datedCash.totalReceipts)} que ibas a cobrar el día 20 corresponden a un encargo. Si entran {formatCurrency(advanceCash.days[0].receipts)} el día 4, quedan {formatCurrency(advanceCash.days[2].receipts)} para el día 20. El importe total del encargo y los pagos se mantienen.</p>
+          <div className="scenario-table-scroll" role="region" aria-label="Comparación de caja con y sin anticipo" tabIndex={0}>
+            <table className="scenario-table">
+              <caption>Mismo encargo y mismos pagos, con dos calendarios de cobro ficticios.</caption>
+              <thead><tr><th scope="col">Calendario</th><th scope="col">Saldo mínimo</th><th scope="col">Saldo final</th></tr></thead>
+              <tbody>
+                <tr><th scope="row">Todo el día 20</th><td>{formatCurrency(datedCash.minimumBalance)}</td><td>{formatCurrency(datedCash.finalBalance)}</td></tr>
+                <tr><th scope="row">Anticipo el día 4 y resto el día 20</th><td>{formatCurrency(advanceCash.minimumBalance)}</td><td>{formatCurrency(advanceCash.finalBalance)}</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>En este ejemplo, el abono del día 4 cubre justo el desfase y el saldo mínimo queda en {formatCurrency(advanceCash.minimumBalance)}. Si se retrasa al día 5, el simulador vuelve a mostrar el déficit porque coloca el pago antes del cobro de esa fecha.</p>
+          <p>Carga el <Link href="#probar-anticipo">ejemplo con anticipo en el comprobador</Link> y mueve el primer cobro del día 4 al 5. Para revisar tu encargo, anota el saldo disponible y lo que entraría y saldría realmente de la cuenta. Resta el anticipo del cobro posterior para contar cada importe una sola vez.</p>
           <h3>Revisa tus movimientos previstos</h3>
           <p>Si eliminas una fila por error, «Deshacer la última eliminación» recupera su fecha, tipo e importe en la posición anterior, incluso si estaban incompletos. Mantiene el saldo y los cambios de los otros movimientos; editar los campos o comprobar los vencimientos no descarta esta opción. Solo conserva la última fila eliminada, hasta que añadas otro movimiento, cargues un ejemplo, abras un archivo válido, recuperes el plan anterior, salgas o recargues. Tras recuperarla, vuelve a comprobar los vencimientos.</p>
           <p>Antes de probar por primera vez las fechas ficticias o de sustituir un borrador al abrir un archivo válido, el comprobador conserva en memoria el saldo y los movimientos que tengas escritos, aunque estén incompletos. «Recuperar mi plan anterior» restaura esa copia y sustituye los cambios posteriores. Editar los datos o repetir el ejemplo no reemplaza la copia; tampoco abrir otro archivo. Se mantiene la primera copia hasta recuperarla. Después de recuperarla, pulsa «Comprobar vencimientos» para actualizar los saldos. Esta copia se pierde al salir o recargar; usa el archivo para conservar un plan comprobado.</p>

@@ -19,7 +19,7 @@ describe('recurring-cost guide', () => {
     const document = new DOMParser().parseFromString(renderToStaticMarkup(<Guide />), 'text/html');
     const schemas = [...document.querySelectorAll('script[type="application/ld+json"]')].map((script) => JSON.parse(script.textContent!));
     expect(schemas.map((schema) => schema['@type'])).toEqual(['WebPage', 'BreadcrumbList', 'FAQPage']);
-    expect(schemas[0].dateModified).toBe('2026-10-31');
+    expect(schemas[0].dateModified).toBe('2026-11-14');
     expect(schemas[2].mainEntity).toHaveLength(7);
     for (const question of schemas[2].mainEntity) {
       expect(document.body.textContent).toContain(question.name);
@@ -65,8 +65,8 @@ describe('recurring-cost guide', () => {
     expect(section.querySelector('form')).toBeNull();
     expect(section.querySelectorAll('[name]')).toHaveLength(0);
     expect(document.querySelector('a[href="#vencimientos-caja"]')?.textContent).toBe('Revisar cobros y pagos por fecha');
-    expect(document.querySelector('time')?.getAttribute('datetime')).toBe('2026-10-31');
-    expect(document.querySelector('time')?.textContent).toBe('31 de octubre de 2026');
+    expect(document.querySelector('time')?.getAttribute('datetime')).toBe('2026-11-14');
+    expect(document.querySelector('time')?.textContent).toBe('14 de noviembre de 2026');
   });
 
   it('keeps the cash-flow method, earlier deficit and receipt-delay case in initial HTML', () => {

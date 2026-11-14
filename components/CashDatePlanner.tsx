@@ -2,7 +2,7 @@
 
 import { useId, useRef, useState } from 'react';
 import NumericTextInput from '@/components/NumericTextInput';
-import { cashDatesExample, checkCashDates, formatCashDate, MAX_CASH_MOVEMENTS, type CashMovementInput } from '@/lib/cashDates';
+import { cashDatesAdvanceExample, cashDatesExample, checkCashDates, formatCashDate, MAX_CASH_MOVEMENTS, type CashDatesInput, type CashMovementInput } from '@/lib/cashDates';
 import { CASH_DATES_FILENAME, decodeCashDatesFile, encodeCashDatesFile, MAX_CASH_DATES_FILE_BYTES } from '@/lib/cashDatesFile';
 import { formatCurrency, formatNumber } from '@/lib/format';
 import { parseSpanishNumber } from '@/lib/spanishNumber';
@@ -119,6 +119,18 @@ export default function CashDatePlanner() {
         if (invalid) { controls.current[`${row.id}-${invalid.key}`]?.focus(); break; }
       }
     }
+  }
+
+  function loadExample(example: CashDatesInput) {
+    // Imports and examples share the first copy until explicit recovery.
+    rememberPlan('example');
+    forgetRemoval();
+    const next: Values = {
+      initialBalance: formatNumber(example.initialBalance),
+      rows: example.movements.map((movement) => ({ ...movement, id: nextId.current++, amount: formatNumber(movement.amount) })),
+    };
+    setIsExample(true);
+    calculate(next);
   }
 
   async function openPlan(file: File) {
@@ -303,13 +315,8 @@ export default function CashDatePlanner() {
       <p>Incluye de 1 a {MAX_CASH_MOVEMENTS} movimientos. Todos deben tener fecha, tipo e importe; usa 0 si el importe es cero o elimina la fila que no necesites. Puedes pegar importes con € o EUR. No se añaden movimientos recurrentes automáticamente.</p>
       <div className={styles.actions}>
         <button type="button" className="primary-button" onClick={() => calculate()}>Comprobar vencimientos</button>
-        <button type="button" className="link-button" onClick={() => {
-          // Imports and examples share the first copy until explicit recovery.
-          rememberPlan('example');
-          forgetRemoval();
-          const next: Values = { initialBalance: formatNumber(cashDatesExample.initialBalance), rows: cashDatesExample.movements.map((movement) => ({ ...movement, id: nextId.current++, amount: formatNumber(movement.amount) })) };
-          setIsExample(true); calculate(next);
-        }}>Probar las fechas ficticias</button>
+        <button type="button" className="link-button" onClick={() => loadExample(cashDatesExample)}>Probar las fechas ficticias</button>
+        <button id="probar-anticipo" type="button" className={`link-button ${styles.advanceExample}`} onClick={() => loadExample(cashDatesAdvanceExample)}>Probar el ejemplo con anticipo</button>
         {planBeforeReplacement?.source === 'example' ? recoveryButton : null}
       </div>
       {planBeforeReplacement?.source === 'example' ? recoveryHint : null}
