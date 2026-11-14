@@ -7,7 +7,7 @@ import Header from '@/components/Header';
 import ProjectReview from '@/components/ProjectReview';
 import WorkLogProjection from '@/components/WorkLogProjection';
 import { formatCurrency, formatNumber } from '@/lib/format';
-import { projectReviewExample, reviewProject } from '@/lib/projectReview';
+import { projectReviewCostExample, projectReviewExample, reviewProject } from '@/lib/projectReview';
 import { workLogReview, workLogTotals, workLogWeeks } from '@/lib/workLogExample';
 import { getSiteUrl, siteConfig } from '@/lib/site';
 import styles from './kit.module.css';
@@ -22,7 +22,7 @@ const faqItems = [
   {
     question: '¿Qué incluye este kit de tarifa para autónomos?',
     answer:
-      'Incluye una ficha de supuestos de tarifa, un registro diario, una herramienta para proyectar cuatro semanas de horas registradas y un comprobador de precio y tiempo de encargos terminados.',
+      'Incluye una ficha de supuestos de tarifa, un registro diario, una herramienta para proyectar cuatro semanas de horas registradas y un comprobador de precio, tiempo y costes específicos de encargos terminados.',
   },
   {
     question: '¿Necesito dejar mi correo para descargarlo?',
@@ -42,7 +42,7 @@ const faqItems = [
   {
     question: '¿El ingreso por hora de un encargo es beneficio neto?',
     answer:
-      'No. Es el precio final pactado sin IVA dividido entre las horas dedicadas. No descuenta gastos, cuota ni impuestos, ni acredita que hayas cobrado. Compáralo con tu referencia por hora y revisa aparte los costes extraordinarios que no estén incluidos en ella.',
+      'El ingreso por hora divide el precio final pactado sin IVA entre las horas dedicadas. Si indicas costes específicos, verás también cuánto queda por hora después de restarlos, antes de los gastos habituales, la cuota y los impuestos. La cuenta parte del precio pactado, aunque todavía esté pendiente de cobro.',
   },
 ] as const;
 
@@ -87,6 +87,7 @@ export default function KitTarifaAutonomoPage() {
   const downloadUrl = '/recursos/kit-tarifa-autonomo.txt';
   const downloadText = readFileSync(join(process.cwd(), 'public', 'recursos', 'kit-tarifa-autonomo.txt'), 'utf8');
   const example = reviewProject(projectReviewExample);
+  const costExample = reviewProject(projectReviewCostExample);
 
   const articleSchema = {
     '@context': 'https://schema.org',
@@ -172,7 +173,7 @@ export default function KitTarifaAutonomoPage() {
               <li>Una ficha para conservar los datos y el resultado de tu cálculo.</li>
               <li>Un registro diario y resumen de cuatro semanas.</li>
               <li>Una herramienta para comparar tu previsión con las horas registradas.</li>
-              <li>Un comprobador de precio y horas reales por encargo.</li>
+              <li>Un comprobador de precio, costes específicos y horas reales por encargo.</li>
               <li>Listas de comprobación y un guion para explicar el precio.</li>
             </ul>
           </aside>
@@ -285,7 +286,7 @@ export default function KitTarifaAutonomoPage() {
 
       <section className="section alt" aria-labelledby="revision-encargo">
         <div className="container text-block">
-          <h2 id="revision-encargo">4. Revisa un encargo terminado: precio y horas reales</h2>
+          <h2 id="revision-encargo">4. Revisa un encargo terminado: precio, horas y costes</h2>
           <p>
             Conservar una tarifa de referencia no basta si un encargo termina llevando más tiempo.
             Anota el precio final pactado sin IVA, las horas previstas al presupuestar y las horas
@@ -313,19 +314,34 @@ export default function KitTarifaAutonomoPage() {
               </div>
               <p>
                 El encargo ocupó {formatNumber(example.hoursDifference)} h más de lo previsto.
-                A {formatCurrency(example.hourlyReference)}/h, el precio cubría {formatNumber(example.hoursAtReference)} h.
+                Sin costes específicos, a {formatCurrency(example.hourlyReference)}/h el precio cubría {formatNumber(example.hoursAtReference)} h.
                 Para {formatNumber(example.actualHours)} h, esa referencia da {formatCurrency(example.actualReferencePrice)}:
                 {' '}el precio pactado queda {formatCurrency(-example.priceDifference)} por debajo.
                 Eso ayuda a revisar el próximo presupuesto; no modifica el acuerdo ya cerrado.
               </p>
             </>
           ) : null}
+          {costExample.valid ? (
+            <>
+              <h3>Qué cambia si el mismo encargo tuvo un coste adicional</h3>
+              <p>
+                Supón que los materiales de ese encargo costaron {formatCurrency(costExample.projectCosts)} sin IVA y que tu tarifa de referencia no los incluía.
+                Al restarlos de los {formatCurrency(costExample.finalPrice)} pactados, quedan {formatCurrency(costExample.availableForTime)} para cubrir el trabajo.
+                Repartidos entre las {formatNumber(costExample.actualHours)} h reales, quedan <strong>{formatCurrency(costExample.availableHourlyRate)}/h</strong> de los {formatCurrency(costExample.actualHourlyRevenue)}/h de ingreso pactado.
+              </p>
+              <p>
+                Para cubrir tu referencia por esas horas y los materiales, la cuenta es {formatCurrency(costExample.actualReferencePrice)} + {formatCurrency(costExample.projectCosts)} = <strong>{formatCurrency(costExample.totalReferencePrice)}</strong> sin IVA.
+                Con el precio pactado faltan {formatCurrency(-costExample.priceDifference)}. Puedes probar esta variante en el comprobador con «Probar el ejemplo con costes».
+              </p>
+            </>
+          ) : null}
           <div className={styles.exampleNote}>
-            Precio dividido entre horas es ingreso por hora dedicada, antes de gastos, cuota e
-            impuestos. No es beneficio neto ni confirma el cobro de la factura. Los costes
-            extraordinarios del encargo que no estén en tu referencia se revisan aparte.
+            Introduce solo los costes de ese encargo que aún no cubra tu tarifa de referencia,
+            como materiales o una subcontratación puntual. Usa importes sin IVA tanto para el
+            precio como para los costes. Lo que queda por hora aún debe cubrir los gastos habituales,
+            la cuota y los impuestos contemplados en tu referencia.
           </div>
-          <p>Si ya has escrito tus datos, puedes probar el ejemplo y volver con «Recuperar mi revisión anterior». Se recuperan los cuatro campos anteriores al primer ejemplo, incluidos los que dejaste incompletos. Recuperar sustituye los cambios actuales y retira el resultado: pulsa «Revisar encargo» para calcularlo de nuevo. La copia se pierde al salir o recargar la página.</p>
+          <p>Si ya has escrito tus datos, puedes probar cualquiera de los ejemplos y volver con «Recuperar mi revisión anterior». Se recuperan los campos anteriores al primer ejemplo, incluidos el coste y los datos incompletos. Recuperar sustituye los cambios actuales y retira el resultado. Pulsa «Revisar encargo» para calcularlo de nuevo. La copia se pierde al salir o recargar la página.</p>
           <ProjectReview />
           <p>
             Guarda la revisión en la ficha descargable. Anota la causa concreta de las horas

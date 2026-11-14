@@ -28,6 +28,9 @@ describe('the usable tariff worksheet', () => {
     expect(resource).toContain('5. REVISA UN ENCARGO TERMINADO');
     expect(resource).toContain('Horas reales registradas: ____________________');
     expect(resource).toContain('33,33 EUR/h');
+    expect(resource).toContain('Costes específicos SIN IVA que no cubre tu referencia');
+    expect(resource).toContain('29,17 EUR/h');
+    expect(resource).toContain('480 + 50 = 530 EUR');
   });
 
   it('renders the complete worked log and distinguishes fictional numbers from observations', () => {
@@ -56,8 +59,11 @@ describe('the usable tariff worksheet', () => {
     const reviewSection = document.querySelector('section[aria-labelledby="revision-encargo"]');
     expect(reviewSection?.textContent).toContain('33,33');
     expect(reviewSection?.textContent).toContain('80,00');
+    expect(reviewSection?.textContent).toContain('29,17');
+    expect(reviewSection?.textContent).toContain('530,00');
+    expect(reviewSection?.textContent).toContain('130,00');
     expect(reviewSection?.querySelectorAll('table')).toHaveLength(1);
-    expect(reviewSection?.querySelectorAll('input')).toHaveLength(4);
+    expect(reviewSection?.querySelectorAll('input')).toHaveLength(5);
     expect(reviewSection?.querySelectorAll('input[name]')).toHaveLength(0);
     expect(document.querySelector('time')?.getAttribute('datetime')).toBe('2026-11-14');
     for (const question of schemas[2].mainEntity) {

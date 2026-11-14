@@ -8,12 +8,14 @@ const labels = {
   finalPrice: 'Precio final pactado sin IVA (EUR)',
   plannedHours: 'Horas previstas del encargo',
   actualHours: 'Horas reales registradas',
+  projectCosts: 'Costes específicos del encargo (EUR)',
 } as const;
 type Values = Record<keyof typeof labels, string>;
-const emptyValues: Values = { hourlyReference: '', finalPrice: '', plannedHours: '', actualHours: '' };
+const emptyValues: Values = { hourlyReference: '', finalPrice: '', plannedHours: '', actualHours: '', projectCosts: '' };
 const field = (key: keyof Values) => screen.getByRole('textbox', { name: labels[key] }) as HTMLInputElement;
 const result = () => screen.getByRole('status', { name: 'Revisión del encargo' });
 const example = () => userEvent.click(screen.getByRole('button', { name: 'Probar el ejemplo de 400 €' }));
+const costExample = () => userEvent.click(screen.getByRole('button', { name: 'Probar el ejemplo con costes' }));
 const restore = () => userEvent.click(screen.getByRole('button', { name: 'Recuperar mi revisión anterior' }));
 const check = () => userEvent.click(screen.getByRole('button', { name: 'Revisar encargo' }));
 
@@ -38,23 +40,28 @@ describe('recover the completed-project review replaced by the fictional example
   beforeEach(() => { window.va = vi.fn(); window.gtag = vi.fn(); });
   afterEach(() => vi.restoreAllMocks());
 
-  it('restores all four raw fields without calculating or sending incomplete personal data', async () => {
+  it('restores all raw fields without calculating or sending incomplete personal data', async () => {
     const storageRead = vi.spyOn(Storage.prototype, 'getItem');
     const storageWrite = vi.spyOn(Storage.prototype, 'setItem');
     const storageRemove = vi.spyOn(Storage.prototype, 'removeItem');
     const fetch = vi.spyOn(globalThis, 'fetch');
     const previousUrl = window.location.href;
     render(<Review />);
-    const original: Values = { hourlyReference: ' 40,005 € ', finalPrice: '500,125', plannedHours: '1,,25', actualHours: '' };
+    const original: Values = { hourlyReference: ' 40,005 € ', finalPrice: '500,125', plannedHours: '1,,25', actualHours: '', projectCosts: ' 15,005 € ' };
     write(original);
-    await example();
+    await costExample();
     expect(result()).toHaveTextContent('Ejemplo ficticio; no es una tarifa recomendada.');
+    expect(result()).toHaveTextContent('29,17');
+    expect(result()).toHaveTextContent('530,00');
+    await example();
+    expect(result()).toHaveTextContent('33,33');
+    expect(result()).toHaveTextContent('480,00');
     expect(screen.getByRole('button', { name: 'Recuperar mi revisión anterior' })).toHaveAccessibleDescription(/sustituye los cambios que ves ahora/);
     await restore();
 
     expect(currentValues()).toEqual(original);
     expectRecoveryFinished();
-    expect(screen.getAllByRole('textbox')).toHaveLength(4);
+    expect(screen.getAllByRole('textbox')).toHaveLength(5);
     expect(document.querySelector('form')).toBeNull();
     expect(document.querySelector('[name]')).toBeNull();
     expect(window.location.href).toBe(previousUrl);
@@ -68,7 +75,7 @@ describe('recover the completed-project review replaced by the fictional example
 
   it('keeps the first snapshot through repeated examples, edits and valid or invalid reviews, clearing old results and errors', async () => {
     render(<Review />);
-    const original: Values = { hourlyReference: ' 40,005 ', finalPrice: '425,50', plannedHours: '8,125', actualHours: '10,500' };
+    const original: Values = { hourlyReference: ' 40,005 ', finalPrice: '425,50', plannedHours: '8,125', actualHours: '10,500', projectCosts: '' };
     write(original);
     await example();
     await example();
@@ -109,13 +116,23 @@ describe('recover the completed-project review replaced by the fictional example
     expectRecoveryFinished();
   });
 
+  it('captures a draft when only the optional cost has been entered', async () => {
+    render(<Review />);
+    fireEvent.change(field('projectCosts'), { target: { value: ' 21,005 € ' } });
+    await costExample();
+    await restore();
+
+    expect(currentValues()).toEqual({ ...emptyValues, projectCosts: ' 21,005 € ' });
+    expectRecoveryFinished();
+  });
+
   it('consumes recovery and captures a new review for the next example cycle', async () => {
     render(<Review />);
-    write({ hourlyReference: '40', finalPrice: '500', plannedHours: '10', actualHours: '12' });
+    write({ hourlyReference: '40', finalPrice: '500', plannedHours: '10', actualHours: '12', projectCosts: '' });
     await example();
     await restore();
     expectRecoveryFinished();
-    const nextDraft: Values = { hourlyReference: ' 55,125 ', finalPrice: '0', plannedHours: '', actualHours: '1,,5' };
+    const nextDraft: Values = { hourlyReference: ' 55,125 ', finalPrice: '0', plannedHours: '', actualHours: '1,,5', projectCosts: '' };
     write(nextDraft);
     await example();
     await restore();

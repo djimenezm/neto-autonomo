@@ -2,7 +2,7 @@
 
 import { useId, useRef, useState } from 'react';
 import NumericTextInput from '@/components/NumericTextInput';
-import { projectReviewExample, reviewProject, type ProjectReviewInput } from '@/lib/projectReview';
+import { projectReviewCostExample, projectReviewExample, reviewProject, type ProjectReviewInput } from '@/lib/projectReview';
 import { formatCurrency, formatNumber } from '@/lib/format';
 import { parseSpanishNumber } from '@/lib/spanishNumber';
 import styles from './ProjectReview.module.css';
@@ -29,6 +29,11 @@ const fields = [
     hint: 'Todo el tiempo dedicado a ese cliente, también las revisiones sin precio adicional. Usa horas decimales: 1,5 es una hora y media.',
     unitError: hoursUnitError,
   },
+  {
+    key: 'projectCosts', label: 'Costes específicos del encargo (EUR)',
+    hint: 'Opcional. Suma los gastos de este encargo que tu referencia por hora aún no cubre, como materiales o subcontratación. Usa la misma base sin IVA que para el precio.',
+    unitError: 'Introduce los costes en euros. Puedes usar € o EUR.',
+  },
 ] as const;
 type Values = Record<keyof ProjectReviewInput, string>;
 
@@ -38,6 +43,7 @@ function checkReview(values: Values) {
     finalPrice: parseSpanishNumber(values.finalPrice, 'EUR'),
     plannedHours: parseSpanishNumber(values.plannedHours, 'none'),
     actualHours: parseSpanishNumber(values.actualHours, 'none'),
+    projectCosts: values.projectCosts.trim() === '' ? 0 : parseSpanishNumber(values.projectCosts, 'EUR'),
   };
   const checked = reviewProject(input);
   if (checked.valid) return checked;
@@ -54,7 +60,7 @@ function checkReview(values: Values) {
 export default function ProjectReview() {
   const id = useId();
   const refs = useRef<Partial<Record<keyof Values, HTMLInputElement | null>>>({});
-  const [values, setValues] = useState<Values>({ hourlyReference: '', finalPrice: '', plannedHours: '', actualHours: '' });
+  const [values, setValues] = useState<Values>({ hourlyReference: '', finalPrice: '', plannedHours: '', actualHours: '', projectCosts: '' });
   const [checked, setChecked] = useState<Values | null>(null);
   const [hasAttemptedReview, setHasAttemptedReview] = useState(false);
   const [isExample, setIsExample] = useState(false);
@@ -62,6 +68,7 @@ export default function ProjectReview() {
   const [recoveryFeedback, setRecoveryFeedback] = useState('');
   const review = checked ? checkReview(checked) : null;
   const validation = hasAttemptedReview ? checkReview(values) : null;
+  const hasProjectCosts = review?.valid && review.projectCosts > 0;
 
   function calculate(next = values) {
     setRecoveryFeedback('');
@@ -72,6 +79,7 @@ export default function ProjectReview() {
       finalPrice: formatNumber(result.finalPrice),
       plannedHours: formatNumber(result.plannedHours),
       actualHours: formatNumber(result.actualHours),
+      projectCosts: next.projectCosts.trim() === '' ? '' : formatNumber(result.projectCosts),
     } : next;
     setValues(normalized);
     setChecked(normalized);
@@ -79,6 +87,21 @@ export default function ProjectReview() {
       const invalid = fields.find(({ key }) => result.errors[key]);
       if (invalid) refs.current[invalid.key]?.focus();
     }
+  }
+
+  function loadExample(example: ProjectReviewInput) {
+    // Keep the first personal review exactly, including incomplete inputs.
+    if (!isExample && Object.values(values).some((value) => value.trim() !== '')) {
+      setReviewBeforeExample((previous) => previous ?? { ...values });
+    }
+    setIsExample(true);
+    calculate({
+      hourlyReference: formatNumber(example.hourlyReference),
+      finalPrice: formatNumber(example.finalPrice),
+      plannedHours: formatNumber(example.plannedHours),
+      actualHours: formatNumber(example.actualHours),
+      projectCosts: example.projectCosts === undefined ? '' : formatNumber(example.projectCosts),
+    });
   }
 
   function recoverReview() {
@@ -100,7 +123,7 @@ export default function ProjectReview() {
       <fieldset className={styles.fields} aria-describedby={`${id}-method`} onKeyDown={(event) => {
         if (event.key === 'Enter' && event.target instanceof HTMLInputElement) { event.preventDefault(); calculate(); }
       }}>
-        <legend>Precio y tiempo del encargo terminado</legend>
+        <legend>Precio, tiempo y costes del encargo terminado</legend>
         {fields.map(({ key, label, hint }) => {
           const error = validation && !validation.valid ? validation.errors[key] : undefined;
           return (
@@ -117,15 +140,8 @@ export default function ProjectReview() {
       </fieldset>
       <div className={styles.actions}>
         <button type="button" className="primary-button" onClick={() => calculate()}>Revisar encargo</button>
-        <button type="button" className="link-button" onClick={() => {
-          // Keep the first personal review exactly, including incomplete inputs.
-          // Repeated examples and later checks must not replace that draft.
-          if (!isExample && Object.values(values).some((value) => value.trim() !== '')) {
-            setReviewBeforeExample((previous) => previous ?? { ...values });
-          }
-          setIsExample(true);
-          calculate({ hourlyReference: formatNumber(projectReviewExample.hourlyReference), finalPrice: formatNumber(projectReviewExample.finalPrice), plannedHours: formatNumber(projectReviewExample.plannedHours), actualHours: formatNumber(projectReviewExample.actualHours) });
-        }}>Probar el ejemplo de 400 €</button>
+        <button type="button" className="link-button" onClick={() => loadExample(projectReviewExample)}>Probar el ejemplo de 400 €</button>
+        <button type="button" className="link-button" onClick={() => loadExample(projectReviewCostExample)}>Probar el ejemplo con costes</button>
         {reviewBeforeExample ? <button type="button" className="link-button" onClick={recoverReview} aria-describedby={`${id}-recovery-hint`}>Recuperar mi revisión anterior</button> : null}
       </div>
       {reviewBeforeExample ? <p className={styles.note} id={`${id}-recovery-hint`}>Conservamos en esta página la revisión anterior al primer ejemplo. Recuperarla sustituye los cambios que ves ahora y deja el resultado pendiente de revisar. La copia se pierde al salir o recargar la página.</p> : null}
@@ -139,22 +155,28 @@ export default function ProjectReview() {
             <dl>
               <div><dt>Ingreso por hora con el tiempo previsto</dt><dd>{formatCurrency(review.plannedHourlyRevenue)}/h</dd></div>
               <div><dt>Ingreso por hora con el tiempo real</dt><dd>{formatCurrency(review.actualHourlyRevenue)}/h</dd></div>
+              {hasProjectCosts ? <div><dt>Importe por hora real tras costes específicos</dt><dd>{formatCurrency(review.availableHourlyRate)}/h</dd></div> : null}
               <div><dt>Diferencia de horas frente a lo previsto</dt><dd>{review.hoursDifference > 0 ? '+' : ''}{formatNumber(review.hoursDifference)} h</dd></div>
-              <div><dt>Horas que cubre el precio a tu referencia</dt><dd>{formatNumber(review.hoursAtReference)} h</dd></div>
+              <div><dt>{hasProjectCosts ? 'Horas que cubre el precio tras costes específicos' : 'Horas que cubre el precio a tu referencia'}</dt><dd>{formatNumber(review.hoursAtReference)} h</dd></div>
               <div><dt>Importe a tu referencia para el tiempo real</dt><dd>{formatCurrency(review.actualReferencePrice)}</dd></div>
-              <div><dt>Precio pactado menos ese importe</dt><dd>{formatCurrency(review.priceDifference)}</dd></div>
+              {hasProjectCosts ? <div><dt>Importe a tu referencia con costes específicos</dt><dd>{formatCurrency(review.totalReferencePrice)}</dd></div> : null}
+              <div><dt>{hasProjectCosts ? 'Precio pactado menos la referencia con costes' : 'Precio pactado menos ese importe'}</dt><dd>{formatCurrency(review.priceDifference)}</dd></div>
             </dl>
             <p>{formatCurrency(review.finalPrice)} ÷ {formatNumber(review.actualHours)} h = {formatCurrency(review.actualHourlyRevenue)}/h sin IVA. Es ingreso por hora dedicada, antes de gastos, cuota e impuestos; no es beneficio neto ni acredita el cobro.</p>
-            <p>{review.priceDifference < 0
+            {hasProjectCosts ? <>
+              <p>Tras restar {formatCurrency(review.projectCosts)} del precio, quedan {formatCurrency(review.availableForTime)}. Al dividirlo entre {formatNumber(review.actualHours)} h obtienes {formatCurrency(review.availableHourlyRate)}/h para comparar con tu referencia. Este importe todavía debe cubrir los gastos habituales, la cuota y la reserva fiscal que incluye tu referencia.</p>
+              {review.availableForTime < 0 ? <p>El precio queda {formatCurrency(-review.availableForTime)} por debajo de los costes específicos antes de contar tus horas.</p> : null}
+              <p>Para el próximo presupuesto, parte de {formatCurrency(review.actualReferencePrice)} por las horas reales a tu referencia. Si se repiten estos costes, suma {formatCurrency(review.projectCosts)} para obtener {formatCurrency(review.totalReferencePrice)}.</p>
+            </> : <p>{review.priceDifference < 0
               ? `El precio queda ${formatCurrency(-review.priceDifference)} por debajo del importe a tu referencia de ${formatCurrency(review.hourlyReference)}/h para las horas reales.`
               : review.priceDifference > 0
                 ? `El precio supera en ${formatCurrency(review.priceDifference)} el importe a tu referencia de ${formatCurrency(review.hourlyReference)}/h para las horas reales.`
-                : `El precio coincide con el importe a tu referencia de ${formatCurrency(review.hourlyReference)}/h para las horas reales.`} Anota qué explica la diferencia y qué concretarás en el próximo presupuesto.</p>
+                : `El precio coincide con el importe a tu referencia de ${formatCurrency(review.hourlyReference)}/h para las horas reales.`} Anota qué explica la diferencia y qué concretarás en el próximo presupuesto.</p>}
             <p>Usamos importes y horas con dos decimales. El ingreso por hora se redondea a céntimos; el importe a tu referencia, al céntimo superior; las horas que cubre el precio, hacia abajo a centésimas.</p>
           </div>
         ) : null}
       </div>
-      <p className={styles.note}>Esta revisión compara precio y tiempo. No evalúa costes extraordinarios del encargo que no estén en tu referencia, ni determina una tarifa de mercado. No cambia el precio acordado ni el resultado principal. Los datos del comprobador solo se mantienen en esta página mientras la uses; no se guardan ni se incluyen en el enlace.</p>
+      <p className={styles.note}>La revisión usa tu referencia y los costes que introduzcas. Los datos del comprobador solo se mantienen en esta página mientras la uses.</p>
     </div>
   );
 }

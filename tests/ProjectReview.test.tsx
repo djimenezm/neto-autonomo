@@ -39,6 +39,27 @@ describe('completed project review editor', () => {
     expect(screen.getByRole('status', status)).not.toHaveTextContent('Ejemplo ficticio');
   });
 
+  it('rejects a percentage in the cost field and recalculates after accepting an amount in euros', async () => {
+    const user = userEvent.setup();
+    render(<ProjectReview />);
+    const cost = screen.getByRole('textbox', { name: 'Costes específicos del encargo (EUR)' });
+    const output = screen.getByRole('status', status);
+    await user.click(screen.getByRole('button', { name: 'Probar el ejemplo con costes' }));
+    expect(output).toHaveTextContent('29,17');
+    expect(output).toHaveTextContent('530,00');
+
+    fireEvent.change(cost, { target: { value: '50 %' } });
+    await user.click(screen.getByRole('button', { name: 'Revisar encargo' }));
+    expect(cost).toHaveFocus();
+    expect(cost).toHaveAccessibleDescription(/Introduce los costes en euros/);
+    expect(output).not.toHaveTextContent('29,17');
+
+    fireEvent.change(cost, { target: { value: '450 EUR' } });
+    await user.type(cost, '{Enter}');
+    expect(cost).toHaveValue('450');
+    expect(output).toHaveTextContent(/por debajo de los costes específicos antes de contar tus horas/);
+  });
+
   it('accepts Spanish decimals, normalizes displayed precision and calculates with Enter', async () => {
     const user = userEvent.setup();
     render(<ProjectReview />);

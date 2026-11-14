@@ -3,8 +3,24 @@ import { projectReviewExample, reviewProject } from '@/lib/projectReview';
 describe('completed project review', () => {
   it('exposes the effect of extra hours on a fixed price', () => {
     expect(reviewProject(projectReviewExample)).toMatchObject({
-      valid: true, plannedHourlyRevenue: 50, actualHourlyRevenue: 33.33,
+      valid: true, plannedHourlyRevenue: 50, actualHourlyRevenue: 33.33, projectCosts: 0,
+      availableForTime: 400, availableHourlyRate: 33.33, totalReferencePrice: 480,
       hoursDifference: 4, hoursAtReference: 10, actualReferencePrice: 480, priceDifference: -80,
+    });
+  });
+
+  it('distinguishes revenue from the amount available after project costs', () => {
+    expect(reviewProject({ ...projectReviewExample, projectCosts: 50 })).toMatchObject({
+      valid: true, actualHourlyRevenue: 33.33, projectCosts: 50,
+      availableForTime: 350, availableHourlyRate: 29.17, hoursAtReference: 8.75,
+      actualReferencePrice: 480, totalReferencePrice: 530, priceDifference: -130,
+    });
+  });
+
+  it('shows a shortfall and no hours covered when project costs exceed the price', () => {
+    expect(reviewProject({ ...projectReviewExample, finalPrice: 50, projectCosts: 80 })).toMatchObject({
+      valid: true, availableForTime: -30, availableHourlyRate: -2.5,
+      hoursAtReference: 0, totalReferencePrice: 560, priceDifference: -510,
     });
   });
 
@@ -41,6 +57,7 @@ describe('completed project review', () => {
     ['finalPrice', -1], ['finalPrice', 1e14],
     ['plannedHours', 0], ['plannedHours', Number.NaN], ['plannedHours', 1e14],
     ['actualHours', -1], ['actualHours', 0.001], ['actualHours', Infinity],
+    ['projectCosts', -1], ['projectCosts', Number.NaN], ['projectCosts', Infinity],
   ] as const)('rejects invalid or unsafe %s: %s', (key, value) => {
     const review = reviewProject({ ...projectReviewExample, [key]: value });
     expect(review.valid).toBe(false);
