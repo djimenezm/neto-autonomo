@@ -6,20 +6,23 @@ import Header from '@/components/Header';
 import MonthlyCostCalculator from '@/components/MonthlyCostCalculator';
 import CashFlowPlanner from '@/components/CashFlowPlanner';
 import CashDatePlanner from '@/components/CashDatePlanner';
+import UpcomingPaymentPlanner from '@/components/UpcomingPaymentPlanner';
 import { cashDatesAdvanceExample, cashDatesExample, cashDatesExampleResult, checkCashDates, formatCashDate } from '@/lib/cashDates';
 import { cashPlanExampleResult, delayedCashPlanExampleResult, cashPlanSource } from '@/lib/cashPlan';
 import { estimateRecurringCosts, recurringCostsExample } from '@/lib/recurringCosts';
+import { planUpcomingPayment, upcomingPaymentExample } from '@/lib/upcomingPayment';
 import { formatCurrency, formatNumber } from '@/lib/format';
 import { getSiteUrl, siteConfig } from '@/lib/site';
 import styles from './costGuide.module.css';
 
 const route = '/cuanto-cuesta-ser-autonomo';
 const title = 'Cuánto cuesta ser autónomo cada mes';
-const updatedOn = '2026-11-14';
+const updatedOn = '2026-11-17';
 const description =
   'Calcula costes mensuales y planifica cobros y pagos por fecha. Detecta déficits intermedios y guarda el plan en un archivo para volver a revisarlo.';
 
 const costExample = estimateRecurringCosts(recurringCostsExample);
+const upcomingExample = planUpcomingPayment(upcomingPaymentExample);
 const faqItems = [
   { question: '¿Qué importe pongo si pago una herramienta una vez al año?', answer: 'Escribe el importe de ese pago y elige «Una vez al año». La calculadora lo suma una sola vez al coste anual y divide el total anual entre 12 para obtener una media mensual. No lo vuelvas a añadir en otros gastos.' },
   { question: '¿La media mensual coincide con lo que sale de mi cuenta cada mes?', answer: 'No necesariamente. Un pago anual de 420 EUR equivale a 35 EUR al mes para planificar la tarifa, pero se paga según su vencimiento. La calculadora de costes no conoce los cargos ni aparta dinero. El plan de caja de esta página compara por separado los cobros y pagos que introduzcas para tres meses.' },
@@ -67,6 +70,7 @@ export const metadata: Metadata = {
 
 export default function CuantoCuestaSerAutonomoPage() {
   if (!costExample.valid) throw new Error('Invalid editorial recurring-cost example');
+  if (!upcomingExample.valid || upcomingExample.contributionAmount === null) throw new Error('Invalid editorial upcoming-payment example');
   const cashExample = cashPlanExampleResult;
   const delayedCash = delayedCashPlanExampleResult;
   const datedCash = cashDatesExampleResult;
@@ -199,7 +203,7 @@ export default function CuantoCuestaSerAutonomoPage() {
 
       <section className="section" aria-labelledby="ejemplo-costes">
         <div className="container text-block">
-          <p className="article-meta">Actualizada el <time dateTime={updatedOn}>14 de noviembre de 2026</time>. Responsable: {siteConfig.ownerName}.</p>
+          <p className="article-meta">Actualizada el <time dateTime={updatedOn}>17 de noviembre de 2026</time>. Responsable: {siteConfig.ownerName}.</p>
           <h2 id="ejemplo-costes">Un pago anual también pesa en tu tarifa mensual</h2>
           <p>Estos son los datos ficticios con los que empieza la calculadora. No son precios de mercado ni importes deducibles confirmados. Se supone un año completo, sin altas, bajas ni cambios de precio.</p>
           <div className="scenario-table-scroll" role="region" aria-label="Ejemplo de costes con varias frecuencias" tabIndex={0}>
@@ -212,6 +216,7 @@ export default function CuantoCuestaSerAutonomoPage() {
           </div>
           <p>La gestoría de 165 EUR cada tres meses suma 660 EUR al año, o 55 EUR al mes. El software de 420 EUR anuales equivale a 35 EUR al mes. Con la cuota y el resto de partidas, {formatCurrency(costExample.annualTotal)} al año ÷ 12 = <strong>{formatCurrency(costExample.monthlyTotal)} de media mensual</strong>.</p>
           <p>Si facturas 80 horas al mes, esos costes pesan {formatCurrency(costExample.monthlyTotal / 80)}/h. Con 40 horas, pesan {formatCurrency(costExample.monthlyTotal / 40)}/h. Esa cifra todavía no paga tu neto ni tu IRPF. Para estimar las horas, usa la <Link href="/horas-facturables-freelance">guía de horas facturables</Link>.</p>
+          <p>Si tienes un recibo cerca, puedes <a href="#preparar-proximo-pago">calcular cuánto apartar antes del próximo pago</a>.</p>
           <div className="guide-cta"><a href="#costes-mensuales" className="primary-button">Ajustar pagos y frecuencias</a></div>
         </div>
       </section>
@@ -219,7 +224,16 @@ export default function CuantoCuestaSerAutonomoPage() {
       <section className="section alt" aria-labelledby="media-y-vencimientos">
         <div className="container text-block">
           <h2 id="media-y-vencimientos">Una media para la tarifa, otra cuenta para los vencimientos</h2>
-          <p>Repartir 420 EUR entre 12 meses da 35 EUR mensuales. Si el recibo vence el mes que viene y no tienes nada apartado, esa media no cubre por sí sola el pago próximo. Anota también la fecha del recibo y el dinero disponible fuera de esta calculadora.</p>
+          <p>Repartir 420 EUR entre 12 meses da 35 EUR mensuales. Si el recibo vence el mes que viene y no tienes nada apartado, esa media no cubre por sí sola el pago próximo. Anota la fecha del recibo y cuánto tienes ya reservado.</p>
+          <h3 id="preparar-proximo-pago">Cuánto apartar antes del próximo pago</h3>
+          <p>
+            Supón que tienes {formatCurrency(upcomingExample.saved)} apartados para la renovación ficticia de software de {formatCurrency(upcomingExample.payment)}.
+            Quedan {formatCurrency(upcomingExample.remaining)} por reunir. Si puedes hacer {formatNumber(upcomingExample.contributions)} aportaciones antes del cargo,
+            tendrías que apartar <strong>{formatCurrency(upcomingExample.contributionAmount)} por aportación</strong>. La media de 35 € al mes sigue sirviendo para repartir ese coste anual al fijar tu tarifa.
+          </p>
+          <p>Cuenta solo las aportaciones que puedes hacer antes del cargo. En el <a href="#vencimientos-caja">plan de caja por fechas</a>, registra el cargo completo de {formatCurrency(upcomingExample.payment)} una sola vez, el día en que sale de la cuenta.</p>
+          <UpcomingPaymentPlanner />
+          <h3>Cómo redondeamos y trasladamos los costes</h3>
           <p>Redondeamos cada pago a céntimos antes de repetirlo según su frecuencia. Ejemplo aritmético ficticio: 128,075 EUR se redondean a 128,08 EUR. Si pagas cada mes, 128,08 × 12 = 1536,96 EUR al año; si pagas cada tres meses, 128,08 × 4 = 512,32 EUR al año. No son precios de mercado ni importes deducibles confirmados.</p>
           <p>El total anual se obtiene de los pagos, antes de redondear la media mensual. Por ejemplo, 100 EUR anuales son {formatNumber(100 / 12, 2)} EUR al mes al mostrar dos decimales; multiplicar esa cifra redondeada por 12 da 99,96 EUR. Conservamos los 100 EUR en el total anual para no perder esos céntimos.</p>
           <p>Al trasladar los datos a la tarifa, la cuota mensual va por separado. En el ejemplo, los otros {formatCurrency(costExample.monthlyOtherCosts)} mensuales se reparten según el importe deducible que indiques. El reparto se redondea a céntimos y se muestra antes de abrir la calculadora de tarifa: comprueba el deducible y el resto no deducible que vas a trasladar. No añadas la cuota otra vez ni repitas un mismo recibo en dos categorías.</p>
