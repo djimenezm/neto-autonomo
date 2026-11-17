@@ -9,7 +9,7 @@ import { parseSpanishNumber } from '@/lib/spanishNumber';
 import styles from './CashDatePlanner.module.css';
 
 type Row = { id: number; date: string; kind: CashMovementInput['kind']; amount: string };
-type Values = { initialBalance: string; rows: Row[] };
+type Values = { initialBalance: string; minimumBalanceTarget: string; rows: Row[] };
 type PlanBackup = { values: Values; isExample: boolean; source: 'example' | 'file' };
 type RemovedMovement = { row: Row; index: number };
 const INITIAL_ROW_COUNT = 1;
@@ -28,6 +28,7 @@ function hasMismatchedUnit(value: string, parsed: number) {
 function checkCashPlan(values: Values) {
   const input = {
     initialBalance: parseSpanishNumber(values.initialBalance, 'EUR'),
+    minimumBalanceTarget: values.minimumBalanceTarget.trim() === '' ? undefined : parseSpanishNumber(values.minimumBalanceTarget, 'EUR'),
     movements: values.rows.map(({ date, kind, amount }) => ({ date, kind, amount: parseSpanishNumber(amount, 'EUR') })),
   };
   const checked = checkCashDates(input);
@@ -39,6 +40,8 @@ function checkCashPlan(values: Values) {
     errors: {
       ...errors,
       initialBalance: hasMismatchedUnit(values.initialBalance, input.initialBalance) ? euroUnitError : errors.initialBalance,
+      minimumBalanceTarget: input.minimumBalanceTarget !== undefined && hasMismatchedUnit(values.minimumBalanceTarget, input.minimumBalanceTarget)
+        ? euroUnitError : errors.minimumBalanceTarget,
       rows: errors.rows.map((rowErrors, index) => hasMismatchedUnit(values.rows[index].amount, input.movements[index].amount)
         ? { ...rowErrors, amount: euroUnitError }
         : rowErrors),
@@ -62,7 +65,9 @@ export default function CashDatePlanner() {
   const controls = useRef<Record<string, HTMLInputElement | HTMLSelectElement | null>>({});
   const focusKey = useRef<string | null>(null);
   const fileOperation = useRef(0);
-  const [values, setValues] = useState<Values>({ initialBalance: '', rows: Array.from({ length: INITIAL_ROW_COUNT }, (_, index) => blankRow(index)) });
+  const [values, setValues] = useState<Values>({
+    initialBalance: '', minimumBalanceTarget: '', rows: Array.from({ length: INITIAL_ROW_COUNT }, (_, index) => blankRow(index)),
+  });
   const [estimate, setEstimate] = useState<ReturnType<typeof checkCashDates> | null>(null);
   const [hasAttemptedCheck, setHasAttemptedCheck] = useState(false);
   const [isExample, setIsExample] = useState(false);
@@ -73,6 +78,7 @@ export default function CashDatePlanner() {
   const [movementFeedback, setMovementFeedback] = useState('');
   const validation = hasAttemptedCheck ? checkCashPlan(values) : null;
   const initialError = validation && !validation.valid ? validation.errors.initialBalance : undefined;
+  const targetError = validation && !validation.valid ? validation.errors.minimumBalanceTarget : undefined;
 
   function setControl(key: string, node: HTMLInputElement | HTMLSelectElement | null) {
     controls.current[key] = node;
@@ -80,7 +86,13 @@ export default function CashDatePlanner() {
   }
 
   function invalidateFileRead() { fileOperation.current++; setFileFeedback(null); }
-  function clearResult() { invalidateFileRead(); setEstimate(null); setIsExample(false); setRecoveryFeedback(null); setMovementFeedback(''); }
+  function clearResult({ keepExample = false } = {}) {
+    invalidateFileRead();
+    setEstimate(null);
+    if (!keepExample) setIsExample(false);
+    setRecoveryFeedback(null);
+    setMovementFeedback('');
+  }
 
   function forgetRemoval() { setRemovedMovement(null); setMovementFeedback(''); }
 
@@ -97,7 +109,7 @@ export default function CashDatePlanner() {
 
   function rememberPlan(source: PlanBackup['source']) {
     setPlanBeforeReplacement((previous) => previous ?? {
-      values: { initialBalance: values.initialBalance, rows: values.rows.map((row) => ({ ...row })) },
+      values: { ...values, rows: values.rows.map((row) => ({ ...row })) },
       isExample, source,
     });
   }
@@ -110,9 +122,15 @@ export default function CashDatePlanner() {
     setHasAttemptedCheck(true);
     setEstimate(result);
     if (result.valid) {
-      setValues({ initialBalance: formatNumber(result.initialBalance), rows: next.rows.map((row, index) => ({ ...row, amount: formatNumber(result.movements[index].amount) })) });
+      setValues({
+        initialBalance: formatNumber(result.initialBalance),
+        minimumBalanceTarget: result.minimumBalanceTarget === null ? '' : formatNumber(result.minimumBalanceTarget),
+        rows: next.rows.map((row, index) => ({ ...row, amount: formatNumber(result.movements[index].amount) })),
+      });
     } else if (result.errors.initialBalance) {
       controls.current.initialBalance?.focus();
+    } else if (result.errors.minimumBalanceTarget) {
+      controls.current.minimumBalanceTarget?.focus();
     } else {
       for (const [index, row] of next.rows.entries()) {
         const invalid = fields.find(({ key }) => result.errors.rows[index]?.[key]);
@@ -127,6 +145,7 @@ export default function CashDatePlanner() {
     forgetRemoval();
     const next: Values = {
       initialBalance: formatNumber(example.initialBalance),
+      minimumBalanceTarget: '',
       rows: example.movements.map((movement) => ({ ...movement, id: nextId.current++, amount: formatNumber(movement.amount) })),
     };
     setIsExample(true);
@@ -148,12 +167,13 @@ export default function CashDatePlanner() {
       if (!decoded.valid) { setFileFeedback({ text: decoded.error, error: true }); return; }
       // A valid, current read may replace an incomplete draft. Preserve it only
       // now; invalid, failed or superseded reads must not affect the first copy.
-      const hasDraft = values.initialBalance.trim() !== '' || values.rows.length !== INITIAL_ROW_COUNT
+      const hasDraft = values.initialBalance.trim() !== '' || values.minimumBalanceTarget.trim() !== '' || values.rows.length !== INITIAL_ROW_COUNT
         || values.rows.some((row) => row.date !== '' || row.kind !== '' || row.amount.trim() !== '');
       if (hasDraft) rememberPlan('file');
       forgetRemoval();
       const next: Values = {
         initialBalance: formatNumber(decoded.input.initialBalance),
+        minimumBalanceTarget: decoded.input.minimumBalanceTarget === undefined ? '' : formatNumber(decoded.input.minimumBalanceTarget),
         rows: decoded.input.movements.map((row) => ({ ...row, id: nextId.current++, amount: formatNumber(row.amount) })),
       };
       setIsExample(decoded.fictional);
@@ -182,7 +202,11 @@ export default function CashDatePlanner() {
   function savePlan() {
     invalidateFileRead();
     if (!estimate?.valid) return;
-    const encoded = encodeCashDatesFile({ initialBalance: estimate.initialBalance, movements: estimate.movements }, isExample);
+    const encoded = encodeCashDatesFile({
+      initialBalance: estimate.initialBalance,
+      minimumBalanceTarget: estimate.minimumBalanceTarget ?? undefined,
+      movements: estimate.movements,
+    }, isExample);
     if (!encoded.valid) { setFileFeedback({ text: encoded.error, error: true, download: true }); return; }
     let url: string | undefined;
     let link: HTMLAnchorElement | undefined;
@@ -229,7 +253,7 @@ export default function CashDatePlanner() {
           event.currentTarget.value = '';
           if (file) void openPlan(file);
         }} />
-        <p id={`${id}-file-hint`}>Elige un archivo .json generado con «Guardar este plan en un archivo», de hasta 64 KB. Abrirlo sustituye el saldo y los movimientos actuales si el archivo es válido. Si tienes un borrador, puedes volver con «Recuperar mi plan anterior» mientras sigas en esta página. Se lee en tu navegador; no se envía al servidor.</p>
+        <p id={`${id}-file-hint`}>Elige un archivo .json generado con «Guardar este plan en un archivo», de hasta 64 KB. Un archivo válido sustituye los saldos y los movimientos actuales. Si tienes un borrador, puedes volver con «Recuperar mi plan anterior» mientras sigas en esta página. Se lee en tu navegador; no se envía al servidor.</p>
         <div role="status" aria-label="Archivo del plan" aria-live="polite" aria-atomic="true">
           {fileFeedback && !fileFeedback.download ? <p className={fileFeedback.error ? 'field-error' : undefined}>{fileFeedback.text}</p> : null}
         </div>
@@ -246,6 +270,15 @@ export default function CashDatePlanner() {
           aria-describedby={`${id}-initial-hint${initialError ? ` ${id}-initial-error` : ''}`} />
         <small id={`${id}-initial-hint`}>El saldo al empezar, antes de la fecha más antigua que introduzcas. Puede ser cero o negativo.</small>
         {initialError ? <small className="field-error" id={`${id}-initial-error`}>{initialError}</small> : null}
+      </label>
+      <label className={styles.initial}>
+        <span id={`${id}-target-label`}>Saldo mínimo que quieres mantener (EUR)</span>
+        <NumericTextInput ref={(node) => setControl('minimumBalanceTarget', node)} inputMode="decimal" value={values.minimumBalanceTarget}
+          onValueChange={(nextValue) => { setValues({ ...values, minimumBalanceTarget: nextValue }); clearResult({ keepExample: true }); }}
+          aria-labelledby={`${id}-target-label`} aria-invalid={Boolean(targetError)}
+          aria-describedby={`${id}-target-hint${targetError ? ` ${id}-target-error` : ''}`} />
+        <small id={`${id}-target-hint`}>Opcional. Indica cuánto quieres conservar en la cuenta durante todo el plan. Los pagos previstos van en los movimientos.</small>
+        {targetError ? <small className="field-error" id={`${id}-target-error`}>{targetError}</small> : null}
       </label>
       {values.rows.map((row, index) => (
         <fieldset className={styles.movement} key={row.id} aria-describedby={`${id}-method`}>
@@ -338,9 +371,15 @@ export default function CashDatePlanner() {
               <div><dt>Saldo mínimo con este orden supuesto</dt><dd>{formatCurrency(estimate.minimumBalance)}</dd></div>
               <div><dt>Aporte inicial adicional para este supuesto</dt><dd>{formatCurrency(estimate.additionalInitialBalance)}</dd></div>
               <div><dt>Primer punto negativo</dt><dd>{estimate.firstNegativePoint === 'initial' ? 'Saldo inicial' : estimate.firstNegativePoint ? formatCashDate(estimate.firstNegativePoint) : 'Ninguno'}</dd></div>
+              {estimate.minimumBalanceTarget !== null && estimate.additionalInitialBalanceForTarget !== null ? <>
+                <div><dt>Saldo mínimo que quieres mantener</dt><dd>{formatCurrency(estimate.minimumBalanceTarget)}</dd></div>
+                <div><dt>Aporte inicial adicional para mantener ese saldo</dt><dd>{formatCurrency(estimate.additionalInitialBalanceForTarget)}</dd></div>
+                <div><dt>Primera vez por debajo de ese saldo</dt><dd>{estimate.firstBelowTarget === 'initial' ? 'Saldo inicial' : estimate.firstBelowTarget ? formatCashDate(estimate.firstBelowTarget) : 'Ninguna'}</dd></div>
+              </> : null}
             </dl>
             <p>{formatCurrency(estimate.initialBalance)} iniciales + {formatCurrency(estimate.totalReceipts)} de cobros − {formatCurrency(estimate.totalPayments)} de pagos = {formatCurrency(estimate.finalBalance)} tras la última fecha. No es beneficio neto ni una previsión de cobros confirmados.</p>
-            <p className={estimate.minimumBalance < 0 ? styles.shortfall : undefined}>{estimate.minimumBalance < 0 ? 'Hay saldo negativo en el orden calculado.' : 'No hay saldo negativo en el orden calculado.'} El aporte mostrado solo compensa el déficit de los movimientos introducidos, suponiendo pagos antes de cobros en una misma fecha. No es una recomendación de financiación ni un fondo de emergencia.</p>
+            <p className={estimate.minimumBalance < 0 ? styles.shortfall : undefined}>{estimate.minimumBalance < 0 ? 'Hay saldo negativo en el orden calculado.' : 'No hay saldo negativo en el orden calculado.'} El aporte para este supuesto cubre el déficit hasta cero, con los movimientos introducidos y los pagos antes de cobros en una misma fecha.</p>
+            {estimate.firstBelowTarget ? <p className={styles.shortfall}>El saldo previsto cae por debajo del mínimo que quieres mantener.</p> : null}
           </div>
         ) : null}
       </div>
@@ -350,7 +389,7 @@ export default function CashDatePlanner() {
           <div role="status" aria-label="Descarga del plan" aria-live="polite" aria-atomic="true">
             {fileFeedback?.download ? <p className={fileFeedback.error ? 'field-error' : undefined}>{fileFeedback.text}</p> : null}
           </div>
-          <p>El archivo contiene el saldo, las fechas y los importes de los movimientos que has comprobado. Guárdalo donde quieras conservar esos datos. Para incluir cambios, vuelve a comprobar el plan y guarda otra copia.</p>
+          <p>El archivo contiene el saldo inicial, el mínimo deseado si lo has indicado y los movimientos comprobados. Para incluir cambios, vuelve a comprobar el plan y guarda otra copia.</p>
         </div>
       ) : null}
       <p className={styles.note}>Si el cobro se retrasa, cambia su fecha y vuelve a comprobar. Verifica también los cargos omitidos, el saldo realmente disponible y las fechas de abono: agrupar por día no acredita la ejecución bancaria. Un saldo positivo puede incluir reservas para pagos posteriores. El plan no se guarda automáticamente al salir; puedes conservarlo descargando el archivo. No se envían sus datos al servidor.</p>

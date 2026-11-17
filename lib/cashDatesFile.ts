@@ -16,6 +16,7 @@ export function encodeCashDatesFile(input: CashDatesInput, fictional = false) {
     text: JSON.stringify({
       format, version: 1, sameDayOrder: 'payments-first', fictional,
       initialBalance: result.initialBalance,
+      minimumBalanceTarget: result.minimumBalanceTarget ?? undefined,
       movements: result.movements,
     }, null, 2) + '\n',
   } as const;
@@ -31,6 +32,7 @@ export function decodeCashDatesFile(text: string) {
   }
   if (!isRecord(data) || data.format !== format || data.version !== 1 || data.sameDayOrder !== 'payments-first'
     || typeof data.fictional !== 'boolean' || typeof data.initialBalance !== 'number'
+    || (data.minimumBalanceTarget !== undefined && typeof data.minimumBalanceTarget !== 'number')
     || !Array.isArray(data.movements) || data.movements.length < 1 || data.movements.length > MAX_CASH_MOVEMENTS) {
     return { valid: false, error: 'El archivo no tiene un formato de plan compatible. No se ha cambiado tu plan actual.' } as const;
   }
@@ -42,11 +44,19 @@ export function decodeCashDatesFile(text: string) {
     // Only copy expected input fields. Stored results and unrelated keys are ignored.
     movements.push({ date: row.date, kind: row.kind, amount: row.amount });
   }
-  const result = checkCashDates({ initialBalance: data.initialBalance, movements });
+  const result = checkCashDates({
+    initialBalance: data.initialBalance,
+    minimumBalanceTarget: data.minimumBalanceTarget,
+    movements,
+  });
   if (!result.valid) return { valid: false, error: 'Revisa las fechas y los importes del archivo: no forman un plan válido. No se ha cambiado tu plan actual.' } as const;
   return {
     valid: true,
-    input: { initialBalance: result.initialBalance, movements: result.movements },
+    input: {
+      initialBalance: result.initialBalance,
+      ...(result.minimumBalanceTarget === null ? {} : { minimumBalanceTarget: result.minimumBalanceTarget }),
+      movements: result.movements,
+    },
     fictional: data.fictional,
   } as const;
 }

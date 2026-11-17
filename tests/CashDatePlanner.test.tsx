@@ -12,7 +12,8 @@ describe('cash date planner', () => {
 
   it('starts empty with unnamed controls and focuses each first invalid field', async () => {
     render(<Planner />);
-    expect(document.querySelectorAll('input:not([type="file"])')).toHaveLength(3);
+    expect(document.querySelectorAll('input:not([type="file"])')).toHaveLength(4);
+    expect(screen.getByLabelText('Saldo mínimo que quieres mantener (EUR)')).toHaveValue('');
     expect(screen.getAllByRole('combobox')).toHaveLength(1);
     for (const input of document.querySelectorAll('input,select')) { expect(input).toHaveValue(''); expect(input).not.toHaveAttribute('name'); }
     expect(document.querySelector('form')).toBeNull();

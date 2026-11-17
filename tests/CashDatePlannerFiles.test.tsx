@@ -62,6 +62,27 @@ describe('save and reopen cash date plans', () => {
     expect(window.va).not.toHaveBeenCalled(); expect(window.gtag).not.toHaveBeenCalled();
   });
 
+  it('reopens the checked minimum from its download and restores a draft containing only an edited target', async () => {
+    render(<Planner />);
+    const target = screen.getByLabelText('Saldo mínimo que quieres mantener (EUR)');
+    await userEvent.click(screen.getByRole('button', { name: 'Probar el ejemplo con anticipo' }));
+    fireEvent.change(target, { target: { value: '300 EUR' } });
+    await userEvent.click(screen.getByRole('button', { name: 'Comprobar vencimientos' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Guardar este plan en un archivo' }));
+    const text = await blobText(vi.mocked(URL.createObjectURL).mock.calls[0][0] as Blob);
+    await userEvent.click(screen.getByRole('button', { name: 'Recuperar mi plan anterior' }));
+
+    fireEvent.change(target, { target: { value: ' 255,005 € ' } });
+    await userEvent.upload(chooser(), new File([text], 'plan-caja-fechas.json', { type: 'application/json' }));
+    await waitFor(() => expect(feedback()).toHaveTextContent('Plan abierto con 4 movimientos'));
+    expect(target).toHaveValue('300');
+    expect(result()).toHaveTextContent('movimientos ficticios');
+    expect(within(result()).getByText('Aporte inicial adicional para mantener ese saldo').nextElementSibling).toHaveTextContent('300,00');
+    expect(within(result()).getByText('Primera vez por debajo de ese saldo').nextElementSibling).toHaveTextContent('05/11/2026');
+    await userEvent.click(screen.getByRole('button', { name: 'Recuperar mi plan anterior' }));
+    expect(target).toHaveValue(' 255,005 € ');
+  });
+
   it.each([
     new File(['not a plan'], 'invalid.json', { type: 'application/json' }),
     new File(['x'.repeat(MAX_CASH_DATES_FILE_BYTES + 1)], 'large.json', { type: 'application/json' }),

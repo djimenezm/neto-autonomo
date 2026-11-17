@@ -14,8 +14,19 @@ describe('cash date plan file', () => {
     if (!encoded.valid) return;
     const raw = JSON.parse(encoded.text);
     expect(raw).not.toHaveProperty('days'); expect(raw).not.toHaveProperty('finalBalance');
+    expect(raw).not.toHaveProperty('minimumBalanceTarget');
     const decoded = decodeCashDatesFile(encoded.text);
-    expect(decoded).toMatchObject({ valid: true, fictional: true, input: { initialBalance: -1.01, movements: cashDatesExample.movements } });
+    expect(decoded).toEqual({ valid: true, fictional: true, input: { initialBalance: -1.01, movements: cashDatesExample.movements } });
+  });
+
+  it.each([[250.005, 250.01], [0, 0]])('round trips an explicit minimum balance target of %s in a version 1 file', (minimumBalanceTarget, normalizedTarget) => {
+    const encoded = encodeCashDatesFile({ ...cashDatesExample, minimumBalanceTarget });
+    if (!encoded.valid) throw new Error('Invalid test plan');
+    expect(JSON.parse(encoded.text)).toMatchObject({ version: 1, minimumBalanceTarget: normalizedTarget });
+    expect(decodeCashDatesFile(encoded.text)).toMatchObject({
+      valid: true,
+      input: { minimumBalanceTarget: normalizedTarget },
+    });
   });
 
   it('recomputes results from the inputs and ignores unrelated or forged result fields', () => {
@@ -48,6 +59,7 @@ describe('cash date plan file', () => {
   it.each([
     { version: 2 }, { format: 'bank-statement' }, { sameDayOrder: 'receipts-first' },
     { fictional: 'true' }, { initialBalance: '1000' }, { movements: [] },
+    { minimumBalanceTarget: null }, { minimumBalanceTarget: '300' },
     { movements: Array.from({ length: 21 }, () => ({ date: '2026-11-05', kind: 'receipt', amount: 0 })) },
   ])('rejects an unsupported envelope %j', (patch) => {
     expect(decodeCashDatesFile(JSON.stringify({ ...stored(), ...patch })).valid).toBe(false);
@@ -66,5 +78,10 @@ describe('cash date plan file', () => {
   it('refuses to export an invalid plan', () => {
     expect(encodeCashDatesFile({ ...cashDatesExample, initialBalance: Number.NaN }).valid).toBe(false);
     expect(encodeCashDatesFile({ initialBalance: 0, movements: [] }).valid).toBe(false);
+  });
+
+  it('rejects a negative minimum balance target on import and export', () => {
+    expect(decodeCashDatesFile(JSON.stringify({ ...stored(), minimumBalanceTarget: -1 })).valid).toBe(false);
+    expect(encodeCashDatesFile({ ...cashDatesExample, minimumBalanceTarget: -1 }).valid).toBe(false);
   });
 });

@@ -6,7 +6,7 @@ import Header from '@/components/Header';
 import MonthlyCostCalculator from '@/components/MonthlyCostCalculator';
 import CashFlowPlanner from '@/components/CashFlowPlanner';
 import CashDatePlanner from '@/components/CashDatePlanner';
-import { cashDatesAdvanceExample, cashDatesExampleResult, checkCashDates, formatCashDate } from '@/lib/cashDates';
+import { cashDatesAdvanceExample, cashDatesExample, cashDatesExampleResult, checkCashDates, formatCashDate } from '@/lib/cashDates';
 import { cashPlanExampleResult, delayedCashPlanExampleResult, cashPlanSource } from '@/lib/cashPlan';
 import { estimateRecurringCosts, recurringCostsExample } from '@/lib/recurringCosts';
 import { formatCurrency, formatNumber } from '@/lib/format';
@@ -27,7 +27,7 @@ const faqItems = [
   { question: '¿Este reparto mensual sirve para presentar impuestos?', answer: 'No. Es una ayuda de planificación para un año completo con pagos constantes. No calcula IVA soportado, deducibilidad ni el periodo de imputación de un gasto. Si has empezado a mitad de año o esperas cambios, revisa esos supuestos por separado.' },
   { question: '¿Un cierre positivo garantiza que podré pagar todo el mes?', answer: 'No. El plan suma los cobros y resta los pagos de cada mes, pero no conoce su orden dentro de ese mes. Puedes tener un déficit antes de cobrar aunque el cierre sea positivo. El aporte adicional mostrado solo evita saldos negativos al inicio y en los cierres calculados; no garantiza cada vencimiento ni es un fondo de emergencia recomendado.' },
   { question: '¿Cómo compruebo el orden de los cobros y pagos por fecha?', answer: 'Introduce el saldo anterior al primer movimiento y las fechas, tipos e importes de los movimientos previstos. Se agrupan por fecha y se ordenan cronológicamente. En una misma fecha se suponen todos los pagos antes de cualquier cobro. Es un supuesto prudente, no el orden bancario real; revisa las fechas de abono, los movimientos omitidos y los cobros que puedan retrasarse.' },
-  { question: '¿Puedo guardar el plan de caja y abrirlo otro día?', answer: 'Sí. Comprueba los vencimientos y usa «Guardar este plan en un archivo». La copia contiene el saldo y los movimientos introducidos. Otro día puedes elegirla en «Abrir un plan guardado»: si es válida, sustituye los datos actuales y calcula los saldos de nuevo. Si sustituye un borrador de esta página, puedes volver con «Recuperar mi plan anterior» y comprobarlo de nuevo. La primera copia recuperable se mantiene hasta recuperarla, aunque abras más archivos o pruebes el ejemplo. El archivo se lee en el navegador, sin enviarlo al servidor. El plan no se guarda automáticamente al salir.' },
+  { question: '¿Puedo guardar el plan de caja y abrirlo otro día?', answer: 'Sí. Comprueba los vencimientos y usa «Guardar este plan en un archivo». La copia contiene el saldo, los movimientos y el saldo mínimo que quieras mantener, si lo has indicado. Los archivos anteriores a esta opción se abren con ese campo vacío. Al abrir un plan válido se calculan los saldos de nuevo. Si sustituye un borrador de esta página, puedes volver con «Recuperar mi plan anterior» y comprobarlo de nuevo. La primera copia recuperable se mantiene hasta recuperarla, aunque abras más archivos o pruebes el ejemplo. El archivo se lee en el navegador. Para conservar el plan al salir, descarga una copia.' },
 ] as const;
 
 export const metadata: Metadata = {
@@ -72,6 +72,14 @@ export default function CuantoCuestaSerAutonomoPage() {
   const datedCash = cashDatesExampleResult;
   const advanceCash = checkCashDates(cashDatesAdvanceExample);
   if (!cashExample.valid || !delayedCash.valid || !datedCash.valid || !advanceCash.valid) throw new Error('Invalid editorial cash-plan example');
+  const minimumBalanceTarget = 300;
+  const advanceWithTarget = checkCashDates({ ...cashDatesAdvanceExample, minimumBalanceTarget });
+  const datedWithTarget = checkCashDates({ ...cashDatesExample, minimumBalanceTarget });
+  if (!advanceWithTarget.valid || advanceWithTarget.firstBelowTarget === null || advanceWithTarget.firstBelowTarget === 'initial'
+    || advanceWithTarget.additionalInitialBalanceForTarget === null
+    || !datedWithTarget.valid || datedWithTarget.additionalInitialBalanceForTarget === null) {
+    throw new Error('Invalid editorial minimum-balance example');
+  }
   const siteUrl = getSiteUrl();
   const pageUrl = new URL(route, siteUrl).toString();
 
@@ -303,15 +311,31 @@ export default function CuantoCuestaSerAutonomoPage() {
           </div>
           <p>En este ejemplo, el abono del día 4 cubre justo el desfase y el saldo mínimo queda en {formatCurrency(advanceCash.minimumBalance)}. Si se retrasa al día 5, el simulador vuelve a mostrar el déficit porque coloca el pago antes del cobro de esa fecha.</p>
           <p>Carga el <Link href="#probar-anticipo">ejemplo con anticipo en el comprobador</Link> y mueve el primer cobro del día 4 al 5. Para revisar tu encargo, anota el saldo disponible y lo que entraría y saldría realmente de la cuenta. Resta el anticipo del cobro posterior para contar cada importe una sola vez.</p>
+          <h3 id="saldo-minimo-caja">Cuánto saldo quieres mantener en la cuenta</h3>
+          <p>
+            Elige el importe que quieres mantener disponible durante el periodo. Ese objetivo representa dinero que quieres conservar en la cuenta. Anota cada salida prevista una sola vez, en la fecha de pago.
+            El comprobador compara ese objetivo con el saldo inicial y con el saldo que queda tras los pagos de cada fecha.
+            Si el punto más bajo queda por debajo del objetivo, la diferencia es el aporte adicional al empezar.
+          </p>
+          <p>
+            Supón que quieres mantener {formatCurrency(minimumBalanceTarget)}. Con el anticipo del día 4, el saldo baja a {formatCurrency(advanceCash.minimumBalance)}
+            {' '}el {formatCashDate(advanceWithTarget.firstBelowTarget)}, la primera fecha por debajo de tu objetivo.
+            Con los mismos movimientos, necesitarías {formatCurrency(advanceWithTarget.additionalInitialBalanceForTarget)} más al empezar.
+            Si cobras todo el día 20, necesitarías {formatCurrency(datedWithTarget.additionalInitialBalanceForTarget)} más.
+          </p>
+          <p>
+            Para reproducir la cuenta, ve al <Link href="#probar-anticipo">comprobador</Link> y pulsa «Probar el ejemplo con anticipo».
+            Escribe {formatNumber(minimumBalanceTarget)} en «Saldo mínimo que quieres mantener (EUR)» y pulsa «Comprobar vencimientos».
+          </p>
           <h3>Revisa tus movimientos previstos</h3>
           <p>Si eliminas una fila por error, «Deshacer la última eliminación» recupera su fecha, tipo e importe en la posición anterior, incluso si estaban incompletos. Mantiene el saldo y los cambios de los otros movimientos; editar los campos o comprobar los vencimientos no descarta esta opción. Solo conserva la última fila eliminada, hasta que añadas otro movimiento, cargues un ejemplo, abras un archivo válido, recuperes el plan anterior, salgas o recargues. Tras recuperarla, vuelve a comprobar los vencimientos.</p>
-          <p>Antes de probar por primera vez las fechas ficticias o de sustituir un borrador al abrir un archivo válido, el comprobador conserva en memoria el saldo y los movimientos que tengas escritos, aunque estén incompletos. «Recuperar mi plan anterior» restaura esa copia y sustituye los cambios posteriores. Editar los datos o repetir el ejemplo no reemplaza la copia; tampoco abrir otro archivo. Se mantiene la primera copia hasta recuperarla. Después de recuperarla, pulsa «Comprobar vencimientos» para actualizar los saldos. Esta copia se pierde al salir o recargar; usa el archivo para conservar un plan comprobado.</p>
+          <p>Antes de probar por primera vez las fechas ficticias o de sustituir un borrador al abrir un archivo válido, el comprobador conserva en memoria el saldo inicial, el objetivo de saldo mínimo y los movimientos que tengas escritos, aunque estén incompletos. «Recuperar mi plan anterior» restaura esa copia y sustituye los cambios posteriores. Editar los datos o repetir el ejemplo no reemplaza la copia; tampoco abrir otro archivo. Se mantiene la primera copia hasta recuperarla. Después de recuperarla, pulsa «Comprobar vencimientos» para actualizar los saldos. Esta copia se pierde al salir o recargar; usa el archivo para conservar un plan comprobado.</p>
           <CashDatePlanner />
           <h3 id="guardar-plan-caja">Conserva el plan para revisarlo otro día</h3>
           <ol className="article-list article-list-ordered">
-            <li>Completa el saldo y los movimientos y pulsa «Comprobar vencimientos». Después usa «Guardar este plan en un archivo» junto al resultado.</li>
-            <li>Conserva el archivo .json descargado. Incluye los importes y las fechas que escribiste; la marca de ejemplo ficticio se conserva si guardaste el ejemplo.</li>
-            <li>Al volver, elígelo en «Abrir un plan guardado». Un archivo válido sustituye los datos que tengas en ese comprobador; los saldos se calculan otra vez con los movimientos guardados. Si tenías un borrador, puedes volver con «Recuperar mi plan anterior». Si el archivo no es válido, el plan actual se mantiene.</li>
+            <li>Completa el saldo inicial y los movimientos. Si quieres mantener un saldo mínimo, indícalo. Pulsa «Comprobar vencimientos» y usa «Guardar este plan en un archivo» junto al resultado.</li>
+            <li>Conserva el archivo .json descargado. Incluye el saldo inicial, los movimientos y el objetivo de saldo mínimo si lo has indicado. La marca de ejemplo ficticio se conserva si guardaste el ejemplo.</li>
+            <li>Al volver, elígelo en «Abrir un plan guardado». Un archivo válido sustituye los datos actuales y recalcula los saldos con lo que guardaste. Los archivos anteriores a esta opción dejan vacío el objetivo de saldo mínimo. Si tenías un borrador, puedes volver con «Recuperar mi plan anterior». Si el archivo no es válido, el plan actual se mantiene.</li>
           </ol>
           <p>El archivo es para este comprobador de vencimientos por fecha: no incluye el reparto de costes ni el plan de tres meses. La página no conserva una copia al salir ni envía el contenido al servidor. Si cambias fechas o importes después de abrirlo, comprueba de nuevo y guarda otra copia para conservar los cambios.</p>
         </div>

@@ -1,7 +1,7 @@
 export type CashMovementInput = { date: string; kind: 'receipt' | 'payment' | ''; amount: number };
-export type CashDatesInput = { initialBalance: number; movements: readonly CashMovementInput[] };
+export type CashDatesInput = { initialBalance: number; minimumBalanceTarget?: number; movements: readonly CashMovementInput[] };
 type MovementErrors = Partial<Record<keyof CashMovementInput, string>>;
-type CashDatesErrors = { initialBalance?: string; movements?: string; rows: MovementErrors[] };
+type CashDatesErrors = { initialBalance?: string; minimumBalanceTarget?: string; movements?: string; rows: MovementErrors[] };
 export const MAX_CASH_MOVEMENTS = 20;
 
 function toCents(value: number) {
@@ -25,8 +25,13 @@ export function formatCashDate(date: string) {
 export function checkCashDates(input: CashDatesInput) {
   const errors: CashDatesErrors = { rows: input.movements.map(() => ({})) };
   const initialCents = toCents(input.initialBalance);
+  const minimumBalanceTarget = input.minimumBalanceTarget;
+  const targetCents = minimumBalanceTarget === undefined ? null : toCents(minimumBalanceTarget);
   if (!Number.isFinite(input.initialBalance) || !Number.isSafeInteger(initialCents)) {
     errors.initialBalance = 'Indica el saldo antes del primer movimiento; puede ser cero o negativo.';
+  }
+  if (minimumBalanceTarget !== undefined && (minimumBalanceTarget < 0 || !Number.isSafeInteger(targetCents))) {
+    errors.minimumBalanceTarget = 'Indica un saldo mínimo de cero o más euros, o deja el campo vacío.';
   }
   if (input.movements.length < 1 || input.movements.length > MAX_CASH_MOVEMENTS) {
     errors.movements = `Incluye entre 1 y ${MAX_CASH_MOVEMENTS} movimientos.`;
@@ -40,7 +45,9 @@ export function checkCashDates(input: CashDatesInput) {
     }
     return { ...movement, amount: cents / 100, cents };
   });
-  if (errors.initialBalance || errors.movements || errors.rows.some((row) => Object.keys(row).length)) return { valid: false, errors } as const;
+  if (errors.initialBalance || errors.minimumBalanceTarget || errors.movements || errors.rows.some((row) => Object.keys(row).length)) {
+    return { valid: false, errors } as const;
+  }
 
   const grouped = new Map<string, { receipts: number; payments: number }>();
   for (const movement of normalized) {
@@ -54,6 +61,7 @@ export function checkCashDates(input: CashDatesInput) {
   let balance = initialCents;
   let minimum = initialCents;
   let firstNegativePoint: string | null = initialCents < 0 ? 'initial' : null;
+  let firstBelowTarget: string | null = targetCents !== null && initialCents < targetCents ? 'initial' : null;
   let totalReceipts = 0;
   let totalPayments = 0;
   const days = [];
@@ -70,8 +78,15 @@ export function checkCashDates(input: CashDatesInput) {
     days.push({ date, openingBalance: balance / 100, payments: day.payments / 100, receipts: day.receipts / 100, minimumBalance: afterPayments / 100, closingBalance: closing / 100 });
     minimum = Math.min(minimum, afterPayments);
     if (firstNegativePoint === null && afterPayments < 0) firstNegativePoint = date;
+    if (targetCents !== null && firstBelowTarget === null && afterPayments < targetCents) firstBelowTarget = date;
     balance = closing;
   }
+  const additionalForTargetCents = targetCents === null ? null : Math.max(0, targetCents - minimum);
+  if (additionalForTargetCents !== null && !Number.isSafeInteger(additionalForTargetCents)) {
+    errors.minimumBalanceTarget = 'La diferencia entre el saldo mínimo deseado y el previsto es demasiado grande para calcularla con precisión.';
+    return { valid: false, errors } as const;
+  }
+
   return {
     valid: true,
     initialBalance: initialCents / 100,
@@ -83,6 +98,9 @@ export function checkCashDates(input: CashDatesInput) {
     minimumBalance: minimum / 100,
     additionalInitialBalance: Math.max(0, -minimum) / 100,
     firstNegativePoint,
+    minimumBalanceTarget: targetCents === null ? null : targetCents / 100,
+    additionalInitialBalanceForTarget: additionalForTargetCents === null ? null : additionalForTargetCents / 100,
+    firstBelowTarget,
   } as const;
 }
 

@@ -51,7 +51,14 @@ describe('recurring-cost guide', () => {
     expect(table.textContent).toContain('700,00');
     expect(section.textContent).toContain('todos los pagos antes de cualquier cobro');
     expect(section.textContent).toContain('saldo mínimo real podría ser mayor');
-    expect(section.querySelectorAll('input:not([type="file"])')).toHaveLength(3);
+    expect(section.querySelectorAll('input:not([type="file"])')).toHaveLength(4);
+    const targetHeading = section.querySelector('#saldo-minimo-caja')!;
+    const targetExample = targetHeading.nextElementSibling?.nextElementSibling;
+    expect(targetExample?.textContent).toMatch(/300,00.*0,00.*05\/11\/2026.*300,00.*1100,00/);
+    const targetInstructions = targetExample?.nextElementSibling;
+    expect(targetInstructions?.textContent).toContain('Saldo mínimo que quieres mantener (EUR)');
+    expect(targetInstructions?.querySelector('a')?.getAttribute('href')).toBe('#probar-anticipo');
+    expect(section.textContent).toContain('Los archivos anteriores a esta opción dejan vacío el objetivo de saldo mínimo.');
     expect(section.querySelector('input[type="file"]')?.getAttribute('accept')).toBe('.json,application/json');
     expect(section.querySelector('#guardar-plan-caja')?.textContent).toBe('Conserva el plan para revisarlo otro día');
     expect(section.textContent).toContain('Antes de probar por primera vez las fechas ficticias');

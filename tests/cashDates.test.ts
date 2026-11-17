@@ -1,10 +1,32 @@
-import { cashDatesExample, cashDatesExampleResult, checkCashDates, formatCashDate, MAX_CASH_MOVEMENTS, type CashDatesInput } from '@/lib/cashDates';
+import { cashDatesAdvanceExample, cashDatesExample, cashDatesExampleResult, checkCashDates, formatCashDate, MAX_CASH_MOVEMENTS, type CashDatesInput } from '@/lib/cashDates';
 
 describe('cash movements by date', () => {
   it('finds the intermediate shortfall even though the final balance is positive', () => {
     expect(cashDatesExampleResult).toMatchObject({ valid: true, initialBalance: 1000, totalReceipts: 2400, totalPayments: 2700, finalBalance: 700, minimumBalance: -800, additionalInitialBalance: 800, firstNegativePoint: '2026-11-05' });
     if (cashDatesExampleResult.valid) expect(cashDatesExampleResult.days.map((day) => day.closingBalance)).toEqual([-800, 1600, 700]);
     expect(checkCashDates({ ...cashDatesExample, initialBalance: 1800 })).toMatchObject({ valid: true, minimumBalance: 0, additionalInitialBalance: 0, firstNegativePoint: null });
+  });
+
+  it('checks a personal minimum independently of the zero threshold and accepts equality', () => {
+    expect(checkCashDates({ ...cashDatesAdvanceExample, minimumBalanceTarget: 300 })).toMatchObject({
+      valid: true, minimumBalance: 0, finalBalance: 700, firstNegativePoint: null,
+      minimumBalanceTarget: 300, additionalInitialBalanceForTarget: 300, firstBelowTarget: '2026-11-05',
+    });
+    expect(checkCashDates({ ...cashDatesAdvanceExample, initialBalance: 1300, minimumBalanceTarget: 300 })).toMatchObject({
+      valid: true, minimumBalance: 300, additionalInitialBalanceForTarget: 0, firstBelowTarget: null,
+    });
+    expect(checkCashDates({ ...cashDatesAdvanceExample, minimumBalanceTarget: 1200 })).toMatchObject({
+      valid: true, additionalInitialBalanceForTarget: 1200, firstBelowTarget: 'initial',
+    });
+    expect(cashDatesExampleResult).toMatchObject({ minimumBalanceTarget: null, additionalInitialBalanceForTarget: null, firstBelowTarget: null });
+  });
+
+  it('reports a field error when the required addition exceeds safe precision', () => {
+    const result = checkCashDates({
+      initialBalance: -9e13, minimumBalanceTarget: 9e13,
+      movements: [{ date: '2026-11-05', kind: 'receipt', amount: 0 }],
+    });
+    expect(result).toMatchObject({ valid: false, errors: { minimumBalanceTarget: expect.stringContaining('precisión') } });
   });
 
   it('sorts unsorted dates without changing the input and changes the deficit when a receipt moves', () => {
