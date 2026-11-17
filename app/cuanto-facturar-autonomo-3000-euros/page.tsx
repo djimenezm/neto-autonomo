@@ -5,6 +5,7 @@ import Header from '@/components/Header';
 import LeadMagnetForm from '@/components/LeadMagnetForm';
 import MonthlyProjectPlanner from '@/components/MonthlyProjectPlanner';
 import MonthlyPortfolioPlanner from '@/components/MonthlyPortfolioPlanner';
+import { estimateProjectCapacity, exampleProjectWithCosts } from '@/lib/projectCapacity';
 import { calculateExample, exampleAssumptions, formatEuro, getExampleUrl } from '@/lib/scenarioExamples';
 import { projectCapacityExample, projectCapacityResult, projectMonthlyExample, slowerProjectResult } from '@/lib/projectCapacityExample';
 import { portfolioExampleResult, portfolioOverloadResult, portfolioShortfallResult } from '@/lib/projectPortfolioExample';
@@ -14,12 +15,13 @@ import styles from './capacityGuide.module.css';
 
 const route = '/cuanto-facturar-autonomo-3000-euros';
 const title = 'Cuánto facturar como autónomo para ganar 3000 euros netos';
-const updatedOn = '2026-11-14';
+const updatedOn = '2026-11-17';
 const description =
   'Ejemplo para conservar 3000 euros netos: combina cuotas mensuales y proyectos de distintos precios y horas. Comprueba la facturación prevista y si cabe en tu mes.';
 
 const hourScenarios = [60, 80, 120] as const;
 const eightyHourResult = projectMonthlyExample;
+const projectWithCostsResult = estimateProjectCapacity({ ...projectCapacityExample, ...exampleProjectWithCosts });
 
 const pageFaqItems = [
   {
@@ -85,6 +87,7 @@ export const metadata: Metadata = {
 export default function CuantoFacturarAutonomo3000EurosPage() {
   const regular = projectCapacityResult;
   const slower = slowerProjectResult;
+  const withCosts = projectWithCostsResult;
   const portfolio = portfolioExampleResult;
   const overloadedPortfolio = portfolioOverloadResult;
   const shortPortfolio = portfolioShortfallResult;
@@ -97,6 +100,10 @@ export default function CuantoFacturarAutonomo3000EurosPage() {
   }
   if (regular.projectTimeReference.status !== 'available' || slower.projectTimeReference.status !== 'available') {
     throw new Error('Invalid editorial project-time reference');
+  }
+  if (!withCosts.valid || withCosts.projectReferencePrice === null || withCosts.projectPriceDifference === null
+    || withCosts.projectTimeReference.status !== 'available') {
+    throw new Error('Invalid editorial project-cost example');
   }
   const siteUrl = getSiteUrl();
   const pageUrl = new URL(route, siteUrl).toString();
@@ -214,7 +221,7 @@ export default function CuantoFacturarAutonomo3000EurosPage() {
 
       <section className="section" aria-labelledby="ejemplo-encargos">
         <div className="container text-block">
-          <p className="article-meta">Actualizada el <time dateTime={updatedOn}>14 de noviembre de 2026</time>. Responsable: {siteConfig.ownerName}.</p>
+          <p className="article-meta">Actualizada el <time dateTime={updatedOn}>17 de noviembre de 2026</time>. Responsable: {siteConfig.ownerName}.</p>
           <h2 id="ejemplo-encargos">Dos encargos pueden cubrir el importe y superar tu capacidad</h2>
           <p>
             Partimos de {formatEuro(exampleAssumptions.monthlyExpenses)} de gastos deducibles,
@@ -258,8 +265,24 @@ export default function CuantoFacturarAutonomo3000EurosPage() {
               Obtenemos la referencia repartiendo la facturación mensual entre las horas
               disponibles y aplicando esa proporción completa al encargo. Redondeamos al
               céntimo superior, sin multiplicar la tarifa por hora ya redondeada que ves en
-              pantalla. Comparamos facturación sin IVA, no neto ni beneficio. Los costes
-              específicos adicionales de este encargo se revisan aparte.
+              pantalla. Comparamos facturación sin IVA, no neto ni beneficio.
+            </p>
+            <h4 id="costes-de-un-encargo">El mismo encargo con un coste específico</h4>
+            <p>
+              Supón que el mismo encargo requiere una licencia de {formatEuro(withCosts.specificCosts)} para
+              ese cliente. Del precio de {formatEuro(withCosts.pricePerProject)} sin IVA quedan
+              {' '}<strong>{formatEuro(withCosts.availableForTime)} para las horas</strong>, equivalentes a
+              {' '}{formatEuro(withCosts.availableHourlyRate)}/h. Para cubrir la licencia y las
+              {' '}{formatNumber(withCosts.hoursPerProject)} h a tu referencia, el precio sube a
+              {' '}<strong>{formatEuro(withCosts.projectReferencePrice)} sin IVA</strong>. La oferta queda
+              {' '}{formatEuro(-withCosts.projectPriceDifference)} por debajo y cubre
+              {' '}{formatNumber(withCosts.projectTimeReference.hoursCovered)} h.
+            </p>
+            <p>
+              Introduce los costes específicos adicionales que debe cubrir el precio, como una licencia o
+              materiales para ese cliente. Incluye solo la parte que queda fuera de los gastos de tu referencia
+              mensual. Puedes <a href="#plan-encargos">reproducir la cuenta en el comprobador</a>
+              {' '}con «Probar un encargo con costes».
             </p>
           </div>
           <p>
@@ -329,10 +352,10 @@ export default function CuantoFacturarAutonomo3000EurosPage() {
         <div className="container text-block">
           <h2 id="plan-encargos">Comprueba tu precio y tus horas por encargo</h2>
           <p>Aquí usamos la referencia del ejemplo. Para obtener la tuya, <Link href={getExampleUrl(3000)}>ajusta los datos en la calculadora</Link> y abre «Comprobar cuántos encargos necesito y si caben» en tu resultado.</p>
-          <p>Primero compara el precio de un encargo con la referencia para sus horas. Después revisa qué supondría repetir encargos iguales durante el mes.</p>
+          <p>Primero comprueba si el precio de un encargo cubre sus horas a tu referencia y sus costes específicos. La previsión de varios encargos suma sus precios completos sin IVA y comprueba cuántos caben por horas.</p>
           <p>
-            Si ya has escrito tus datos, puedes probar el encargo ficticio y volver con
-            «Recuperar mis datos del encargo». Se recuperan el precio y las horas anteriores al
+            Si ya has escrito tus datos, puedes probar un encargo ficticio y volver con
+            «Recuperar mis datos del encargo». Se recuperan el precio, las horas y los costes anteriores al
             primer ejemplo, incluidos los campos incompletos. Recuperar sustituye los cambios
             actuales y retira el resultado: pulsa «Comprobar encargos» para usar la referencia
             mensual vigente. La copia se pierde al salir o recargar la página.

@@ -61,6 +61,41 @@ describe('price of one project against the monthly reference', () => {
     });
   });
 
+  it('adds specific costs to the reference and subtracts them from the time budget without changing gross billing', () => {
+    const offer = { monthlyBilling: 4000, billableHours: 80, pricePerProject: 600, hoursPerProject: 12 };
+    expect(estimateProjectCapacity({ ...offer, specificCosts: 0 })).toEqual(estimateProjectCapacity(offer));
+    expect(estimateProjectCapacity({ ...offer, specificCosts: 50 })).toMatchObject({
+      valid: true,
+      projectHourlyRate: 50,
+      specificCosts: 50,
+      availableForTime: 550,
+      availableHourlyRate: 45.83,
+      projectReferencePrice: 650,
+      projectPriceDifference: -50,
+      projectTimeReference: { status: 'available', hoursCovered: 11, excessHours: 1 },
+      requiredProjects: 7, plannedBilling: 4200, plannedHours: 84, maxProjects: 6,
+    });
+  });
+
+  it('shows a signed shortfall and covers zero hours if specific costs exceed the offer', () => {
+    expect(estimateProjectCapacity({
+      monthlyBilling: 4000, billableHours: 80, pricePerProject: 100, hoursPerProject: 2, specificCosts: 100.01,
+    })).toMatchObject({
+      valid: true,
+      availableForTime: -0.01,
+      availableHourlyRate: -0.01,
+      projectReferencePrice: 200.01,
+      projectPriceDifference: -100.01,
+      projectTimeReference: { status: 'available', hoursCovered: 0, excessHours: 2 },
+    });
+  });
+
+  it.each([-0.01, Number.NaN, Number.MAX_VALUE])('rejects the invalid specific cost %s', (specificCosts) => {
+    expect(estimateProjectCapacity({ ...input, specificCosts })).toMatchObject({
+      valid: false, errors: { specificCosts: expect.any(String) },
+    });
+  });
+
   it.each([
     [806.29, -0.01], [806.3, 0], [900, 93.7],
   ])('compares a price of %s with the cent reference before rounding hourly displays', (pricePerProject, projectPriceDifference) => {

@@ -2,12 +2,12 @@
 
 import { useId, useRef, useState } from 'react';
 import NumericTextInput from '@/components/NumericTextInput';
-import { estimateProjectCapacity, exampleProject } from '@/lib/projectCapacity';
+import { estimateProjectCapacity, exampleProject, exampleProjectWithCosts, type ProjectCapacityInput } from '@/lib/projectCapacity';
 import { formatCurrency, formatNumber } from '@/lib/format';
 import { parseSpanishNumber } from '@/lib/spanishNumber';
 import styles from './MonthlyProjectPlanner.module.css';
 
-type Values = { pricePerProject: string; hoursPerProject: string };
+type Values = { pricePerProject: string; hoursPerProject: string; specificCosts: string };
 const fields = [
   {
     key: 'pricePerProject', label: 'Precio por encargo sin IVA (EUR)',
@@ -19,6 +19,11 @@ const fields = [
     hint: 'Incluye preparación, reuniones, ejecución, revisiones y cierre de ese cliente. Cuenta cada hora una sola vez.',
     unitError: 'Escribe solo el número de horas, sin moneda ni porcentaje.',
   },
+  {
+    key: 'specificCosts', label: 'Costes específicos del encargo (EUR, opcional)',
+    hint: 'Incluye solo los costes de este trabajo que falte incorporar a tu referencia mensual. Escribe el importe que debe cubrir el precio sin IVA.',
+    unitError: 'Introduce los costes en euros. Puedes usar € o EUR.',
+  },
 ] as const;
 
 function checkProject(values: Values, monthlyBilling: number, billableHours: number) {
@@ -26,6 +31,7 @@ function checkProject(values: Values, monthlyBilling: number, billableHours: num
     monthlyBilling, billableHours,
     pricePerProject: parseSpanishNumber(values.pricePerProject, 'EUR'),
     hoursPerProject: parseSpanishNumber(values.hoursPerProject, 'none'),
+    specificCosts: values.specificCosts.trim() === '' ? 0 : parseSpanishNumber(values.specificCosts, 'EUR'),
   };
   const checked = estimateProjectCapacity(input);
   if (checked.valid) return checked;
@@ -41,7 +47,7 @@ function checkProject(values: Values, monthlyBilling: number, billableHours: num
 
 export default function MonthlyProjectPlanner({ monthlyBilling, billableHours, headingLevel: Heading = 'h3' }: { monthlyBilling: number; billableHours: number; headingLevel?: 'h3' | 'h4' }) {
   const id = useId();
-  const [values, setValues] = useState<Values>({ pricePerProject: '', hoursPerProject: '' });
+  const [values, setValues] = useState<Values>({ pricePerProject: '', hoursPerProject: '', specificCosts: '' });
   const [checkedValues, setCheckedValues] = useState<Values | null>(null);
   const [hasAttemptedCheck, setHasAttemptedCheck] = useState(false);
   const [isExample, setIsExample] = useState(false);
@@ -52,6 +58,7 @@ export default function MonthlyProjectPlanner({ monthlyBilling, billableHours, h
   // so a changed monthly target cannot leave an old capacity check visible.
   const estimate = checkedValues ? checkProject(checkedValues, monthlyBilling, billableHours) : null;
   const validation = hasAttemptedCheck ? checkProject(values, monthlyBilling, billableHours) : null;
+  const hasSpecificCosts = estimate?.valid && estimate.specificCosts > 0;
 
   function check(nextValues = values) {
     setRecoveryFeedback('');
@@ -62,6 +69,21 @@ export default function MonthlyProjectPlanner({ monthlyBilling, billableHours, h
       const firstInvalid = fields.find(({ key }) => result.errors[key]);
       if (firstInvalid) inputsRef.current[firstInvalid.key]?.focus();
     }
+  }
+
+  function loadExample({ pricePerProject, hoursPerProject, specificCosts }: Pick<ProjectCapacityInput, keyof Values>) {
+    // Save the first personal draft, including unfinished inputs.
+    if (!isExample && Object.values(values).some((value) => value.trim() !== '')) {
+      setOfferBeforeExample((previous) => previous ?? values);
+    }
+    const nextValues = {
+      pricePerProject: String(pricePerProject),
+      hoursPerProject: String(hoursPerProject),
+      specificCosts: specificCosts === undefined ? '' : String(specificCosts),
+    };
+    setValues(nextValues);
+    setIsExample(true);
+    check(nextValues);
   }
 
   function recoverOfferData() {
@@ -113,45 +135,44 @@ export default function MonthlyProjectPlanner({ monthlyBilling, billableHours, h
       </fieldset>
       <div className={styles.actions}>
         <button type="button" className="primary-button" onClick={() => check()}>Comprobar encargos</button>
-        <button type="button" className="link-button" onClick={() => {
-          // Keep the first personal price and hours, including unfinished inputs.
-          // Recover only the draft: the next check uses the current monthly reference.
-          if (!isExample && Object.values(values).some((value) => value.trim() !== '')) {
-            setOfferBeforeExample((previous) => previous ?? { ...values });
-          }
-          const nextValues = { pricePerProject: String(exampleProject.pricePerProject), hoursPerProject: String(exampleProject.hoursPerProject) };
-          setValues(nextValues);
-          setIsExample(true);
-          check(nextValues);
-        }}>Probar un encargo ficticio</button>
+        <button type="button" className="link-button" onClick={() => loadExample(exampleProject)}>Probar un encargo ficticio</button>
+        <button type="button" className="link-button" onClick={() => loadExample(exampleProjectWithCosts)}>Probar un encargo con costes</button>
         {offerBeforeExample ? <button type="button" className="link-button" onClick={recoverOfferData} aria-describedby={`${id}-recovery-hint`}>Recuperar mis datos del encargo</button> : null}
       </div>
-      {offerBeforeExample ? <p className={styles.note} id={`${id}-recovery-hint`}>Conservamos en esta página el precio y las horas anteriores al primer ejemplo. Recuperarlos sustituye los cambios que ves ahora y deja el resultado pendiente de comprobar con la referencia mensual actual. La copia se pierde al salir o recargar la página.</p> : null}
+      {offerBeforeExample ? <p className={styles.note} id={`${id}-recovery-hint`}>Conservamos en esta página el precio, las horas y los costes anteriores al primer ejemplo. Recuperarlos sustituye los cambios que ves ahora y deja el resultado pendiente de comprobar con la referencia mensual actual. La copia se pierde al salir o recargar la página.</p> : null}
       <div role="status" aria-label="Comprobación de encargos" aria-live="polite" aria-atomic="true">
         {recoveryFeedback ? <p>{recoveryFeedback}</p> : null}
         {validation && !validation.valid ? <p>Revisa los datos indicados y la referencia mensual antes de comprobar el plan.</p> : null}
         {!estimate && validation?.valid ? <p>Datos modificados. Pulsa «Comprobar encargos» para actualizar el resultado.</p> : null}
         {estimate?.valid ? (
           <div className={styles.result}>
-            {isExample ? <p><strong>Precio y horas del encargo ficticios; se usa la referencia mensual de arriba.</strong></p> : null}
+            {isExample ? <p><strong>{hasSpecificCosts ? 'Precio, horas y costes del encargo ficticios.' : 'Precio y horas del encargo ficticios.'} Se usa la referencia mensual de arriba.</strong></p> : null}
             <Heading>Qué supone este encargo</Heading>
             <dl>
-              <div><dt>Precio por hora del encargo</dt><dd>{formatCurrency(estimate.projectHourlyRate)}/h sin IVA</dd></div>
+              {hasSpecificCosts ? (
+                <>
+                  <div><dt>Precio tras descontar costes</dt><dd>{formatCurrency(estimate.availableForTime)}</dd></div>
+                  <div><dt>Resto por hora después de costes</dt><dd>{formatCurrency(estimate.availableHourlyRate)}/h</dd></div>
+                </>
+              ) : <div><dt>Precio por hora del encargo</dt><dd>{formatCurrency(estimate.projectHourlyRate)}/h sin IVA</dd></div>}
               {estimate.projectReferencePrice !== null ? (
-                <div><dt>Referencia para estas horas sin IVA</dt><dd>{formatCurrency(estimate.projectReferencePrice)}</dd></div>
+                <div><dt>{hasSpecificCosts ? 'Referencia para cubrir horas y costes sin IVA' : 'Referencia para estas horas sin IVA'}</dt><dd>{formatCurrency(estimate.projectReferencePrice)}</dd></div>
               ) : null}
               {estimate.projectTimeReference.status === 'available' ? (
-                <div><dt>Horas que cubre este precio a tu referencia</dt><dd>{formatNumber(estimate.projectTimeReference.hoursCovered)} h</dd></div>
+                <div><dt>{hasSpecificCosts ? 'Horas que cubre el precio después de costes' : 'Horas que cubre este precio a tu referencia'}</dt><dd>{formatNumber(estimate.projectTimeReference.hoursCovered)} h</dd></div>
               ) : null}
             </dl>
-            <p>{formatCurrency(estimate.pricePerProject)} sin IVA entre {formatNumber(estimate.hoursPerProject)} h = {formatCurrency(estimate.projectHourlyRate)}/h. Es facturación por hora, no sueldo neto.</p>
+            {hasSpecificCosts ? (
+              <p>Del precio de {formatCurrency(estimate.pricePerProject)} sin IVA restamos {formatCurrency(estimate.specificCosts)} antes de repartir el importe entre las {formatNumber(estimate.hoursPerProject)} h.</p>
+            ) : <p>{formatCurrency(estimate.pricePerProject)} sin IVA entre {formatNumber(estimate.hoursPerProject)} h = {formatCurrency(estimate.projectHourlyRate)}/h. Es facturación por hora, no sueldo neto.</p>}
+            {estimate.availableForTime < 0 ? <p className={styles.shortfall}><strong>Los costes superan el precio en {formatCurrency(-estimate.availableForTime)}.</strong></p> : null}
             {estimate.projectPriceDifference !== null ? (
               <p className={estimate.projectPriceDifference < 0 ? styles.shortfall : styles.fits}>
                 <strong>{estimate.projectPriceDifference < 0
-                  ? `El precio queda ${formatCurrency(-estimate.projectPriceDifference)} por debajo de la referencia para estas horas.`
+                  ? `El precio queda ${formatCurrency(-estimate.projectPriceDifference)} por debajo de la referencia ${hasSpecificCosts ? 'para cubrir horas y costes.' : 'para estas horas.'}`
                   : estimate.projectPriceDifference > 0
-                    ? `El precio supera en ${formatCurrency(estimate.projectPriceDifference)} la referencia para estas horas.`
-                    : 'El precio coincide con la referencia para estas horas.'}</strong>
+                    ? `El precio supera en ${formatCurrency(estimate.projectPriceDifference)} la referencia ${hasSpecificCosts ? 'para cubrir horas y costes.' : 'para estas horas.'}`
+                    : `El precio coincide con la referencia ${hasSpecificCosts ? 'para cubrir horas y costes.' : 'para estas horas.'}`}</strong>
               </p>
             ) : <p className={styles.note}>Sin horas facturables disponibles en el mes no podemos obtener una referencia para comparar este precio. Revisa la capacidad de tu cálculo.</p>}
             {estimate.projectTimeReference.status === 'available' ? (
@@ -166,8 +187,9 @@ export default function MonthlyProjectPlanner({ monthlyBilling, billableHours, h
                 <p className={styles.note}>Calculamos las horas con la proporción mensual completa y redondeamos hacia abajo a centésimas. Son horas decimales: 1,5 h es una hora y media. Este límite no reserva hueco en tu agenda.</p>
               </>
             ) : estimate.projectTimeReference.status === 'out-of-range' ? <p className={styles.note}>No podemos mostrar con precisión las horas que cubre este precio. Revisa los importes y la capacidad de referencia.</p> : null}
-            <p className={styles.note}>La referencia reparte el objetivo mensual entre las horas disponibles y lo aplica a las del encargo, redondeando al alza al céntimo. Esta comparación no añade costes específicos del encargo ni calcula beneficio neto o decide si debes aceptarlo.</p>
+            <p className={styles.note}>La referencia reparte el objetivo mensual entre las horas disponibles y lo aplica a las del encargo, redondeando al alza al céntimo.{hasSpecificCosts ? ' A ese importe se suman los costes específicos.' : ''}</p>
             <Heading>Si repites encargos iguales durante el mes</Heading>
+            {hasSpecificCosts ? <p className={styles.note}>Este bloque suma los precios completos sin IVA. La comparación de arriba muestra lo que queda para cubrir las horas de cada encargo.</p> : null}
             <dl>
               <div><dt>Encargos completos para alcanzar el importe</dt><dd>{formatNumber(estimate.requiredProjects)}</dd></div>
               <div><dt>Facturación de esos encargos sin IVA</dt><dd>{formatCurrency(estimate.plannedBilling)}</dd></div>

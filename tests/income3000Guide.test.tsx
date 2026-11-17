@@ -25,7 +25,7 @@ describe('3000-euro goal and capacity guide', () => {
     const document = new DOMParser().parseFromString(renderToStaticMarkup(<Guide />), 'text/html');
     const schemas = [...document.querySelectorAll('script[type="application/ld+json"]')].map((script) => JSON.parse(script.textContent!));
     expect(schemas.map((schema) => schema['@type'])).toEqual(['Article', 'BreadcrumbList', 'FAQPage']);
-    expect(schemas[0].dateModified).toBe('2026-11-14');
+    expect(schemas[0].dateModified).toBe('2026-11-17');
     expect(document.querySelector('time')?.getAttribute('datetime')).toBe(schemas[0].dateModified);
     expect(schemas[2].mainEntity).toHaveLength(5);
     for (const item of schemas[2].mainEntity) {
@@ -59,6 +59,9 @@ describe('3000-euro goal and capacity guide', () => {
     expect(comparison?.textContent).toContain('céntimo superior');
     expect(comparison?.textContent).toContain('no neto ni beneficio');
     expect(comparison?.textContent).toContain('costes específicos adicionales');
+    const costsExample = document.getElementById('costes-de-un-encargo')?.nextElementSibling;
+    expect(costsExample?.textContent).toMatch(/120,00.*2100,00.*1980,00.*49,50.*40 h.*2194,71.*94,71.*38,17 h/);
+    expect(costsExample?.nextElementSibling?.querySelector('a')?.getAttribute('href')).toBe('#plan-encargos');
     const monthlyComparison = document.querySelector('[aria-label="Encargos necesarios y capacidad de 80 horas"]');
     expect(comparison!.compareDocumentPosition(monthlyComparison!)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
   });

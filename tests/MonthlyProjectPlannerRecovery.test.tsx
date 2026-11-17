@@ -6,13 +6,15 @@ import Planner from '@/components/MonthlyProjectPlanner';
 const labels = {
   pricePerProject: 'Precio por encargo sin IVA (EUR)',
   hoursPerProject: 'Horas totales por encargo',
+  specificCosts: 'Costes específicos del encargo (EUR, opcional)',
 } as const;
 type Values = Record<keyof typeof labels, string>;
-const emptyValues: Values = { pricePerProject: '', hoursPerProject: '' };
+const emptyValues: Values = { pricePerProject: '', hoursPerProject: '', specificCosts: '' };
 const reference = { monthlyBilling: 2687.65, billableHours: 100 };
 const field = (key: keyof Values) => screen.getByRole('textbox', { name: labels[key] }) as HTMLInputElement;
 const result = () => screen.getByRole('status');
 const example = () => userEvent.click(screen.getByRole('button', { name: 'Probar un encargo ficticio' }));
+const exampleWithCosts = () => userEvent.click(screen.getByRole('button', { name: 'Probar un encargo con costes' }));
 const restore = () => userEvent.click(screen.getByRole('button', { name: 'Recuperar mis datos del encargo' }));
 const check = () => userEvent.click(screen.getByRole('button', { name: 'Comprobar encargos' }));
 
@@ -32,6 +34,7 @@ function expectRecoveryFinished() {
   expect(within(result()).queryByRole('heading')).not.toBeInTheDocument();
   expect(result().querySelector('dl')).toBeNull();
   expect(result()).not.toHaveTextContent('Precio y horas del encargo ficticios');
+  expect(result()).not.toHaveTextContent('Precio, horas y costes del encargo ficticios');
   expect(result()).not.toHaveTextContent('Revisa los datos indicados');
   expect(field('pricePerProject')).toHaveFocus();
   for (const key of Object.keys(labels) as (keyof Values)[]) expect(field(key)).toHaveAttribute('aria-invalid', 'false');
@@ -41,17 +44,21 @@ describe('recover the offer replaced by the fictional project', () => {
   beforeEach(() => { window.va = vi.fn(); window.gtag = vi.fn(); });
   afterEach(() => vi.restoreAllMocks());
 
-  it('restores both raw fields without calculating, storing or sending unfinished personal data', async () => {
+  it('restores the three raw fields after trying both examples without calculating, storing or sending personal data', async () => {
     const storageRead = vi.spyOn(Storage.prototype, 'getItem');
     const storageWrite = vi.spyOn(Storage.prototype, 'setItem');
     const storageRemove = vi.spyOn(Storage.prototype, 'removeItem');
     const fetch = vi.spyOn(globalThis, 'fetch');
     const previousUrl = window.location.href;
     render(<Planner {...reference} />);
-    const original: Values = { pricePerProject: ' 650,505 € ', hoursPerProject: '1,,5' };
+    const original: Values = { pricePerProject: ' 650,505 € ', hoursPerProject: '1,,5', specificCosts: ' 85,005 € ' };
     write(original);
+    await exampleWithCosts();
+    expect(field('specificCosts')).toHaveValue('120');
+    expect(result()).toHaveTextContent('Precio, horas y costes del encargo ficticios');
     await example();
     expect(result()).toHaveTextContent('Precio y horas del encargo ficticios');
+    expect(within(result()).queryByText('Precio tras descontar costes')).not.toBeInTheDocument();
     const recovery = screen.getByRole('button', { name: 'Recuperar mis datos del encargo' });
     expect(recovery).toHaveAttribute('type', 'button');
     expect(recovery).toHaveAccessibleDescription(/sustituye los cambios que ves ahora/);
@@ -59,7 +66,7 @@ describe('recover the offer replaced by the fictional project', () => {
 
     expect(currentValues()).toEqual(original);
     expectRecoveryFinished();
-    expect(screen.getAllByRole('textbox')).toHaveLength(2);
+    expect(screen.getAllByRole('textbox')).toHaveLength(3);
     expect(document.querySelector('form')).toBeNull();
     expect(document.querySelector('[name]')).toBeNull();
     expect(window.location.href).toBe(previousUrl);
@@ -73,7 +80,7 @@ describe('recover the offer replaced by the fictional project', () => {
 
   it('keeps the first copy through repeated examples, edits and valid or invalid checks', async () => {
     render(<Planner {...reference} />);
-    const original: Values = { pricePerProject: ' 650,505 ', hoursPerProject: '18,755' };
+    const original: Values = { ...emptyValues, pricePerProject: ' 650,505 ', hoursPerProject: '18,755' };
     write(original);
     await example();
     await example();
@@ -121,11 +128,11 @@ describe('recover the offer replaced by the fictional project', () => {
 
   it('consumes the recovery and captures new unfinished data for the next cycle', async () => {
     render(<Planner {...reference} />);
-    write({ pricePerProject: '750', hoursPerProject: '20' });
+    write({ ...emptyValues, pricePerProject: '750', hoursPerProject: '20' });
     await example();
     await restore();
     expectRecoveryFinished();
-    const nextDraft: Values = { pricePerProject: '', hoursPerProject: ' 1,255 ' };
+    const nextDraft: Values = { ...emptyValues, specificCosts: ' 1,255 ' };
     write(nextDraft);
     await example();
     await restore();
@@ -136,7 +143,7 @@ describe('recover the offer replaced by the fictional project', () => {
 
   it('recovers only personal fields and uses the current monthly reference when checked again', async () => {
     const { rerender } = render(<Planner {...reference} />);
-    const original: Values = { pricePerProject: '600', hoursPerProject: '30' };
+    const original: Values = { ...emptyValues, pricePerProject: '600', hoursPerProject: '30' };
     write(original);
     await check();
     expect(result()).toHaveTextContent('806,30');

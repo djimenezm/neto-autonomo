@@ -109,6 +109,29 @@ describe('current feedback while correcting a fixed-price project', () => {
     expect(within(result()).getByText('Horas que requieren').nextElementSibling).toHaveTextContent('100 h');
   });
 
+  it('keeps an incompatible cost unit flagged while the price is being corrected', async () => {
+    const user = userEvent.setup();
+    render(<Planner {...reference} />);
+    write({ pricePerProject: '0', hoursPerProject: '20' });
+    const specificCosts = screen.getByRole('textbox', { name: 'Costes específicos del encargo (EUR, opcional)' });
+    await user.click(specificCosts);
+    await user.paste('50 %');
+    await check();
+    expect(invalidFields()).toHaveLength(2);
+    change('pricePerProject', '600');
+    expect(specificCosts).toHaveAttribute('aria-invalid', 'true');
+    expect(specificCosts).toHaveAccessibleDescription(/euros/);
+    expectNoResult();
+    await check();
+    expect(specificCosts).toHaveFocus();
+
+    fireEvent.change(specificCosts, { target: { value: '0' } });
+    expect(invalidFields()).toHaveLength(0);
+    expect(pending()).toBeVisible();
+    fireEvent.keyDown(specificCosts, { key: 'Enter' });
+    expect(within(result()).getByText('Referencia para estas horas sin IVA').nextElementSibling).toHaveTextContent('600,00');
+  });
+
   it('preserves raw precision through correction and successful checks, withdrawing old results until Enter recomputes them', async () => {
     render(<Planner {...reference} />);
     const raw = { pricePerProject: ' 600,005 € ', hoursPerProject: '20,005' };

@@ -35,12 +35,30 @@ describe('monthly project capacity planner', () => {
     expect(result).toHaveTextContent('redondeamos hacia abajo a centésimas');
     expect(result).toHaveTextContent('El precio queda 206,30');
     expect(result).toHaveTextContent('por debajo de la referencia para estas horas');
-    expect(result).toHaveTextContent('no añade costes específicos');
     expect(result).toHaveTextContent('faltan 50 horas');
 
     fireEvent.change(screen.getByRole('textbox', { name: 'Horas totales por encargo' }), { target: { value: '40' } });
     expect(result).toHaveTextContent('Datos modificados. Pulsa «Comprobar encargos» para actualizar el resultado.');
     expect(within(result).queryByRole('heading', { name: 'Qué supone este encargo' })).not.toBeInTheDocument();
+  });
+
+  it('subtracts specific costs from a fixed-price offer while keeping the monthly billing gross', async () => {
+    render(<Planner monthlyBilling={4000} billableHours={80} />);
+    fireEvent.change(screen.getByRole('textbox', { name: 'Precio por encargo sin IVA (EUR)' }), { target: { value: '600' } });
+    fireEvent.change(screen.getByRole('textbox', { name: 'Horas totales por encargo' }), { target: { value: '12' } });
+    const costs = screen.getByRole('textbox', { name: 'Costes específicos del encargo (EUR, opcional)' });
+    await userEvent.click(screen.getByRole('button', { name: 'Comprobar encargos' }));
+    expect(screen.getByRole('status')).toHaveTextContent('Las horas previstas no superan este límite');
+    fireEvent.change(costs, { target: { value: '50,00 €' } });
+    expect(screen.getByRole('status')).toHaveTextContent('Datos modificados');
+    fireEvent.keyDown(costs, { key: 'Enter' });
+    const result = screen.getByRole('status');
+    expect(within(result).getByText('Precio tras descontar costes').nextElementSibling).toHaveTextContent('550,00');
+    expect(within(result).getByText('Resto por hora después de costes').nextElementSibling).toHaveTextContent('45,83');
+    expect(within(result).getByText('Referencia para cubrir horas y costes sin IVA').nextElementSibling).toHaveTextContent('650,00');
+    expect(within(result).getByText('Horas que cubre el precio después de costes').nextElementSibling).toHaveTextContent('11 h');
+    expect(result).toHaveTextContent(/Las horas previstas superan este límite en 1 h/);
+    expect(within(result).getByText('Facturación de esos encargos sin IVA').nextElementSibling).toHaveTextContent('4200,00');
   });
 
   it('shows the offer hourly price without inventing a reference when monthly capacity is zero', async () => {
@@ -139,7 +157,7 @@ describe('monthly project capacity planner', () => {
     const before = (screen.getByRole('textbox', { name: 'Resumen detallado para compartir' }) as HTMLTextAreaElement).value;
     await user.click(screen.getByText('Comprobar cuántos encargos necesito y si caben'));
     const group = screen.getByRole('group', { name: 'El encargo que quieres valorar' });
-    expect(within(group).getAllByRole('textbox')).toHaveLength(2);
+    expect(within(group).getAllByRole('textbox')).toHaveLength(3);
     await user.click(screen.getByRole('button', { name: 'Probar un encargo ficticio' }));
     expect(within(group.parentElement!).getByRole('status')).toHaveTextContent('4200,00');
     expect((screen.getByRole('textbox', { name: 'Resumen detallado para compartir' }) as HTMLTextAreaElement).value).toBe(before);

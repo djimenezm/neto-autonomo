@@ -3,6 +3,7 @@ export type ProjectCapacityInput = {
   billableHours: number;
   pricePerProject: number;
   hoursPerProject: number;
+  specificCosts?: number;
 };
 
 type ProjectTimeReference =
@@ -17,6 +18,9 @@ type CapacityEstimate =
       billableHours: number;
       pricePerProject: number;
       hoursPerProject: number;
+      specificCosts: number;
+      availableForTime: number;
+      availableHourlyRate: number;
       projectHourlyRate: number;
       projectReferencePrice: number | null;
       projectPriceDifference: number | null;
@@ -37,13 +41,21 @@ function toHundredths(value: number) {
   return Math.round(Number(`${coefficient}e${Number(exponent) + 2}`));
 }
 
+function hourlyCents(cents: number, ticks: bigint) {
+  const numerator = BigInt(Math.abs(cents)) * BigInt(100);
+  const rounded = (numerator * BigInt(2) + ticks) / (ticks * BigInt(2));
+  return cents < 0 ? -rounded : rounded;
+}
+
 export function estimateProjectCapacity(input: ProjectCapacityInput): CapacityEstimate {
   const errors: Partial<Record<keyof ProjectCapacityInput, string>> = {};
+  const specificCosts = input.specificCosts ?? 0;
   const units = {
     monthlyBilling: toHundredths(input.monthlyBilling),
     billableHours: toHundredths(input.billableHours),
     pricePerProject: toHundredths(input.pricePerProject),
     hoursPerProject: toHundredths(input.hoursPerProject),
+    specificCosts: toHundredths(specificCosts),
   };
   for (const key of ['monthlyBilling', 'pricePerProject', 'hoursPerProject'] as const) {
     if (!Number.isFinite(input[key]) || input[key] < 0.01 || !Number.isSafeInteger(units[key])) {
@@ -54,6 +66,9 @@ export function estimateProjectCapacity(input: ProjectCapacityInput): CapacityEs
   }
   if (!Number.isFinite(input.billableHours) || input.billableHours < 0 || !Number.isSafeInteger(units.billableHours)) {
     errors.billableHours = 'Revisa las horas disponibles de tu cálculo mensual.';
+  }
+  if (specificCosts < 0 || !Number.isSafeInteger(units.specificCosts)) {
+    errors.specificCosts = 'Introduce un importe de cero o más euros, o deja el campo vacío.';
   }
   if (Object.keys(errors).length) return { valid: false, errors };
 
@@ -73,24 +88,31 @@ export function estimateProjectCapacity(input: ProjectCapacityInput): CapacityEs
   // at decimal boundaries. Only the reference price rounds up to a whole cent.
   const projectTicks = BigInt(units.hoursPerProject);
   const capacityTicks = BigInt(units.billableHours);
-  const hourlyNumerator = BigInt(units.pricePerProject) * BigInt(100);
-  const projectHourlyCents = hourlyNumerator / projectTicks
-    + (hourlyNumerator % projectTicks * BigInt(2) >= projectTicks ? BigInt(1) : BigInt(0));
-  const projectReferenceCents = capacityTicks === BigInt(0) ? null
+  const availableCents = units.pricePerProject - units.specificCosts;
+  const projectHourlyCents = hourlyCents(units.pricePerProject, projectTicks);
+  const availableHourlyCents = hourlyCents(availableCents, projectTicks);
+  const timeReferenceCents = capacityTicks === BigInt(0) ? null
     : (BigInt(units.monthlyBilling) * projectTicks + capacityTicks - BigInt(1)) / capacityTicks;
+  const projectReferenceCents = timeReferenceCents === null ? null : timeReferenceCents + BigInt(units.specificCosts);
   const maximumCents = BigInt(Number.MAX_SAFE_INTEGER);
   if (projectHourlyCents > maximumCents) {
     return { valid: false, errors: { pricePerProject: 'El precio por hora es demasiado grande para calcularlo con precisión. Revisa precio y horas.' } };
   }
-  if (projectReferenceCents !== null && projectReferenceCents > maximumCents) {
+  if (availableHourlyCents < -maximumCents) {
+    return { valid: false, errors: { specificCosts: 'Los costes son demasiado grandes para calcular el resto por hora con precisión.' } };
+  }
+  if (timeReferenceCents !== null && timeReferenceCents > maximumCents) {
     return { valid: false, errors: { hoursPerProject: 'La referencia para estas horas es demasiado grande para calcularla con precisión.' } };
+  }
+  if (projectReferenceCents !== null && projectReferenceCents > maximumCents) {
+    return { valid: false, errors: { specificCosts: 'La suma de las horas y los costes es demasiado grande para calcularla con precisión.' } };
   }
 
   let projectTimeReference: ProjectTimeReference = { status: 'no-capacity', hoursCovered: null, excessHours: null };
   if (capacityTicks > BigInt(0)) {
     // The inverse of the price comparison floors the covered time to hundredths.
     // Keep an unrepresentable time output separate from the existing estimate.
-    const coveredTicks = BigInt(units.pricePerProject) * capacityTicks / BigInt(units.monthlyBilling);
+    const coveredTicks = BigInt(Math.max(0, availableCents)) * capacityTicks / BigInt(units.monthlyBilling);
     projectTimeReference = coveredTicks > maximumCents
       ? { status: 'out-of-range', hoursCovered: null, excessHours: null }
       : {
@@ -105,6 +127,9 @@ export function estimateProjectCapacity(input: ProjectCapacityInput): CapacityEs
     billableHours: units.billableHours / 100,
     pricePerProject: units.pricePerProject / 100,
     hoursPerProject: units.hoursPerProject / 100,
+    specificCosts: units.specificCosts / 100,
+    availableForTime: availableCents / 100,
+    availableHourlyRate: Number(availableHourlyCents) / 100,
     projectHourlyRate: Number(projectHourlyCents) / 100,
     projectReferencePrice: projectReferenceCents === null ? null : Number(projectReferenceCents) / 100,
     projectPriceDifference: projectReferenceCents === null ? null : Number(BigInt(units.pricePerProject) - projectReferenceCents) / 100,
@@ -121,3 +146,4 @@ export function estimateProjectCapacity(input: ProjectCapacityInput): CapacityEs
 }
 
 export const exampleProject = { pricePerProject: 2100, hoursPerProject: 40 } as const;
+export const exampleProjectWithCosts = { ...exampleProject, specificCosts: 120 } as const;
