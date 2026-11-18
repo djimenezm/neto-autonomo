@@ -55,6 +55,13 @@ describe('recurring-cost guide', () => {
     expect(section.textContent).toContain('todos los pagos antes de cualquier cobro');
     expect(section.textContent).toContain('saldo mínimo real podría ser mayor');
     expect(section.querySelectorAll('input:not([type="file"])')).toHaveLength(4);
+    const dateComparison = section.querySelector('#comparar-fechas-cobro')!;
+    const delayedReceipt = dateComparison.nextElementSibling;
+    expect(delayedReceipt?.textContent).toMatch(/2400,00.*20 al 26 de noviembre.*-800,00.*-1700,00.*800,00.*1700,00.*700,00/);
+    const comparisonInstructions = delayedReceipt?.nextElementSibling;
+    expect(comparisonInstructions?.textContent).toContain('Comparar otra fecha de cobro');
+    expect(comparisonInstructions?.querySelector('a')?.getAttribute('href')).toBe('#probar-fechas-ficticias');
+    expect(section.querySelector('#probar-fechas-ficticias')?.textContent).toBe('Probar las fechas ficticias');
     const targetHeading = section.querySelector('#saldo-minimo-caja')!;
     const targetExample = targetHeading.nextElementSibling?.nextElementSibling;
     expect(targetExample?.textContent).toMatch(/300,00.*0,00.*05\/11\/2026.*300,00.*1100,00/);

@@ -14,7 +14,7 @@ const restore = () => userEvent.click(screen.getByRole('button', { name: 'Recupe
 function currentValues() {
   return {
     initialBalance: initial().value,
-    rows: screen.getAllByRole('combobox').map((_, index) => ({
+    rows: screen.getAllByRole('combobox', { name: /^Tipo del movimiento \d+$/ }).map((_, index) => ({
       date: field('Fecha', index + 1).value,
       kind: field('Tipo', index + 1).value,
       amount: field('Importe (EUR)', index + 1).value,

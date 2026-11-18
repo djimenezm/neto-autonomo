@@ -7,7 +7,7 @@ import MonthlyCostCalculator from '@/components/MonthlyCostCalculator';
 import CashFlowPlanner from '@/components/CashFlowPlanner';
 import CashDatePlanner from '@/components/CashDatePlanner';
 import UpcomingPaymentPlanner from '@/components/UpcomingPaymentPlanner';
-import { cashDatesAdvanceExample, cashDatesExample, cashDatesExampleResult, checkCashDates, formatCashDate } from '@/lib/cashDates';
+import { cashDatesAdvanceExample, cashDatesExample, cashDatesExampleResult, checkCashDates, compareCashReceiptDate, formatCashDate } from '@/lib/cashDates';
 import { cashPlanExampleResult, delayedCashPlanExampleResult, cashPlanSource } from '@/lib/cashPlan';
 import { estimateRecurringCosts, recurringCostsExample } from '@/lib/recurringCosts';
 import { planUpcomingPayment, upcomingPaymentExample } from '@/lib/upcomingPayment';
@@ -76,6 +76,8 @@ export default function CuantoCuestaSerAutonomoPage() {
   const datedCash = cashDatesExampleResult;
   const advanceCash = checkCashDates(cashDatesAdvanceExample);
   if (!cashExample.valid || !delayedCash.valid || !datedCash.valid || !advanceCash.valid) throw new Error('Invalid editorial cash-plan example');
+  const delayedReceipt = compareCashReceiptDate(datedCash, 1, '2026-11-26');
+  if (!delayedReceipt.valid) throw new Error('Invalid editorial receipt-date comparison');
   const minimumBalanceTarget = 300;
   const advanceWithTarget = checkCashDates({ ...cashDatesAdvanceExample, minimumBalanceTarget });
   const datedWithTarget = checkCashDates({ ...cashDatesExample, minimumBalanceTarget });
@@ -311,6 +313,17 @@ export default function CuantoCuestaSerAutonomoPage() {
           </div>
           <p>Los cobros suman {formatCurrency(datedCash.totalReceipts)} y los pagos {formatCurrency(datedCash.totalPayments)}. El saldo final es {formatCurrency(datedCash.finalBalance)}, pero el mínimo es {formatCurrency(datedCash.minimumBalance)} el {formatCashDate(datedCash.firstNegativePoint!)}. Con {formatCurrency(datedCash.additionalInitialBalance)} adicionales al empezar, el mínimo de este supuesto sería cero. No basta con mirar el saldo final.</p>
           <p><strong>Si hay cobros y pagos el mismo día, se calculan los pagos primero.</strong> Aunque el día termine en positivo, puede haber un déficit en ese orden. Si el cobro llega antes, el saldo mínimo real podría ser mayor. Este supuesto no confirma las horas ni fechas de ejecución del banco.</p>
+          <h3 id="comparar-fechas-cobro">Qué cambia si un cobro se retrasa</h3>
+          <p>
+            Si el cobro de {formatCurrency(datedCash.totalReceipts)} pasa del 20 al 26 de noviembre, el pago del día 25 sale antes de cobrar.
+            El saldo mínimo pasa de {formatCurrency(datedCash.minimumBalance)} a {formatCurrency(delayedReceipt.alternative.minimumBalance)}.
+            Para cubrir el déficit hasta cero, el aporte inicial pasa de {formatCurrency(datedCash.additionalInitialBalance)} a <strong>{formatCurrency(delayedReceipt.alternative.additionalInitialBalance)}</strong>.
+            En ambos supuestos terminas con {formatCurrency(datedCash.finalBalance)}.
+          </p>
+          <p>
+            <a href="#probar-fechas-ficticias">Ve al ejemplo de fechas ficticias</a> y pulsa «Probar las fechas ficticias».
+            Abre «Comparar otra fecha de cobro», indica el 26 de noviembre de 2026 como fecha alternativa y pulsa «Comparar fechas».
+          </p>
           <h3 id="anticipo-encargo">Qué cambia si cobras un anticipo antes del primer pago</h3>
           <p>Imagina que los {formatCurrency(datedCash.totalReceipts)} que ibas a cobrar el día 20 corresponden a un encargo. Si entran {formatCurrency(advanceCash.days[0].receipts)} el día 4, quedan {formatCurrency(advanceCash.days[2].receipts)} para el día 20. El importe total del encargo y los pagos se mantienen.</p>
           <div className="scenario-table-scroll" role="region" aria-label="Comparación de caja con y sin anticipo" tabIndex={0}>
@@ -324,7 +337,7 @@ export default function CuantoCuestaSerAutonomoPage() {
             </table>
           </div>
           <p>En este ejemplo, el abono del día 4 cubre justo el desfase y el saldo mínimo queda en {formatCurrency(advanceCash.minimumBalance)}. Si se retrasa al día 5, el simulador vuelve a mostrar el déficit porque coloca el pago antes del cobro de esa fecha.</p>
-          <p>Carga el <Link href="#probar-anticipo">ejemplo con anticipo en el comprobador</Link> y mueve el primer cobro del día 4 al 5. Para revisar tu encargo, anota el saldo disponible y lo que entraría y saldría realmente de la cuenta. Resta el anticipo del cobro posterior para contar cada importe una sola vez.</p>
+          <p>Carga el <a href="#probar-anticipo">ejemplo con anticipo en el comprobador</a> y abre «Comparar otra fecha de cobro». Selecciona el cobro del día 4 y prueba el día 5. Para revisar tu encargo, anota el saldo disponible y lo que entraría y saldría realmente de la cuenta. Resta el anticipo del cobro posterior para contar cada importe una sola vez.</p>
           <h3 id="saldo-minimo-caja">Cuánto saldo quieres mantener en la cuenta</h3>
           <p>
             Elige el importe que quieres mantener disponible durante el periodo. Ese objetivo representa dinero que quieres conservar en la cuenta. Anota cada salida prevista una sola vez, en la fecha de pago.

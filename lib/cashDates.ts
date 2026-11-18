@@ -104,6 +104,30 @@ export function checkCashDates(input: CashDatesInput) {
   } as const;
 }
 
+export type CheckedCashDates = Extract<ReturnType<typeof checkCashDates>, { valid: true }>;
+
+export function compareCashReceiptDate(plan: CheckedCashDates, receiptIndex: number, alternativeDate: string) {
+  const receipt = plan.movements[receiptIndex];
+  if (receipt?.kind !== 'receipt' || receipt.amount <= 0) {
+    return { valid: false, field: 'receipt', error: 'Elige el cobro que quieres mover.' } as const;
+  }
+  if (!isCalendarDate(alternativeDate)) {
+    return { valid: false, field: 'date', error: 'Indica una fecha alternativa válida.' } as const;
+  }
+  if (alternativeDate === receipt.date) {
+    return { valid: false, field: 'date', error: 'Elige una fecha distinta a la del plan.' } as const;
+  }
+  const alternative = checkCashDates({
+    initialBalance: plan.initialBalance,
+    minimumBalanceTarget: plan.minimumBalanceTarget ?? undefined,
+    movements: plan.movements.map((movement, index) => index === receiptIndex ? { ...movement, date: alternativeDate } : movement),
+  });
+  if (!alternative.valid) {
+    return { valid: false, field: 'plan', error: alternative.errors.movements ?? alternative.errors.minimumBalanceTarget ?? 'No se ha podido calcular el plan con esa fecha.' } as const;
+  }
+  return { valid: true, alternative } as const;
+}
+
 export const cashDatesExample: CashDatesInput = {
   initialBalance: 1000,
   movements: [

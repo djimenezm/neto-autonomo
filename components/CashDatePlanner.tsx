@@ -1,6 +1,7 @@
 'use client';
 
 import { useId, useRef, useState } from 'react';
+import CashReceiptComparison from '@/components/CashReceiptComparison';
 import NumericTextInput from '@/components/NumericTextInput';
 import { cashDatesAdvanceExample, cashDatesExample, checkCashDates, formatCashDate, MAX_CASH_MOVEMENTS, type CashDatesInput, type CashMovementInput } from '@/lib/cashDates';
 import { CASH_DATES_FILENAME, decodeCashDatesFile, encodeCashDatesFile, MAX_CASH_DATES_FILE_BYTES } from '@/lib/cashDatesFile';
@@ -348,8 +349,8 @@ export default function CashDatePlanner() {
       <p>Incluye de 1 a {MAX_CASH_MOVEMENTS} movimientos. Todos deben tener fecha, tipo e importe; usa 0 si el importe es cero o elimina la fila que no necesites. Puedes pegar importes con € o EUR. No se añaden movimientos recurrentes automáticamente.</p>
       <div className={styles.actions}>
         <button type="button" className="primary-button" onClick={() => calculate()}>Comprobar vencimientos</button>
-        <button type="button" className="link-button" onClick={() => loadExample(cashDatesExample)}>Probar las fechas ficticias</button>
-        <button id="probar-anticipo" type="button" className={`link-button ${styles.advanceExample}`} onClick={() => loadExample(cashDatesAdvanceExample)}>Probar el ejemplo con anticipo</button>
+        <button id="probar-fechas-ficticias" type="button" className={`link-button ${styles.exampleLink}`} onClick={() => loadExample(cashDatesExample)}>Probar las fechas ficticias</button>
+        <button id="probar-anticipo" type="button" className={`link-button ${styles.exampleLink}`} onClick={() => loadExample(cashDatesAdvanceExample)}>Probar el ejemplo con anticipo</button>
         {planBeforeReplacement?.source === 'example' ? recoveryButton : null}
       </div>
       {planBeforeReplacement?.source === 'example' ? recoveryHint : null}
@@ -384,15 +385,18 @@ export default function CashDatePlanner() {
         ) : null}
       </div>
       {estimate?.valid ? (
-        <div className={styles.fileSave}>
-          <button type="button" className="secondary-button" onClick={savePlan}>Guardar este plan en un archivo</button>
-          <div role="status" aria-label="Descarga del plan" aria-live="polite" aria-atomic="true">
-            {fileFeedback?.download ? <p className={fileFeedback.error ? 'field-error' : undefined}>{fileFeedback.text}</p> : null}
+        <>
+          <CashReceiptComparison key={values.rows.map((row) => row.id).join(',')} plan={estimate} />
+          <div className={styles.fileSave}>
+            <button type="button" className="secondary-button" onClick={savePlan}>Guardar este plan en un archivo</button>
+            <div role="status" aria-label="Descarga del plan" aria-live="polite" aria-atomic="true">
+              {fileFeedback?.download ? <p className={fileFeedback.error ? 'field-error' : undefined}>{fileFeedback.text}</p> : null}
+            </div>
+            <p>El archivo contiene el saldo inicial, el mínimo deseado si lo has indicado y los movimientos comprobados. Para incluir cambios, vuelve a comprobar el plan y guarda otra copia.</p>
           </div>
-          <p>El archivo contiene el saldo inicial, el mínimo deseado si lo has indicado y los movimientos comprobados. Para incluir cambios, vuelve a comprobar el plan y guarda otra copia.</p>
-        </div>
+        </>
       ) : null}
-      <p className={styles.note}>Si el cobro se retrasa, cambia su fecha y vuelve a comprobar. Verifica también los cargos omitidos, el saldo realmente disponible y las fechas de abono: agrupar por día no acredita la ejecución bancaria. Un saldo positivo puede incluir reservas para pagos posteriores. El plan no se guarda automáticamente al salir; puedes conservarlo descargando el archivo. No se envían sus datos al servidor.</p>
+      <p className={styles.note}>Si confirmas un cambio de fecha, actualiza el movimiento en el plan y vuelve a comprobar. Verifica también los cargos omitidos, el saldo realmente disponible y las fechas de abono: agrupar por día no acredita la ejecución bancaria. Un saldo positivo puede incluir reservas para pagos posteriores. El plan no se guarda automáticamente al salir; puedes conservarlo descargando el archivo. No se envían sus datos al servidor.</p>
     </div>
   );
 }

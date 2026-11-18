@@ -43,9 +43,15 @@ describe('save and reopen cash date plans', () => {
     expect(window.va).not.toHaveBeenCalled(); expect(window.gtag).not.toHaveBeenCalled();
   });
 
-  it('generates a real input-only blob for the checked plan and removes saving when inputs change', async () => {
+  it('saves the checked plan without the alternative date and removes saving when plan inputs change', async () => {
     render(<Planner />);
     await userEvent.click(screen.getByRole('button', { name: 'Probar las fechas ficticias' }));
+    const comparisonSummary = screen.getByText('Comparar otra fecha de cobro', { exact: true });
+    await userEvent.click(comparisonSummary);
+    const comparison = within(comparisonSummary.closest('details')!);
+    fireEvent.change(comparison.getByLabelText('Fecha alternativa del cobro'), { target: { value: '2026-11-26' } });
+    await userEvent.click(comparison.getByRole('button', { name: 'Comparar fechas' }));
+    expect(comparison.getByRole('table')).toHaveTextContent('-1700,00');
     await userEvent.click(screen.getByRole('button', { name: 'Guardar este plan en un archivo' }));
     expect(HTMLAnchorElement.prototype.click).toHaveBeenCalledOnce();
     expect(document.querySelector('a[download]')).toBeNull();
@@ -103,7 +109,7 @@ describe('save and reopen cash date plans', () => {
     const input = { initialBalance: 0, movements: [{ date: '2026-12-01', kind: 'receipt' as const, amount: 10 }] };
     await userEvent.upload(chooser(), fixture(input, false));
     await waitFor(() => expect(feedback()).toHaveTextContent('Plan abierto con 1 movimiento.'));
-    expect(initial()).toHaveValue('0'); expect(screen.getAllByRole('combobox')).toHaveLength(1);
+    expect(initial()).toHaveValue('0'); expect(screen.getAllByRole('combobox', { name: /^Tipo del movimiento \d+$/ })).toHaveLength(1);
     expect(result()).not.toHaveTextContent('movimientos ficticios');
     expect(within(result()).getByText('Saldo tras la última fecha').nextElementSibling).toHaveTextContent('10,00');
   });

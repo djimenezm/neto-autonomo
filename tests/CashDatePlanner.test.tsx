@@ -43,6 +43,49 @@ describe('cash date planner', () => {
     expect(window.va).not.toHaveBeenCalled(); expect(window.gtag).not.toHaveBeenCalled();
   });
 
+  it('compares a receipt on another date and clears the simulation when the plan is replaced or edited', async () => {
+    const user = userEvent.setup();
+    render(<Planner />);
+    expect(screen.queryByText('Comparar otra fecha de cobro', { exact: true })).not.toBeInTheDocument();
+    await example();
+    fireEvent.change(screen.getByLabelText('Saldo mínimo que quieres mantener (EUR)'), { target: { value: '300' } });
+    await check();
+    const summary = () => screen.getByText('Comparar otra fecha de cobro', { exact: true });
+    const comparison = () => within(summary().closest('details')!);
+    const alternativeDate = () => comparison().getByLabelText('Fecha alternativa del cobro');
+    await user.click(summary());
+    expect(comparison().getByLabelText('Cobro que quieres mover')).toBeVisible();
+    fireEvent.change(alternativeDate(), { target: { value: '2026-11-20' } });
+    await user.click(comparison().getByRole('button', { name: 'Comparar fechas' }));
+    expect(alternativeDate()).toHaveAttribute('aria-invalid', 'true');
+    expect(alternativeDate()).toHaveAccessibleDescription(expect.stringContaining('Elige una fecha distinta a la del plan.'));
+    expect(alternativeDate()).toHaveFocus();
+    expect(comparison().queryByRole('table')).not.toBeInTheDocument();
+
+    fireEvent.change(alternativeDate(), { target: { value: '2026-11-26' } });
+    fireEvent.keyDown(alternativeDate(), { key: 'Enter' });
+    const table = comparison().getByRole('table');
+    expect(table).toHaveTextContent('-800,00');
+    expect(table).toHaveTextContent('-1700,00');
+    const target = within(table).getByRole('row', { name: /Aporte inicial para mantener el mínimo/ });
+    expect(target).toHaveTextContent('1100,00');
+    expect(target).toHaveTextContent('2000,00');
+    expect(comparison().getByRole('status')).toHaveTextContent(/Saldo final en ambos supuestos: 700,00/);
+    expect(within(status()).getByText('Saldo mínimo con este orden supuesto').nextElementSibling).toHaveTextContent('-800,00');
+    expect(field('Fecha', 2)).toHaveValue('2026-11-20');
+
+    await user.click(screen.getByRole('button', { name: 'Probar el ejemplo con anticipo' }));
+    expect(summary().closest('details')).not.toHaveAttribute('open');
+    await user.click(summary());
+    expect(alternativeDate()).toHaveValue('');
+    expect(comparison().queryByRole('table')).not.toBeInTheDocument();
+    fireEvent.change(field('Fecha', 2), { target: { value: '2026-11-07' } });
+    expect(screen.queryByText('Comparar otra fecha de cobro', { exact: true })).not.toBeInTheDocument();
+    await check();
+    expect(summary()).toBeInTheDocument();
+    expect(window.va).not.toHaveBeenCalled(); expect(window.gtag).not.toHaveBeenCalled();
+  });
+
   it.each(['100\n200', '100\t200'])('rejects multiple copied balances %j and withdraws the old cash result', async (pasted) => {
     const user = userEvent.setup();
     render(<Planner />);

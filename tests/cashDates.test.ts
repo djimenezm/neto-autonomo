@@ -1,4 +1,4 @@
-import { cashDatesAdvanceExample, cashDatesExample, cashDatesExampleResult, checkCashDates, formatCashDate, MAX_CASH_MOVEMENTS, type CashDatesInput } from '@/lib/cashDates';
+import { cashDatesAdvanceExample, cashDatesExample, cashDatesExampleResult, checkCashDates, compareCashReceiptDate, formatCashDate, MAX_CASH_MOVEMENTS, type CashDatesInput } from '@/lib/cashDates';
 
 describe('cash movements by date', () => {
   it('finds the intermediate shortfall even though the final balance is positive', () => {
@@ -110,5 +110,64 @@ describe('cash movements by date', () => {
     const result = checkCashDates(input);
     expect(result.valid).toBe(false);
     if (!result.valid) expect(result.errors.movements).toBeTruthy();
+  });
+});
+
+describe('alternative cash receipt date', () => {
+  function checked(input: CashDatesInput) {
+    const result = checkCashDates(input);
+    if (!result.valid) throw new Error('Invalid cash comparison fixture');
+    return result;
+  }
+
+  it('finds the larger interim shortfall without altering the checked plan or its totals', () => {
+    const base = checked(cashDatesExample);
+    const original = structuredClone(base);
+    expect(compareCashReceiptDate(base, 1, '2026-11-26')).toMatchObject({
+      valid: true,
+      alternative: {
+        minimumBalance: -1700, additionalInitialBalance: 1700, finalBalance: 700,
+        totalReceipts: 2400, totalPayments: 2700, firstNegativePoint: '2026-11-05',
+        movements: [original.movements[0], { ...original.movements[1], date: '2026-11-26' }, original.movements[2]],
+      },
+    });
+    expect(base).toEqual(original);
+  });
+
+  it('moves only the selected receipt and retains the target and payment-first order on its new date', () => {
+    const base = checked({ ...cashDatesAdvanceExample, minimumBalanceTarget: 300 });
+    const result = compareCashReceiptDate(base, 0, '2026-11-05');
+    expect(result).toMatchObject({
+      valid: true,
+      alternative: {
+        minimumBalance: -800, finalBalance: 700, minimumBalanceTarget: 300,
+        additionalInitialBalance: 800, additionalInitialBalanceForTarget: 1100,
+        firstBelowTarget: '2026-11-05',
+        days: [
+          { date: '2026-11-05', receipts: 800, payments: 1800, minimumBalance: -800, closingBalance: 0 },
+          { date: '2026-11-20', receipts: 1600 },
+          { date: '2026-11-25', payments: 900 },
+        ],
+      },
+    });
+    expect(base).toMatchObject({ minimumBalance: 0, additionalInitialBalanceForTarget: 300 });
+  });
+
+  it('rejects invalid or unchanged dates, payments, zero receipts and unavailable receipts', () => {
+    const base = checked({ ...cashDatesExample, movements: [...cashDatesExample.movements, { kind: 'receipt', date: '2026-11-20', amount: 0 }] });
+    for (const date of ['', '2026-02-29', '2026-11-20']) {
+      expect(compareCashReceiptDate(base, 1, date)).toMatchObject({ valid: false, field: 'date', error: expect.any(String) });
+    }
+    for (const index of [0, 3, 4]) {
+      expect(compareCashReceiptDate(base, index, '2026-11-26')).toMatchObject({ valid: false, field: 'receipt', error: expect.any(String) });
+    }
+  });
+
+  it('reports when the changed order creates an unsafe balance', () => {
+    const base = checked({ initialBalance: 9e13, movements: [
+      { date: '2026-11-05', kind: 'payment', amount: 9e13 },
+      { date: '2026-11-06', kind: 'receipt', amount: 9e13 },
+    ] });
+    expect(compareCashReceiptDate(base, 1, '2026-11-04')).toMatchObject({ valid: false, field: 'plan', error: expect.stringContaining('precisión') });
   });
 });

@@ -11,7 +11,7 @@
 .planner button { min-height: 44px; max-width: 100%; }
 .planner :is(input, select, button):focus-visible, .tableScroll:focus-visible { outline: 3px solid #0e6d54; outline-offset: 3px; }
 .actions { display: flex; align-items: center; flex-wrap: wrap; gap: 0.75rem; margin: 1rem 0; }
-.advanceExample { scroll-margin-top: 8rem; }
+.exampleLink { scroll-margin-top: 8rem; }
 .result { border-top: 2px solid #0e6d54; padding-top: 1rem; margin-top: 1.5rem; }
 .result dl > div { display: grid; gap: 0.4rem; border-bottom: 1px solid #ccdcd3; padding: 0.8rem 0; }
 .result dd { margin: 0; font-weight: 800; font-variant-numeric: tabular-nums; }
@@ -22,12 +22,18 @@
 .tableScroll th:first-child { text-align: left; }
 .shortfall { border-left: 3px solid #9b6513; padding: 0.8rem; background: #fff4df; }
 .note { color: #52605b; }
+.comparison { min-width: 0; margin: 1.3rem 0; padding: 0 1rem; border: 1px solid #b9cdc0; border-radius: 6px; }
+.comparison[open] { padding-bottom: 1rem; }
+.comparison summary { min-height: 44px; padding: 0.65rem 0; font-weight: 800; cursor: pointer; }
+.comparison summary:focus-visible { outline: 3px solid #0e6d54; outline-offset: 3px; }
+.comparison .tableScroll th { white-space: normal; }
 .fileBox { border: 1px solid #b9cdc0; border-radius: 6px; padding: 1rem; margin: 1.3rem 0; min-width: 0; background: #fff; }
 .fileBox input { display: block; margin-top: 0.6rem; }
 .fileBox p { margin-bottom: 0; font-size: 0.88rem; }
 .fileSave { margin-top: 1.2rem; }
 @container (min-width: 580px) {
   .fields { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .comparisonFields { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .result dl > div { grid-template-columns: minmax(0, 1fr) auto; gap: 1rem; }
   .result dd { text-align: right; }
 }
