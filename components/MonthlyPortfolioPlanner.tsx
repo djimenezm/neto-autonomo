@@ -2,6 +2,7 @@
 
 import { useEffect, useId, useRef, useState } from 'react';
 import NumericTextInput from '@/components/NumericTextInput';
+import PortfolioCancellationComparison from '@/components/PortfolioCancellationComparison';
 import { examplePortfolioGroups, MAX_PORTFOLIO_GROUPS, planMonthlyPortfolio } from '@/lib/projectPortfolio';
 import { formatCurrency, formatNumber } from '@/lib/format';
 import { parseSpanishNumber } from '@/lib/spanishNumber';
@@ -185,7 +186,7 @@ function PortfolioEditor({ monthlyBilling, billableHours }: Reference) {
       {combinationBeforeExample ? <p className={styles.note} id={`${id}-recovery-hint`}>Conservamos en esta página la combinación anterior al primer ejemplo. Recuperarla sustituye los cambios que ves ahora. La copia se pierde al salir o cambiar el cálculo de referencia.</p> : null}
       <div className={styles.actions}>
         <button type="button" className="primary-button" onClick={() => check()}>Comprobar combinación</button>
-        <button type="button" className="link-button" onClick={loadExample}>Probar dos servicios ficticios</button>
+        <button id="probar-servicios-ficticios" type="button" className={`link-button ${styles.exampleLink}`} onClick={loadExample}>Probar dos servicios ficticios</button>
         {combinationBeforeExample ? <button type="button" className="link-button" onClick={recoverCombination} aria-describedby={`${id}-recovery-hint`}>Recuperar mi combinación anterior</button> : null}
       </div>
       <div role="status" aria-label="Recuperación de la combinación" aria-live="polite" aria-atomic="true">{recoveryFeedback ? <p>{recoveryFeedback}</p> : null}</div>
@@ -220,6 +221,7 @@ function PortfolioEditor({ monthlyBilling, billableHours }: Reference) {
           </div>
         ) : null}
       </div>
+      {plan?.valid ? <PortfolioCancellationComparison key={rows.map((row) => row.id).join(',')} plan={plan} /> : null}
       <p className={styles.note}>Cuenta cada servicio y cada hora una vez. Incluye todo el trabajo del cliente; la gestión general ya debe estar descontada de tu capacidad. El plan no acredita ventas ni cobros, no recalcula tu neto ni costes adicionales de estos servicios. No cambia el resultado principal ni su enlace compartido. Los campos solo se usan en esta página, sin guardarlos ni enviarlos.</p>
     </div>
   );

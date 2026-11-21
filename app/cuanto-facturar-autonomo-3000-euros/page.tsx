@@ -15,7 +15,7 @@ import styles from './capacityGuide.module.css';
 
 const route = '/cuanto-facturar-autonomo-3000-euros';
 const title = 'Cuánto facturar como autónomo para ganar 3000 euros netos';
-const updatedOn = '2026-11-17';
+const updatedOn = '2026-11-18';
 const description =
   'Ejemplo para conservar 3000 euros netos: combina cuotas mensuales y proyectos de distintos precios y horas. Comprueba la facturación prevista y si cabe en tu mes.';
 
@@ -221,7 +221,7 @@ export default function CuantoFacturarAutonomo3000EurosPage() {
 
       <section className="section" aria-labelledby="ejemplo-encargos">
         <div className="container text-block">
-          <p className="article-meta">Actualizada el <time dateTime={updatedOn}>17 de noviembre de 2026</time>. Responsable: {siteConfig.ownerName}.</p>
+          <p className="article-meta">Actualizada el <time dateTime={updatedOn}>18 de noviembre de 2026</time>. Responsable: {siteConfig.ownerName}.</p>
           <h2 id="ejemplo-encargos">Dos encargos pueden cubrir el importe y superar tu capacidad</h2>
           <p>
             Partimos de {formatEuro(exampleAssumptions.monthlyExpenses)} de gastos deducibles,
@@ -396,18 +396,26 @@ export default function CuantoFacturarAutonomo3000EurosPage() {
             Si el proyecto pasa de {portfolio.groups[1].hoursPerProject} a {overloadedPortfolio.groups[1].hoursPerProject} h,
             el plan ocupa {overloadedPortfolio.plannedHours} h: faltan {-overloadedPortfolio.remainingHours} h de
             capacidad aunque se mantengan los {formatEuro(overloadedPortfolio.plannedBilling)}.
-            Con solo dos cuotas y el proyecto inicial, serían {formatEuro(shortPortfolio.plannedBilling)} y
-            {' '}{shortPortfolio.plannedHours} h: caben por tiempo, pero faltan {formatEuro(-shortPortfolio.billingDifference)}
-            {' '}para la facturación objetivo.
           </p>
-          <h3>Cuánto tendrías que facturar en las horas que quedan</h3>
+          <h3 id="simular-cancelacion-servicio">Si se cancela un servicio del mes</h3>
           <p>
-            Divide los {formatEuro(-shortPortfolio.billingDifference)} pendientes entre las {formatNumber(shortPortfolio.remainingHours)} h libres.
+            Supón que una de las tres cuotas se cancela este mes. La facturación prevista baja
+            {' '}{formatEuro(portfolio.groups[0].pricePerProject)} y se liberan {formatNumber(portfolio.groups[0].hoursPerProject)} h.
+            Las dos cuotas y el proyecto que quedan suman <strong>{formatEuro(shortPortfolio.plannedBilling)} sin IVA y {formatNumber(shortPortfolio.plannedHours)} h</strong>.
+          </p>
+          <p>
+            Ahora faltan {formatEuro(-shortPortfolio.billingDifference)} y quedan {formatNumber(shortPortfolio.remainingHours)} h libres.
             Para cubrir la diferencia con esas horas, necesitarías una media de <strong>{formatEuro(shortPortfolio.remainingHourlyRate)}/h sin IVA</strong>, redondeada al céntimo superior.
             Si prevés facturar menos de esas {formatNumber(shortPortfolio.remainingHours)} h, necesitarás una media más alta.
           </p>
           <p>
-            Para reproducir la cuenta, pulsa «Probar dos servicios ficticios», cambia la cantidad del primer grupo de 3 a 2 y pulsa «Comprobar combinación».
+            <a href="#probar-servicios-ficticios">Ve al ejemplo de servicios combinados</a> y pulsa «Probar dos servicios ficticios».
+            Abre «Simular la cancelación de un servicio», elige el grupo 1 y pulsa «Comparar con la cancelación».
+            La comparación quita un servicio de ese grupo en la simulación y conserva tu plan de partida.
+          </p>
+          <p>
+            La simulación supone que puedes dedicar las horas de ese servicio a otros encargos este mes.
+            Si el trabajo sigue previsto y cambia la fecha de cobro, puedes <Link href="/cuanto-cuesta-ser-autonomo#comparar-fechas-cobro">comparar las fechas en el plan de caja</Link>.
           </p>
           <p>
             Si pruebas los dos servicios ficticios, puedes volver a la combinación que tenías antes

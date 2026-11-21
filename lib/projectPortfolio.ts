@@ -14,7 +14,7 @@ function toHundredths(value: number) {
   return Math.round(Number(`${coefficient}e${Number(exponent) + 2}`));
 }
 
-export function planMonthlyPortfolio(input: PortfolioInput) {
+function calculateMonthlyPortfolio(input: PortfolioInput, minimumGroups: 0 | 1) {
   const errors: PortfolioErrors = { rows: input.groups.map(() => ({})) };
   const targetCents = toHundredths(input.monthlyBilling);
   const capacityTicks = toHundredths(input.billableHours);
@@ -24,7 +24,7 @@ export function planMonthlyPortfolio(input: PortfolioInput) {
   if (!Number.isFinite(input.billableHours) || input.billableHours < 0 || !Number.isSafeInteger(capacityTicks)) {
     errors.billableHours = 'Revisa las horas disponibles de tu cálculo mensual.';
   }
-  if (input.groups.length < 1 || input.groups.length > MAX_PORTFOLIO_GROUPS) {
+  if (input.groups.length < minimumGroups || input.groups.length > MAX_PORTFOLIO_GROUPS) {
     errors.groups = `Incluye entre 1 y ${MAX_PORTFOLIO_GROUPS} grupos de servicios.`;
   }
 
@@ -84,4 +84,23 @@ export function planMonthlyPortfolio(input: PortfolioInput) {
     coversBilling: missingCents <= 0,
     fitsHours: freeTicks >= 0,
   } as const;
+}
+
+export function planMonthlyPortfolio(input: PortfolioInput) {
+  return calculateMonthlyPortfolio(input, 1);
+}
+
+export type CheckedMonthlyPortfolio = Extract<ReturnType<typeof planMonthlyPortfolio>, { valid: true }>;
+
+export function simulatePortfolioCancellation(plan: CheckedMonthlyPortfolio, groupIndex: number) {
+  const cancelled = plan.groups[groupIndex];
+  if (!cancelled) return { valid: false, error: 'Elige el grupo del servicio cancelado.' } as const;
+
+  const groups = plan.groups.flatMap((group, index) => {
+    if (index !== groupIndex) return [group];
+    return group.quantity === 1 ? [] : [{ ...group, quantity: group.quantity - 1 }];
+  });
+  const alternative = calculateMonthlyPortfolio({ monthlyBilling: plan.monthlyBilling, billableHours: plan.billableHours, groups }, 0);
+  if (!alternative.valid) return { valid: false, error: 'No se ha podido calcular el plan con esa cancelación.' } as const;
+  return { valid: true, alternative } as const;
 }

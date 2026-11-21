@@ -1,4 +1,4 @@
-import { examplePortfolioGroups, MAX_PORTFOLIO_GROUPS, planMonthlyPortfolio, type PortfolioGroupInput } from '@/lib/projectPortfolio';
+import { examplePortfolioGroups, MAX_PORTFOLIO_GROUPS, planMonthlyPortfolio, simulatePortfolioCancellation, type PortfolioGroupInput } from '@/lib/projectPortfolio';
 import { portfolioExample, portfolioExampleResult, portfolioOverloadResult, portfolioShortfallResult } from '@/lib/projectPortfolioExample';
 import { calculateExample } from '@/lib/scenarioExamples';
 
@@ -78,5 +78,72 @@ describe('monthly services portfolio', () => {
     const result = planMonthlyPortfolio({ ...portfolioExample, groups: [group, group] });
     expect(result.valid).toBe(false);
     if (!result.valid) expect(result.errors.groups).toMatch(/suma/);
+  });
+});
+
+describe('monthly portfolio cancellation simulation', () => {
+  it('removes one service from a repeated group and recalculates the plan without changing the starting figures', () => {
+    const plan = planMonthlyPortfolio(portfolioExample);
+    if (!plan.valid) throw new Error('Expected a valid starting plan');
+    const original = structuredClone(plan);
+
+    expect(simulatePortfolioCancellation(plan, 0)).toMatchObject({
+      valid: true,
+      alternative: {
+        groups: [{ quantity: 2, billing: 1600, hours: 24 }, { quantity: 1, billing: 1800, hours: 32 }],
+        plannedBilling: 3400, plannedHours: 56, billingDifference: -749.41,
+        remainingHours: 24, remainingHourlyRate: 31.23, coversBilling: false, fitsHours: true,
+      },
+    });
+    expect(plan).toEqual(original);
+  });
+
+  it('omits just the selected single-service group when the other groups remain', () => {
+    const plan = planMonthlyPortfolio(portfolioExample);
+    if (!plan.valid) throw new Error('Expected a valid starting plan');
+
+    expect(simulatePortfolioCancellation(plan, 1)).toMatchObject({
+      valid: true,
+      alternative: {
+        groups: [{ quantity: 3, billing: 2400, hours: 36 }],
+        plannedBilling: 2400, plannedHours: 36, billingDifference: -1749.41,
+        remainingHours: 44, remainingHourlyRate: 39.76,
+      },
+    });
+  });
+
+  it('simulates losing the only service while still requiring a group in the normal editor', () => {
+    const input = { monthlyBilling: 100, billableHours: 3, groups: [{ quantity: 1, pricePerProject: 100, hoursPerProject: 2 }] };
+    const plan = planMonthlyPortfolio(input);
+    if (!plan.valid) throw new Error('Expected a valid starting plan');
+
+    expect(simulatePortfolioCancellation(plan, 0)).toMatchObject({
+      valid: true,
+      alternative: {
+        groups: [], plannedBilling: 0, plannedHours: 0, billingDifference: -100,
+        remainingHours: 3, remainingHourlyRate: 33.34, coversBilling: false, fitsHours: true,
+      },
+    });
+    expect(planMonthlyPortfolio({ ...input, groups: [] })).toMatchObject({ valid: false });
+  });
+
+  it('keeps a shortfall without an hourly rate when cancellation still leaves no free time', () => {
+    const plan = planMonthlyPortfolio({
+      monthlyBilling: 90,
+      billableHours: 2,
+      groups: [{ quantity: 2, pricePerProject: 20, hoursPerProject: 2 }],
+    });
+    if (!plan.valid) throw new Error('Expected a valid starting plan');
+
+    expect(simulatePortfolioCancellation(plan, 0)).toMatchObject({
+      valid: true,
+      alternative: { plannedBilling: 20, plannedHours: 2, billingDifference: -70, remainingHours: 0, remainingHourlyRate: null },
+    });
+  });
+
+  it.each([-1, 0.5, 2, Number.NaN])('rejects an invalid group selection %s', (index) => {
+    const plan = planMonthlyPortfolio(portfolioExample);
+    if (!plan.valid) throw new Error('Expected a valid starting plan');
+    expect(simulatePortfolioCancellation(plan, index)).toMatchObject({ valid: false, error: expect.any(String) });
   });
 });

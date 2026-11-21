@@ -6,6 +6,16 @@ import CalculatorForm from '@/components/CalculatorForm';
 const reference = { monthlyBilling: 4149.41, billableHours: 80 };
 const status = { name: 'Plan de servicios combinados' };
 const field = (group: number, key: 'quantity' | 'price' | 'hours') => screen.getByRole('textbox', { name: key === 'quantity' ? `Cantidad del grupo ${group}` : key === 'price' ? `Precio por servicio del grupo ${group} sin IVA (EUR)` : `Horas por servicio del grupo ${group}` });
+const cancellationLabel = 'Simular la cancelación de un servicio';
+const cancellationOutput = () => screen.getByRole('status', { name: 'Comparación por cancelación del servicio' });
+
+async function compareCancellation(user: ReturnType<typeof userEvent.setup>, group?: string) {
+  const disclosure = screen.getByText(cancellationLabel, { exact: true });
+  if (!disclosure.closest('details')?.open) await user.click(disclosure);
+  const picker = screen.getByRole('combobox', { name: 'Grupo del servicio cancelado' });
+  if (group !== undefined) await user.selectOptions(picker, group);
+  await user.click(screen.getByRole('button', { name: 'Comparar con la cancelación' }));
+}
 
 describe('monthly portfolio editor', () => {
   beforeEach(() => { window.va = vi.fn(); window.gtag = vi.fn(); });
@@ -84,6 +94,57 @@ describe('monthly portfolio editor', () => {
     expect(output).not.toHaveTextContent('31,23');
     await user.type(field(2, 'hours'), '{Enter}');
     expect(output).toHaveTextContent('Falta facturación y el plan no deja horas libres para cubrirla.');
+  });
+
+  it('compares losing just one service without changing the checked plan or draft', async () => {
+    const user = userEvent.setup();
+    render(<Planner {...reference} />);
+    expect(screen.queryByText(cancellationLabel, { exact: true })).not.toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Probar dos servicios ficticios' }));
+    await compareCancellation(user, '0');
+
+    const table = within(cancellationOutput()).getByRole('table');
+    expect(within(table).getByRole('columnheader', { name: 'Plan actual' })).toBeInTheDocument();
+    expect(within(table).getByRole('columnheader', { name: 'Con la cancelación' })).toBeInTheDocument();
+    for (const value of [/^4200,00/, /^3400,00/, /^68 h$/, /^56 h$/, /749,41/, /^24 h$/]) {
+      expect(within(table).getByRole('cell', { name: value })).toBeInTheDocument();
+    }
+    expect(cancellationOutput()).toHaveTextContent(/31,23/);
+    expect(screen.getByRole('status', status)).toHaveTextContent('4200,00');
+    expect(field(1, 'quantity')).toHaveValue('3');
+    expect(field(2, 'quantity')).toHaveValue('1');
+
+    fireEvent.change(field(1, 'hours'), { target: { value: '13' } });
+    expect(screen.queryByText(cancellationLabel, { exact: true })).not.toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Comprobar combinación' }));
+    expect(screen.queryByRole('table')).not.toBeInTheDocument();
+    expect(screen.getByRole('status', status)).toHaveTextContent('71 h');
+  });
+
+  it('clears the hypothetical result across plan replacement and still checks loss of the only service', async () => {
+    const user = userEvent.setup();
+    const { rerender } = render(<Planner {...reference} />);
+    await user.type(field(1, 'quantity'), '1');
+    await user.type(field(1, 'price'), '600');
+    await user.type(field(1, 'hours'), '12{Enter}');
+    await compareCancellation(user);
+    expect(cancellationOutput()).toHaveTextContent(/51,87/);
+    expect(within(cancellationOutput()).getByRole('cell', { name: /^0,00/ })).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Probar dos servicios ficticios' }));
+    expect(screen.queryByRole('table')).not.toBeInTheDocument();
+    await compareCancellation(user, '1');
+    expect(cancellationOutput()).toHaveTextContent('2400,00');
+    await user.click(screen.getByRole('button', { name: 'Quitar grupo 2' }));
+    expect(screen.queryByText(cancellationLabel, { exact: true })).not.toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Recuperar mi combinación anterior' }));
+    expect(screen.queryByText(cancellationLabel, { exact: true })).not.toBeInTheDocument();
+    expect(field(1, 'price')).toHaveValue('600');
+
+    await user.click(screen.getByRole('button', { name: 'Comprobar combinación' }));
+    await compareCancellation(user);
+    rerender(<Planner {...reference} monthlyBilling={5000} />);
+    expect(screen.queryByText(cancellationLabel, { exact: true })).not.toBeInTheDocument();
   });
 
   it('accepts Spanish decimals and normalizes unit values before multiplication', async () => {

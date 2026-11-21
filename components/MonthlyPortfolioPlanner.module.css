@@ -21,6 +21,21 @@
 .fits, .shortfall { border-left: 3px solid #0e6d54; padding: 0.8rem; background: #edf6ef; }
 .shortfall { border-color: #9b6513; background: #fff4df; }
 .note { color: #52605b; }
+.exampleLink { scroll-margin-top: 8rem; }
+.cancellation { min-width: 0; margin: 1.3rem 0; padding: 0 1rem; border: 1px solid #b9cdc0; border-radius: 6px; }
+.cancellation[open] { padding-bottom: 1rem; }
+.cancellation summary { min-height: 44px; padding: 0.65rem 0; font-weight: 800; cursor: pointer; }
+.cancellationControl { display: grid; gap: 0.5rem; max-width: 24rem; margin-bottom: 1rem; }
+.cancellationControl label { font-weight: 700; }
+.cancellationControl select { box-sizing: border-box; width: 100%; min-width: 0; min-height: 44px; border: 1px solid #809b8c; border-radius: 5px; padding: 0.65rem; background: #fff; color: #173a2c; }
+.cancellationControl select[aria-invalid='true'] { border-color: #a02727; }
+.comparisonTable { max-width: 100%; overflow-x: auto; }
+.comparisonTable table { width: 100%; border-collapse: collapse; font-size: 0.88rem; font-variant-numeric: tabular-nums; }
+.comparisonTable caption { margin: 1rem 0; text-align: left; }
+.comparisonTable :is(th, td) { padding: 0.55rem 0.35rem; border-bottom: 1px solid #ccdcd3; text-align: right; }
+.comparisonTable :is(th:first-child, th[scope='row']) { text-align: left; }
+.comparisonTable td { white-space: nowrap; }
+.cancellation :is(summary, select, .comparisonTable):focus-visible { outline: 3px solid #0e6d54; outline-offset: 3px; }
 @container (min-width: 500px) {
   .result dl > div { grid-template-columns: minmax(0, 1fr) auto; gap: 1rem; }
   .result dd { text-align: right; }
