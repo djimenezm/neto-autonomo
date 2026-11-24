@@ -40,7 +40,9 @@ const pageFaqItems = [
 ] as const;
 
 export const metadata: Metadata = {
-  title,
+  title: {
+    absolute: 'Cuánto facturar como autónomo | Tabla de 1.500 a 3.000 € netos',
+  },
   description,
   alternates: {
     canonical: route,
