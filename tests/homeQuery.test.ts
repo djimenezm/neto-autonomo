@@ -3,6 +3,7 @@ import { Children, isValidElement, type ReactNode } from 'react';
 import Head from 'next/head';
 import HomePage from '@/components/HomePage';
 import IndexPage, { getServerSideProps } from '@/pages/index';
+import { DEFAULT_FORM_VALUES } from '@/lib/calculatorForm';
 import { siteConfig } from '@/lib/site';
 
 function pageMetadata(props: Parameters<typeof IndexPage>[0]) {
@@ -27,6 +28,21 @@ function pageMetadata(props: Parameters<typeof IndexPage>[0]) {
 }
 
 describe('home calculator query', () => {
+  it('prefills estimated hours without automatically calculating or tracking a conversion', async () => {
+    const setHeader = vi.fn();
+    const response = await getServerSideProps({
+      query: { source: 'billable-hours', billableHours: '107' },
+      res: { setHeader },
+    } as unknown as Parameters<typeof getServerSideProps>[0]);
+
+    if (!('props' in response)) throw new Error('Expected calculator props.');
+    const props = await response.props;
+    expect(props.calculatorInitialValues).toEqual({ ...DEFAULT_FORM_VALUES, billableHours: '107' });
+    expect(props).not.toHaveProperty('calculatorShareUrl');
+    expect(pageMetadata(props).home).toMatchObject({ calculatorInitiallySubmitted: false, trackServerConversion: false });
+    expect(setHeader).toHaveBeenCalledWith('Cache-Control', 'private, no-store');
+  });
+
   it('prefills imported monthly costs without submitting or returning undefined props', async () => {
     const response = await getServerSideProps({
       query: {

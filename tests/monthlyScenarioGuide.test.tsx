@@ -22,11 +22,16 @@ describe('monthly scenario worked guide', () => {
     const doc = new DOMParser().parseFromString(renderToStaticMarkup(<Guide />), 'text/html');
     const schemas = [...doc.querySelectorAll('script[type="application/ld+json"]')].map((script) => JSON.parse(script.textContent!));
     expect(schemas.map((schema) => schema['@type'])).toEqual(['Article', 'BreadcrumbList', 'FAQPage']);
-    expect(schemas[0].dateModified).toBe('2026-10-27');
+    expect(schemas[0].dateModified).toBe('2026-11-24');
     expect(schemas[2].mainEntity).toHaveLength(4);
     expect(doc.querySelector('main')?.getAttribute('id')).toBe('contenido-principal');
     expect(doc.querySelectorAll('h1')).toHaveLength(1);
     expect(doc.body.textContent).toContain('52,05');
+    const workedExample = doc.querySelector('section[aria-labelledby="comparar-escenarios"]');
+    expect(workedExample?.querySelector('h2')?.textContent).toBe('Cuánto facturar para ganar 2.000 € netos al mes');
+    expect(workedExample?.textContent).toMatch(/2972,94\s€ al mes sin IVA/);
+    expect(workedExample?.textContent).toMatch(/37,16\s€\/h/);
+    expect(workedExample?.querySelector('.guide-cta a')?.getAttribute('href')).toBe(getExampleUrl(2000));
     expect(metadata.alternates?.canonical).toBe('/tabla-cuanto-facturar-autonomo');
   });
 });

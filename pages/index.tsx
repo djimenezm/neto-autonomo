@@ -64,8 +64,9 @@ function getCalculatorShareUrl(values?: Partial<CalculatorFormValues>) {
 
 export const getServerSideProps: GetServerSideProps<HomeIndexProps> = async ({ query, res }) => {
   const hasCalculatorValues = calculatorQueryKeys.some((key) => query[key] !== undefined);
-  const importedFromCosts = hasCalculatorValues && getQueryValue(query, 'source') === 'monthly-costs';
-  const calculatorInitiallySubmitted = hasCalculatorValues && !importedFromCosts;
+  const source = getQueryValue(query, 'source');
+  const importedFromCosts = hasCalculatorValues && source === 'monthly-costs';
+  const calculatorInitiallySubmitted = hasCalculatorValues && !importedFromCosts && source !== 'billable-hours';
 
   if (!hasCalculatorValues) {
     res.setHeader('Cache-Control', 'public, s-maxage=3600, stale-while-revalidate=86400');

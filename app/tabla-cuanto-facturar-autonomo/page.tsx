@@ -10,9 +10,9 @@ import { getSiteUrl, siteConfig } from '@/lib/site';
 import styles from './scenarios.module.css';
 
 const route = '/tabla-cuanto-facturar-autonomo';
-const title = 'Tabla orientativa para saber cuánto facturar como autónomo';
+const title = 'Cuánto facturar como autónomo para ganar 1.500–3.000 € netos';
 const description =
-  'Compara objetivos netos de 1500 a 3000 euros y comprueba cómo cambian la facturación y la tarifa al variar tus gastos y horas. Incluye un ejemplo y un comparador.';
+  'Compara cuánto facturar al mes sin IVA para ganar 1.500, 2.000, 2.500 o 3.000 € netos. Abre un ejemplo en la calculadora y ajusta tus gastos, cuota, IRPF y horas.';
 
 const netGoals = [1500, 2000, 2500, 3000] as const;
 
@@ -79,6 +79,8 @@ export const metadata: Metadata = {
 export default function TablaCuantoFacturarAutonomoPage() {
   const siteUrl = getSiteUrl();
   const pageUrl = new URL(route, siteUrl).toString();
+  const workedExample = monthlyScenarioExamples[0].current;
+  const workedExampleUrl = getExampleUrl(monthlyScenarioInput.targetNet);
 
   const articleSchema = {
     '@context': 'https://schema.org',
@@ -96,7 +98,7 @@ export default function TablaCuantoFacturarAutonomoPage() {
       name: siteConfig.name,
     },
     datePublished: '2026-04-26',
-    dateModified: '2026-10-27',
+    dateModified: '2026-11-24',
     accountablePerson: { '@type': 'Person', name: siteConfig.ownerName },
   };
 
@@ -173,7 +175,7 @@ export default function TablaCuantoFacturarAutonomoPage() {
               <Link href="/tarifa-freelance-por-hora" className="primary-button">
                 Ver tarifa por hora
               </Link>
-              <a href="#comparar-escenarios" className="link-button">Comparar cambios en gastos y horas</a>
+              <a href="#comparar-escenarios" className="link-button">Ver el ejemplo de 2.000 € netos</a>
             </div>
           </div>
 
@@ -239,12 +241,29 @@ export default function TablaCuantoFacturarAutonomoPage() {
 
       <section className="section alt" aria-labelledby="comparar-escenarios">
         <div className="container text-block">
-          <p className="scenario-note">Actualizada el 27 de octubre de 2026. Responsable: {siteConfig.ownerName}.</p>
-          <h2 id="comparar-escenarios">Mismo neto, más gastos o menos horas: qué cambia</h2>
+          <p className="scenario-note">Actualizada el 24 de noviembre de 2026. Responsable: {siteConfig.ownerName}.</p>
+          <h2 id="comparar-escenarios">Cuánto facturar para ganar 2.000 € netos al mes</h2>
           <p>
-            Conservamos el objetivo ficticio de 2000 EUR netos, la cuota manual de 320 EUR y la
-            reserva manual del 15 %. Primero cambiamos una sola variable; después combinamos ambas.
-            Son supuestos del ejemplo, no importes fiscales universales.
+            Con los supuestos de este ejemplo, tendrías que facturar{' '}
+            <strong>{formatEuro(workedExample.billingWithoutVAT)} al mes sin IVA</strong>. Con{' '}
+            {monthlyScenarioInput.billableHours} horas facturables al mes, la tarifa sería de{' '}
+            <strong>{formatEuro(workedExample.hourlyRate)}/h</strong>.
+          </p>
+          <p>
+            La cuenta suma el neto deseado, {formatEuro(monthlyScenarioInput.monthlyExpenses)} de gastos
+            deducibles, {formatEuro(monthlyScenarioInput.selfEmployedFee)} de cuota supuesta y{' '}
+            {formatEuro(workedExample.estimatedIRPF)} de reserva para el IRPF. La reserva se estima
+            aplicando un {monthlyScenarioInput.irpfRate} % hipotético al beneficio antes del IRPF.
+          </p>
+          <div className="guide-cta">
+            <Link href={workedExampleUrl} className="primary-button">
+              Ajustar el ejemplo de 2.000 € en la calculadora
+            </Link>
+          </div>
+          <h3>Qué cambia si suben tus gastos o facturas menos horas</h3>
+          <p>
+            Conservamos el objetivo neto, la cuota y el porcentaje de reserva. La tabla muestra qué
+            pasa al cambiar tus gastos y horas por separado y al combinarlos.
           </p>
           <div className="scenario-table-scroll" role="region" aria-label="Efecto de gastos y horas con el mismo neto" tabIndex={0}>
             <table className="scenario-table">
@@ -287,7 +306,7 @@ export default function TablaCuantoFacturarAutonomoPage() {
           <p>
             La partida es el escenario ficticio de 2000 EUR de esta página. Introduce 450 EUR de gastos
             y 60 horas para reproducir la última fila. Para comparar con tus propios impuestos y cuota,
-            {' '}<Link href={getExampleUrl(2000)}>ajusta primero tu cálculo</Link> y abre «Comparar cambios en mis gastos y horas» en el resultado.
+            {' '}<Link href={workedExampleUrl}>ajusta primero tu cálculo</Link> y abre «Comparar cambios en mis gastos y horas» en el resultado.
           </p>
           <p>
             Si ya has escrito una alternativa, «Cargar los datos de partida» permite volver a ella
@@ -328,18 +347,9 @@ export default function TablaCuantoFacturarAutonomoPage() {
         <div className="container text-block">
           <h2>Cómo pasar de la tabla a una tarifa o presupuesto</h2>
           <p>
-            En este ejemplo, para conservar 2.000 € netos harían falta {formatEuro(calculateExample(2000).billingWithoutVAT)}
-            {' '}de facturación mensual sin IVA. Dividido entre 80 horas facturables son{' '}
-            {formatEuro(calculateExample(2000).hourlyRate)}/h. Si solo puedes vender 60 horas,
-            el objetivo mensual no cambia, pero la tarifa mínima por hora sube.
-            {' '}Antes de usar esa referencia, contrástala con los{' '}
+            Divide la facturación mensual sin IVA entre las horas que esperas cobrar. Antes de usar
+            esa tarifa para preparar un presupuesto, contrasta tu previsión con los{' '}
             <Link href="/horas-facturables-freelance">ejemplos de agendas y horas facturables</Link>.
-          </p>
-          <p>
-            Puedes comprobar la cuenta: 2.000 € de neto + 300 € de gastos + 320 € de cuota +{' '}
-            {formatEuro(calculateExample(2000).estimatedIRPF)} de reserva de IRPF ={' '}
-            {formatEuro(calculateExample(2000).billingWithoutVAT)}. La reserva resulta de aplicar
-            el 15 % hipotético al beneficio antes de IRPF, no de tomar el 15 % de la facturación.
           </p>
           <p>
             Si trabajas por proyecto, no necesitas enseñar la tabla al cliente. Puedes usarla por

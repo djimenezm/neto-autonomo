@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import BillableHoursPlanner from '@/components/BillableHoursPlanner';
 import Footer from '@/components/Footer';
 import Header from '@/components/Header';
 import LeadMagnetForm from '@/components/LeadMagnetForm';
@@ -10,9 +11,9 @@ import { getSiteUrl, siteConfig } from '@/lib/site';
 import styles from './hoursGuide.module.css';
 
 const route = '/horas-facturables-freelance';
-const title = 'Horas facturables freelance: cuántas puedes vender al mes';
+const title = 'Calculadora de horas facturables para freelance';
 const description =
-  'Estima tus horas facturables con tu jornada, gestión y semanas sin actividad. Incluye una cuenta anual paso a paso y una ayuda para aplicarla a tu tarifa.';
+  'Calcula cuántas horas puedes facturar al mes según tu jornada, gestión y vacaciones. Usa tu estimación para calcular tu tarifa o contrástala con cuatro semanas reales.';
 
 const annualExample = (() => {
   const result = estimateBillableHours(exampleHoursPlan);
@@ -99,7 +100,7 @@ export default function HorasFacturablesFreelancePage() {
     },
     accountablePerson: { '@type': 'Person', name: siteConfig.ownerName },
     datePublished: '2026-04-27',
-    dateModified: '2026-10-26',
+    dateModified: '2026-11-24',
   };
 
   const breadcrumbSchema = {
@@ -157,25 +158,14 @@ export default function HorasFacturablesFreelancePage() {
       <section className="hero">
         <div className="container article-layout">
           <div className="text-block">
-            <span className="eyebrow">Base de cálculo</span>
-            <h1>Horas facturables freelance: cuántas puedes vender al mes</h1>
+            <h1>{title}</h1>
             <p className="lead">
-              Tu tarifa no se calcula dividiendo tu objetivo mensual entre todas las horas que
-              trabajas. Se calcula sobre las horas que realmente puedes facturar: sobreestimarlas
-              puede dejarte una tarifa insuficiente para cubrir tu actividad.
+              Averigua cuántas horas puedes facturar al mes según tu jornada. Descuenta la gestión,
+              la captación y las semanas sin actividad para planificar una tarifa que cubra tus costes.
             </p>
-            <div className="hero-badges" aria-label="Qué cubre esta guía">
-              <span className="hero-badge">Horas vendibles</span>
-              <span className="hero-badge">Trabajo invisible</span>
-              <span className="hero-badge">Tarifa por hora</span>
-            </div>
             <div className="guide-cta">
-              <Link href="/#calculadora" className="primary-button">
-                Estimar mis horas en la calculadora
-              </Link>
-              <Link href="/tarifa-freelance-por-hora" className="primary-button">
-                Ver tarifa por hora
-              </Link>
+              <a href="#estimar-horas-facturables" className="primary-button">Estimar mis horas facturables</a>
+              <a href="#agenda-anual-title" className="link-button">Ver el ejemplo paso a paso</a>
             </div>
           </div>
 
@@ -188,6 +178,13 @@ export default function HorasFacturablesFreelancePage() {
               <li>La estimación debe ser prudente si quieres sostener margen.</li>
             </ul>
           </aside>
+        </div>
+      </section>
+
+      <section className="section" aria-labelledby="estimar-horas-facturables">
+        <div className="container text-block">
+          <h2 id="estimar-horas-facturables">Calcula tus horas facturables al mes</h2>
+          <BillableHoursPlanner />
         </div>
       </section>
 
@@ -285,7 +282,7 @@ export default function HorasFacturablesFreelancePage() {
             {' '}({52} − {exampleHoursPlan.weeksOff}) × {annualExample.weeklyBillableHours}
             {' '}= {formatNumber(annualExample.annualBillableHours)} h al año. Al repartirlas entre
             {' '}12 meses, la capacidad media es <strong>{formatNumber(annualExample.monthlyBillableHours, 1)} h/mes</strong>.
-            {' '}La ayuda de la calculadora aplica {annualExample.hoursToApply} h, redondeando hacia abajo.
+            {' '}Puedes llevar {annualExample.hoursToApply} h a la calculadora de tarifa, redondeadas hacia abajo.
           </p>
           <div className="disclaimer-box">
             Esta media permite planificar un objetivo durante los 12 meses, también cuando no
@@ -293,11 +290,9 @@ export default function HorasFacturablesFreelancePage() {
             sin clientes, reduce tu previsión y planifica aparte cuándo cobrarás.
           </div>
           <p>
-            En la <Link href="/#calculadora">calculadora de tarifa</Link>, abre «Estimar mis horas
-            con mi agenda» junto al campo de horas. Puedes aplicar tu estimación sin perder el resto
-            de tus datos.
+            <a href="#estimar-horas-facturables">Prueba el ejemplo con tu agenda</a> y lleva el resultado
+            a la calculadora de tarifa. Allí podrás completar tu objetivo mensual y tus gastos.
           </p>
-          <p>Si ya has escrito tu agenda, puedes probar el ejemplo y volver con «Recuperar mi agenda anterior». Se conserva la primera copia de los cuatro campos, aunque estén incompletos o edites el ejemplo. Recuperar sustituye los cambios actuales y no modifica las horas ya aplicadas a la calculadora: vuelve a estimar la agenda y pulsa «Usar … horas al mes» para aplicarla. La copia se pierde al salir o recargar la página.</p>
           <h3>Contrasta la estimación con cuatro semanas de trabajo</h3>
           <p>
             Anota cada día las horas dedicadas a encargos cobrables y, por separado, a gestión,
@@ -415,7 +410,7 @@ export default function HorasFacturablesFreelancePage() {
           <p className="scenario-note">
             Responsable del sitio: <Link href="/aviso-legal">{siteConfig.ownerName}</Link>.
             {' '}Método: ejemplos aritméticos propios con supuestos explícitos, no un estudio
-            de mercado. Actualizada el <time dateTime="2026-10-26">26 de octubre de 2026</time>.
+            de mercado. Actualizada el <time dateTime="2026-11-24">24 de noviembre de 2026</time>.
           </p>
           <div className="faq-list">
             {pageFaqItems.map((item) => (

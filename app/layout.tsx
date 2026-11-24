@@ -22,9 +22,6 @@ export const metadata: Metadata = {
     icon: [{ url: '/favicon.svg', type: 'image/svg+xml' }],
     shortcut: ['/favicon.svg'],
   },
-  alternates: {
-    canonical: '/',
-  },
   openGraph: {
     type: 'website',
     locale: siteConfig.locale,

@@ -1,15 +1,15 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import Script from 'next/script';
 import Footer from '@/components/Footer';
 import Header from '@/components/Header';
 import LeadMagnetForm from '@/components/LeadMagnetForm';
 import { getSiteUrl, siteConfig } from '@/lib/site';
 
 const route = '/mejores-programas-facturacion-autonomos';
-const title = 'Programas de facturación para autónomos: compara 4 opciones';
+const title = 'Programas de facturación para autónomos: gratis y de pago';
+const headline = 'Programas de facturación para autónomos: compara 4 opciones';
 const description =
-  'Compara cuatro programas de facturación para autónomos en España según tu operativa. Revisa límites, gastos, cobros y exportación antes de elegir.';
+  'Compara cuatro programas de facturación para autónomos en España. Revisa los límites de la app gratuita de la AEAT y qué funciones comprobar antes de pagar.';
 
 const pageFaqItems = [
   {
@@ -125,7 +125,7 @@ export default function MejoresProgramasFacturacionAutonomosPage() {
   const articleSchema = {
     '@context': 'https://schema.org',
     '@type': 'Article',
-    headline: title,
+    headline,
     description,
     inLanguage: 'es',
     mainEntityOfPage: pageUrl,
@@ -154,7 +154,7 @@ export default function MejoresProgramasFacturacionAutonomosPage() {
       {
         '@type': 'ListItem',
         position: 2,
-        name: title,
+        name: headline,
         item: pageUrl,
       },
     ],
@@ -175,29 +175,29 @@ export default function MejoresProgramasFacturacionAutonomosPage() {
 
   return (
     <main>
-      <Script
+      <script
         id="mejores-programas-facturacion-article-schema"
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema).replace(/</g, '\\u003c') }}
       />
-      <Script
+      <script
         id="mejores-programas-facturacion-breadcrumb-schema"
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema).replace(/</g, '\\u003c') }}
       />
-      <Script
+      <script
         id="mejores-programas-facturacion-faq-schema"
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema).replace(/</g, '\\u003c') }}
       />
 
       <Header />
 
-      <section className="hero">
+      <section className="hero" id="contenido-principal" tabIndex={-1}>
         <div className="container article-layout">
           <div className="text-block">
             <span className="eyebrow">Comparativa práctica</span>
-            <h1>Programas de facturación para autónomos: compara 4 opciones</h1>
+            <h1>{headline}</h1>
             <p className="lead">
               La opción adecuada depende de cómo emites, cobras y entregas información a tu
               asesoría. Compara cuatro alternativas por encaje y comprueba sus límites antes de

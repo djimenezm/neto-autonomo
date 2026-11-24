@@ -55,7 +55,7 @@ function checkAgenda(values: Values): Estimate {
   return { ...checked, errors };
 }
 
-export default function BillableHoursPlanner({ onApply }: { onApply: (hours: number) => void }) {
+export default function BillableHoursPlanner({ onApply }: { onApply?: (hours: number) => void }) {
   const id = useId();
   const detailsRef = useRef<HTMLDetailsElement>(null);
   const inputsRef = useRef<Partial<Record<keyof Values, HTMLInputElement | null>>>({});
@@ -90,14 +90,14 @@ export default function BillableHoursPlanner({ onApply }: { onApply: (hours: num
   }
 
   return (
-    <details className={styles.planner} ref={detailsRef}>
+    <details className={styles.planner} ref={detailsRef} open={!onApply ? true : undefined}>
       <summary>Estimar mis horas con mi agenda</summary>
       <p id={`${id}-intro`}>
         Reparte tu capacidad anual entre 12 meses para que las semanas sin trabajar
         también cuenten al fijar tu tarifa. Completa tu agenda o prueba un ejemplo.
       </p>
       <noscript>
-        <p>Esta ayuda necesita JavaScript. Puedes hacer la misma cuenta con la <a href="/horas-facturables-freelance">guía de horas facturables</a>.</p>
+        <p>Esta ayuda necesita JavaScript. Puedes hacer la misma cuenta con <a href="/horas-facturables-freelance#agenda-anual-title">el ejemplo de agenda anual</a>.</p>
       </noscript>
       <fieldset
         className={styles.fields}
@@ -159,10 +159,10 @@ export default function BillableHoursPlanner({ onApply }: { onApply: (hours: num
         >Probar un ejemplo</button>
         {agendaBeforeExample ? <button type="button" className="link-button" onClick={recoverAgenda} aria-describedby={`${id}-recovery-hint`}>Recuperar mi agenda anterior</button> : null}
       </div>
-      {agendaBeforeExample ? <p id={`${id}-recovery-hint`}>Conservamos en esta página la agenda anterior al primer ejemplo. Recuperarla sustituye los cambios que ves ahora y no modifica las horas ya aplicadas a la calculadora. Vuelve a estimarla para poder aplicarla. La copia se pierde al salir o recargar la página.</p> : null}
+      {agendaBeforeExample ? <p id={`${id}-recovery-hint`}>Conservamos en esta página la agenda anterior al primer ejemplo. Recuperarla sustituye los cambios que ves ahora. {onApply ? 'Las horas ya aplicadas a la calculadora siguen iguales. ' : ''}Vuelve a estimar la agenda antes de usar sus horas. La copia se pierde al salir o recargar la página.</p> : null}
       <div aria-label="Recuperación de la agenda" aria-live="polite" aria-atomic="true">{recoveryFeedback ? <p>{recoveryFeedback}</p> : null}</div>
       <div aria-live="polite" aria-atomic="true">
-        {validation && !validation.valid ? <p>Revisa los datos de la agenda. Las horas de la calculadora siguen iguales.</p> : null}
+        {validation && !validation.valid ? <p>Revisa los datos de la agenda.{onApply ? ' Las horas de la calculadora siguen iguales.' : ''}</p> : null}
         {!estimate && validation?.valid ? <p>Datos modificados. Pulsa «Estimar horas» para actualizar la capacidad.</p> : null}
         {estimate?.valid ? (
           <div className={styles.result}>
@@ -186,20 +186,26 @@ export default function BillableHoursPlanner({ onApply }: { onApply: (hours: num
                   la capacidad. La media de arriba se muestra redondeada a un decimal; para
                   aplicarla usamos la cuenta completa y descartamos la fracción de hora.
                 </p>
-                <button
-                  type="button"
-                  className="primary-button"
-                  onClick={() => {
-                    onApply(estimate.hoursToApply);
-                    if (detailsRef.current) detailsRef.current.open = false;
-                  }}
-                >Usar {estimate.hoursToApply} horas al mes</button>
+                {onApply ? (
+                  <button
+                    type="button"
+                    className="primary-button"
+                    onClick={() => {
+                      onApply(estimate.hoursToApply);
+                      if (detailsRef.current) detailsRef.current.open = false;
+                    }}
+                  >Usar {estimate.hoursToApply} horas al mes</button>
+                ) : (
+                  <a className="primary-button" href={`/?source=billable-hours&billableHours=${estimate.hoursToApply}#calculadora`}>
+                    Llevar {estimate.hoursToApply} horas a la calculadora de tarifa
+                  </a>
+                )}
               </>
             ) : <p>No hay una hora mensual completa disponible. Revisa tu agenda antes de calcular una tarifa.</p>}
           </div>
         ) : null}
       </div>
-      <p><Link href="/horas-facturables-freelance">Ver el método y cómo contrastarlo con tus horas reales</Link></p>
+      {onApply ? <p><Link href="/horas-facturables-freelance">Ver el método y cómo contrastarlo con tus horas reales</Link></p> : null}
     </details>
   );
 }

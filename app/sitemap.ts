@@ -23,15 +23,15 @@ const routes = [
 const lastContentUpdates: Record<string, string> = {
   '/': '2026-10-27',
   '/mejores-programas-facturacion-autonomos': '2026-10-02',
-  '/horas-facturables-freelance': '2026-10-26',
+  '/horas-facturables-freelance': '2026-11-24',
   '/cuanto-facturar-autonomo-1500-euros': '2026-10-27',
-  '/tarifa-freelance-por-hora': '2026-10-28',
+  '/tarifa-freelance-por-hora': '2026-11-08',
   '/cuanto-facturar-autonomo': '2026-10-28',
   '/kit-tarifa-autonomo': '2026-11-14',
   '/tarifa-diaria-freelance': '2026-10-27',
   '/cuanto-cuesta-ser-autonomo': '2026-11-17',
   '/cuanto-facturar-autonomo-3000-euros': '2026-11-18',
-  '/tabla-cuanto-facturar-autonomo': '2026-10-27',
+  '/tabla-cuanto-facturar-autonomo': '2026-11-24',
   '/cuota-autonomos-2026': '2026-10-27',
 };
 

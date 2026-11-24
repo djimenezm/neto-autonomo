@@ -1,4 +1,5 @@
 import { render, screen, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import Guide, { metadata } from '@/app/horas-facturables-freelance/page';
 import { availableMonthlyHours, billableHoursExamples, monthlyBillingExample } from '@/lib/billableHoursExamples';
 import { formatCurrency } from '@/lib/format';
@@ -45,6 +46,16 @@ describe('billable hours evidence', () => {
     expect(screen.getByRole('main')).toHaveAttribute('id', 'contenido-principal');
     expect(screen.getByRole('region', { name: 'Ejemplos de agendas mensuales' })).toHaveAttribute('tabindex', '0');
     expect(screen.getByRole('link', { name: 'Diego Antonio Jiménez Moreno' })).toHaveAttribute('href', '/aviso-legal');
-    expect(screen.getByText('26 de octubre de 2026')).toHaveAttribute('datetime', '2026-10-26');
+    expect(screen.getByText('24 de noviembre de 2026')).toHaveAttribute('datetime', '2026-11-24');
+  });
+
+  it('runs the agenda on the guide and transfers only whole monthly hours', async () => {
+    render(<Guide />);
+    const planner = screen.getByRole('region', { name: 'Calcula tus horas facturables al mes' });
+    expect(within(planner).getByRole('textbox', { name: 'Días de trabajo por semana' })).toBeVisible();
+    await userEvent.click(within(planner).getByRole('button', { name: 'Probar un ejemplo' }));
+
+    const link = within(planner).getByRole('link', { name: 'Llevar 107 horas a la calculadora de tarifa' });
+    expect(link).toHaveAttribute('href', '/?source=billable-hours&billableHours=107#calculadora');
   });
 });

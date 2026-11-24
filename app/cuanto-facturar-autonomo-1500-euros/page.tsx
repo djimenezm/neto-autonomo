@@ -8,6 +8,7 @@ import { annualBaselineScenario as leanScenario, annualBaselineResult as leanRes
 import { formatNumber } from '@/lib/format';
 import { calculateExample, exampleAssumptions, formatEuro, getExampleUrl } from '@/lib/scenarioExamples';
 import { getSiteUrl, siteConfig } from '@/lib/site';
+import HeroImagePreload from './HeroImagePreload';
 import styles from './annualGuide.module.css';
 
 const route = '/cuanto-facturar-autonomo-1500-euros';
@@ -134,6 +135,7 @@ export default function CuantoFacturarAutonomo1500EurosPage() {
 
   return (
     <main id="contenido-principal" className={styles.guide}>
+      <HeroImagePreload />
       <script
         id="cuanto-facturar-1500-article-schema"
         type="application/ld+json"
